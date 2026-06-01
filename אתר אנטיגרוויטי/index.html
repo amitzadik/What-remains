@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ארכיון הזיכרון</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Screen 0: Name & Email -->
+  <div id="screen-0" class="screen active">
+    <div class="center-container" style="max-width: 400px;">
+      <div style="margin-bottom: 2rem;">
+        <label class="label">איך קוראים לך?</label>
+        <input type="text" id="user-name" class="input-field" placeholder="שם מלא">
+      </div>
+      <div style="margin-bottom: 2rem;">
+        <label class="label">כתובת מייל</label>
+        <input type="email" id="user-email" class="input-field input-ltr" placeholder="email@example.com">
+
+      </div>
+      <button id="btn-start" disabled style="width: 100%; margin-top: 1rem;">המשך</button>
+    </div>
+  </div>
+
+  <!-- Screen 1: Questions -->
+  <div id="screen-1" class="screen">
+      <div class="q-card">
+        
+        <div class="q-header-row">
+          <div class="q-cell q-cell-name">
+            <span class="q-label">שם העונה</span>
+            <span class="q-value" id="q-name"></span>
+          </div>
+          <div class="q-cell q-cell-date">
+            <span class="q-label">תאריך</span>
+            <span class="q-value" id="q-date"></span>
+          </div>
+          <div class="q-cell q-cell-num">
+            <span class="q-label">מס׳ שאלה</span>
+            <span class="q-value large red-text" id="q-num">1/7</span>
+          </div>
+        </div>
+
+        <div class="q-question-row">
+          <span class="q-label">שאלה</span>
+          <div class="q-question-text" id="q-text"></div>
+        </div>
+
+        <div class="q-answer-row">
+          <span class="q-label">תשובה</span>
+          <textarea id="q-input" class="q-ruled-area" rows="6"></textarea>
+        </div>
+
+        <div class="q-footer-row">
+          <div class="q-cell">
+            <button id="btn-dk-q" class="q-btn red-text">לא יודע/ת</button>
+          </div>
+          <div class="q-cell">
+            <button id="btn-next-q" class="q-btn">לשאלה הבאה</button>
+          </div>
+        </div>
+
+      </div>
+  </div>
+
+  <!-- Screen 2: Cards Stack & Envelope -->
+  <div id="screen-2" class="screen">
+    <div class="sticky-container">
+      <div class="center-container" style="position: relative;">
+        
+        <!-- Envelope Back -->
+        <div id="env-back" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(100vh); width: 500px; height: 350px; background: #AC8969; border: 1px solid var(--line); z-index: 1;"></div>
+        
+        <!-- Cards -->
+        <div id="stack-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 2;"></div>
+        
+        <!-- Envelope Front (Flap & Stamp) -->
+        <div id="env-front" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(100vh); width: 500px; height: 350px; z-index: 3; pointer-events: none;">
+            <div id="env-flap" style="position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: #AC8969; border-bottom: 1px solid var(--line); transform-origin: top; border-left: 1px solid var(--line); border-right: 1px solid var(--line);"></div>
+            <div id="stamp-1" class="stamp" style="opacity: 0;"></div>
+        </div>
+
+        <div id="scroll-hint-2" style="position: absolute; bottom: 10%; width: 100%; text-align: center; color: var(--gray); font-size: 1.5rem; animation: pulse 2s infinite; z-index: 10;">
+          ↓ גלול/י למטה ↓
+        </div>
+      </div>
+    </div>
+    <div class="scroll-spacer" style="height: 400vh;"></div>
+  </div>
+
+  
+
+  <!-- Screen 5: Summary -->
+  <div id="screen-5" class="screen">
+    <div class="center-container">
+      <div class="summary-text">
+        <div class="summary-stat" id="sum-text-1"></div>
+        <div class="red-text bold" id="sum-text-2" style="font-size: 1.5rem; margin-bottom: 3rem;"></div>
+        <button id="btn-sum-next">המשך</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 6: Legacy -->
+  <div id="screen-6" class="screen">
+    <div class="q-card">
+      <div class="q-header-row">
+        <div class="q-cell q-cell-name">
+          <span class="q-label">שם העונה</span>
+          <span class="q-value" id="legacy-name"></span>
+        </div>
+        <div class="q-cell q-cell-date">
+          <span class="q-label">תאריך</span>
+          <span class="q-value" id="legacy-date"></span>
+        </div>
+        <div class="q-cell q-cell-num">
+          <span class="q-label">מס׳ שאלה</span>
+          <span class="q-value large red-text">1/1</span>
+        </div>
+      </div>
+      
+      <div class="q-question-row">
+        <span class="q-label">שאלה</span>
+        <div class="q-question-text">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
+      </div>
+
+      <div class="q-answer-row">
+        <span class="q-label">תשובה</span>
+        <textarea id="legacy-text" class="q-ruled-area" placeholder="כתיבה חופשית..."></textarea>
+      </div>
+
+      <div class="q-footer-row">
+        <div class="q-cell" style="border-left: none;">
+          <button id="btn-legacy-next" class="q-btn">שלח</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 7: Audio -->
+  <div id="screen-7" class="screen">
+    <div class="center-container">
+      <div class="summary-text">
+        <div class="title">עכשיו אמור.י את זה בקול.</div>
+        <button id="mic-btn" class="mic-btn">🎙️</button>
+        <div id="audio-status" class="label" style="font-size: 1.1rem;">לחץ להקלטה</div>
+        <div id="audio-controls">
+          <button id="btn-play">האזן</button>
+          <button id="btn-rerecord">הקלט מחדש</button>
+          <button id="btn-audio-next">המשך</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 8: Envelope Return -->
+  <div id="screen-8" class="screen">
+    <div class="center-container">
+      <div class="envelope-wrapper">
+        <div class="envelope" id="envelope-2">
+          <div class="envelope-flap"></div>
+          <div class="stamp" id="stamp-2" style="font-size: 1.8rem; letter-spacing: 2px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 9: Postcard Print -->
+  <div id="screen-9" class="screen">
+    <div class="center-container" style="max-width: 900px; justify-content: flex-start; padding-top: 3rem;">
+      <div class="summary-text" style="margin-top: 1rem; text-align: center;">
+        <div class="label" style="font-size: 1.5rem; line-height: 2;">
+          ענה על השאלה בגלויה המודפסת<br>
+          הכנס למעטפה<br>
+          החתם את המעטפה עם החותמת<br>
+          תן את המעטפה לאדם שאתה רוצה שיחשף למידע שהכנסת.
+        </div>
+        <div class="btn-group" style="justify-content: center; margin-top: 3rem;">
+          <button id="btn-to-archive" style="background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 0.8rem 2rem; font-family: var(--font-main); font-size: 1.2rem; cursor: pointer; transition: background 0.2s;">מעבר לארכיון</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Screen 10: Drawer Wall Zoom -->
+  <div id="screen-10" class="screen">
+    <div class="sticky-container">
+      <div id="grid-container" style="position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-cream);">
+        <div id="scroll-hint-10" style="position: absolute; bottom: 5%; width: 100%; text-align: center; color: var(--gray); font-size: 1.5rem; animation: pulse 2s infinite; z-index: 10;">
+          ↓ גלול/י לאחור ↓
+        </div>
+        
+        <!-- Search Bar & Restart (fades in at the end) -->
+        <div id="search-container" style="position: absolute; top: 5%; left: 0; width: 100%; padding: 0 3rem; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.5s;">
+          
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="title" style="margin-bottom: 0;">ארכיון לנכדים</div>
+            <input type="text" id="drawer-search" placeholder="חפש/י שם..." class="input-field" style="width: 250px; margin-bottom: 0;">
+          </div>
+
+          <button id="btn-restart" style="background: transparent; border: 1px solid var(--ink); color: var(--ink); padding: 0.5rem 1rem; font-family: var(--font-main); font-size: 1rem; cursor: pointer; transition: background 0.2s;">חזור להתחלה</button>
+          
+        </div>
+
+        <!-- The scalable wall -->
+        <div id="zoom-wall" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 2rem; transform-origin: center center; width: max-content;">
+           <!-- Drawers injected here -->
+        </div>
+      </div>
+    </div>
+    <div class="scroll-spacer" style="height: 200vh;"></div>
+  </div>
+
+  <!-- Modal for Code Input -->
+  <div id="code-modal" class="modal-overlay">
+    <div class="modal-content" id="code-modal-content">
+      <div class="title">הזן קוד (4 ספרות)</div>
+      <input type="text" id="drawer-code-input" class="input-field input-ltr" maxlength="4" style="text-align:center; font-size:2.5rem; letter-spacing:0.8rem; margin-bottom: 0;">
+      <div id="err-msg"></div>
+      <div class="btn-group" style="justify-content:center; padding-top: 1rem;">
+        <button id="btn-submit-code">פתח</button>
+        <button id="btn-close-code">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Drawer Content -->
+  <div id="content-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px; text-align: right;">
+      <div class="label" id="content-name" style="margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem;"></div>
+      <div class="serif-text" id="content-text" style="font-size: 1.8rem; line-height: 1.5; margin-bottom: 2rem; margin-top: 1rem;"></div>
+      <audio controls id="content-audio" style="display:none; width: 100%; margin-bottom: 2rem;"></audio>
+      <div style="text-align: left;">
+        <button id="btn-close-content">חזור לקיר</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // State
+  const state = {
+    name: '',
+    email: '',
+    currentQuestion: 0,
+    answers: [], 
+    dontKnow: [], 
+    legacyText: '',
+    audioBlob: null,
+    userCode: '',
+    date: new Date().toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  };
+
+  const questions = [
+    "באיזו שפה סבא וסבתא דיברו בבית?",
+    "מה סבא אהב לעשות?",
+    "מה גרם לסבתא לצחוק?",
+    "ממה סבא פחד?",
+    "על מה סבתא חלמה ולא הגשימה?",
+    "על מה סבא לא דיבר?",
+    "מתי נולד סבא?"
+  ];
+
+  const pastViewers = [
+    { name: "נועה", dontKnow: [false, false, true, true, true, true, true], archive: "שאני אהבתי לצייר ולא הפסקתי אף פעם", code: "0001" },
+    { name: "יונתן", dontKnow: [false, true, true, false, true, true, true], archive: "שהייתי צוחק בקול הכי חזק בחדר", code: "0002" },
+    { name: "דנה", dontKnow: [false, false, false, true, true, true, true], archive: "שפחדתי מהחושך אבל תמיד השארתי את הדלת פתוחה", code: "0003" },
+    { name: "עומר", dontKnow: [true, false, true, true, true, true, true], archive: "שחלמתי ללמוד פסנתר", code: "0004" },
+    { name: "מיכל", dontKnow: [false, false, false, false, true, true, true], archive: "שלא דיברתי מספיק על מה שכאב לי", code: "0005" },
+    { name: "איתי", dontKnow: [false, false, true, true, true, true, false], archive: "שהמשפחה הייתה הדבר הכי חשוב", code: "0006" },
+    { name: "שירה", dontKnow: [false, true, true, true, true, true, true], archive: "שאפיתי עוגת שוקולד בכל יום שישי", code: "0007" },
+    { name: "אלון", dontKnow: [false, false, false, true, true, true, true], archive: "שרציתי לנסוע לים, תמיד", code: "0008" },
+  ];
+
+  function showScreen(num) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('screen-' + num);
+    if(target) target.classList.add('active');
+  }
+
+  // --- Screen 0 ---
+  const nameInput = document.getElementById('user-name');
+  const emailInput = document.getElementById('user-email');
+  const btnStart = document.getElementById('btn-start');
+
+  function checkStartBtn() {
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+    btnStart.disabled = !(nameInput.value.trim() !== '' && emailValid);
+  }
+  nameInput.addEventListener('input', checkStartBtn);
+  emailInput.addEventListener('input', checkStartBtn);
+  
+  btnStart.addEventListener('click', () => {
+    state.name = nameInput.value.trim();
+    state.email = emailInput.value.trim();
+    
+    // Generate code (e.g. 0009 based on past viewers length + 1)
+    const codeNum = pastViewers.length + 1;
+    state.userCode = codeNum.toString().padStart(4, '0');
+
+    initScreen1();
+    showScreen(1);
+  });
+
+  // --- Screen 1 ---
+  const qNum = document.getElementById('q-num');
+  const qDate = document.getElementById('q-date');
+  const qName = document.getElementById('q-name');
+  const qText = document.getElementById('q-text');
+  const qInput = document.getElementById('q-input');
+  const btnNextQ = document.getElementById('btn-next-q');
+  const btnDkQ = document.getElementById('btn-dk-q');
+
+  function initScreen1() {
+    qDate.innerText = state.date;
+    qName.innerText = state.name;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const idx = state.currentQuestion;
+    qNum.innerText = (idx + 1) + '/' + questions.length;
+    qText.innerText = questions[idx];
+    qInput.value = '';
+    qInput.focus();
+  }
+
+  function handleAnswer(isDontKnow) {
+    state.answers[state.currentQuestion] = isDontKnow ? null : qInput.value;
+    state.dontKnow[state.currentQuestion] = isDontKnow;
+    
+    const s1 = document.getElementById('screen-1');
+    s1.style.opacity = '0';
+    setTimeout(() => {
+      state.currentQuestion++;
+      if (state.currentQuestion < questions.length) {
+        renderQuestion();
+        s1.style.opacity = '1';
+      } else {
+        s1.style.opacity = '1'; 
+        initScreen2();
+        showScreen(2);
+      }
+    }, 700);
+  }
+
+  btnNextQ.addEventListener('click', () => {
+    if(qInput.value.trim() === '') return;
+    handleAnswer(false);
+  });
+  btnDkQ.addEventListener('click', () => {
+    handleAnswer(true);
+  });
+
+  // --- Screen 2 ---
+  function initScreen2() {
+    const container = document.getElementById('stack-container');
+    container.innerHTML = '';
+    
+    const envBack = document.getElementById('env-back');
+    const envFront = document.getElementById('env-front');
+    const envFlap = document.getElementById('env-flap');
+    const stamp = document.getElementById('stamp-1');
+    
+    const answeredCount = state.dontKnow.filter(x => !x).length;
+    stamp.innerText = `${answeredCount} מתוך 7`;
+    
+    const cards = [];
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const rot = (Math.random() * 4 - 2).toFixed(1);
+      card.dataset.rot = rot;
+      card.style.zIndex = i;
+      card.style.position = 'absolute';
+      
+      const isDk = state.dontKnow[i];
+      card.innerHTML = `
+        <div class="q-header-row">
+          <div class="q-cell q-cell-name">
+            <span class="q-label">שם העונה</span>
+            <span class="q-value" style="font-size: 1rem;">${state.name}</span>
+          </div>
+          <div class="q-cell q-cell-date">
+            <span class="q-label">תאריך</span>
+            <span class="q-value" style="font-size: 1rem;">${state.date}</span>
+          </div>
+          <div class="q-cell q-cell-num">
+            <span class="q-label">מס׳ שאלה</span>
+            <span class="q-value large red-text" style="font-size: 1.2rem;">${i+1}/7</span>
+          </div>
+        </div>
+        <div class="q-question-row">
+          <span class="q-label">שאלה</span>
+          <div class="q-question-text" style="font-size: 1.6rem;">${q}</div>
+        </div>
+        <div class="q-answer-row" style="border-bottom: none; flex: 1;">
+          <span class="q-label">תשובה</span>
+          <div class="q-ruled-area" style="display:flex; padding-top: 10px;">
+            ${isDk ? '<span style="color:var(--red); font-size:4rem; margin:auto;">X</span>' : state.answers[i]}
+          </div>
+        </div>
+      `;
+      card.style.top = '50%';
+      card.style.marginTop = '-160px'; // half height of 320px
+      card.style.left = '50%';
+      card.style.marginLeft = '-240px'; // half width of 480px
+      // Add a random final offset
+      card.dataset.finalX = (Math.random() * 10 - 5).toFixed(1);
+      card.dataset.finalY = ((Math.random() * 10 - 5) + (i * 3)).toFixed(1); // stack slightly downwards
+      
+      if (i === 0) {
+        card.style.transform = `translate(${card.dataset.finalX}px, ${card.dataset.finalY}px) rotate(${rot}deg)`;
+        card.style.opacity = '1';
+      } else {
+        card.style.transform = `translateY(-150vh) rotate(-10deg)`;
+        card.style.opacity = '0';
+      }
+      container.appendChild(card);
+      cards.push(card);
+    });
+
+    const screen2 = document.getElementById('screen-2');
+    screen2.scrollTop = 0;
+    
+    let transitioned = false;
+    screen2.onscroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = screen2;
+      const progress = scrollTop / (scrollHeight - clientHeight || 1);
+      
+      const numCards = cards.length;
+      const hint = document.getElementById('scroll-hint-2');
+      if(hint) hint.style.opacity = progress > 0.05 ? '0' : '1';
+
+      // 1. Cards falling (0.0 to 0.7)
+      const cardsPhaseEnd = 0.7;
+      cards.forEach((card, i) => {
+        if (i === 0) return; // First card is already in place
+
+        const startP = ((i - 1) / (numCards - 1)) * cardsPhaseEnd;
+        const endP = startP + (cardsPhaseEnd / (numCards - 1));
+        
+        let cardProg = (progress - startP) / (endP - startP);
+        cardProg = Math.max(0, Math.min(1, cardProg));
+        
+        const easeProg = 1 - Math.pow(1 - cardProg, 3);
+        const yVh = -150 + (150 * easeProg);
+        const yPx = parseFloat(card.dataset.finalY) * easeProg;
+        const xPx = parseFloat(card.dataset.finalX) * easeProg;
+        const rot = -10 + ((parseFloat(card.dataset.rot) + 10) * easeProg);
+        card.style.transform = `translate(${xPx}px, calc(${yVh}vh + ${yPx}px)) rotate(${rot}deg)`;
+        card.style.opacity = cardProg > 0.05 ? '1' : '0';
+      });
+
+      // 2. Envelope moving up (0.7 to 0.85)
+      let envProg = (progress - 0.7) / 0.15;
+      envProg = Math.max(0, Math.min(1, envProg));
+      const envEase = 1 - Math.pow(1 - envProg, 3); // easeOut
+      const envY = 100 - (100 * envEase); // from 100vh down to 0
+      
+      envBack.style.transform = `translate(-50%, -50%) translateY(${envY}vh)`;
+      envFront.style.transform = `translate(-50%, -50%) translateY(${envY}vh)`;
+      
+      // 3. Envelope flap closing (0.85 to 0.95)
+      let flapProg = (progress - 0.85) / 0.10;
+      flapProg = Math.max(0, Math.min(1, flapProg));
+      envFlap.style.transform = `rotateX(${180 * flapProg}deg)`;
+      // Fix visual glitch: border color changes/hides to simulate seamless fold
+      if (flapProg > 0.5) {
+        envFlap.style.backgroundColor = '#AC8969';
+      }
+      
+      // 4. Stamp appearing (0.93 to 1.0)
+      let stampProg = (progress - 0.93) / 0.07;
+      stampProg = Math.max(0, Math.min(1, stampProg));
+      stamp.style.opacity = stampProg;
+      stamp.style.transform = `translate(-50%, -50%) scale(${2 - stampProg}) rotate(-5deg)`;
+
+      if (progress >= 0.999 && !transitioned) {
+        transitioned = true;
+        initScreen5();
+        showScreen(5);
+      }
+    };
+    screen2.dispatchEvent(new Event('scroll'));
+  }
+
+  
+  
+
+  // --- Screen 5 ---
+  function initScreen5() {
+    const dkCount = state.dontKnow.filter(x => x).length;
+    const pct = Math.round((dkCount / 7) * 100);
+    
+    if (dkCount > 0) {
+      document.getElementById('sum-text-1').innerText = `${dkCount} מתוך 7 דברים על סבא וסבתא — נשארו ריקים.`;
+      document.getElementById('sum-text-2').innerText = `${pct}% מהמידע — לא עבר.`;
+    } else {
+      document.getElementById('sum-text-1').innerText = `ענית על הכל.`;
+      document.getElementById('sum-text-2').innerText = `את.ה היחיד.ה.`;
+    }
+  }
+  document.getElementById('btn-sum-next').addEventListener('click', () => {
+    document.getElementById('legacy-name').innerText = state.name;
+    document.getElementById('legacy-date').innerText = state.date;
+    showScreen(6);
+  });
+
+  const SHEET_WEBHOOK = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+  async function saveToSheet(data) {
+    try {
+      await fetch(SHEET_WEBHOOK, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } catch (e) {
+      console.error('Failed to save:', e);
+    }
+  }
+
+  // --- Screen 6 ---
+  document.getElementById('btn-legacy-next').addEventListener('click', () => {
+    const txt = document.getElementById('legacy-text').value.trim();
+    if(txt !== '') {
+      state.legacyText = txt;
+      
+      const dataToSave = {
+        name: state.name,
+        email: state.email,
+        timestamp: new Date().toISOString(),
+        answers: state.answers.map((ans, i) => state.dontKnow[i] ? "לא יודע/ת" : ans),
+        legacyText: state.legacyText,
+        userCode: state.userCode,
+        hasAudio: false
+      };
+      saveToSheet(dataToSave);
+      
+      showScreen(7);
+    }
+  });
+
+  // --- Screen 7 ---
+  let mediaRecorder;
+  let audioChunks = [];
+  let isRecording = false;
+  const micBtn = document.getElementById('mic-btn');
+  const audioStatus = document.getElementById('audio-status');
+  const audioControls = document.getElementById('audio-controls');
+  const btnPlay = document.getElementById('btn-play');
+  let audioObj = null;
+
+  micBtn.addEventListener('click', async () => {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+          state.audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          audioObj = new Audio(URL.createObjectURL(state.audioBlob));
+          micBtn.classList.remove('recording');
+          audioStatus.innerText = "ההקלטה הסתיימה";
+          audioControls.style.display = 'flex';
+          micBtn.style.pointerEvents = 'none';
+          micBtn.style.opacity = '0.5';
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        micBtn.classList.add('recording');
+        audioStatus.innerText = "מקליט... (לחץ שוב לעצירה)";
+        audioControls.style.display = 'none';
+      } catch (err) {
+        alert("לא ניתן לגשת למיקרופון. ודא הרשאות בדפדפן.");
+      }
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      // Stop all tracks to release mic
+      mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    }
+  });
+
+  btnPlay.addEventListener('click', () => {
+    if(audioObj) {
+      audioObj.currentTime = 0;
+      audioObj.play();
+    }
+  });
+  
+  document.getElementById('btn-rerecord').addEventListener('click', () => {
+    state.audioBlob = null;
+    audioObj = null;
+    audioControls.style.display = 'none';
+    audioStatus.innerText = "לחץ להקלטה";
+    micBtn.style.pointerEvents = 'auto';
+    micBtn.style.opacity = '1';
+  });
+  
+  document.getElementById('btn-audio-next').addEventListener('click', () => {
+    initScreen8();
+    showScreen(8);
+  });
+
+  // --- Screen 8 ---
+  function initScreen8() {
+    const envelope = document.getElementById('envelope-2');
+    envelope.classList.remove('up', 'closed');
+    setTimeout(() => {
+      envelope.classList.add('up');
+      setTimeout(() => {
+        envelope.classList.add('closed');
+        document.getElementById('stamp-2').innerText = state.userCode;
+        setTimeout(() => {
+          initScreen9();
+          showScreen(9);
+        }, 3500);
+      }, 1200);
+    }, 200);
+  }
+
+  // --- Screen 9 ---
+  function initScreen9() {
+    const btnArchive = document.getElementById('btn-to-archive');
+    if (btnArchive) {
+      btnArchive.onclick = () => {
+        initScreen10();
+        showScreen(10);
+      };
+    }
+  }
+  
+
+  
+  // --- Screen 10 (Grid Zoom & Search) ---
+  function initScreen10() {
+    const wall = document.getElementById('zoom-wall');
+    wall.innerHTML = '';
+    
+    // We want a 5x5 grid (25 drawers). The user's drawer will be at index 12 (center).
+    const totalDrawers = 25;
+    const centerIndex = 12;
+    
+    // Fill viewers
+    let viewersPool = [...pastViewers];
+    // Duplicate randomly if we don't have enough to fill 24 slots
+    while(viewersPool.length < 24) {
+      viewersPool.push(pastViewers[Math.floor(Math.random() * pastViewers.length)]);
+    }
+    // Shuffle
+    viewersPool = viewersPool.sort(() => Math.random() - 0.5);
+    
+    let allDrawers = [];
+    let poolIndex = 0;
+    
+    for (let i = 0; i < totalDrawers; i++) {
+      if (i === centerIndex) {
+        allDrawers.push({ name: state.name, code: state.userCode, archive: state.legacyText, isUser: true, audioBlob: state.audioBlob });
+      } else {
+        const v = viewersPool[poolIndex];
+        allDrawers.push({ name: v.name, code: v.code, archive: v.archive, isUser: false });
+        poolIndex++;
+      }
+    }
+    
+    // Render grid
+    allDrawers.forEach(viewer => {
+      const d = document.createElement('div');
+      d.className = 'wall-drawer' + (viewer.isUser ? ' active-drawer' : '');
+      // Adding a data attribute for search
+      d.setAttribute('data-name', viewer.name);
+      
+      d.innerHTML = `<div class="wall-plate">${viewer.name}</div>`;
+      
+      d.addEventListener('click', () => {
+        if(viewer.isUser) {
+          showContent(viewer.name, viewer.archive, viewer.audioBlob);
+        } else {
+          // Open code modal
+          targetDrawerCode = viewer.code;
+          targetDrawerText = viewer.archive;
+          targetDrawerName = viewer.name;
+          targetDrawerAudio = viewer.audioBlob; // may be undefined
+          activeDrawerEl = d;
+          
+          document.getElementById('drawer-code-input').value = '';
+          document.getElementById('err-msg').innerText = '';
+          document.getElementById('code-modal').classList.add('active');
+          document.getElementById('drawer-code-input').focus();
+        }
+      });
+      wall.appendChild(d);
+    });
+
+    const screen10 = document.getElementById('screen-10');
+    const searchContainer = document.getElementById('search-container');
+    const hint = document.getElementById('scroll-hint-10');
+    
+    screen10.scrollTop = 0;
+    
+    // Calculate initial scale to fit exactly the center drawer in view
+    // A wall-drawer is around 180px width + gap 2rem (32px).
+    // We can just use a fixed scale that works well.
+    const startScale = 5.5;
+    const endScale = 1.0;
+    
+    wall.style.transform = `scale(${startScale})`;
+    searchContainer.style.opacity = '0';
+    searchContainer.style.pointerEvents = 'none';
+    if(hint) hint.style.opacity = '1';
+    
+    screen10.onscroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = screen10;
+      const progress = scrollTop / (scrollHeight - clientHeight || 1);
+      
+      if(hint) hint.style.opacity = progress > 0.05 ? '0' : '1';
+
+      const currentScale = startScale - ((startScale - endScale) * progress);
+      wall.style.transform = `scale(${currentScale})`;
+      
+      if (progress > 0.95) {
+        searchContainer.style.opacity = '1';
+        searchContainer.style.pointerEvents = 'auto';
+      } else {
+        searchContainer.style.opacity = '0';
+        searchContainer.style.pointerEvents = 'none';
+      }
+    };
+    
+    // Search functionality
+    const searchInput = document.getElementById('drawer-search');
+    searchInput.value = '';
+    searchInput.oninput = (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const drawers = wall.querySelectorAll('.wall-drawer');
+      drawers.forEach(d => {
+        const name = d.getAttribute('data-name').toLowerCase();
+        if (q === '') {
+          d.style.opacity = '1';
+          d.style.transform = 'scale(1)';
+        } else if (name.includes(q)) {
+          d.style.opacity = '1';
+          d.style.transform = 'scale(1.05)';
+        } else {
+          d.style.opacity = '0.3';
+          d.style.transform = 'scale(1)';
+        }
+      });
+    };
+    
+    // Re-bind restart button
+    const btnRestart = document.getElementById('btn-restart');
+    if (btnRestart) {
+      btnRestart.onclick = () => {
+        // Reset state
+        state = {
+          name: '', email: '',
+          answers: {}, dontKnow: {},
+          legacyText: '',
+          userCode: ''
+        };
+        document.getElementById('user-name').value = '';
+        document.getElementById('user-email').value = '';
+        
+        // Hide modals
+        document.getElementById('code-modal').classList.remove('active');
+        document.getElementById('content-modal').classList.remove('active');
+        
+        showScreen(0);
+      };
+    }
+  }
+
+  let targetDrawerCode = '';
+  let targetDrawerText = '';
+  let targetDrawerName = '';
+  let targetDrawerAudio = null;
+  let activeDrawerEl = null;
+
+  function initScreen11() {
+    const wall = document.getElementById('drawer-wall');
+    wall.innerHTML = '';
+    
+    const allDrawers = [...pastViewers, { name: state.name, code: state.userCode, archive: state.legacyText, isUser: true }];
+    
+    allDrawers.forEach(viewer => {
+      const d = document.createElement('div');
+      d.className = 'wall-drawer' + (viewer.isUser ? ' active-drawer' : '');
+      d.innerHTML = `<div class="wall-plate">${viewer.name}</div>`;
+      
+      d.addEventListener('click', () => {
+        if(viewer.isUser) {
+          showContent(viewer.name, viewer.archive);
+        } else {
+          targetDrawerCode = viewer.code;
+          targetDrawerText = viewer.archive;
+          targetDrawerName = viewer.name;
+          activeDrawerEl = d;
+          
+          document.getElementById('drawer-code-input').value = '';
+          document.getElementById('err-msg').innerText = '';
+          document.getElementById('code-modal').classList.add('active');
+          document.getElementById('drawer-code-input').focus();
+        }
+      });
+      wall.appendChild(d);
+    });
+  }
+
+  document.getElementById('btn-close-code').addEventListener('click', () => {
+    document.getElementById('code-modal').classList.remove('active');
+  });
+
+  document.getElementById('btn-submit-code').addEventListener('click', checkCode);
+  document.getElementById('drawer-code-input').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') checkCode();
+  });
+
+  function checkCode() {
+    const input = document.getElementById('drawer-code-input').value;
+    if(input === targetDrawerCode) {
+      document.getElementById('code-modal').classList.remove('active');
+      setTimeout(() => showContent(targetDrawerName, targetDrawerText, targetDrawerAudio), 300);
+    } else {
+      document.getElementById('err-msg').innerText = "קוד שגוי";
+      const modalContent = document.getElementById('code-modal-content');
+      modalContent.classList.remove('shake');
+      void modalContent.offsetWidth; 
+      modalContent.classList.add('shake');
+      
+      if(activeDrawerEl) {
+        activeDrawerEl.classList.remove('shake');
+        void activeDrawerEl.offsetWidth;
+        activeDrawerEl.classList.add('shake');
+      }
+    }
+  }
+
+  function showContent(name, text, audioBlob) {
+    document.getElementById('content-name').innerText = "מגירה של " + name;
+    document.getElementById('content-text').innerText = text;
+    
+    const audioEl = document.getElementById('content-audio');
+    if (audioBlob) {
+      audioEl.src = URL.createObjectURL(audioBlob);
+      audioEl.style.display = 'block';
+    } else {
+      audioEl.src = '';
+      audioEl.style.display = 'none';
+    }
+    
+    document.getElementById('content-modal').classList.add('active');
+  }
+  
+  document.getElementById('btn-close-content').addEventListener('click', () => {
+    document.getElementById('content-modal').classList.remove('active');
+  });
+
+
+  // Restart Logic
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    // Reset state
+    state.name = '';
+    state.email = '';
+    state.date = '';
+    state.answers = Array(7).fill('');
+    state.dontKnow = Array(7).fill(false);
+    state.currentQuestion = 0;
+    state.legacyText = '';
+    state.audioBlob = null;
+    state.userCode = '';
+    
+    // Reset UI fields
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('legacy-text').value = '';
+    
+    // Return to start
+    showScreen(0);
+  });
+
+</script>
+</body>
+</html>
