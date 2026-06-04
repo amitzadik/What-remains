@@ -3,12 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ארכיון הזיכרון</title>
+  <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body dir="rtl">
-  <main class="stage">
-    <article class="q-card" aria-labelledby="q-text">
+
+  <!-- ============== SCREEN: SPLASH ============== -->
+  <section id="screen-splash" class="screen active">
+    <div class="splash-wrap">
+      <div class="splash-title">מה שישאר</div>
+      <div class="splash-sub">ארכיון זיכרון משפחתי לנכדים</div>
+
+      <div class="splash-form">
+        <label class="label">איך קוראים לך?</label>
+        <input type="text" id="user-name" class="input-field" placeholder="שם מלא">
+
+        <label class="label">כתובת מייל</label>
+        <input type="email" id="user-email" class="input-field input-ltr" placeholder="email@example.com">
+      </div>
+
+      <div class="splash-buttons">
+        <button id="btn-deposit" type="button" disabled>הפקד זיכרון</button>
+        <button id="btn-browse" type="button">עיין בארכיון הכללי</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: QUESTIONS (1-7) ============== -->
+  <section id="screen-questions" class="screen">
+    <article class="q-card">
 
       <div class="q-header-row">
         <div class="q-cell q-cell-name">
@@ -53,7 +76,149 @@
       </div>
 
     </article>
-  </main>
+  </section>
+
+  <!-- ============== SCREEN: LEGACY QUESTION ============== -->
+  <section id="screen-legacy" class="screen">
+    <article class="q-card">
+      <div class="q-header-row">
+        <div class="q-cell q-cell-name">
+          <span class="q-label">שם העונה</span>
+          <span class="q-value" id="legacy-name"></span>
+        </div>
+        <div class="q-cell q-cell-date">
+          <span class="q-label">תאריך</span>
+          <span class="q-value" id="legacy-date"></span>
+        </div>
+        <div class="q-cell q-cell-num">
+          <span class="q-label">מס׳ שאלה</span>
+          <span class="q-value large red-text">1/1</span>
+        </div>
+      </div>
+
+      <div class="q-question-row">
+        <span class="q-label">שאלה</span>
+        <div class="q-question-text">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
+      </div>
+
+      <div class="q-answer-row">
+        <span class="q-label">תשובה</span>
+        <textarea id="legacy-text" class="q-ruled-area" placeholder="כתיבה חופשית..."></textarea>
+      </div>
+
+      <div class="q-footer-row">
+        <div class="q-cell" style="border-left: none;">
+          <button id="btn-legacy-next" type="button" class="q-btn" disabled>שלח</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============== SCREEN: PRINT / ENVELOPE INSTRUCTIONS ============== -->
+  <section id="screen-print" class="screen">
+    <div class="print-wrap">
+      <div class="title" style="font-size: 1.8rem; margin-bottom: 2rem;">המסע האחרון של הזיכרון</div>
+      <div class="label print-instructions">
+        ענה על השאלה בגלויה המודפסת<br>
+        הכנס למעטפה<br>
+        החתם את המעטפה עם החותמת<br>
+        תן את המעטפה לאדם שאתה רוצה שיחשף למידע שהכנסת.
+      </div>
+
+      <div class="postcard-preview">
+        <div class="postcard" id="postcard-preview">
+          <div class="pc-header">
+            <div class="right-col">
+              <span class="label">שם העונה</span>
+              <span id="pc-name"></span>
+            </div>
+            <div class="left-col">
+              <span class="label">קוד</span>
+              <span id="pc-code" class="red-text bold"></span>
+            </div>
+          </div>
+          <div class="pc-body">
+            <div class="label">השאלה</div>
+            <div class="serif-text" style="font-size:1.4rem; margin: 0.3rem 0 0.5rem;">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
+            <div class="pc-ruled" id="pc-legacy"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group" style="justify-content: center; margin-top: 2rem;">
+        <button id="btn-to-archive" type="button">מעבר לארכיון</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
+  <section id="screen-personal" class="screen">
+    <div class="archive-scroll">
+      <div class="drawer-page">
+        <div class="drawer-header">
+          <div class="drawer-name" id="p-name"></div>
+          <div class="drawer-code-label">קוד <span id="p-code"></span></div>
+        </div>
+
+        <div class="drawer-section">
+          <div class="section-label">המורשת</div>
+          <div class="legacy-text" id="p-legacy"></div>
+        </div>
+
+        <div class="drawer-section">
+          <div class="section-label">תשובות לשבע השאלות</div>
+          <ol class="q-list" id="p-questions"></ol>
+        </div>
+
+        <div class="btn-group" style="justify-content: space-between;">
+          <button id="btn-personal-to-general" type="button">עיין בארכיון הכללי ←</button>
+          <button id="btn-personal-restart" type="button">להתחלה</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
+  <section id="screen-general" class="screen">
+    <div class="archive-scroll">
+      <div class="archive-page">
+        <div class="archive-header">
+          <div class="archive-title">ארכיון לנכדים</div>
+          <div class="archive-sub">לחצ/י על מגירה והזינ/י את הקוד שלה כדי לראות את התוכן</div>
+          <div class="archive-count" id="count-text"></div>
+        </div>
+        <div id="wall" class="archive-wall"></div>
+        <div class="archive-footer">
+          <button id="btn-general-restart" type="button">→ להשתתפות חדשה</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== MODAL: CODE ENTRY ============== -->
+  <div id="code-modal" class="modal-overlay">
+    <div class="modal-content" id="code-modal-content">
+      <div class="title">הזן קוד (4 ספרות)</div>
+      <div class="label" id="code-target" style="margin-bottom: 1rem; color: var(--ink);"></div>
+      <input type="text" id="drawer-code-input" class="input-field input-ltr" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="text-align:center; font-size:2.5rem; letter-spacing:0.8rem; margin-bottom: 0;">
+      <div id="err-msg" style="color: var(--red); min-height: 1.5rem; padding-top: 0.5rem;"></div>
+      <div class="btn-group" style="justify-content:center; padding-top: 1rem;">
+        <button id="btn-submit-code" type="button">פתח</button>
+        <button id="btn-close-code" type="button">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== MODAL: DRAWER CONTENT ============== -->
+  <div id="content-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px; text-align: right;">
+      <div class="label" id="content-name" style="margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem;"></div>
+      <div class="serif-text" id="content-text" style="font-size: 1.8rem; line-height: 1.5; margin-bottom: 2rem; margin-top: 1rem;"></div>
+      <div style="text-align: left;">
+        <button id="btn-close-content" type="button">חזור לקיר</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

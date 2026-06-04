@@ -1,10 +1,16 @@
+/* ============================================================
+   Tokens (from old style.css)
+============================================================ */
 :root {
   --bg-cream: #FAF6EE;
+  --card-bg: #F0E8D8;
+  --card-alt: #F5F0E6;
   --ink: #3D3628;
   --gray: #9C9590;
   --line: #D4CFC7;
   --red: #B44A3E;
   --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
+  --font-serif: 'Times New Roman', Times, serif;
 }
 
 * { box-sizing: border-box; }
@@ -12,25 +18,156 @@
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
   direction: rtl;
   font-family: var(--font-main);
   background-color: var(--bg-cream);
   color: var(--ink);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
-.stage {
-  min-height: 100vh;
+/* ============================================================
+   SPA screens — fade-toggle
+============================================================ */
+.screen {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 24px;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  padding: 5vh 5vw;
+  background-color: var(--bg-cream);
+  z-index: 1;
+  overflow: hidden;
 }
 
-/* ---------- Q card ---------- */
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* Questions and Legacy need full-width q-card */
+#screen-questions, #screen-legacy { padding: 2vh 2vw; }
+
+/* Archive screens scroll */
+#screen-personal, #screen-general { padding: 0; }
+
+.archive-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   Typography helpers
+============================================================ */
+.title { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--ink); }
+.label { font-size: 0.9rem; color: var(--gray); display: block; margin-bottom: 0.3rem; }
+.red-text { color: var(--red); }
+.bold { font-weight: bold; }
+.serif-text { font-family: var(--font-serif); font-size: 2.2rem; line-height: 1.3; margin: 2rem 0; color: var(--ink); }
+
+/* ============================================================
+   Inputs
+============================================================ */
+.input-field {
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-main);
+  font-size: 1.2rem;
+  color: var(--ink);
+  padding: 0.5rem 0;
+  width: 100%;
+  outline: none;
+  margin-bottom: 2rem;
+  transition: border-color 0.3s;
+}
+.input-field:focus { border-bottom-color: var(--ink); }
+.input-field::placeholder { color: var(--gray); text-align: right; }
+.input-ltr { direction: ltr; text-align: left; }
+.input-ltr::placeholder { text-align: left; }
+
+/* ============================================================
+   Buttons (generic)
+============================================================ */
+button {
+  font-family: var(--font-main);
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+button:hover:not(:disabled) { background: var(--ink); color: var(--bg-cream); }
+button:disabled { border-color: var(--gray); color: var(--gray); cursor: not-allowed; }
+button.red-btn { color: var(--red); border-color: var(--red); font-weight: bold; }
+button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cream); }
+
+.btn-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   Splash
+============================================================ */
+.splash-wrap {
+  margin: auto;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.splash-title {
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+}
+
+.splash-sub {
+  text-align: center;
+  color: var(--gray);
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+
+.splash-form { margin-bottom: 1rem; }
+
+.splash-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.splash-buttons button { width: 100%; padding: 1rem; font-size: 1.1rem; }
+
+/* ============================================================
+   Q-card (questions + legacy)
+============================================================ */
 .q-card {
   width: 100%;
-  max-width: 900px;
+  height: 100%;
+  max-width: none;
+  margin: 0;
   background-color: var(--bg-cream);
   border: 1px solid var(--gray);
   display: flex;
@@ -38,7 +175,6 @@ html, body {
   padding: 1.5rem;
 }
 
-/* Header */
 .q-header-row {
   display: flex;
   border-top: 1px solid var(--line);
@@ -46,7 +182,6 @@ html, body {
   padding: 0.5rem 0;
   margin-bottom: 2rem;
 }
-
 .q-header-row .q-cell {
   border-left: 1px solid var(--line);
   padding: 0 1rem;
@@ -56,25 +191,17 @@ html, body {
   justify-content: flex-start;
   text-align: right;
 }
-
 .q-header-row .q-cell:last-child { border-left: none; }
 
 .q-cell-name { flex: 2 !important; }
 .q-cell-date { flex: 1 !important; }
 .q-cell-num  { flex: 1 !important; text-align: left !important; align-items: flex-end; }
 
-.q-label {
-  font-size: 0.85rem;
-  color: var(--ink);
-  margin-bottom: 0.2rem;
-}
-
-.q-value { font-size: 1rem; color: var(--ink); }
-.q-value.large { font-size: 1.4rem; font-weight: bold; }
+.q-label { font-size: 0.85rem; color: var(--ink); margin-bottom: 0.2rem; }
+.q-value { font-size: 1.4rem; font-weight: normal; }
+.q-value.large { font-size: 1.8rem; }
 .q-value.red-text { color: var(--red); }
-.red-text { color: var(--red); }
 
-/* Question */
 .q-question-row {
   display: flex;
   flex-direction: column;
@@ -83,7 +210,6 @@ html, body {
   border-bottom: 1px solid var(--line);
   text-align: right;
 }
-
 .q-question-text {
   font-size: 2rem;
   font-weight: bold;
@@ -93,7 +219,6 @@ html, body {
   margin-top: 0.5rem;
 }
 
-/* Answer — ruled lines (contenteditable) */
 .q-answer-row {
   display: flex;
   flex-direction: column;
@@ -102,13 +227,15 @@ html, body {
   border-bottom: 1px solid var(--line);
 }
 
+/* Contenteditable ruled lines (preserved from earlier turn) */
 .q-ruled-area {
   width: 100%;
   margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  flex: 1;
 }
+#lines.q-ruled-area { gap: 0; }
 
 .line {
   position: relative;
@@ -117,7 +244,6 @@ html, body {
   display: flex;
   align-items: flex-end;
 }
-
 .line__text {
   display: block;
   width: 100%;
@@ -132,19 +258,28 @@ html, body {
   text-align: right;
   caret-color: var(--red);
 }
+.line__text:focus { background: rgba(180, 74, 62, 0.04); }
 
-.line__text:focus {
-  background: rgba(180, 74, 62, 0.04);
+/* Legacy textarea uses old ruled-area gradient */
+textarea.q-ruled-area {
+  background-image: repeating-linear-gradient(transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+  line-height: 40px;
+  border: none;
+  background-color: transparent;
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  color: var(--ink);
+  resize: none;
+  outline: none;
+  margin-top: 0.5rem;
 }
 
-/* Footer */
 .q-footer-row {
   display: flex;
   border-top: 1px solid var(--line);
   padding-top: 0.5rem;
   margin-top: 1rem;
 }
-
 .q-footer-row .q-cell {
   flex: 1;
   padding: 0;
@@ -152,7 +287,6 @@ html, body {
   display: flex;
   justify-content: center;
 }
-
 .q-footer-row .q-cell:last-child { border-left: none; }
 
 button.q-btn {
@@ -167,25 +301,185 @@ button.q-btn {
   color: var(--ink);
   transition: background 0.2s, color 0.2s, opacity 0.2s;
 }
-
-button.q-btn:hover:not(:disabled) {
-  background: #f0e8d8;
-  color: var(--ink);
-}
-
+button.q-btn:hover:not(:disabled) { background: #f0e8d8; color: var(--ink); }
 button.q-btn.red-text { color: var(--red); font-weight: bold; }
 button.q-btn.red-text:hover:not(:disabled) { background: #f0e8d8; color: var(--red); }
+button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); }
 
-button.q-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  color: var(--gray);
+/* ============================================================
+   Print / envelope instructions
+============================================================ */
+.print-wrap {
+  margin: auto;
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+  padding-top: 2rem;
 }
 
+.print-instructions {
+  font-size: 1.5rem;
+  line-height: 2;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+
+.postcard-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  align-items: center;
+}
+
+.postcard {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card-bg);
+  border: 1px solid var(--gray);
+  padding: 1.5rem;
+  aspect-ratio: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+.pc-header {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+}
+.pc-header > div { flex: 1; }
+.pc-header .right-col { text-align: right; border-left: 1px solid var(--ink); padding-left: 0.5rem; }
+.pc-header .left-col  { text-align: left; padding-right: 0.5rem; }
+.pc-body { flex: 1; display: flex; flex-direction: column; }
+.pc-ruled {
+  flex: 1;
+  background-image: repeating-linear-gradient(transparent, transparent 23px, var(--line) 23px, var(--line) 24px);
+  margin-top: 1rem;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 24px;
+  padding-top: 4px;
+  white-space: pre-wrap;
+  text-align: right;
+}
+
+/* ============================================================
+   Personal archive (drawer page)
+============================================================ */
+.drawer-page { padding: 3rem 2rem 6rem; max-width: 900px; margin: 0 auto; }
+.drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
+.drawer-name { font-size: 2.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0.5rem; }
+.drawer-code-label { color: var(--red); font-size: 1rem; letter-spacing: 0.3rem; }
+.drawer-section { margin-bottom: 2.5rem; }
+.section-label { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.8rem; letter-spacing: 0.05rem; }
+.legacy-text { font-family: var(--font-serif); font-size: 1.9rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
+.q-list { list-style: none; padding: 0; margin: 0; }
+.q-item { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--line); }
+.q-item:last-child { border-bottom: none; }
+.q-item-q { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.4rem; }
+.q-item-a { font-size: 1.2rem; color: var(--ink); white-space: pre-wrap; }
+.q-item-a.dk { color: var(--red); font-style: italic; }
+
+/* ============================================================
+   General archive (wall)
+============================================================ */
+.archive-page { padding: 3rem 2rem 5rem; max-width: 1400px; margin: 0 auto; }
+.archive-header { text-align: center; margin-bottom: 3rem; }
+.archive-title { font-size: 2.5rem; color: var(--ink); margin-bottom: 0.5rem; font-weight: bold; }
+.archive-sub { color: var(--gray); font-size: 1.05rem; }
+.archive-count { color: var(--red); font-size: 0.95rem; margin-top: 0.6rem; letter-spacing: 0.1rem; }
+.archive-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 220px);
+  gap: 18px;
+  justify-content: center;
+}
+.archive-footer { text-align: center; margin-top: 4rem; color: var(--gray); font-size: 0.9rem; }
+
+.wall-drawer {
+  width: 220px; height: 80px;
+  background: linear-gradient(135deg, #a06e3d, #804a1f);
+  border: 2px solid #3E2723;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+.wall-drawer:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.3);
+}
+.wall-drawer.active-drawer {
+  border: 2px solid var(--red);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 0 15px rgba(180, 74, 62, 0.6);
+}
+.wall-plate {
+  background: linear-gradient(to bottom, #d4af37, #b8860b);
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  text-align: center;
+  color: #3E2723;
+  border: 1px solid #8b6508;
+  font-weight: bold;
+}
+
+/* ============================================================
+   Shake animation (wrong code)
+============================================================ */
+.shake { animation: shake 0.4s; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+/* ============================================================
+   Modals
+============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(250,246,238,0.9);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.modal-overlay.active { display: flex; opacity: 1; }
+.modal-content {
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border: 1px solid var(--line);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+#err-msg { color: var(--red); font-size: 0.9rem; margin-top: 1rem; min-height: 1.2rem; }
+
+/* ============================================================
+   Responsive
+============================================================ */
 @media (max-width: 600px) {
+  .splash-title { font-size: 2.2rem; }
   .q-card { padding: 1rem; }
   .q-question-text { font-size: 1.4rem; }
   .line__text { font-size: 1.15rem; }
   button.q-btn { font-size: 1.2rem; }
   .q-header-row .q-cell { padding: 0 0.5rem; }
+  .drawer-name { font-size: 1.8rem; }
+  .archive-title { font-size: 1.8rem; }
+  .print-instructions { font-size: 1.15rem; }
 }
