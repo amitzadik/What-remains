@@ -40,7 +40,8 @@
   // Screen routing
   // ============================================================
   const screens = {
-    splash:    document.getElementById("screen-splash"),
+    welcome:   document.getElementById("screen-welcome"),
+    register:  document.getElementById("screen-register"),
     questions: document.getElementById("screen-questions"),
     legacy:    document.getElementById("screen-legacy"),
     print:     document.getElementById("screen-print"),
@@ -54,12 +55,14 @@
   }
 
   // ============================================================
-  // Splash
+  // Welcome (fork) + Register (name + email)
   // ============================================================
+  const btnGoRegister  = document.getElementById("btn-go-register");
+  const btnGoSearch    = document.getElementById("btn-go-search");
+  const btnBackWelcome = document.getElementById("btn-back-welcome");
   const nameInput  = document.getElementById("user-name");
   const emailInput = document.getElementById("user-email");
   const btnDeposit = document.getElementById("btn-deposit");
-  const btnBrowse  = document.getElementById("btn-browse");
 
   function emailValid(v) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -71,6 +74,21 @@
   nameInput.addEventListener("input", checkDepositBtn);
   emailInput.addEventListener("input", checkDepositBtn);
 
+  btnGoRegister.addEventListener("click", () => {
+    checkDepositBtn();
+    showScreen("register");
+    setTimeout(() => nameInput.focus(), 60);
+  });
+
+  btnGoSearch.addEventListener("click", () => {
+    renderGeneralArchive();
+    showScreen("general");
+  });
+
+  btnBackWelcome.addEventListener("click", () => {
+    showScreen("welcome");
+  });
+
   btnDeposit.addEventListener("click", () => {
     state.name  = nameInput.value.trim();
     state.email = emailInput.value.trim();
@@ -81,11 +99,6 @@
     state.legacyText = "";
     initQuestions();
     showScreen("questions");
-  });
-
-  btnBrowse.addEventListener("click", () => {
-    renderGeneralArchive();
-    showScreen("general");
   });
 
   // ============================================================
@@ -428,7 +441,7 @@
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");
 
-    showScreen("splash");
+    showScreen("welcome");
   }
 
   // ============================================================
@@ -447,5 +460,5 @@
   // Boot
   // ============================================================
   checkDepositBtn();
-  showScreen("splash");
+  showScreen("welcome");
 })();

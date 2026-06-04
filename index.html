@@ -8,11 +8,24 @@
 </head>
 <body dir="rtl">
 
-  <!-- ============== SCREEN: SPLASH ============== -->
-  <section id="screen-splash" class="screen active">
+  <!-- ============== SCREEN: WELCOME (fork) ============== -->
+  <section id="screen-welcome" class="screen active">
     <div class="splash-wrap">
       <div class="splash-title">מה שישאר</div>
       <div class="splash-sub">ארכיון זיכרון משפחתי לנכדים</div>
+
+      <div class="splash-buttons">
+        <button id="btn-go-register" type="button">הכנס קופסא חדשה</button>
+        <button id="btn-go-search" type="button">חפש בארכיון הקיים</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: REGISTER (name + email) ============== -->
+  <section id="screen-register" class="screen">
+    <div class="splash-wrap">
+      <div class="splash-title" style="font-size: 2rem;">פרטי המפקיד.ה</div>
+      <div class="splash-sub">למי שייכת הקופסא הזו?</div>
 
       <div class="splash-form">
         <label class="label">איך קוראים לך?</label>
@@ -23,8 +36,8 @@
       </div>
 
       <div class="splash-buttons">
-        <button id="btn-deposit" type="button" disabled>הפקד זיכרון</button>
-        <button id="btn-browse" type="button">עיין בארכיון הכללי</button>
+        <button id="btn-deposit" type="button" disabled>המשך לשאלות</button>
+        <button id="btn-back-welcome" type="button" class="btn-secondary">חזרה</button>
       </div>
     </div>
   </section>

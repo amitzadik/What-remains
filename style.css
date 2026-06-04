@@ -35,6 +35,15 @@
   --red: #B44A3E;
   --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
   --font-serif: 'Times New Roman', Times, serif;
+  --paper-tex: url('paper.svg');
+}
+
+/* Reusable "paper" surface — texture overlay on cream */
+.paper-bg {
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: 600px 600px;
+  background-repeat: repeat;
 }
 
 * { box-sizing: border-box; }
@@ -45,6 +54,9 @@ html, body {
   direction: rtl;
   font-family: var(--font-main);
   background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: 600px 600px;
+  background-repeat: repeat;
   color: var(--ink);
   height: 100vh;
   overflow: hidden;
@@ -64,6 +76,9 @@ html, body {
   transition: opacity 0.6s ease;
   padding: 5vh 5vw;
   background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: 600px 600px;
+  background-repeat: repeat;
   z-index: 1;
   overflow: hidden;
 }
@@ -183,6 +198,11 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
 }
 
 .splash-buttons button { width: 100%; padding: 1rem; font-size: 1.1rem; }
+.splash-buttons button.btn-secondary {
+  border-style: dashed;
+  font-size: 0.95rem;
+  padding: 0.7rem;
+}
 
 /* ============================================================
    Q-card (questions + legacy)
@@ -193,6 +213,9 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
   max-width: none;
   margin: 0;
   background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: 600px 600px;
+  background-repeat: repeat;
   border: 1px solid var(--gray);
   display: flex;
   flex-direction: column;
