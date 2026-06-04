@@ -260,6 +260,9 @@
   // ============================================================
   const wall       = document.getElementById("wall");
   const countText  = document.getElementById("count-text");
+  const searchInput = document.getElementById("drawer-search");
+  const searchStatus = document.getElementById("search-status");
+  const archiveEmpty = document.getElementById("archive-empty");
   const btnGeneralRestart = document.getElementById("btn-general-restart");
 
   const codeModal        = document.getElementById("code-modal");
@@ -314,6 +317,46 @@
       });
       wall.appendChild(d);
     });
+
+    if (searchInput) searchInput.value = "";
+    applySearchFilter("");
+  }
+
+  function applySearchFilter(rawQuery) {
+    const q = (rawQuery || "").trim().toLowerCase();
+    const drawers = wall.querySelectorAll(".wall-drawer");
+    let hits = 0;
+
+    drawers.forEach(d => {
+      const name = (d.getAttribute("data-name") || "").toLowerCase();
+      d.classList.remove("search-dim", "search-hit");
+
+      if (q === "") {
+        // no query — everything visible, no highlight
+        return;
+      }
+      if (name.includes(q)) {
+        d.classList.add("search-hit");
+        hits++;
+      } else {
+        d.classList.add("search-dim");
+      }
+    });
+
+    if (q === "") {
+      searchStatus.textContent = "";
+      archiveEmpty.style.display = "none";
+    } else if (hits === 0) {
+      searchStatus.textContent = "אין תוצאות";
+      archiveEmpty.style.display = "block";
+    } else {
+      searchStatus.textContent = hits + " תוצאות";
+      archiveEmpty.style.display = "none";
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => applySearchFilter(e.target.value));
   }
 
   function openCodeModal(viewer, drawerEl) {
@@ -375,6 +418,10 @@
     nameInput.value = "";
     emailInput.value = "";
     legacyTextEl.value = "";
+    if (searchInput) {
+      searchInput.value = "";
+      applySearchFilter("");
+    }
     clearLines();
     checkDepositBtn();
 

@@ -416,6 +416,38 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-title { font-size: 2.5rem; color: var(--ink); margin-bottom: 0.5rem; font-weight: bold; }
 .archive-sub { color: var(--gray); font-size: 1.05rem; }
 .archive-count { color: var(--red); font-size: 0.95rem; margin-top: 0.6rem; letter-spacing: 0.1rem; }
+
+.archive-search {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.archive-search .input-field {
+  max-width: 280px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+.archive-search-status {
+  color: var(--gray);
+  font-size: 0.85rem;
+  min-height: 1.2rem;
+  letter-spacing: 0.04rem;
+}
+
+.archive-empty {
+  text-align: center;
+  color: var(--gray);
+  font-size: 1.1rem;
+  padding: 3rem 0;
+}
+
+.wall-drawer.search-dim { opacity: 0.25; }
+.wall-drawer.search-hit { outline: 2px solid var(--red); outline-offset: 2px; }
+
 .archive-wall {
   display: grid;
   grid-template-columns: repeat(auto-fill, 220px);
@@ -433,7 +465,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s, outline 0.2s;
   box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
 }
 .wall-drawer:hover {
