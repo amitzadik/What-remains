@@ -1,54 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>What Remains</title>
+  <title>ארכיון הזיכרון</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body dir="rtl">
   <main class="stage">
-    <article class="card" aria-labelledby="question-text">
-      <header class="card__header">
-        <span class="card__counter" id="counter">Question 1/7</span>
-      </header>
+    <article class="q-card" aria-labelledby="q-text">
 
-      <h1 class="card__question" id="question-text">
-        What is the earliest memory you have of your family?
-      </h1>
-
-      <div class="card__lines" id="lines">
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span>
+      <div class="q-header-row">
+        <div class="q-cell q-cell-name">
+          <span class="q-label">שם העונה</span>
+          <span class="q-value" id="q-name"></span>
         </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span>
+        <div class="q-cell q-cell-date">
+          <span class="q-label">תאריך</span>
+          <span class="q-value" id="q-date"></span>
         </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span>
-        </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span>
-        </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span>
-        </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="5"></span>
-        </div>
-        <div class="line">
-          <span class="line__text" contenteditable="true" spellcheck="true" data-line="6"></span>
+        <div class="q-cell q-cell-num">
+          <span class="q-label">מס׳ שאלה</span>
+          <span class="q-value large red-text" id="q-num">1/7</span>
         </div>
       </div>
 
-      <footer class="card__footer">
-        <button type="button" class="btn btn--simpler" id="simpler-btn" disabled>
-          Simpler
-        </button>
-        <button type="button" class="btn btn--simpler btn--simpler-alt" id="simpler-alt-btn" disabled>
-          Even simpler
-        </button>
-      </footer>
+      <div class="q-question-row">
+        <span class="q-label">שאלה</span>
+        <div class="q-question-text" id="q-text"></div>
+      </div>
+
+      <div class="q-answer-row">
+        <span class="q-label">תשובה</span>
+        <div class="q-ruled-area" id="lines">
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="5"></span></div>
+          <div class="line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="6"></span></div>
+        </div>
+      </div>
+
+      <div class="q-footer-row">
+        <div class="q-cell">
+          <button id="btn-dk-q" type="button" class="q-btn red-text">לא יודע/ת</button>
+        </div>
+        <div class="q-cell">
+          <button id="btn-next-q" type="button" class="q-btn" disabled>לשאלה הבאה</button>
+        </div>
+      </div>
+
     </article>
   </main>
 

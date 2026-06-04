@@ -1,30 +1,22 @@
 :root {
-  --paper: #fdf8ee;
-  --paper-edge: #e8dec6;
-  --ink: #2b2417;
-  --ink-soft: #6b5d44;
-  --rule: #b9a47a;
-  --rule-soft: #d9c9a3;
-  --accent: #b04a2f;
-  --accent-soft: #d9886f;
-  --shadow: 0 18px 40px rgba(60, 40, 10, 0.18),
-            0 4px 10px rgba(60, 40, 10, 0.1);
+  --bg-cream: #FAF6EE;
+  --ink: #3D3628;
+  --gray: #9C9590;
+  --line: #D4CFC7;
+  --red: #B44A3E;
+  --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  font-family: "Georgia", "Iowan Old Style", "Palatino", serif;
+  direction: rtl;
+  font-family: var(--font-main);
+  background-color: var(--bg-cream);
   color: var(--ink);
-  background:
-    radial-gradient(circle at 20% 20%, #f1e6cf 0%, transparent 55%),
-    radial-gradient(circle at 80% 80%, #ead7b0 0%, transparent 50%),
-    #e3d3ad;
 }
 
 .stage {
@@ -32,61 +24,87 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 32px 24px;
 }
 
-/* ---------- Index card ---------- */
-.card {
-  position: relative;
-  width: min(680px, 100%);
-  background: var(--paper);
-  border: 1px solid var(--paper-edge);
-  border-radius: 6px;
-  padding: 56px 64px 40px;
-  box-shadow: var(--shadow);
-  transform: rotate(-0.35deg);
-}
-
-.card::before {
-  /* red margin line on the left, like a real index card */
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 46px;
-  width: 1px;
-  background: var(--accent-soft);
-  opacity: 0.55;
-}
-
-.card__header {
+/* ---------- Q card ---------- */
+.q-card {
+  width: 100%;
+  max-width: 900px;
+  background-color: var(--bg-cream);
+  border: 1px solid var(--gray);
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 28px;
+  flex-direction: column;
+  padding: 1.5rem;
 }
 
-.card__counter {
-  font-family: "Courier New", "Courier", monospace;
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  border: 1px solid var(--rule-soft);
-  padding: 4px 10px;
-  border-radius: 2px;
+/* Header */
+.q-header-row {
+  display: flex;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0;
+  margin-bottom: 2rem;
 }
 
-.card__question {
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.35;
-  margin: 0 0 28px;
+.q-header-row .q-cell {
+  border-left: 1px solid var(--line);
+  padding: 0 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: right;
+}
+
+.q-header-row .q-cell:last-child { border-left: none; }
+
+.q-cell-name { flex: 2 !important; }
+.q-cell-date { flex: 1 !important; }
+.q-cell-num  { flex: 1 !important; text-align: left !important; align-items: flex-end; }
+
+.q-label {
+  font-size: 0.85rem;
   color: var(--ink);
-  font-style: italic;
+  margin-bottom: 0.2rem;
 }
 
-/* ---------- Ruled lines ---------- */
-.card__lines {
+.q-value { font-size: 1rem; color: var(--ink); }
+.q-value.large { font-size: 1.4rem; font-weight: bold; }
+.q-value.red-text { color: var(--red); }
+.red-text { color: var(--red); }
+
+/* Question */
+.q-question-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.q-question-text {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: right;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-top: 0.5rem;
+}
+
+/* Answer — ruled lines (contenteditable) */
+.q-answer-row {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.q-ruled-area {
+  width: 100%;
+  margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -94,8 +112,8 @@ html, body {
 
 .line {
   position: relative;
-  height: 36px;
-  border-bottom: 1px solid var(--rule);
+  height: 40px;
+  border-bottom: 1px solid var(--line);
   display: flex;
   align-items: flex-end;
 }
@@ -103,80 +121,71 @@ html, body {
 .line__text {
   display: block;
   width: 100%;
-  padding: 0 2px 4px;
-  font-size: 18px;
+  padding: 0 4px 6px;
+  font-family: var(--font-main);
+  font-size: 1.4rem;
   line-height: 1.2;
   color: var(--ink);
   outline: none;
-  min-height: 24px;
-  font-family: "Caveat", "Bradley Hand", "Segoe Script", cursive;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  caret-color: var(--accent);
-}
-
-.line__text:empty::before {
-  content: "";
+  min-height: 26px;
+  direction: rtl;
+  text-align: right;
+  caret-color: var(--red);
 }
 
 .line__text:focus {
-  background: rgba(176, 74, 47, 0.04);
+  background: rgba(180, 74, 62, 0.04);
 }
 
-/* ---------- Footer / buttons ---------- */
-.card__footer {
+/* Footer */
+.q-footer-row {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 32px;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+  margin-top: 1rem;
 }
 
-.btn {
-  font-family: inherit;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 1px solid var(--ink);
+.q-footer-row .q-cell {
+  flex: 1;
+  padding: 0;
+  border-left: 1px solid var(--line);
+  display: flex;
+  justify-content: center;
+}
+
+.q-footer-row .q-cell:last-child { border-left: none; }
+
+button.q-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0.8rem 0;
   background: transparent;
-  color: var(--ink);
+  border: none;
+  font-size: 1.6rem;
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease,
-              border-color 120ms ease, opacity 120ms ease,
-              transform 80ms ease;
+  font-family: var(--font-main);
+  color: var(--ink);
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--ink);
-  color: var(--paper);
+button.q-btn:hover:not(:disabled) {
+  background: #f0e8d8;
+  color: var(--ink);
 }
 
-.btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
+button.q-btn.red-text { color: var(--red); font-weight: bold; }
+button.q-btn.red-text:hover:not(:disabled) { background: #f0e8d8; color: var(--red); }
 
-.btn--simpler.is-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--paper);
-}
-
-.btn--simpler.is-active:hover {
-  background: var(--accent);
-  color: var(--paper);
-}
-
-.btn:disabled {
+button.q-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  border-style: dashed;
+  color: var(--gray);
 }
 
-@media (max-width: 560px) {
-  .card {
-    padding: 40px 28px 28px;
-  }
-  .card::before { left: 18px; }
-  .card__question { font-size: 19px; }
-  .line__text { font-size: 17px; }
+@media (max-width: 600px) {
+  .q-card { padding: 1rem; }
+  .q-question-text { font-size: 1.4rem; }
+  .line__text { font-size: 1.15rem; }
+  button.q-btn { font-size: 1.2rem; }
+  .q-header-row .q-cell { padding: 0 0.5rem; }
 }
