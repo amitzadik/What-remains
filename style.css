@@ -35,7 +35,7 @@
   --red: #B44A3E;
   --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
   --font-serif: 'Times New Roman', Times, serif;
-  --paper-tex: url('paper.svg');
+  --paper-tex: url('paperboard-texture.jpg');
 }
 
 /* Reusable "paper" surface — texture overlay on cream */
