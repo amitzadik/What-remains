@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Remains</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="stage">
+    <article class="card" aria-labelledby="question-text">
+      <header class="card__header">
+        <span class="card__counter" id="counter">Question 1/7</span>
+      </header>
+
+      <h1 class="card__question" id="question-text">
+        What is the earliest memory you have of your family?
+      </h1>
+
+      <div class="card__lines" id="lines">
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="5"></span>
+        </div>
+        <div class="line">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="6"></span>
+        </div>
+      </div>
+
+      <footer class="card__footer">
+        <button type="button" class="btn btn--simpler" id="simpler-btn" disabled>
+          Simpler
+        </button>
+        <button type="button" class="btn btn--simpler btn--simpler-alt" id="simpler-alt-btn" disabled>
+          Even simpler
+        </button>
+      </footer>
+    </article>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

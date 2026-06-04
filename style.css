@@ -1,0 +1,182 @@
+:root {
+  --paper: #fdf8ee;
+  --paper-edge: #e8dec6;
+  --ink: #2b2417;
+  --ink-soft: #6b5d44;
+  --rule: #b9a47a;
+  --rule-soft: #d9c9a3;
+  --accent: #b04a2f;
+  --accent-soft: #d9886f;
+  --shadow: 0 18px 40px rgba(60, 40, 10, 0.18),
+            0 4px 10px rgba(60, 40, 10, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: "Georgia", "Iowan Old Style", "Palatino", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 20% 20%, #f1e6cf 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, #ead7b0 0%, transparent 50%),
+    #e3d3ad;
+}
+
+.stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+/* ---------- Index card ---------- */
+.card {
+  position: relative;
+  width: min(680px, 100%);
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: 6px;
+  padding: 56px 64px 40px;
+  box-shadow: var(--shadow);
+  transform: rotate(-0.35deg);
+}
+
+.card::before {
+  /* red margin line on the left, like a real index card */
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 46px;
+  width: 1px;
+  background: var(--accent-soft);
+  opacity: 0.55;
+}
+
+.card__header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 28px;
+}
+
+.card__counter {
+  font-family: "Courier New", "Courier", monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule-soft);
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+.card__question {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 28px;
+  color: var(--ink);
+  font-style: italic;
+}
+
+/* ---------- Ruled lines ---------- */
+.card__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.line {
+  position: relative;
+  height: 36px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: flex-end;
+}
+
+.line__text {
+  display: block;
+  width: 100%;
+  padding: 0 2px 4px;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--ink);
+  outline: none;
+  min-height: 24px;
+  font-family: "Caveat", "Bradley Hand", "Segoe Script", cursive;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  caret-color: var(--accent);
+}
+
+.line__text:empty::before {
+  content: "";
+}
+
+.line__text:focus {
+  background: rgba(176, 74, 47, 0.04);
+}
+
+/* ---------- Footer / buttons ---------- */
+.card__footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease,
+              border-color 120ms ease, opacity 120ms ease,
+              transform 80ms ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn--simpler.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+.btn--simpler.is-active:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 40px 28px 28px;
+  }
+  .card::before { left: 18px; }
+  .card__question { font-size: 19px; }
+  .line__text { font-size: 17px; }
+}
