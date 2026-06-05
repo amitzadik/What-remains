@@ -699,8 +699,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: transform 0.15s ease;
   user-select: none;
 }
-#screen-landing .landing-stamp:hover { transform: translateY(-2px) rotate(-1deg); }
-#screen-landing .landing-stamp:active { transform: translateY(0) rotate(-1deg) scale(0.97); }
+/* Per-stamp resting angle */
+#stamp-search { transform: rotate(15deg); }   /* 15° to the right */
+#stamp-add    { transform: rotate(-5deg); }   /* 5° to the left */
+
+#stamp-search:hover  { transform: rotate(15deg) translateY(-2px); }
+#stamp-search:active { transform: rotate(15deg) translateY(0) scale(0.97); }
+
+#stamp-add:hover     { transform: rotate(-5deg) translateY(-2px); }
+#stamp-add:active    { transform: rotate(-5deg) translateY(0) scale(0.97); }
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {
@@ -714,12 +721,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: opacity 0.25s ease, background 0.25s ease;
 }
 
-/* Landing logo — horizontally centered, top-aligned with the stamps */
+/* Landing logo — horizontally centered, top-aligned with the stamps,
+   tilted 20° to the left like a hand-pressed stamp */
 .landing-logo {
   position: absolute;
   top: 8px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(-20deg);
   z-index: 10;
   width: min(250px, 28vw);
   height: auto;
