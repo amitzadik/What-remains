@@ -714,15 +714,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: opacity 0.25s ease, background 0.25s ease;
 }
 
-/* Centered landing logo — sits above the cabinets but below the popup
-   overlay so it gets darkened along with the rest when the popup shows. */
+/* Landing logo — horizontally centered, top-aligned with the stamps */
 .landing-logo {
   position: absolute;
-  top: 50%;
+  top: 8px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 10;
-  width: min(220px, 28vw);
+  width: min(250px, 28vw);
   height: auto;
   pointer-events: none;
   user-select: none;
