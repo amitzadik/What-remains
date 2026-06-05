@@ -537,7 +537,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .modal-overlay.active { display: flex; opacity: 1; }
 .modal-content {
-  background: var(--card-bg);
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   padding: 2.5rem;
   border: 1px solid var(--line);
   text-align: center;
