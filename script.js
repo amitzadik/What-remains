@@ -30,6 +30,8 @@
     answers: [],
     dontKnow: [],
     legacyText: "",
+    recordMode: "",      // "text" or "audio"
+    audioBlob: null,
     userCode: "",
     date: new Date().toLocaleDateString("he-IL", {
       day: "2-digit", month: "2-digit", year: "2-digit"
@@ -43,7 +45,10 @@
     landing:   document.getElementById("screen-landing"),
     register:  document.getElementById("screen-register"),
     questions: document.getElementById("screen-questions"),
+    cards:     document.getElementById("screen-cards"),
+    envelope:  document.getElementById("screen-envelope"),
     legacy:    document.getElementById("screen-legacy"),
+    record:    document.getElementById("screen-record"),
     print:     document.getElementById("screen-print"),
     personal:  document.getElementById("screen-personal"),
     general:   document.getElementById("screen-general")
@@ -307,8 +312,8 @@
     state.dontKnow[state.currentQuestion] = isDontKnow;
     state.currentQuestion++;
     if (state.currentQuestion >= questions.length) {
-      initLegacy();
-      showScreen("legacy");
+      initCards();
+      showScreen("cards");
       return;
     }
     renderQuestion();
@@ -365,27 +370,172 @@
     const txt = legacyTextEl.value.trim();
     if (txt === "") return;
     state.legacyText = txt;
-    initPrint();
+    initRecordScreen();
+    showScreen("record");
+  });
+
+  // ============================================================
+  // PHASE.CARDS — stacked answer cards
+  // ============================================================
+  const cardsStack    = document.getElementById("cards-stack");
+  const btnCardsNext  = document.getElementById("btn-cards-next");
+
+  function initCards() {
+    cardsStack.innerHTML = "";
+    questions.forEach((q, i) => {
+      const card = document.createElement("div");
+      card.className = "stack-card";
+
+      const label = document.createElement("div");
+      label.className = "stack-card-label";
+      label.textContent = q;
+
+      const answer = document.createElement("div");
+      answer.className = "stack-card-answer";
+      if (state.dontKnow[i]) {
+        answer.classList.add("is-empty");
+      } else {
+        answer.textContent = state.answers[i] || "";
+      }
+
+      card.appendChild(label);
+      card.appendChild(answer);
+      cardsStack.appendChild(card);
+    });
+  }
+
+  btnCardsNext.addEventListener("click", () => {
+    initEnvelope();
+    showScreen("envelope");
+  });
+
+  // ============================================================
+  // PHASE.ENVELOPE — cards slide into envelope, stamp appears
+  // ============================================================
+  const envStage      = document.getElementById("env-stage");
+  const envCardsHost  = document.getElementById("env-cards");
+  const envStamp      = document.getElementById("env-stamp");
+  const btnEnvelopeNext = document.getElementById("btn-envelope-next");
+
+  function initEnvelope() {
+    envCardsHost.innerHTML = "";
+    envStage.classList.remove("is-sealed");
+    btnEnvelopeNext.disabled = true;
+
+    const STAGGER = 0.35; // seconds between cards
+    const DURATION = 0.55;
+    questions.forEach((_, i) => {
+      const card = document.createElement("div");
+      card.className = "env-card";
+      const rot = ((i % 2 === 0) ? -1 : 1) * (1 + Math.random() * 3);
+      card.style.setProperty("--rot", rot + "deg");
+      card.style.animationDelay = (i * STAGGER) + "s";
+      envCardsHost.appendChild(card);
+    });
+
+    const answeredCount = state.dontKnow.filter(x => !x).length;
+    envStamp.textContent = answeredCount + "/" + questions.length;
+
+    const totalMs = (questions.length * STAGGER + DURATION) * 1000;
+    setTimeout(() => {
+      envStage.classList.add("is-sealed");
+      btnEnvelopeNext.disabled = false;
+    }, totalMs);
+  }
+
+  btnEnvelopeNext.addEventListener("click", () => {
+    if (btnEnvelopeNext.disabled) return;
+    initLegacy();
+    showScreen("legacy");
+  });
+
+  // ============================================================
+  // PHASE.RECORD — text or audio choice + recorder
+  // ============================================================
+  const recordOptions    = document.getElementById("record-options");
+  const recordPanel      = document.getElementById("record-panel");
+  const btnRecordText    = document.getElementById("btn-record-text");
+  const btnRecordAudio   = document.getElementById("btn-record-audio");
+  const recordCircleBtn  = document.getElementById("record-circle-btn");
+  const recordStatus     = document.getElementById("record-status");
+  const recordTimerEl    = document.getElementById("record-timer");
+  const btnRecordDone    = document.getElementById("btn-record-done");
+
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let recordTimerInterval = null;
+  let recordStartTime = 0;
+
+  function initRecordScreen() {
+    state.recordMode = "";
+    state.audioBlob = null;
+    recordOptions.style.display = "";
+    recordPanel.hidden = true;
+    recordStatus.textContent = "לחץ להתחיל";
+    recordTimerEl.textContent = "00:00";
+    recordCircleBtn.classList.remove("is-recording");
+    btnRecordDone.disabled = true;
+  }
+
+  btnRecordText.addEventListener("click", () => {
+    state.recordMode = "text";
+    showScreen("print");
+  });
+
+  btnRecordAudio.addEventListener("click", () => {
+    state.recordMode = "audio";
+    recordOptions.style.display = "none";
+    recordPanel.hidden = false;
+  });
+
+  function updateRecordTimer() {
+    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+    const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+    const ss = String(elapsed % 60).padStart(2, "0");
+    recordTimerEl.textContent = mm + ":" + ss;
+  }
+
+  recordCircleBtn.addEventListener("click", async () => {
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        mediaRecorder.onstop = () => {
+          state.audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          stream.getTracks().forEach(t => t.stop());
+          recordStatus.textContent = "ההקלטה נשמרה";
+          btnRecordDone.disabled = false;
+        };
+        mediaRecorder.start();
+        recordStartTime = Date.now();
+        recordStatus.textContent = "מקליט… לחץ לעצירה";
+        recordCircleBtn.classList.add("is-recording");
+        recordTimerInterval = setInterval(updateRecordTimer, 200);
+      } catch (err) {
+        recordStatus.textContent = "אין הרשאה למיקרופון";
+      }
+    } else {
+      mediaRecorder.stop();
+      recordCircleBtn.classList.remove("is-recording");
+      clearInterval(recordTimerInterval);
+    }
+  });
+
+  btnRecordDone.addEventListener("click", () => {
     showScreen("print");
   });
 
   // ============================================================
-  // Print / envelope instructions
+  // PHASE.PRINT_INSTRUCTIONS — simple text → ARCHIVE
   // ============================================================
-  const pcName   = document.getElementById("pc-name");
-  const pcCode   = document.getElementById("pc-code");
-  const pcLegacy = document.getElementById("pc-legacy");
   const btnToArchive = document.getElementById("btn-to-archive");
-
-  function initPrint() {
-    pcName.textContent   = state.name;
-    pcCode.textContent   = state.userCode;
-    pcLegacy.textContent = state.legacyText;
-  }
-
   btnToArchive.addEventListener("click", () => {
-    renderPersonalArchive();
-    showScreen("personal");
+    renderGeneralArchive();
+    showScreen("general");
   });
 
   // ============================================================
@@ -594,6 +744,8 @@
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
+    state.recordMode = "";
+    state.audioBlob = null;
     state.userCode = "";
 
     nameInput.value = "";
@@ -605,6 +757,7 @@
     }
     clearLines();
     checkDepositBtn();
+    initRecordScreen();
 
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");

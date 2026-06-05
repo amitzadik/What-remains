@@ -157,39 +157,63 @@
     </article>
   </section>
 
+  <!-- ============== SCREEN: CARDS (stacked answer cards) ============== -->
+  <section id="screen-cards" class="screen">
+    <div class="cards-wrap">
+      <div class="cards-stack" id="cards-stack"></div>
+      <div class="cards-actions">
+        <button id="btn-cards-next" type="button">המשך</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: ENVELOPE (cards slide into envelope) ============== -->
+  <section id="screen-envelope" class="screen">
+    <div class="env-wrap">
+      <div class="env-stage" id="env-stage">
+        <div class="env-back"></div>
+        <div class="env-cards" id="env-cards"></div>
+        <div class="env-flap"></div>
+        <div class="env-stamp" id="env-stamp">0/7</div>
+      </div>
+      <div class="env-actions">
+        <button id="btn-envelope-next" type="button" disabled>המשך</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: RECORD (text or audio) ============== -->
+  <section id="screen-record" class="screen">
+    <div class="record-wrap">
+      <div class="record-title">איך תרצה להשאיר את זה?</div>
+
+      <div class="record-options" id="record-options">
+        <button id="btn-record-text"  type="button" class="record-option">טקסט</button>
+        <button id="btn-record-audio" type="button" class="record-option">הקלטה</button>
+      </div>
+
+      <div class="record-panel" id="record-panel" hidden>
+        <button id="record-circle-btn" type="button" class="record-circle" aria-label="התחל או עצור הקלטה"></button>
+        <div class="record-status" id="record-status">לחץ להתחיל</div>
+        <div class="record-timer" id="record-timer">00:00</div>
+        <button id="btn-record-done" type="button" disabled>המשך</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ============== SCREEN: PRINT / ENVELOPE INSTRUCTIONS ============== -->
   <section id="screen-print" class="screen">
-    <div class="print-wrap">
-      <div class="title" style="font-size: 1.8rem; margin-bottom: 2rem;">המסע האחרון של הזיכרון</div>
-      <div class="label print-instructions">
-        ענה על השאלה בגלויה המודפסת<br>
-        הכנס למעטפה<br>
-        החתם את המעטפה עם החותמת<br>
-        תן את המעטפה לאדם שאתה רוצה שיחשף למידע שהכנסת.
+    <div class="print-instr-wrap">
+      <div class="print-instr-title">לפני שממשיכים</div>
+      <div class="print-instr-body">
+        הגלויה שלך מודפסת.<br>
+        קח אותה מהמדפסת.<br>
+        החתם אותה בחותמת שעל השולחן.<br>
+        הכנס אותה למעטפה.<br>
+        תן את המעטפה לאדם שאתה רוצה שיהיה חשוף למידע שאתה בוחר להכניס.
       </div>
-
-      <div class="postcard-preview">
-        <div class="postcard" id="postcard-preview">
-          <div class="pc-header">
-            <div class="right-col">
-              <span class="label">שם העונה</span>
-              <span id="pc-name"></span>
-            </div>
-            <div class="left-col">
-              <span class="label">קוד</span>
-              <span id="pc-code" class="red-text bold"></span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="label">השאלה</div>
-            <div class="serif-text" style="font-size:1.4rem; margin: 0.3rem 0 0.5rem;">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
-            <div class="pc-ruled" id="pc-legacy"></div>
-          </div>
-        </div>
-      </div>
-
       <div class="btn-group" style="justify-content: center; margin-top: 2rem;">
-        <button id="btn-to-archive" type="button">מעבר לארכיון</button>
+        <button id="btn-to-archive" type="button">סיום</button>
       </div>
     </div>
   </section>
