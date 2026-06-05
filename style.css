@@ -597,18 +597,31 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: #a39c91;
   border-right: 1px solid #4a4540;
   position: relative;
-  transition: flex-basis 0.3s ease;
+  transform: translateX(0);
+  transition: transform 0.5s ease;
+  will-change: transform;
 }
 .cabinet-col:last-child { border-left: 1px solid #4a4540; }
-.cabinet-col.is-expanded { flex-basis: 260px; }
 
-/* Wheel needs to be hoverable to trigger expansion */
+/* While a wheel is hovered, siblings push apart at the same pace as
+   the wheel rotation (3s, matching 4 × 0.75s spins). On mouseleave
+   the snap-back uses the shorter ease transition above. */
+.cabinet-col.is-pushed-right {
+  transform: translateX(40px);
+  transition: transform 3s linear;
+}
+.cabinet-col.is-pushed-left {
+  transform: translateX(-40px);
+  transition: transform 3s linear;
+}
+
+/* Wheel needs to be hoverable to drive the animation */
 .cabinet-wheel { pointer-events: auto; cursor: pointer; }
 
-/* Wheel spins on hover (transform keeps the translate centering) */
-.cabinet-wheel:hover {
-  animation: wheel-spin 1.6s linear infinite;
+.cabinet-col.is-spinning .cabinet-wheel {
+  animation: wheel-spin 0.75s linear 4;
 }
+
 @keyframes wheel-spin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to   { transform: translate(-50%, -50%) rotate(360deg); }

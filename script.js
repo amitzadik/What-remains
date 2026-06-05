@@ -91,15 +91,40 @@
       col.insertAdjacentHTML("beforeend", wheelSVG());
       landingBg.appendChild(col);
 
-      // Wheel-hover expands its column by ~40px
+      // Hovering the wheel pushes neighbours apart and spins this wheel 4×
       const wheel = col.querySelector(".cabinet-wheel");
       if (wheel) {
-        wheel.addEventListener("mouseenter", () => col.classList.add("is-expanded"));
-        wheel.addEventListener("mouseleave", () => col.classList.remove("is-expanded"));
+        wheel.addEventListener("mouseenter", () => activateCabinet(col));
+        wheel.addEventListener("mouseleave", resetCabinets);
       }
     });
 
     centerCabinetWall();
+  }
+
+  function activateCabinet(targetCol) {
+    if (!landingBg) return;
+    const cols = Array.from(landingBg.children).filter(c => c.classList.contains("cabinet-col"));
+    const targetIndex = cols.indexOf(targetCol);
+    cols.forEach((col, i) => {
+      col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
+      if (i === targetIndex) {
+        // Restart the spin animation cleanly even if re-hovered
+        void col.offsetWidth;
+        col.classList.add("is-spinning");
+      } else if (i < targetIndex) {
+        col.classList.add("is-pushed-right");
+      } else {
+        col.classList.add("is-pushed-left");
+      }
+    });
+  }
+
+  function resetCabinets() {
+    if (!landingBg) return;
+    Array.from(landingBg.children).forEach(col => {
+      col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
+    });
   }
 
   // Center the strip so middle cabinets sit in the viewport on first render
