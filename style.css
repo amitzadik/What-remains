@@ -727,7 +727,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   top: 8px;
   left: 50%;
-  transform: translateX(-50%) rotate(-20deg);
+  transform: translateX(-50%) rotate(-13deg);
   z-index: 10;
   width: min(250px, 28vw);
   height: auto;
