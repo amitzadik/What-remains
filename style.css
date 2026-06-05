@@ -616,17 +616,18 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* Wheel needs to be hoverable to drive the animation.
-   Spin is purely transition-driven: adding .is-spinning sets the
-   rotated transform, removing it reverses through the same path. */
+   Spin uses transitions only: 3s linear forward while hovered,
+   0.5s ease back on un-hover — same pace as the cabinet gap closing. */
 .cabinet-wheel {
   pointer-events: auto;
   cursor: pointer;
   transform: translate(-50%, -50%) rotate(0deg);
-  transition: transform 3s linear;
+  transition: transform 0.5s ease;
 }
 
 .cabinet-col.is-spinning .cabinet-wheel {
   transform: translate(-50%, -50%) rotate(1080deg);
+  transition: transform 3s linear;
 }
 
 /* Edge auto-scroll hover zones (invisible) */
