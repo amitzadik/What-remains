@@ -751,7 +751,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .landing-card {
   position: relative;
-  width: min(900px, 90vw, calc(85vh * 1.5));
+  width: min(828px, calc(90vw - 72px), calc(85vh * 1.5 - 72px));
   aspect-ratio: 3 / 2;
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
