@@ -631,7 +631,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   top: 48px;
   left: 48px;
-  right: 16px;
+  right: -84px;
   display: flex;
   justify-content: space-between;
   z-index: 30;
