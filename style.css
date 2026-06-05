@@ -721,18 +721,28 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: opacity 0.25s ease, background 0.25s ease;
 }
 
-/* Landing logo — horizontally centered, top-aligned with the stamps,
-   tilted 20° to the left like a hand-pressed stamp */
+/* Landing logo — centered horizontally and vertically over the same
+   axis as the two stamp circles. Both stamps live in a flex row at
+   top: 8 with rendered height ≈ 177, so their visual centre is around
+   Y ≈ 96. The logo is positioned by its own centre so enlarging it
+   only changes its size (not its position). */
 .landing-logo {
   position: absolute;
-  top: 8px;
+  top: 96px;
   left: 50%;
-  transform: translateX(-50%) rotate(-13deg);
+  transform: translate(-50%, -50%) rotate(-13deg);
   z-index: 10;
-  width: min(250px, 28vw);
+  width: min(380px, 38vw);
   height: auto;
   pointer-events: none;
   user-select: none;
+}
+
+@media (max-width: 820px) {
+  .landing-logo {
+    top: 71px;
+    width: min(240px, 52vw);
+  }
 }
 .landing-card-overlay.is-hidden {
   opacity: 0;
