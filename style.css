@@ -629,9 +629,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ----- Stamps (outside the card, top-left corner) ----- */
 #screen-landing .landing-stamps {
   position: absolute;
-  top: 48px;
+  top: 8px;
   left: 48px;
-  right: -84px;
+  right: -64px;
   display: flex;
   justify-content: space-between;
   z-index: 30;
