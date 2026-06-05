@@ -143,13 +143,13 @@
   }
 
   if (scrollZoneRight) {
-    // Hover right edge → strip scrolls leftward (content slides left)
-    scrollZoneRight.addEventListener("mouseenter", () => startEdgeScroll(-1));
+    // Hover right edge → strip moves rightward
+    scrollZoneRight.addEventListener("mouseenter", () => startEdgeScroll(+1));
     scrollZoneRight.addEventListener("mouseleave", stopEdgeScroll);
   }
   if (scrollZoneLeft) {
-    // Hover left edge → strip scrolls rightward
-    scrollZoneLeft.addEventListener("mouseenter", () => startEdgeScroll(+1));
+    // Hover left edge → strip moves leftward
+    scrollZoneLeft.addEventListener("mouseenter", () => startEdgeScroll(-1));
     scrollZoneLeft.addEventListener("mouseleave", stopEdgeScroll);
   }
 

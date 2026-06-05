@@ -605,6 +605,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Wheel needs to be hoverable to trigger expansion */
 .cabinet-wheel { pointer-events: auto; cursor: pointer; }
 
+/* Wheel spins on hover (transform keeps the translate centering) */
+.cabinet-wheel:hover {
+  animation: wheel-spin 1.6s linear infinite;
+}
+@keyframes wheel-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 /* Edge auto-scroll hover zones (invisible) */
 .landing-scroll-zone {
   position: absolute;
