@@ -585,7 +585,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   gap: 0;
   overflow-x: auto;
   overflow-y: hidden;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 1;
   scrollbar-width: none;
 }
@@ -597,8 +597,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: #a39c91;
   border-right: 1px solid #4a4540;
   position: relative;
+  transition: flex-basis 0.3s ease;
 }
 .cabinet-col:last-child { border-left: 1px solid #4a4540; }
+.cabinet-col.is-expanded { flex-basis: 260px; }
+
+/* Wheel needs to be hoverable to trigger expansion */
+.cabinet-wheel { pointer-events: auto; cursor: pointer; }
+
+/* Edge auto-scroll hover zones (invisible) */
+.landing-scroll-zone {
+  position: absolute;
+  top: 32%;
+  bottom: 0;
+  width: 40px;
+  z-index: 4;
+  pointer-events: auto;
+  cursor: ew-resize;
+  background: transparent;
+}
+.landing-scroll-zone--left  { left: 0; }
+.landing-scroll-zone--right { right: 0; }
 
 .cabinet-label {
   position: absolute;

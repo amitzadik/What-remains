@@ -82,9 +82,7 @@
 
   function renderCabinetWall() {
     if (!landingBg || landingBg.childElementCount) return;
-    // Repeat the alphabet labels enough times to overflow wide screens
-    const labels = CABINET_LABELS.concat(CABINET_LABELS);
-    labels.forEach(label => {
+    CABINET_LABELS.forEach(label => {
       const col = document.createElement("div");
       col.className = "cabinet-col";
       const tag = document.createElement("div");
@@ -93,7 +91,66 @@
       col.appendChild(tag);
       col.insertAdjacentHTML("beforeend", wheelSVG());
       landingBg.appendChild(col);
+
+      // Wheel-hover expands its column by ~40px
+      const wheel = col.querySelector(".cabinet-wheel");
+      if (wheel) {
+        wheel.addEventListener("mouseenter", () => col.classList.add("is-expanded"));
+        wheel.addEventListener("mouseleave", () => col.classList.remove("is-expanded"));
+      }
     });
+
+    centerCabinetWall();
+  }
+
+  // Center the strip so middle cabinets sit in the viewport on first render
+  function centerCabinetWall() {
+    requestAnimationFrame(() => {
+      if (!landingBg) return;
+      const maxScroll = landingBg.scrollWidth - landingBg.clientWidth;
+      if (maxScroll <= 0) return;
+      const isRTL = getComputedStyle(landingBg).direction === "rtl";
+      landingBg.scrollLeft = (isRTL ? -1 : 1) * (maxScroll / 2);
+    });
+  }
+
+  // Edge hover-zone auto-scroll
+  const scrollZoneLeft  = document.getElementById("scroll-zone-left");
+  const scrollZoneRight = document.getElementById("scroll-zone-right");
+  const EDGE_SCROLL_SPEED = 2; // px per frame
+  let scrollRaf = null;
+  let scrollDir = 0;
+
+  function scrollLoop() {
+    if (!landingBg || scrollDir === 0) { scrollRaf = null; return; }
+    landingBg.scrollLeft += scrollDir * EDGE_SCROLL_SPEED;
+    scrollRaf = requestAnimationFrame(scrollLoop);
+  }
+
+  function startEdgeScroll(direction) {
+    if (scrollDir === direction) return;
+    scrollDir = direction;
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    scrollRaf = requestAnimationFrame(scrollLoop);
+  }
+
+  function stopEdgeScroll() {
+    scrollDir = 0;
+    if (scrollRaf) {
+      cancelAnimationFrame(scrollRaf);
+      scrollRaf = null;
+    }
+  }
+
+  if (scrollZoneRight) {
+    // Hover right edge → strip scrolls leftward (content slides left)
+    scrollZoneRight.addEventListener("mouseenter", () => startEdgeScroll(-1));
+    scrollZoneRight.addEventListener("mouseleave", stopEdgeScroll);
+  }
+  if (scrollZoneLeft) {
+    // Hover left edge → strip scrolls rightward
+    scrollZoneLeft.addEventListener("mouseenter", () => startEdgeScroll(+1));
+    scrollZoneLeft.addEventListener("mouseleave", stopEdgeScroll);
   }
 
   // Click outside the card (on the overlay) dismisses it
