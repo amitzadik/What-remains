@@ -59,6 +59,8 @@
   // Landing (PHASE.LANDING) — cabinet wall + intro card + stamps
   // ============================================================
   const landingBg = document.getElementById("landing-bg");
+  const landingOverlay = document.getElementById("landing-overlay");
+  const landingCard    = document.getElementById("landing-card");
   const stampSearch = document.getElementById("stamp-search");
   const stampAdd    = document.getElementById("stamp-add");
 
@@ -67,19 +69,39 @@
     "כ-ל","ל-מ","מ-נ","נ-ס","ס-ע","ע-פ","פ-צ","צ-ק","ק-ר","ר-ש","ש-ת"
   ];
 
+  function wheelSVG() {
+    return (
+      '<svg class="cabinet-wheel" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<circle cx="50" cy="50" r="44" fill="none" stroke="#4a4540" stroke-width="3"/>' +
+        '<line x1="50" y1="6"  x2="50" y2="94" stroke="#4a4540" stroke-width="8" stroke-linecap="round"/>' +
+        '<line x1="6"  y1="50" x2="94" y2="50" stroke="#4a4540" stroke-width="8" stroke-linecap="round"/>' +
+        '<circle cx="50" cy="50" r="9" fill="#4a4540"/>' +
+      '</svg>'
+    );
+  }
+
   function renderCabinetWall() {
     if (!landingBg || landingBg.childElementCount) return;
-    CABINET_LABELS.forEach(label => {
+    // Repeat the alphabet labels enough times to overflow wide screens
+    const labels = CABINET_LABELS.concat(CABINET_LABELS);
+    labels.forEach(label => {
       const col = document.createElement("div");
       col.className = "cabinet-col";
       const tag = document.createElement("div");
       tag.className = "cabinet-label";
       tag.textContent = label;
-      const wheel = document.createElement("div");
-      wheel.className = "cabinet-wheel";
       col.appendChild(tag);
-      col.appendChild(wheel);
+      col.insertAdjacentHTML("beforeend", wheelSVG());
       landingBg.appendChild(col);
+    });
+  }
+
+  // Click outside the card (on the overlay) dismisses it
+  if (landingOverlay) {
+    landingOverlay.addEventListener("click", (e) => {
+      if (e.target === landingOverlay) {
+        landingOverlay.classList.add("is-hidden");
+      }
     });
   }
 
@@ -491,6 +513,7 @@
 
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");
+    if (landingOverlay) landingOverlay.classList.remove("is-hidden");
 
     showScreen("landing");
   }

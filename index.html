@@ -10,33 +10,36 @@
 
   <!-- ============== SCREEN: LANDING (intro + fork) ============== -->
   <section id="screen-landing" class="screen active">
-    <div class="landing-bg" id="landing-bg" aria-hidden="true">
-      <!-- Cabinet columns injected by JS -->
+    <!-- Cabinet wall (background, non-interactive) -->
+    <div class="landing-bg" id="landing-bg" aria-hidden="true"></div>
+
+    <!-- Stamps (outside the popup — always visible, top-left) -->
+    <div class="landing-stamps">
+      <img
+        id="stamp-search"
+        class="landing-stamp"
+        src="https://amitzadik.github.io/what-remains/images/search-default.png"
+        data-hover="https://amitzadik.github.io/what-remains/images/search-hover.png"
+        alt="חיפוש בארכיון"
+      >
+      <img
+        id="stamp-add"
+        class="landing-stamp"
+        src="https://amitzadik.github.io/what-remains/images/add-new-default.png"
+        data-hover="https://amitzadik.github.io/what-remains/images/add-new-hover.png"
+        alt="הוסף לארכיון"
+      >
     </div>
 
-    <div class="landing-card">
-      <div class="landing-label">ברוכים הבאים לארכיון "מה שישאר"</div>
+    <!-- Popup card overlay (click outside to dismiss) -->
+    <div class="landing-card-overlay" id="landing-overlay">
+      <div class="landing-card" id="landing-card">
+        <div class="landing-label">ברוכים הבאים לארכיון "מה שישאר"</div>
 
-      <div class="landing-body">
-        <p>כאן אתם בוחרים מה אתם משאירים לילדים, נכדים ונינים שלכם (או אלו שעתידים לבוא).</p>
-        <p>באפשרותכם לחפש מידע שאנשים השאירו עבורכם או להוסיף את המידע שאתם בוחרים להשאיר. המידע שאתם מכניסים נעול בקוד אישי שיינתן לכם רק בעת הוספת המידע למאגר ויאפשר גישה לארגז שלכם.</p>
-      </div>
-
-      <div class="landing-stamps">
-        <img
-          id="stamp-search"
-          class="landing-stamp"
-          src="https://amitzadik.github.io/what-remains/images/search-default.png"
-          data-hover="https://amitzadik.github.io/what-remains/images/search-hover.png"
-          alt="חיפוש בארכיון"
-        >
-        <img
-          id="stamp-add"
-          class="landing-stamp"
-          src="https://amitzadik.github.io/what-remains/images/add-new-default.png"
-          data-hover="https://amitzadik.github.io/what-remains/images/add-new-hover.png"
-          alt="הוסף לארכיון"
-        >
+        <div class="landing-body">
+          <p>כאן אתם בוחרים מה אתם משאירים לילדים, נכדים ונינים שלכם (או אלו שעתידים לבוא).</p>
+          <p>באפשרותכם לחפש מידע שאנשים השאירו עבורכם או להוסיף את המידע שאתם בוחרים להשאיר. המידע שאתם מכניסים נעול בקוד אישי שיינתן לכם רק בעת הוספת המידע למאגר ויאפשר גישה לארגז שלכם.</p>
+        </div>
       </div>
     </div>
   </section>
