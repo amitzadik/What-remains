@@ -169,14 +169,20 @@
     stamp.addEventListener("mouseleave", () => { stamp.src = def; });
   });
 
+  function dismissLandingPopup() {
+    if (landingOverlay) landingOverlay.classList.add("is-hidden");
+  }
+
   if (stampSearch) {
     stampSearch.addEventListener("click", () => {
+      dismissLandingPopup();
       renderGeneralArchive();
       showScreen("general");
     });
   }
   if (stampAdd) {
     stampAdd.addEventListener("click", () => {
+      dismissLandingPopup();
       checkDepositBtn();
       showScreen("register");
       setTimeout(() => nameInput.focus(), 60);
@@ -202,7 +208,6 @@
   emailInput.addEventListener("input", checkDepositBtn);
 
   btnBackWelcome.addEventListener("click", () => {
-    if (landingOverlay) landingOverlay.classList.remove("is-hidden");
     showScreen("landing");
   });
 
@@ -557,7 +562,6 @@
 
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");
-    if (landingOverlay) landingOverlay.classList.remove("is-hidden");
 
     showScreen("landing");
   }
