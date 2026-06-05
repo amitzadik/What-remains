@@ -244,7 +244,7 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
 .q-cell-date { flex: 1 !important; }
 .q-cell-num  { flex: 1 !important; text-align: left !important; align-items: flex-end; }
 
-.q-label { font-size: 0.85rem; color: var(--ink); margin-bottom: 0.2rem; }
+.q-label { font-size: 1rem; color: #3D3628; margin-bottom: 0.2rem; }
 .q-value { font-size: 1.4rem; font-weight: normal; }
 .q-value.large { font-size: 1.8rem; }
 .q-value.red-text { color: var(--red); }
@@ -736,8 +736,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .landing-label {
   font-family: var(--font-main);
   font-weight: 400;
-  font-size: 11px;
-  color: #9C9590;
+  font-size: 14px;
+  color: #3D3628;
   margin-bottom: 24px;
   letter-spacing: 0.02em;
 }
@@ -750,7 +750,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   line-height: 1.8;
   flex: 1;
 }
-.landing-body p { margin: 0 0 1em; }
+.landing-body p {
+  margin: 0 0 1em;
+  text-indent: 60px;
+}
 .landing-body p:last-child { margin-bottom: 0; }
 
 @media (max-width: 820px) {
