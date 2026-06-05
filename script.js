@@ -41,7 +41,6 @@
   // ============================================================
   const screens = {
     landing:   document.getElementById("screen-landing"),
-    welcome:   document.getElementById("screen-welcome"),
     register:  document.getElementById("screen-register"),
     questions: document.getElementById("screen-questions"),
     legacy:    document.getElementById("screen-legacy"),
@@ -185,10 +184,8 @@
   }
 
   // ============================================================
-  // Welcome (fork) + Register (name + email)
+  // Register (name + email)
   // ============================================================
-  const btnGoRegister  = document.getElementById("btn-go-register");
-  const btnGoSearch    = document.getElementById("btn-go-search");
   const btnBackWelcome = document.getElementById("btn-back-welcome");
   const nameInput  = document.getElementById("user-name");
   const emailInput = document.getElementById("user-email");
@@ -204,19 +201,9 @@
   nameInput.addEventListener("input", checkDepositBtn);
   emailInput.addEventListener("input", checkDepositBtn);
 
-  btnGoRegister.addEventListener("click", () => {
-    checkDepositBtn();
-    showScreen("register");
-    setTimeout(() => nameInput.focus(), 60);
-  });
-
-  btnGoSearch.addEventListener("click", () => {
-    renderGeneralArchive();
-    showScreen("general");
-  });
-
   btnBackWelcome.addEventListener("click", () => {
-    showScreen("welcome");
+    if (landingOverlay) landingOverlay.classList.remove("is-hidden");
+    showScreen("landing");
   });
 
   btnDeposit.addEventListener("click", () => {
