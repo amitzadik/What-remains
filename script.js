@@ -108,16 +108,16 @@
     const targetIndex = cols.indexOf(targetCol);
     cols.forEach((col, i) => {
       col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
-      if (i === targetIndex) {
-        // Restart the spin animation cleanly even if re-hovered
-        void col.offsetWidth;
-        col.classList.add("is-spinning");
-      } else if (i < targetIndex) {
+      // The hovered cabinet rides with the rightward group so it visibly
+      // shifts too; the gap then opens between it and the left neighbour.
+      if (i <= targetIndex) {
         col.classList.add("is-pushed-right");
       } else {
         col.classList.add("is-pushed-left");
       }
     });
+    void targetCol.offsetWidth; // restart spin animation if same wheel
+    targetCol.classList.add("is-spinning");
   }
 
   function resetCabinets() {
