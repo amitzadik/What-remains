@@ -102,20 +102,28 @@
     centerCabinetWall();
   }
 
+  // Of the 21 cabinets, the first 11 (indices 0–10) are the "right team"
+  // and only ever push toward the right edge; the last 10 (indices 11–20)
+  // push toward the left edge.
+  const RIGHT_TEAM_LAST = 10;
+
   function activateCabinet(targetCol) {
     if (!landingBg) return;
     const cols = Array.from(landingBg.children).filter(c => c.classList.contains("cabinet-col"));
     const targetIndex = cols.indexOf(targetCol);
+    const isRightTeam = targetIndex <= RIGHT_TEAM_LAST;
+
     cols.forEach((col, i) => {
       col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
-      // The hovered cabinet rides with the rightward group so it visibly
-      // shifts too; the gap then opens between it and the left neighbour.
-      if (i <= targetIndex) {
+      // Only the block between the hovered cabinet and the nearer edge
+      // (inclusive of the hovered) moves. The other side stays put.
+      if (isRightTeam && i <= targetIndex) {
         col.classList.add("is-pushed-right");
-      } else {
+      } else if (!isRightTeam && i >= targetIndex) {
         col.classList.add("is-pushed-left");
       }
     });
+
     void targetCol.offsetWidth; // restart spin animation if same wheel
     targetCol.classList.add("is-spinning");
   }
