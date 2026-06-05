@@ -40,6 +40,7 @@
   // Screen routing
   // ============================================================
   const screens = {
+    landing:   document.getElementById("screen-landing"),
     welcome:   document.getElementById("screen-welcome"),
     register:  document.getElementById("screen-register"),
     questions: document.getElementById("screen-questions"),
@@ -52,6 +53,56 @@
   function showScreen(name) {
     Object.values(screens).forEach(s => s.classList.remove("active"));
     if (screens[name]) screens[name].classList.add("active");
+  }
+
+  // ============================================================
+  // Landing (PHASE.LANDING) — cabinet wall + intro card + stamps
+  // ============================================================
+  const landingBg = document.getElementById("landing-bg");
+  const stampSearch = document.getElementById("stamp-search");
+  const stampAdd    = document.getElementById("stamp-add");
+
+  const CABINET_LABELS = [
+    "א-ב","ב-ג","ג-ד","ד-ה","ה-ו","ו-ז","ז-ח","ח-ט","ט-י","י-כ",
+    "כ-ל","ל-מ","מ-נ","נ-ס","ס-ע","ע-פ","פ-צ","צ-ק","ק-ר","ר-ש","ש-ת"
+  ];
+
+  function renderCabinetWall() {
+    if (!landingBg || landingBg.childElementCount) return;
+    CABINET_LABELS.forEach(label => {
+      const col = document.createElement("div");
+      col.className = "cabinet-col";
+      const tag = document.createElement("div");
+      tag.className = "cabinet-label";
+      tag.textContent = label;
+      const wheel = document.createElement("div");
+      wheel.className = "cabinet-wheel";
+      col.appendChild(tag);
+      col.appendChild(wheel);
+      landingBg.appendChild(col);
+    });
+  }
+
+  [stampSearch, stampAdd].forEach(stamp => {
+    if (!stamp) return;
+    const def = stamp.src;
+    const hov = stamp.dataset.hover;
+    stamp.addEventListener("mouseenter", () => { if (hov) stamp.src = hov; });
+    stamp.addEventListener("mouseleave", () => { stamp.src = def; });
+  });
+
+  if (stampSearch) {
+    stampSearch.addEventListener("click", () => {
+      renderGeneralArchive();
+      showScreen("general");
+    });
+  }
+  if (stampAdd) {
+    stampAdd.addEventListener("click", () => {
+      checkDepositBtn();
+      showScreen("register");
+      setTimeout(() => nameInput.focus(), 60);
+    });
   }
 
   // ============================================================
@@ -441,7 +492,7 @@
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");
 
-    showScreen("welcome");
+    showScreen("landing");
   }
 
   // ============================================================
@@ -460,5 +511,6 @@
   // Boot
   // ============================================================
   checkDepositBtn();
-  showScreen("welcome");
+  renderCabinetWall();
+  showScreen("landing");
 })();
