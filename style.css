@@ -631,12 +631,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   top: 24px;
   left: 24px;
+  right: 24px;
   display: flex;
-  gap: 18px;
+  justify-content: space-between;
   z-index: 30;
   margin: 0;
   padding: 0;
+  pointer-events: none;
 }
+#screen-landing .landing-stamps .landing-stamp { pointer-events: auto; }
 
 #screen-landing .landing-stamp {
   width: 250px;
@@ -710,7 +713,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .landing-card { padding: 6% 7% 5%; }
   .landing-body { font-size: 16px; line-height: 1.7; }
   #screen-landing .landing-stamp { width: 160px; }
-  #screen-landing .landing-stamps { top: 14px; left: 14px; gap: 12px; }
+  #screen-landing .landing-stamps { top: 14px; left: 14px; right: 14px; }
   .cabinet-col { flex: 0 0 140px; }
   .cabinet-wheel { width: 78px; height: 78px; }
   .cabinet-label { font-size: 0.8rem; padding: 3px 12px; }
