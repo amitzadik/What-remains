@@ -220,24 +220,26 @@
 
   <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
   <section id="screen-general" class="screen">
-    <div class="archive-scroll">
-      <div class="archive-page">
-        <div class="archive-header">
-          <div class="archive-title">ארכיון לנכדים</div>
-          <div class="archive-sub">לחצ/י על מגירה והזינ/י את הקוד שלה כדי לראות את התוכן</div>
-          <div class="archive-count" id="count-text"></div>
-          <div class="archive-search">
-            <input type="text" id="drawer-search" class="input-field" placeholder="חפש/י שם...">
-            <div class="archive-search-status" id="search-status"></div>
-          </div>
-        </div>
-        <div id="wall" class="archive-wall"></div>
-        <div class="archive-empty" id="archive-empty" style="display: none;">לא נמצאו מגירות תואמות</div>
-        <div class="archive-footer">
-          <button id="btn-general-restart" type="button">→ להשתתפות חדשה</button>
-        </div>
+    <div class="archive-header">
+      <div class="archive-title">ארכיון לנכדים</div>
+      <div class="archive-sub">לחצ/י על מגירה והזינ/י את הקוד שלה כדי לראות את התוכן</div>
+      <div class="archive-count" id="count-text"></div>
+      <div class="archive-search">
+        <input type="text" id="drawer-search" class="input-field" placeholder="חפש/י שם...">
+        <div class="archive-search-status" id="search-status"></div>
       </div>
     </div>
+
+    <button id="btn-general-restart" type="button" class="archive-restart">→ להשתתפות חדשה</button>
+
+    <!-- Cabinet wall (same visuals as landing) -->
+    <div id="archive-wall" class="landing-bg"></div>
+
+    <!-- Edge auto-scroll zones -->
+    <div class="landing-scroll-zone landing-scroll-zone--left"  id="archive-scroll-zone-left"  aria-hidden="true"></div>
+    <div class="landing-scroll-zone landing-scroll-zone--right" id="archive-scroll-zone-right" aria-hidden="true"></div>
+
+    <div class="archive-empty" id="archive-empty" style="display: none;">לא נמצאו מגירות תואמות</div>
   </section>
 
   <!-- ============== MODAL: CODE ENTRY ============== -->

@@ -91,32 +91,35 @@
       col.insertAdjacentHTML("beforeend", wheelSVG());
       landingBg.appendChild(col);
 
-      // Hovering the wheel pushes neighbours apart and spins this wheel 4×
+      // Hovering the wheel pushes neighbours apart and spins this wheel
       const wheel = col.querySelector(".cabinet-wheel");
       if (wheel) {
-        wheel.addEventListener("mouseenter", () => activateCabinet(col));
-        wheel.addEventListener("mouseleave", resetCabinets);
+        wheel.addEventListener("mouseenter", () => activateCabinetCol(landingBg, col, LANDING_RIGHT_TEAM_LAST));
+        wheel.addEventListener("mouseleave", () => resetCabinetCols(landingBg));
       }
     });
 
-    centerCabinetWall();
+    centerWall(landingBg);
   }
 
-  // Of the 21 cabinets, the first 11 (indices 0–10) are the "right team"
-  // and only ever push toward the right edge; the last 10 (indices 11–20)
-  // push toward the left edge.
-  const RIGHT_TEAM_LAST = 10;
+  // On the landing wall the first 11 cabinets are the right team, last 10
+  // the left team. On the archive wall the split is computed from the
+  // cabinet count (so an even/odd split based on the people present).
+  const LANDING_RIGHT_TEAM_LAST = 10;
+  const EDGE_SCROLL_SPEED = 2; // px per frame
 
-  function activateCabinet(targetCol) {
-    if (!landingBg) return;
-    const cols = Array.from(landingBg.children).filter(c => c.classList.contains("cabinet-col"));
+  function activateCabinetCol(wallEl, targetCol, rightTeamLast) {
+    if (!wallEl) return;
+    const cols = Array.from(wallEl.children).filter(c => c.classList.contains("cabinet-col"));
     const targetIndex = cols.indexOf(targetCol);
-    const isRightTeam = targetIndex <= RIGHT_TEAM_LAST;
+    if (targetIndex < 0) return;
+    const splitPoint = (typeof rightTeamLast === "number")
+      ? rightTeamLast
+      : Math.ceil(cols.length / 2) - 1;
+    const isRightTeam = targetIndex <= splitPoint;
 
     cols.forEach((col, i) => {
       col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
-      // Only the block between the hovered cabinet and the nearer edge
-      // (inclusive of the hovered) moves. The other side stays put.
       if (isRightTeam && i <= targetIndex) {
         col.classList.add("is-pushed-right");
       } else if (!isRightTeam && i >= targetIndex) {
@@ -124,66 +127,68 @@
       }
     });
 
-    void targetCol.offsetWidth; // restart spin animation if same wheel
+    void targetCol.offsetWidth; // restart spin animation
     targetCol.classList.add("is-spinning");
   }
 
-  function resetCabinets() {
-    if (!landingBg) return;
-    Array.from(landingBg.children).forEach(col => {
+  function resetCabinetCols(wallEl) {
+    if (!wallEl) return;
+    Array.from(wallEl.children).forEach(col => {
       col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
     });
   }
 
   // Center the strip so middle cabinets sit in the viewport on first render
-  function centerCabinetWall() {
+  function centerWall(wallEl) {
+    if (!wallEl) return;
     requestAnimationFrame(() => {
-      if (!landingBg) return;
-      const maxScroll = landingBg.scrollWidth - landingBg.clientWidth;
+      const maxScroll = wallEl.scrollWidth - wallEl.clientWidth;
       if (maxScroll <= 0) return;
-      const isRTL = getComputedStyle(landingBg).direction === "rtl";
-      landingBg.scrollLeft = (isRTL ? -1 : 1) * (maxScroll / 2);
+      const isRTL = getComputedStyle(wallEl).direction === "rtl";
+      wallEl.scrollLeft = (isRTL ? -1 : 1) * (maxScroll / 2);
     });
   }
 
-  // Edge hover-zone auto-scroll
-  const scrollZoneLeft  = document.getElementById("scroll-zone-left");
-  const scrollZoneRight = document.getElementById("scroll-zone-right");
-  const EDGE_SCROLL_SPEED = 2; // px per frame
-  let scrollRaf = null;
-  let scrollDir = 0;
+  // Hover-driven edge auto-scroll, scoped to a given wall + zones
+  function bindEdgeScroll(wallEl, leftZoneEl, rightZoneEl) {
+    if (!wallEl) return;
+    let raf = null;
+    let dir = 0;
 
-  function scrollLoop() {
-    if (!landingBg || scrollDir === 0) { scrollRaf = null; return; }
-    landingBg.scrollLeft += scrollDir * EDGE_SCROLL_SPEED;
-    scrollRaf = requestAnimationFrame(scrollLoop);
-  }
+    function loop() {
+      if (dir === 0) { raf = null; return; }
+      wallEl.scrollLeft += dir * EDGE_SCROLL_SPEED;
+      raf = requestAnimationFrame(loop);
+    }
+    function start(direction) {
+      if (dir === direction) return;
+      dir = direction;
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(loop);
+    }
+    function stop() {
+      dir = 0;
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+    }
 
-  function startEdgeScroll(direction) {
-    if (scrollDir === direction) return;
-    scrollDir = direction;
-    if (scrollRaf) cancelAnimationFrame(scrollRaf);
-    scrollRaf = requestAnimationFrame(scrollLoop);
-  }
-
-  function stopEdgeScroll() {
-    scrollDir = 0;
-    if (scrollRaf) {
-      cancelAnimationFrame(scrollRaf);
-      scrollRaf = null;
+    if (rightZoneEl) {
+      rightZoneEl.addEventListener("mouseenter", () => start(+1));
+      rightZoneEl.addEventListener("mouseleave", stop);
+    }
+    if (leftZoneEl) {
+      leftZoneEl.addEventListener("mouseenter", () => start(-1));
+      leftZoneEl.addEventListener("mouseleave", stop);
     }
   }
 
-  if (scrollZoneRight) {
-    // Hover right edge → strip moves rightward
-    scrollZoneRight.addEventListener("mouseenter", () => startEdgeScroll(+1));
-    scrollZoneRight.addEventListener("mouseleave", stopEdgeScroll);
-  }
-  if (scrollZoneLeft) {
-    // Hover left edge → strip moves leftward
-    scrollZoneLeft.addEventListener("mouseenter", () => startEdgeScroll(-1));
-    scrollZoneLeft.addEventListener("mouseleave", stopEdgeScroll);
-  }
+  const scrollZoneLeft  = document.getElementById("scroll-zone-left");
+  const scrollZoneRight = document.getElementById("scroll-zone-right");
+  bindEdgeScroll(landingBg, scrollZoneLeft, scrollZoneRight);
+
+  const archiveScrollLeft  = document.getElementById("archive-scroll-zone-left");
+  const archiveScrollRight = document.getElementById("archive-scroll-zone-right");
+  const archiveWallEl      = document.getElementById("archive-wall");
+  bindEdgeScroll(archiveWallEl, archiveScrollLeft, archiveScrollRight);
 
   // Click outside the card (on the overlay) dismisses it
   if (landingOverlay) {
@@ -424,9 +429,11 @@
   btnPersonalRestart.addEventListener("click", restartFlow);
 
   // ============================================================
-  // General archive (wall of drawers + code modal + content modal)
+  // General archive (cabinet wall + code modal + content modal)
   // ============================================================
-  const wall       = document.getElementById("wall");
+  const archiveWall = document.getElementById("archive-wall");
+  const archiveScrollZoneLeft  = document.getElementById("archive-scroll-zone-left");
+  const archiveScrollZoneRight = document.getElementById("archive-scroll-zone-right");
   const countText  = document.getElementById("count-text");
   const searchInput = document.getElementById("drawer-search");
   const searchStatus = document.getElementById("search-status");
@@ -463,51 +470,55 @@
   }
 
   function renderGeneralArchive() {
-    wall.innerHTML = "";
-    const drawers = allDrawers();
-    countText.textContent = drawers.length + " מגירות בארכיון";
+    archiveWall.innerHTML = "";
+    countText.textContent = allDrawers().length + " מגירות בארכיון";
 
-    drawers.forEach(v => {
-      const d = document.createElement("div");
-      d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
-      d.setAttribute("data-name", v.name);
-      const plate = document.createElement("div");
-      plate.className = "wall-plate";
-      plate.textContent = v.name;
-      d.appendChild(plate);
+    // Render the same 21 alphabet-pair cabinets as on the landing wall
+    CABINET_LABELS.forEach(label => {
+      const col = document.createElement("div");
+      col.className = "cabinet-col";
+      col.setAttribute("data-label", label);
 
-      d.addEventListener("click", () => {
-        if (v.isUser) {
-          showContent(v.name, v.archive);
-        } else {
-          openCodeModal(v, d);
-        }
-      });
-      wall.appendChild(d);
+      const tag = document.createElement("div");
+      tag.className = "cabinet-label";
+      tag.textContent = label;
+      col.appendChild(tag);
+
+      col.insertAdjacentHTML("beforeend", wheelSVG());
+
+      // Wheel hover: same spin + push behaviour as landing
+      const wheel = col.querySelector(".cabinet-wheel");
+      if (wheel) {
+        wheel.addEventListener("mouseenter", () => activateCabinetCol(archiveWall, col));
+        wheel.addEventListener("mouseleave", () => resetCabinetCols(archiveWall));
+      }
+
+      // Click any cabinet → universal code-entry modal
+      col.addEventListener("click", () => openCodeModal(col));
+
+      archiveWall.appendChild(col);
     });
 
     if (searchInput) searchInput.value = "";
     applySearchFilter("");
+    centerWall(archiveWall);
   }
 
   function applySearchFilter(rawQuery) {
     const q = (rawQuery || "").trim().toLowerCase();
-    const drawers = wall.querySelectorAll(".wall-drawer");
+    const cabinets = archiveWall.querySelectorAll(".cabinet-col");
     let hits = 0;
 
-    drawers.forEach(d => {
-      const name = (d.getAttribute("data-name") || "").toLowerCase();
-      d.classList.remove("search-dim", "search-hit");
+    cabinets.forEach(c => {
+      const label = (c.getAttribute("data-label") || "").toLowerCase();
+      c.classList.remove("search-dim", "search-hit");
 
-      if (q === "") {
-        // no query — everything visible, no highlight
-        return;
-      }
-      if (name.includes(q)) {
-        d.classList.add("search-hit");
+      if (q === "") return;
+      if (label.includes(q)) {
+        c.classList.add("search-hit");
         hits++;
       } else {
-        d.classList.add("search-dim");
+        c.classList.add("search-dim");
       }
     });
 
@@ -527,10 +538,12 @@
     searchInput.addEventListener("input", (e) => applySearchFilter(e.target.value));
   }
 
-  function openCodeModal(viewer, drawerEl) {
-    activeViewer = viewer;
-    activeDrawerEl = drawerEl;
-    codeTarget.textContent = "המגירה של " + viewer.name;
+  // Universal code entry — any cabinet click prompts for a 4-digit code,
+  // and the modal matches the code against any drawer in the archive.
+  function openCodeModal(drawerEl) {
+    activeViewer = null;
+    activeDrawerEl = drawerEl || null;
+    codeTarget.textContent = "הזינ/י את קוד המגירה שלך";
     codeInput.value = "";
     errMsg.textContent = "";
     codeModal.classList.add("active");
@@ -538,11 +551,11 @@
   }
 
   function checkCode() {
-    if (!activeViewer) return;
     const input = codeInput.value.trim();
-    if (input === activeViewer.code) {
+    const match = allDrawers().find(d => d.code === input);
+    if (match) {
       codeModal.classList.remove("active");
-      setTimeout(() => showContent(activeViewer.name, activeViewer.archive), 300);
+      setTimeout(() => showContent(match.name, match.archive), 300);
     } else {
       errMsg.textContent = "קוד שגוי";
       codeModalContent.classList.remove("shake");

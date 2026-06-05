@@ -762,3 +762,83 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .cabinet-wheel { width: 78px; height: 78px; }
   .cabinet-label { font-size: 0.8rem; padding: 3px 12px; }
 }
+
+/* ============================================================
+   General archive — cabinet-wall layout (matches landing visually)
+============================================================ */
+#screen-general {
+  padding: 0;
+  background-color: #FAF6EE;
+  background-image: none;
+  overflow: hidden;
+}
+
+#screen-general .archive-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 5;
+}
+
+#screen-general .archive-header .archive-title { margin-bottom: 0.5rem; }
+#screen-general .archive-header .archive-sub   { margin-bottom: 0.5rem; }
+#screen-general .archive-header .archive-count { margin-bottom: 0.8rem; }
+#screen-general .archive-header .archive-search { margin-top: 0.5rem; }
+
+#screen-general .archive-restart {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 6;
+  background: transparent;
+  border: 1px solid var(--ink);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-main);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+#screen-general #archive-wall {
+  cursor: default;
+}
+
+/* Cabinet in archive context: whole column clickable */
+#screen-general .cabinet-col {
+  cursor: pointer;
+}
+
+/* User's own cabinet — highlight */
+.cabinet-col.is-user-cabinet {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+.cabinet-col.is-user-cabinet .cabinet-label {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+/* Search states also work on cabinet-col */
+.cabinet-col.search-dim { opacity: 0.25; }
+.cabinet-col.search-hit { outline: 2px solid var(--red); outline-offset: 2px; }
+
+/* Empty state inside #screen-general sits over the wall */
+#screen-general .archive-empty {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  text-align: center;
+  color: var(--ink);
+  background: rgba(250, 246, 238, 0.85);
+  padding: 1rem;
+  font-size: 1.2rem;
+  z-index: 6;
+}
