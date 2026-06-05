@@ -622,9 +622,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: transform 3s linear;
 }
 
-/* Forward animation (4 turns) while a wheel is hovered. fill-mode forwards
-   so on mouseleave the property snaps from rotate(1440) to its base
-   rotate(0), and the transition above carries it back through 4 reverse
+/* Forward animation (3 turns) while a wheel is hovered. fill-mode forwards
+   so on mouseleave the property snaps from rotate(1080) to its base
+   rotate(0), and the transition above carries it back through 3 reverse
    turns over the same 3 s. */
 .cabinet-col.is-spinning .cabinet-wheel {
   animation: wheel-spin 3s linear forwards;
@@ -632,7 +632,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 @keyframes wheel-spin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(1440deg); }
+  to   { transform: translate(-50%, -50%) rotate(1080deg); }
 }
 
 /* Edge auto-scroll hover zones (invisible) */
