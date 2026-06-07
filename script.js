@@ -204,6 +204,15 @@
     });
   }
 
+  // Click on the card itself flips it around the X axis
+  const landingCardEl    = document.getElementById("landing-card");
+  const landingCardInner = document.getElementById("landing-card-inner");
+  if (landingCardEl && landingCardInner) {
+    landingCardEl.addEventListener("click", () => {
+      landingCardInner.classList.toggle("is-flipped");
+    });
+  }
+
   [stampSearch, stampAdd].forEach(stamp => {
     if (!stamp) return;
     const def = stamp.src;
@@ -761,6 +770,7 @@
 
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");
+    if (landingCardInner) landingCardInner.classList.remove("is-flipped");
 
     showScreen("landing");
   }
