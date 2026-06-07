@@ -751,7 +751,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .landing-card {
   position: relative;
-  width: min(828px, calc(90vw - 72px), calc(85vh * 1.5 - 72px));
+  width: min(668px, calc(90vw - 232px), calc(85vh * 1.5 - 232px));
   aspect-ratio: 3 / 2;
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
@@ -1178,4 +1178,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-size: 15px;
   color: var(--gray);
   line-height: 1.8;
+}
+
+/* Logo inside the landing popup card */
+.landing-card-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  margin: 0 auto 16px;
+  align-self: center;
 }
