@@ -76,10 +76,10 @@
   function wheelSVG() {
     return (
       '<svg class="cabinet-wheel" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-        '<circle cx="50" cy="50" r="44" fill="none" stroke="#4a4540" stroke-width="3"/>' +
-        '<line x1="50" y1="6"  x2="50" y2="94" stroke="#4a4540" stroke-width="8" stroke-linecap="round"/>' +
-        '<line x1="6"  y1="50" x2="94" y2="50" stroke="#4a4540" stroke-width="8" stroke-linecap="round"/>' +
-        '<circle cx="50" cy="50" r="9" fill="#4a4540"/>' +
+        '<circle cx="50" cy="50" r="44" fill="none" stroke="#3D3628" stroke-width="3"/>' +
+        '<line x1="50" y1="6"  x2="50" y2="94" stroke="#3D3628" stroke-width="8" stroke-linecap="round"/>' +
+        '<line x1="6"  y1="50" x2="94" y2="50" stroke="#3D3628" stroke-width="8" stroke-linecap="round"/>' +
+        '<circle cx="50" cy="50" r="9" fill="#3D3628"/>' +
       '</svg>'
     );
   }
