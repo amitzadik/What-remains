@@ -628,81 +628,102 @@
     return list;
   }
 
-  function renderGeneralArchive() {
-    archiveWall.innerHTML = "";
-    countText.textContent = allDrawers().length + " מגירות בארכיון";
+  // Full Hebrew alphabet — used for the archive letter wall (22 letters)
+  const ALPHABET_LETTERS = [
+    "א","ב","ג","ד","ה","ו","ז","ח","ט","י","כ",
+    "ל","מ","נ","ס","ע","פ","צ","ק","ר","ש","ת"
+  ];
 
-    // Render the same 21 alphabet-pair cabinets as on the landing wall
-    CABINET_LABELS.forEach(label => {
-      const col = document.createElement("div");
-      col.className = "cabinet-col";
-      col.setAttribute("data-label", label);
+  // Phase A view (letter wall) and Phase B view (letter detail with drawers)
+  const archiveLetters       = document.getElementById("archive-letters");
+  const archiveViewLetters   = document.getElementById("archive-view-letters");
+  const archiveViewDetail    = document.getElementById("archive-view-detail");
+  const archiveDetailLetter  = document.getElementById("archive-detail-letter");
+  const archiveDetailDrawers = document.getElementById("archive-detail-drawers");
+  const btnBackToLetters     = document.getElementById("btn-back-to-letters");
 
-      const tag = document.createElement("div");
-      tag.className = "cabinet-label";
-      tag.textContent = label;
-      col.appendChild(tag);
-
-      col.insertAdjacentHTML("beforeend", wheelSVG());
-
-      // Wheel hover: same spin + push behaviour as landing
-      const wheel = col.querySelector(".cabinet-wheel");
-      if (wheel) {
-        wheel.addEventListener("mouseenter", () => activateCabinetCol(archiveWall, col));
-        wheel.addEventListener("mouseleave", () => resetCabinetCols(archiveWall));
-      }
-
-      // Click any cabinet → universal code-entry modal
-      col.addEventListener("click", () => openCodeModal(col));
-
-      archiveWall.appendChild(col);
-    });
-
-    if (searchInput) searchInput.value = "";
-    applySearchFilter("");
-    centerWall(archiveWall);
+  function drawersForLetter(letter) {
+    return allDrawers()
+      .filter(d => d.name && d.name.trim().charAt(0) === letter)
+      .sort((a, b) => a.name.localeCompare(b.name, "he"));
   }
 
-  function applySearchFilter(rawQuery) {
-    const q = (rawQuery || "").trim().toLowerCase();
-    const cabinets = archiveWall.querySelectorAll(".cabinet-col");
-    let hits = 0;
-
-    cabinets.forEach(c => {
-      const label = (c.getAttribute("data-label") || "").toLowerCase();
-      c.classList.remove("search-dim", "search-hit");
-
-      if (q === "") return;
-      if (label.includes(q)) {
-        c.classList.add("search-hit");
-        hits++;
-      } else {
-        c.classList.add("search-dim");
-      }
-    });
-
-    if (q === "") {
-      searchStatus.textContent = "";
-      archiveEmpty.style.display = "none";
-    } else if (hits === 0) {
-      searchStatus.textContent = "אין תוצאות";
-      archiveEmpty.style.display = "block";
+  function showArchiveView(view) {
+    if (view === "letters") {
+      archiveViewDetail.classList.remove("is-active");
+      archiveViewLetters.classList.add("is-active");
     } else {
-      searchStatus.textContent = hits + " תוצאות";
-      archiveEmpty.style.display = "none";
+      archiveViewLetters.classList.remove("is-active");
+      archiveViewDetail.classList.add("is-active");
     }
   }
 
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => applySearchFilter(e.target.value));
+  function renderGeneralArchive() {
+    archiveLetters.innerHTML = "";
+    if (countText) countText.textContent = allDrawers().length + " מגירות בארכיון";
+
+    ALPHABET_LETTERS.forEach(letter => {
+      const hasEntries = drawersForLetter(letter).length > 0;
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "letter-tile" + (hasEntries ? "" : " is-disabled");
+      tile.setAttribute("data-letter", letter);
+      tile.textContent = letter;
+      if (hasEntries) {
+        tile.addEventListener("click", () => openLetterDetail(letter));
+      } else {
+        tile.disabled = true;
+      }
+      archiveLetters.appendChild(tile);
+    });
+
+    showArchiveView("letters");
   }
 
-  // Universal code entry — any cabinet click prompts for a 4-digit code,
-  // and the modal matches the code against any drawer in the archive.
-  function openCodeModal(drawerEl) {
-    activeViewer = null;
+  function openLetterDetail(letter) {
+    archiveDetailLetter.textContent = letter;
+    archiveDetailDrawers.innerHTML = "";
+
+    drawersForLetter(letter).forEach(v => {
+      const d = document.createElement("div");
+      d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
+      d.setAttribute("data-name", v.name);
+      const plate = document.createElement("div");
+      plate.className = "wall-plate";
+      plate.textContent = v.name;
+      d.appendChild(plate);
+
+      d.addEventListener("click", () => {
+        if (v.isUser) {
+          showContent(v.name, v.archive);
+        } else {
+          openCodeModal(v, d);
+        }
+      });
+      archiveDetailDrawers.appendChild(d);
+    });
+
+    showArchiveView("detail");
+  }
+
+  if (btnBackToLetters) {
+    btnBackToLetters.addEventListener("click", () => showArchiveView("letters"));
+  }
+
+  // Search is no longer surfaced in the archive UI; keep a no-op filter
+  // so legacy callers (restartFlow, future search) don't throw.
+  function applySearchFilter() { /* no-op */ }
+
+  if (searchInput && searchInput.addEventListener) {
+    searchInput.addEventListener("input", () => applySearchFilter());
+  }
+
+  // Per-drawer code entry — the modal targets a specific viewer and
+  // matches only against that drawer's code.
+  function openCodeModal(viewer, drawerEl) {
+    activeViewer = viewer || null;
     activeDrawerEl = drawerEl || null;
-    codeTarget.textContent = "הזינ/י את קוד המגירה שלך";
+    codeTarget.textContent = viewer ? ("המגירה של " + viewer.name) : "הזינ/י את קוד המגירה";
     codeInput.value = "";
     errMsg.textContent = "";
     codeModal.classList.add("active");
@@ -710,11 +731,11 @@
   }
 
   function checkCode() {
+    if (!activeViewer) return;
     const input = codeInput.value.trim();
-    const match = allDrawers().find(d => d.code === input);
-    if (match) {
+    if (input === activeViewer.code) {
       codeModal.classList.remove("active");
-      setTimeout(() => showContent(match.name, match.archive), 300);
+      setTimeout(() => showContent(activeViewer.name, activeViewer.archive), 300);
     } else {
       errMsg.textContent = "קוד שגוי";
       codeModalContent.classList.remove("shake");

@@ -1213,3 +1213,135 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   margin: 0 auto 20px;
   align-self: center;
 }
+
+/* ============================================================
+   Archive — letter wall (Phase A) + letter detail (Phase B)
+============================================================ */
+#screen-general {
+  padding: 0;
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  overflow: hidden;
+}
+
+.archive-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 2rem 2rem;
+  align-items: center;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.archive-view.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#screen-general .archive-top {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+#screen-general .archive-top .archive-title { margin-bottom: 0.4rem; }
+#screen-general .archive-top .archive-sub   { margin-bottom: 0.4rem; }
+
+/* Phase A — letter tiles */
+.archive-letters {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(72px, 96px));
+  gap: 14px;
+  margin: 1.5rem auto 0;
+  direction: rtl;
+  max-width: 100%;
+}
+
+.letter-tile {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--font-main);
+  font-size: 2.2rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+}
+.letter-tile:hover:not(.is-disabled):not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(60, 40, 10, 0.18);
+  background: var(--bg-cream);
+  color: var(--ink);
+}
+.letter-tile.is-disabled,
+.letter-tile:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .archive-letters { grid-template-columns: repeat(6, minmax(56px, 72px)); }
+  .letter-tile { font-size: 1.6rem; }
+}
+
+#screen-general .archive-restart {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 6;
+  background: transparent;
+  border: 1px solid var(--ink);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-main);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* Phase B — letter detail */
+.archive-back-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+.archive-back-btn:hover {
+  text-decoration: underline;
+  background: transparent;
+  color: var(--ink);
+}
+
+.archive-detail-letter {
+  font-family: var(--font-main);
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0.5rem 0 2rem;
+  text-align: center;
+}
+
+.archive-detail-drawers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 220px);
+  gap: 18px;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  direction: rtl;
+}
+.archive-detail-drawers .wall-drawer { margin: 0; }
