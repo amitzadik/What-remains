@@ -281,10 +281,23 @@
   const qNum   = document.getElementById("q-num");
   const qDate  = document.getElementById("q-date");
   const qName  = document.getElementById("q-name");
+  const qAbout = document.getElementById("q-about");
   const qText  = document.getElementById("q-text");
   const btnNext = document.getElementById("btn-next-q");
   const btnDk   = document.getElementById("btn-dk-q");
   const lines = Array.from(document.querySelectorAll("#lines .line__text"));
+
+  // Maps each of the 7 questions to its "about" value shown in the
+  // header cell ("על").
+  const questionAbouts = [
+    "סבא וסבתא", // Q1: באיזו שפה סבא וסבתא דיברו בבית?
+    "סבא",        // Q2: מה סבא אהב לעשות?
+    "סבתא",       // Q3: מה גרם לסבתא לצחוק?
+    "סבא",        // Q4: ממה סבא פחד?
+    "סבתא",       // Q5: על מה סבתא חלמה ולא הגשימה?
+    "סבא",        // Q6: על מה סבא לא דיבר?
+    "סבא"         // Q7: מתי נולד סבא?
+  ];
 
   function getAnswerText() {
     return lines.map(l => l.textContent.trim()).filter(Boolean).join("\n");
@@ -302,6 +315,7 @@
     const idx = state.currentQuestion;
     qNum.textContent  = (idx + 1) + "/" + questions.length;
     qText.textContent = questions[idx];
+    if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
     btnNext.disabled = true;
     if (lines[0]) {
