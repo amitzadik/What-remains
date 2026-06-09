@@ -69,10 +69,7 @@ html, body {
   padding: 0;
   direction: rtl;
   font-family: var(--font-main);
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: 600px 600px;
-  background-repeat: repeat;
+  background-color: var(--cream);
   color: var(--ink);
   height: 100vh;
   overflow: hidden;
@@ -91,10 +88,7 @@ html, body {
   pointer-events: none;
   transition: opacity 0.6s ease;
   padding: 5vh 5vw;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: 600px 600px;
-  background-repeat: repeat;
+  background-color: var(--cream);
   z-index: 1;
   overflow: hidden;
 }
@@ -957,9 +951,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-cards {
   padding: 0;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
+  background-color: var(--cream);
 }
 
 .cards-wrap {
@@ -981,10 +973,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .stack-card {
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-color: var(--cream);
   border: 1px solid var(--line);
   box-shadow: 0 4px 12px rgba(60, 40, 10, 0.10);
   padding: 1rem 1.5rem 1.2rem;
@@ -1030,9 +1019,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-envelope {
   padding: 0;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
+  background-color: var(--cream);
 }
 
 .env-wrap {
@@ -1079,9 +1066,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   top: 50%; left: 50%;
   width: 64%;
   height: 78%;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
+  background-color: var(--cream);
   border: 1px solid var(--line);
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   transform: translate(-50%, -250%) rotate(-12deg);
@@ -1124,9 +1109,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-record {
   padding: 0;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
+  background-color: var(--cream);
 }
 
 .record-wrap {
@@ -1265,9 +1248,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-general {
   padding: 0;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
+  background-color: var(--cream);
   overflow: hidden;
 }
 
