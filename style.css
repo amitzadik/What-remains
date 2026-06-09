@@ -496,33 +496,63 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-footer { text-align: center; margin-top: 4rem; color: var(--gray); font-size: 0.9rem; }
 
 .wall-drawer {
-  width: 220px; height: 80px;
-  background: linear-gradient(135deg, var(--wood), var(--wood-dark));
-  border: 2px solid var(--ink);
+  width: 100%;
+  aspect-ratio: 1 / 1.2;
+  background:
+    linear-gradient(135deg,
+      var(--wood-light) 0%,
+      var(--wood) 45%,
+      var(--wood-dark) 100%);
+  border: 1px solid var(--ink);
   position: relative;
   cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s, outline 0.2s;
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+  overflow: hidden;
 }
 .wall-drawer:hover {
-  transform: translateY(-3px);
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 .wall-drawer.active-drawer {
-  border: 2px solid var(--red);
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 0 15px rgba(180, 74, 62, 0.6);
+  outline: 2px solid var(--stamp);
+  outline-offset: -2px;
 }
+
+/* Light label plate near the top of the drawer */
 .wall-plate {
-  background: linear-gradient(to bottom, var(--brass-highlight), var(--brass-dark));
-  font-size: 0.85rem;
-  padding: 4px 12px;
-  text-align: center;
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  right: 15%;
+  height: 28%;
+  background: #F5EDD8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-main);
+  font-size: clamp(9px, 1.4vw, 12px);
   color: var(--ink);
-  border: 1px solid var(--brass-dark);
-  font-weight: bold;
+  text-align: center;
+  font-weight: 500;
+  border: none;
+  padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dark rounded "handle" below the plate */
+.wall-drawer::after {
+  content: "";
+  position: absolute;
+  top: 46%;
+  left: 32%;
+  right: 32%;
+  height: 7%;
+  background: var(--ink);
+  opacity: 0.45;
+  border-radius: 6px;
 }
 
 /* ============================================================
@@ -1276,10 +1306,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-view--detail {
   display: flex;
   flex-direction: column;
-  padding: 2.5rem 2rem 2rem;
-  align-items: center;
+  padding: 1rem 0 0;
+  align-items: stretch;
   overflow-y: auto;
 }
+.archive-view--detail > .archive-back-btn,
+.archive-view--detail > .archive-detail-letter {
+  align-self: center;
+}
+.archive-view--detail > .archive-back-btn { align-self: flex-start; padding-left: 2rem; }
 
 #screen-general .archive-restart {
   position: absolute;
@@ -1313,20 +1348,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .archive-detail-letter {
   font-family: var(--font-main);
-  font-size: 6rem;
+  font-size: 4rem;
   font-weight: 700;
   color: var(--ink);
-  margin: 0.5rem 0 2rem;
+  margin: 0.5rem 0 1rem;
   text-align: center;
 }
 
 .archive-detail-drawers {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 220px);
-  gap: 18px;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(80px, 10vw, 120px), 1fr));
+  gap: 0;
+  justify-content: stretch;
   width: 100%;
-  max-width: 1200px;
+  max-width: none;
   direction: rtl;
+  background: var(--wood);
 }
 .archive-detail-drawers .wall-drawer { margin: 0; }
