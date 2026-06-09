@@ -1505,3 +1505,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .qform-question-text { font-size: 1rem; }
   .qform-btn { font-size: 1rem; }
 }
+
+/* === Question form: stack-of-papers slide transition === */
+.qform.is-arriving {
+  position: relative;
+  z-index: 1;
+}
+.qform.is-departing {
+  position: absolute;
+  z-index: 2;
+}

@@ -339,7 +339,60 @@
       showScreen("cards");
       return;
     }
-    renderQuestion();
+    animateNextQuestion(() => renderQuestion());
+  }
+
+  // Physical "stack of papers" transition between questions: the current
+  // form is cloned and slides off to the left while the real form is
+  // updated with the next question and slides in from the right beneath
+  // the departing clone. No opacity / fade — only translateX + z-index.
+  let isQuestionTransitioning = false;
+  function animateNextQuestion(advanceCallback) {
+    const container = document.getElementById("screen-questions");
+    const form = container && container.querySelector(".qform");
+    if (!container || !form || isQuestionTransitioning) {
+      advanceCallback();
+      return;
+    }
+    isQuestionTransitioning = true;
+
+    // Position the clone over the original (centered via flex normally)
+    const formRect = form.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const clone = form.cloneNode(true);
+    clone.classList.add("is-departing");
+    clone.style.left   = (formRect.left - containerRect.left) + "px";
+    clone.style.top    = (formRect.top  - containerRect.top)  + "px";
+    clone.style.width  = formRect.width  + "px";
+    clone.style.height = formRect.height + "px";
+    clone.style.margin = "0";
+    clone.style.pointerEvents = "none";
+    clone.removeAttribute("id");
+    clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    container.appendChild(clone);
+
+    // Swap real form's content for the next question
+    advanceCallback();
+
+    // Real form jumps off-screen to the right, no transition
+    form.classList.add("is-arriving");
+    form.style.transition = "none";
+    form.style.transform = "translateX(100%)";
+    void form.offsetWidth; // commit the jump
+
+    // Both elements transition simultaneously
+    form.style.transition = "transform 300ms ease-in";
+    form.style.transform = "translateX(0)";
+    clone.style.transition = "transform 300ms ease-in";
+    clone.style.transform = "translateX(-100%)";
+
+    setTimeout(() => {
+      clone.remove();
+      form.classList.remove("is-arriving");
+      form.style.transition = "";
+      form.style.transform = "";
+      isQuestionTransitioning = false;
+    }, 320);
   }
 
   lines.forEach(line => {
