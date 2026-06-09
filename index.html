@@ -259,31 +259,34 @@
   <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
   <section id="screen-general" class="screen">
 
-    <!-- Phase A: letter wall -->
-    <div class="archive-view archive-view--letters is-active" id="archive-view-letters">
-      <div class="archive-top">
+    <!-- Phase A: cabinets on rails (same component as the landing wall) -->
+    <div class="archive-view archive-view--cabinets is-active" id="archive-view-cabinets">
+      <div class="archive-cabinets-top">
         <div class="archive-title">ארכיון לנכדים</div>
-        <div class="archive-sub">בחר/י אות כדי לראות את המגירות שמתחתיה</div>
+        <div class="archive-sub">בחר/י מדף כדי לראות את המגירות שלו</div>
         <div class="archive-count" id="count-text"></div>
       </div>
       <button id="btn-general-restart" type="button" class="archive-restart">→ להשתתפות חדשה</button>
-      <div id="archive-letters" class="archive-letters"></div>
+
+      <!-- Cabinet wall — reuses the landing component styling -->
+      <div id="archive-wall" class="landing-bg"></div>
+
+      <!-- Edge auto-scroll zones -->
+      <div class="landing-scroll-zone landing-scroll-zone--left"  id="archive-scroll-zone-left"  aria-hidden="true"></div>
+      <div class="landing-scroll-zone landing-scroll-zone--right" id="archive-scroll-zone-right" aria-hidden="true"></div>
     </div>
 
-    <!-- Phase B: letter detail (drawers of names starting with that letter) -->
+    <!-- Phase B: cabinet detail — brass-plate drawers for the selected shelf -->
     <div class="archive-view archive-view--detail" id="archive-view-detail">
       <button id="btn-back-to-letters" type="button" class="archive-back-btn">← חזרה</button>
-      <div id="archive-detail-letter" class="archive-detail-letter">א</div>
+      <div id="archive-detail-letter" class="archive-detail-letter">א-ב</div>
       <div id="archive-detail-drawers" class="archive-detail-drawers"></div>
     </div>
 
-    <!-- Legacy elements kept hidden so search-related JS keeps working without errors -->
+    <!-- Legacy search elements kept hidden so existing wiring doesn't throw -->
     <input type="hidden" id="drawer-search">
     <span id="search-status" hidden></span>
     <span id="archive-empty" hidden></span>
-    <div id="archive-wall" hidden></div>
-    <span id="archive-scroll-zone-left" hidden></span>
-    <span id="archive-scroll-zone-right" hidden></span>
   </section>
 
   <!-- ============== MODAL: CODE ENTRY ============== -->

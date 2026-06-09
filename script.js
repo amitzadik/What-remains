@@ -628,63 +628,77 @@
     return list;
   }
 
-  // Full Hebrew alphabet — used for the archive letter wall (22 letters)
-  const ALPHABET_LETTERS = [
-    "א","ב","ג","ד","ה","ו","ז","ח","ט","י","כ",
-    "ל","מ","נ","ס","ע","פ","צ","ק","ר","ש","ת"
-  ];
-
-  // Phase A view (letter wall) and Phase B view (letter detail with drawers)
-  const archiveLetters       = document.getElementById("archive-letters");
-  const archiveViewLetters   = document.getElementById("archive-view-letters");
+  // Archive views: Phase A — cabinet wall (cabinets on rails, same
+  // component as the landing); Phase B — brass-plate drawer wall of
+  // everyone whose name starts with one of the letters on the chosen
+  // shelf.
+  const archiveViewCabinets  = document.getElementById("archive-view-cabinets");
   const archiveViewDetail    = document.getElementById("archive-view-detail");
   const archiveDetailLetter  = document.getElementById("archive-detail-letter");
   const archiveDetailDrawers = document.getElementById("archive-detail-drawers");
   const btnBackToLetters     = document.getElementById("btn-back-to-letters");
 
-  function drawersForLetter(letter) {
+  function drawersForCabinet(label) {
+    const letters = label.split("-").map(s => s.trim()).filter(Boolean);
     return allDrawers()
-      .filter(d => d.name && d.name.trim().charAt(0) === letter)
+      .filter(d => d.name && letters.includes(d.name.trim().charAt(0)))
       .sort((a, b) => a.name.localeCompare(b.name, "he"));
   }
 
   function showArchiveView(view) {
-    if (view === "letters") {
+    if (view === "cabinets") {
       archiveViewDetail.classList.remove("is-active");
-      archiveViewLetters.classList.add("is-active");
+      archiveViewCabinets.classList.add("is-active");
     } else {
-      archiveViewLetters.classList.remove("is-active");
+      archiveViewCabinets.classList.remove("is-active");
       archiveViewDetail.classList.add("is-active");
     }
   }
 
-  function renderGeneralArchive() {
-    archiveLetters.innerHTML = "";
-    if (countText) countText.textContent = allDrawers().length + " מגירות בארכיון";
+  function renderArchiveCabinets() {
+    if (!archiveWall) return;
+    archiveWall.innerHTML = "";
 
-    ALPHABET_LETTERS.forEach(letter => {
-      const hasEntries = drawersForLetter(letter).length > 0;
-      const tile = document.createElement("button");
-      tile.type = "button";
-      tile.className = "letter-tile" + (hasEntries ? "" : " is-disabled");
-      tile.setAttribute("data-letter", letter);
-      tile.textContent = letter;
-      if (hasEntries) {
-        tile.addEventListener("click", () => openLetterDetail(letter));
-      } else {
-        tile.disabled = true;
+    // Same 21 alphabet-pair labels as the landing wall
+    CABINET_LABELS.forEach(label => {
+      const col = document.createElement("div");
+      col.className = "cabinet-col";
+      col.setAttribute("data-label", label);
+
+      const tag = document.createElement("div");
+      tag.className = "cabinet-label";
+      tag.textContent = label;
+      col.appendChild(tag);
+
+      col.insertAdjacentHTML("beforeend", wheelSVG());
+
+      // Same wheel hover (spin + push) as the landing wall
+      const wheel = col.querySelector(".cabinet-wheel");
+      if (wheel) {
+        wheel.addEventListener("mouseenter", () => activateCabinetCol(archiveWall, col));
+        wheel.addEventListener("mouseleave", () => resetCabinetCols(archiveWall));
       }
-      archiveLetters.appendChild(tile);
+
+      // Cabinet click → Phase B (instead of the main UI)
+      col.addEventListener("click", () => openCabinetDetail(label));
+
+      archiveWall.appendChild(col);
     });
 
-    showArchiveView("letters");
+    centerWall(archiveWall);
   }
 
-  function openLetterDetail(letter) {
-    archiveDetailLetter.textContent = letter;
+  function renderGeneralArchive() {
+    if (countText) countText.textContent = allDrawers().length + " מגירות בארכיון";
+    renderArchiveCabinets();
+    showArchiveView("cabinets");
+  }
+
+  function openCabinetDetail(label) {
+    archiveDetailLetter.textContent = label;
     archiveDetailDrawers.innerHTML = "";
 
-    drawersForLetter(letter).forEach(v => {
+    drawersForCabinet(label).forEach(v => {
       const d = document.createElement("div");
       d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
       d.setAttribute("data-name", v.name);
@@ -707,7 +721,7 @@
   }
 
   if (btnBackToLetters) {
-    btnBackToLetters.addEventListener("click", () => showArchiveView("letters"));
+    btnBackToLetters.addEventListener("click", () => showArchiveView("cabinets"));
   }
 
   // Search is no longer surfaced in the archive UI; keep a no-op filter
