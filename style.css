@@ -718,10 +718,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-landing .landing-stamps {
   position: absolute;
   top: 8px;
-  left: 48px;
-  right: -64px;
+  left: 36px;
+  right: 36px;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   z-index: 30;
   margin: 0;
   padding: 0;
@@ -730,24 +731,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-landing .landing-stamps .landing-stamp { pointer-events: auto; }
 
 #screen-landing .landing-stamp {
-  width: auto;
-  height: auto;
+  width: 210px;
+  height: 210px;
   display: block;
   cursor: pointer;
   border: none;
   background: transparent;
+  transform: rotate(0deg);
   transition: transform 0.15s ease;
   user-select: none;
 }
-/* Per-stamp resting angle */
-#stamp-search { transform: rotate(15deg); }   /* 15° to the right */
-#stamp-add    { transform: rotate(-5deg); }   /* 5° to the left */
+/* Both stamps sit perfectly straight; only the hover/active lift remains. */
+#stamp-search,
+#stamp-add { transform: rotate(0deg); }
 
-#stamp-search:hover  { transform: rotate(15deg) translateY(-2px); }
-#stamp-search:active { transform: rotate(15deg) translateY(0) scale(0.97); }
+#stamp-search:hover,
+#stamp-add:hover { transform: rotate(0deg) translateY(-2px); }
 
-#stamp-add:hover     { transform: rotate(-5deg) translateY(-2px); }
-#stamp-add:active    { transform: rotate(-5deg) translateY(0) scale(0.97); }
+#stamp-search:active,
+#stamp-add:active { transform: rotate(0deg) translateY(0) scale(0.97); }
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {
@@ -859,8 +861,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 @media (max-width: 820px) {
   .landing-card { padding: 6% 7% 5%; }
   .landing-body { font-size: 16px; line-height: 1.7; }
-  #screen-landing .landing-stamp { width: auto; }
-  #screen-landing .landing-stamps { top: 14px; left: 14px; right: 14px; }
   .cabinet-col { flex: 0 0 140px; }
   .cabinet-wheel { width: 78px; height: 78px; }
   .cabinet-label { font-size: 0.8rem; padding: 3px 12px; }
