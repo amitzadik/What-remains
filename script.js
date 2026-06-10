@@ -307,14 +307,8 @@
     lines.forEach(l => { l.textContent = ""; });
   }
 
-  // Tracks whether the user pressed "לא יודע/ת" for the current question
-  // without typing anything — in that case "לשאלה הבאה" becomes active
-  // and pressing it advances as a don't-know answer.
-  let dkClicked = false;
-
   function updateNextAvailability() {
-    const hasText = getAnswerText() !== "";
-    btnNext.disabled = !(hasText || dkClicked);
+    btnNext.disabled = getAnswerText() === "";
   }
 
   function renderQuestion() {
@@ -323,7 +317,6 @@
     qText.textContent = questions[idx];
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
-    dkClicked = false;
     btnNext.disabled = true;
     if (lines[0]) {
       lines[0].focus();
@@ -421,13 +414,11 @@
 
   btnNext.addEventListener("click", () => {
     if (btnNext.disabled) return;
-    const hasText = getAnswerText() !== "";
-    handleAnswer(!hasText);
+    handleAnswer(false);
   });
   btnDk.addEventListener("click", () => {
     if (btnDk.disabled) return;
-    dkClicked = true;
-    updateNextAvailability();
+    handleAnswer(true);
   });
 
   // ============================================================
