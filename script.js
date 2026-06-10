@@ -387,25 +387,25 @@
     }, 320);
   }
 
-  // Scale every .qform-stage so the fixed 1370×969 card fits inside the
-  // viewport (never scaled up — capped at 1).
-  function updateQformScale() {
-    const sx = window.innerWidth  / 1370;
-    const sy = window.innerHeight / 969;
-    const s = Math.min(1, sx, sy);
-    document.querySelectorAll(".qform-stage").forEach(stage => {
-      stage.style.setProperty("--form-scale", s);
-    });
-  }
-  window.addEventListener("resize", updateQformScale);
-  updateQformScale();
+  // No JS scaling — the stage is sized responsively in CSS.
 
   lines.forEach(line => {
     line.addEventListener("input", updateNextAvailability);
+    line.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const idx = Number(line.dataset.line);
+        const next = lines[idx + 1];
+        if (next) {
+          e.preventDefault();
+          next.focus();
+          placeCaretAtEnd(next);
+        }
+      }
+    });
     line.addEventListener("paste", (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData("text");
-      document.execCommand("insertText", false, text);
+      document.execCommand("insertText", false, text.replace(/\n/g, " "));
     });
   });
 
@@ -451,10 +451,21 @@
 
   legacyLines.forEach(line => {
     line.addEventListener("input", updateLegacyNextAvailability);
+    line.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const idx = Number(line.dataset.line);
+        const next = legacyLines[idx + 1];
+        if (next) {
+          e.preventDefault();
+          next.focus();
+          placeCaretAtEnd(next);
+        }
+      }
+    });
     line.addEventListener("paste", (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData("text");
-      document.execCommand("insertText", false, text);
+      document.execCommand("insertText", false, text.replace(/\n/g, " "));
     });
   });
 
