@@ -100,7 +100,7 @@ html, body {
 }
 
 /* Questions and Legacy need full-width q-card */
-#screen-questions, #screen-legacy { padding: 2vh 2vw; }
+/* questions + legacy padding overridden later by their own block */
 
 /* Archive screens scroll */
 #screen-personal, #screen-general { padding: 0; }
@@ -315,7 +315,7 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
   text-align: right;
   caret-color: var(--red);
 }
-.line__text:focus { background: rgba(180, 74, 62, 0.04); }
+.line__text:focus { background: transparent; }
 
 /* Legacy textarea uses old ruled-area gradient */
 textarea.q-ruled-area {
@@ -1351,9 +1351,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ============================================================
    PHASE.QUESTION — archival form on wood
 ============================================================ */
-#screen-questions {
+#screen-questions,
+#screen-legacy {
   padding: 0;
   background-color: var(--wood);
+  background-image: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1370,10 +1372,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-repeat: no-repeat;
   border: 1px solid var(--ink);
   display: grid;
-  /* Row 2 (question) gets more vertical room than the rest */
-  grid-template-rows: 1fr 1.6fr 1fr 1fr 1fr 1fr 1fr;
+  /* All seven rows split the card height equally */
+  grid-template-rows: repeat(7, 1fr);
   font-family: var(--font-main);
   direction: rtl;
+  text-align: right;
   overflow: hidden;
 }
 
@@ -1407,8 +1410,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-align: right;
   min-width: 0;
 }
-.qform-header .qform-cell:last-child { border-left: none; text-align: left; }
-.qform-cell-num { text-align: left; }
+.qform-header .qform-cell:last-child { border-left: none; }
+.qform-cell-num { text-align: right; }
 
 /* Labels above values throughout the form */
 .qform-label {
@@ -1446,8 +1449,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: right;
   font-family: var(--font-main);
   font-size: 1.85rem;
   font-weight: 600;
@@ -1478,7 +1481,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-self: flex-end;
   min-height: 1.2em;
 }
-.qform-answer-row .line__text:focus { background: transparent; }
+/* Answer-line focus stays bare — no background tint anywhere */
+.qform-answer-row .line__text:focus,
+.qform .line__text:focus { background: transparent; }
 
 /* === Last row: footer buttons === */
 .qform-footer { padding: 0; }
@@ -1494,11 +1499,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
 .qform-btn:last-child { border-left: none; }
-.qform-btn:hover { background: var(--parchment); }
-/* Buttons are always active — no disabled visual state */
-.qform-btn:disabled { opacity: 1; cursor: pointer; color: inherit; }
+.qform-btn:hover:not(:disabled) { background: var(--parchment); }
+/* Muted "disabled" look for the next button only */
+.qform-btn:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: transparent;
+}
 .qform-btn--dk   { color: var(--stamp); font-weight: 700; }
 .qform-btn--next { color: var(--ink);   font-weight: 700; }
+.qform-btn--next:disabled {
+  color: var(--metal);
+  font-weight: 500;
+}
 
 @media (max-width: 600px) {
   .qform {

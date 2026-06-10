@@ -307,8 +307,14 @@
     lines.forEach(l => { l.textContent = ""; });
   }
 
+  // Tracks whether the user pressed "לא יודע/ת" for the current question
+  // without typing anything — in that case "לשאלה הבאה" becomes active
+  // and pressing it advances as a don't-know answer.
+  let dkClicked = false;
+
   function updateNextAvailability() {
-    // Buttons stay active at all times — no disabled state on next.
+    const hasText = getAnswerText() !== "";
+    btnNext.disabled = !(hasText || dkClicked);
   }
 
   function renderQuestion() {
@@ -317,7 +323,8 @@
     qText.textContent = questions[idx];
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
-    btnNext.disabled = false;
+    dkClicked = false;
+    btnNext.disabled = true;
     if (lines[0]) {
       lines[0].focus();
       placeCaretAtEnd(lines[0]);
@@ -413,35 +420,67 @@
   });
 
   btnNext.addEventListener("click", () => {
-    handleAnswer(false);
+    if (btnNext.disabled) return;
+    const hasText = getAnswerText() !== "";
+    handleAnswer(!hasText);
   });
   btnDk.addEventListener("click", () => {
     if (btnDk.disabled) return;
-    handleAnswer(true);
+    dkClicked = true;
+    updateNextAvailability();
   });
 
   // ============================================================
-  // Legacy
+  // Legacy (uses the same .qform card as questions 1-7)
   // ============================================================
-  const legacyName = document.getElementById("legacy-name");
-  const legacyDate = document.getElementById("legacy-date");
-  const legacyTextEl = document.getElementById("legacy-text");
+  const legacyName    = document.getElementById("legacy-name");
+  const legacyDate    = document.getElementById("legacy-date");
+  const legacyLines   = Array.from(document.querySelectorAll("#legacy-lines .line__text"));
   const btnLegacyNext = document.getElementById("btn-legacy-next");
+
+  function getLegacyText() {
+    return legacyLines.map(l => l.textContent.trim()).filter(Boolean).join("\n");
+  }
+  function clearLegacyLines() {
+    legacyLines.forEach(l => { l.textContent = ""; });
+  }
+  function updateLegacyNextAvailability() {
+    btnLegacyNext.disabled = getLegacyText() === "";
+  }
 
   function initLegacy() {
     legacyName.textContent = state.name;
     legacyDate.textContent = state.date;
-    legacyTextEl.value = "";
+    clearLegacyLines();
     btnLegacyNext.disabled = true;
-    setTimeout(() => legacyTextEl.focus(), 50);
+    if (legacyLines[0]) {
+      setTimeout(() => {
+        legacyLines[0].focus();
+        placeCaretAtEnd(legacyLines[0]);
+      }, 50);
+    }
   }
 
-  legacyTextEl.addEventListener("input", () => {
-    btnLegacyNext.disabled = legacyTextEl.value.trim() === "";
+  legacyLines.forEach(line => {
+    line.addEventListener("input", updateLegacyNextAvailability);
+    line.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const idx = Number(line.dataset.line);
+        const next = legacyLines[idx + 1];
+        if (next) { next.focus(); placeCaretAtEnd(next); }
+      }
+    });
+    line.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text");
+      document.execCommand("insertText", false, text.replace(/\n/g, " "));
+    });
   });
 
   btnLegacyNext.addEventListener("click", () => {
-    const txt = legacyTextEl.value.trim();
+    if (btnLegacyNext.disabled) return;
+    const txt = getLegacyText();
     if (txt === "") return;
     state.legacyText = txt;
     initRecordScreen();
@@ -859,7 +898,7 @@
 
     nameInput.value = "";
     emailInput.value = "";
-    legacyTextEl.value = "";
+    clearLegacyLines();
     if (searchInput) {
       searchInput.value = "";
       applySearchFilter("");

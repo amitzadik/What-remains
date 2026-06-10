@@ -132,7 +132,7 @@
 
       <!-- Last row: footer buttons with vertical divider -->
       <div class="qform-row qform-footer">
-        <button id="btn-next-q" type="button" class="qform-btn qform-btn--next">לשאלה הבאה</button>
+        <button id="btn-next-q" type="button" class="qform-btn qform-btn--next" disabled>לשאלה הבאה</button>
         <button id="btn-dk-q"   type="button" class="qform-btn qform-btn--dk">לא יודע/ת</button>
       </div>
 
@@ -141,37 +141,52 @@
 
   <!-- ============== SCREEN: LEGACY QUESTION ============== -->
   <section id="screen-legacy" class="screen">
-    <article class="q-card">
-      <div class="q-header-row">
-        <div class="q-cell q-cell-name">
-          <span class="q-label">שם העונה</span>
-          <span class="q-value" id="legacy-name"></span>
+    <article class="qform">
+
+      <div class="qform-row qform-header">
+        <div class="qform-cell">
+          <span class="qform-label">שם העונה</span>
+          <span class="qform-value" id="legacy-name"></span>
         </div>
-        <div class="q-cell q-cell-date">
-          <span class="q-label">תאריך</span>
-          <span class="q-value" id="legacy-date"></span>
+        <div class="qform-cell">
+          <span class="qform-label">על</span>
+          <span class="qform-value">עליי</span>
         </div>
-        <div class="q-cell q-cell-num">
-          <span class="q-label">מס׳ שאלה</span>
-          <span class="q-value large red-text">1/1</span>
+        <div class="qform-cell">
+          <span class="qform-label">תאריך</span>
+          <span class="qform-value" id="legacy-date"></span>
+        </div>
+        <div class="qform-cell qform-cell-num">
+          <span class="qform-label">סוג</span>
+          <span class="qform-value qform-num">מורשת</span>
         </div>
       </div>
 
-      <div class="q-question-row">
-        <span class="q-label">שאלה</span>
-        <div class="q-question-text">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
+      <div class="qform-row qform-question-row">
+        <span class="qform-label">שאלה</span>
+        <div class="qform-question-text">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
       </div>
 
-      <div class="q-answer-row">
-        <span class="q-label">תשובה</span>
-        <textarea id="legacy-text" class="q-ruled-area" placeholder="כתיבה חופשית..."></textarea>
-      </div>
-
-      <div class="q-footer-row">
-        <div class="q-cell" style="border-left: none;">
-          <button id="btn-legacy-next" type="button" class="q-btn" disabled>שלח</button>
+      <div id="legacy-lines" class="qform-lines">
+        <div class="qform-row qform-answer-row qform-answer-row--first">
+          <span class="qform-label">תשובה</span>
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span>
+        </div>
+        <div class="qform-row qform-answer-row">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span>
+        </div>
+        <div class="qform-row qform-answer-row">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span>
+        </div>
+        <div class="qform-row qform-answer-row">
+          <span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span>
         </div>
       </div>
+
+      <div class="qform-row qform-footer">
+        <button id="btn-legacy-next" type="button" class="qform-btn qform-btn--next" disabled>שלח</button>
+      </div>
+
     </article>
   </section>
 
