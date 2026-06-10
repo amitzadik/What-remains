@@ -343,10 +343,9 @@
   }
 
   // Stack-of-papers transition between questions: the current form is
-  // cloned and slides DOWN out of the stage while the next form drops
-  // IN from above, landing on top of the departing clone. The .qform-
-  // stage above scales the whole pair to fit the viewport, so the
-  // translateY(100%) movement matches the visible form height exactly.
+  // cloned and pinned in place (it never moves), and the next form drops
+  // IN from above the stage, landing on top of the clone. The stage's
+  // CSS scale fits the pair to the viewport.
   let isQuestionTransitioning = false;
   function animateNextQuestion(advanceCallback) {
     const stage = document.querySelector("#screen-questions .qform-stage");
@@ -374,11 +373,10 @@
     form.style.transform = "translateY(-100%)";
     void form.offsetWidth; // commit the jump
 
-    // Both elements slide downward simultaneously
+    // Only the new form animates — the clone stays perfectly still
+    // underneath, so the bottom "sheet" never moves.
     form.style.transition = "transform 300ms ease-in";
     form.style.transform = "translateY(0)";
-    clone.style.transition = "transform 300ms ease-in";
-    clone.style.transform = "translateY(100%)";
 
     setTimeout(() => {
       clone.remove();
@@ -404,18 +402,10 @@
 
   lines.forEach(line => {
     line.addEventListener("input", updateNextAvailability);
-    line.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const idx = Number(line.dataset.line);
-        const next = lines[idx + 1];
-        if (next) { next.focus(); placeCaretAtEnd(next); }
-      }
-    });
     line.addEventListener("paste", (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData("text");
-      document.execCommand("insertText", false, text.replace(/\n/g, " "));
+      document.execCommand("insertText", false, text);
     });
   });
 
@@ -461,18 +451,10 @@
 
   legacyLines.forEach(line => {
     line.addEventListener("input", updateLegacyNextAvailability);
-    line.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const idx = Number(line.dataset.line);
-        const next = legacyLines[idx + 1];
-        if (next) { next.focus(); placeCaretAtEnd(next); }
-      }
-    });
     line.addEventListener("paste", (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData("text");
-      document.execCommand("insertText", false, text.replace(/\n/g, " "));
+      document.execCommand("insertText", false, text);
     });
   });
 
