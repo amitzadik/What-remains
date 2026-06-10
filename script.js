@@ -342,49 +342,43 @@
     animateNextQuestion(() => renderQuestion());
   }
 
-  // Physical "stack of papers" transition between questions: the current
-  // form is cloned and slides off to the left while the real form is
-  // updated with the next question and slides in from the right beneath
-  // the departing clone. No opacity / fade — only translateX + z-index.
+  // Stack-of-papers transition between questions: the current form is
+  // cloned and slides DOWN out of the stage while the next form drops
+  // IN from above, landing on top of the departing clone. The .qform-
+  // stage above scales the whole pair to fit the viewport, so the
+  // translateY(100%) movement matches the visible form height exactly.
   let isQuestionTransitioning = false;
   function animateNextQuestion(advanceCallback) {
-    const container = document.getElementById("screen-questions");
-    const form = container && container.querySelector(".qform");
-    if (!container || !form || isQuestionTransitioning) {
+    const stage = document.querySelector("#screen-questions .qform-stage");
+    const form = stage && stage.querySelector(".qform");
+    if (!stage || !form || isQuestionTransitioning) {
       advanceCallback();
       return;
     }
     isQuestionTransitioning = true;
 
-    // Position the clone over the original (centered via flex normally)
-    const formRect = form.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
+    // Clone the current form and overlay it inside the same stage
     const clone = form.cloneNode(true);
     clone.classList.add("is-departing");
-    clone.style.left   = (formRect.left - containerRect.left) + "px";
-    clone.style.top    = (formRect.top  - containerRect.top)  + "px";
-    clone.style.width  = formRect.width  + "px";
-    clone.style.height = formRect.height + "px";
-    clone.style.margin = "0";
     clone.style.pointerEvents = "none";
     clone.removeAttribute("id");
     clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    container.appendChild(clone);
+    stage.appendChild(clone);
 
-    // Swap real form's content for the next question
+    // Swap the real form's content for the next question
     advanceCallback();
 
-    // Real form jumps off-screen to the right, no transition
+    // Real form jumps above the stage, no transition
     form.classList.add("is-arriving");
     form.style.transition = "none";
-    form.style.transform = "translateX(100%)";
+    form.style.transform = "translateY(-100%)";
     void form.offsetWidth; // commit the jump
 
-    // Both elements transition simultaneously
+    // Both elements slide downward simultaneously
     form.style.transition = "transform 300ms ease-in";
-    form.style.transform = "translateX(0)";
+    form.style.transform = "translateY(0)";
     clone.style.transition = "transform 300ms ease-in";
-    clone.style.transform = "translateX(-100%)";
+    clone.style.transform = "translateY(100%)";
 
     setTimeout(() => {
       clone.remove();
@@ -394,6 +388,19 @@
       isQuestionTransitioning = false;
     }, 320);
   }
+
+  // Scale every .qform-stage so the fixed 1370×969 card fits inside the
+  // viewport (never scaled up — capped at 1).
+  function updateQformScale() {
+    const sx = window.innerWidth  / 1370;
+    const sy = window.innerHeight / 969;
+    const s = Math.min(1, sx, sy);
+    document.querySelectorAll(".qform-stage").forEach(stage => {
+      stage.style.setProperty("--form-scale", s);
+    });
+  }
+  window.addEventListener("resize", updateQformScale);
+  updateQformScale();
 
   lines.forEach(line => {
     line.addEventListener("input", updateNextAvailability);
