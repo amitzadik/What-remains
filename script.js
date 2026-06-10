@@ -308,7 +308,7 @@
   }
 
   function updateNextAvailability() {
-    btnNext.disabled = getAnswerText() === "";
+    // Buttons stay active at all times — no disabled state on next.
   }
 
   function renderQuestion() {
@@ -317,7 +317,7 @@
     qText.textContent = questions[idx];
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
-    btnNext.disabled = true;
+    btnNext.disabled = false;
     if (lines[0]) {
       lines[0].focus();
       placeCaretAtEnd(lines[0]);
@@ -413,8 +413,6 @@
   });
 
   btnNext.addEventListener("click", () => {
-    if (btnNext.disabled) return;
-    if (getAnswerText() === "") return;
     handleAnswer(false);
   });
   btnDk.addEventListener("click", () => {
