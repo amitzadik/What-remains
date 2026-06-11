@@ -160,6 +160,47 @@ button:disabled { border-color: var(--gray); color: var(--gray); cursor: not-all
 button.red-btn { color: var(--red); border-color: var(--red); font-weight: bold; }
 button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cream); }
 
+/* ============================================================
+   Image buttons (stamp-style)
+============================================================ */
+.img-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: none;
+}
+.img-btn:hover { background: none; color: inherit; }
+.img-btn:disabled { cursor: not-allowed; }
+.img-btn:disabled .btn-img { opacity: 0.35; }
+
+.btn-img {
+  display: block;
+  width: 210px;
+  height: 210px;
+  user-select: none;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+/* Back / close buttons — absolute top-right of their container */
+.img-btn--corner-back {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+/* Modal close — absolute top-right of .modal-content */
+.img-btn--modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+}
+
 .btn-group {
   display: flex;
   gap: 1rem;
@@ -202,16 +243,8 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
 
 .splash-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  justify-content: center;
   margin-top: 1rem;
-}
-
-.splash-buttons button { width: 100%; padding: 1rem; font-size: 1.1rem; }
-.splash-buttons button.btn-secondary {
-  border-style: dashed;
-  font-size: 0.95rem;
-  padding: 0.7rem;
 }
 
 /* ============================================================
@@ -611,6 +644,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   max-width: 400px;
   width: 100%;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 #err-msg { color: var(--red); font-size: 0.9rem; margin-top: 1rem; min-height: 1.2rem; }
@@ -1545,6 +1579,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   color: var(--metal);
   font-weight: 500;
 }
+
+/* Image buttons inside qform footer */
+.qform-img-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qform-img-btn:hover { background: none; }
+.qform-img-btn:disabled { cursor: not-allowed; }
+.qform-img-btn:disabled .btn-img { opacity: 0.35; }
 
 @media (max-width: 600px) {
   .qform {

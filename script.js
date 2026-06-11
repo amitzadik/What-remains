@@ -851,6 +851,17 @@
   // ============================================================
   // Boot
   // ============================================================
+
+  // Hover swap for all .btn-img elements with data-hover attribute
+  document.querySelectorAll(".btn-img[data-hover]").forEach(img => {
+    const def = img.src;
+    const hov = img.dataset.hover;
+    const btn = img.closest("button");
+    if (!btn) return;
+    btn.addEventListener("mouseenter", () => { if (!btn.disabled) img.src = hov; });
+    btn.addEventListener("mouseleave", () => { img.src = def; });
+  });
+
   checkDepositBtn();
   renderCabinetWall();
   showScreen("landing");
