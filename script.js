@@ -204,17 +204,20 @@
     });
   }
 
-  // Flip buttons on both sides of the landing popup card
+  // Popup corner button: first click flips the card, second dismisses
+  // the popup and reveals the landing behind it
   const landingCardInner = document.getElementById("landing-card-inner");
-  ["btn-card-flip-left", "btn-card-flip-right"].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn && landingCardInner) {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        landingCardInner.classList.toggle("is-flipped");
-      });
-    }
-  });
+  const btnCardFlip = document.getElementById("btn-card-flip");
+  if (btnCardFlip && landingCardInner) {
+    btnCardFlip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (landingCardInner.classList.contains("is-flipped")) {
+        dismissLandingPopup();
+      } else {
+        landingCardInner.classList.add("is-flipped");
+      }
+    });
+  }
 
   [stampSearch, stampAdd].forEach(stamp => {
     if (!stamp) return;

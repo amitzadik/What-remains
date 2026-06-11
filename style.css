@@ -176,12 +176,13 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
   right: 12px;
   z-index: 10;
 }
-/* Modal close — absolute top-right of .modal-content */
-.img-btn--modal-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 5;
+/* Popup action/close button — fixed bottom-left corner of the screen,
+   above popup overlays (landing z:20, modal z:100) */
+.popup-corner-btn {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 120;
 }
 
 .btn-group {
@@ -790,16 +791,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #stamp-search:active,
 #stamp-add:active { transform: rotate(0deg) translateY(0) scale(0.97); }
-
-/* Flip buttons on both sides of the landing popup card */
-.landing-flip-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-}
-.landing-flip-btn--left  { left: -64px; }
-.landing-flip-btn--right { right: -64px; }
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {
