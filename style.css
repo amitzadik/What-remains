@@ -176,14 +176,10 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
   right: 12px;
   z-index: 10;
 }
-/* Popup action/close button — fixed bottom-left corner of the screen,
-   above popup overlays (landing z:20, modal z:100) */
-.popup-corner-btn {
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
-  z-index: 120;
-}
+/* Popup buttons — anchored to the popup box itself (.landing-card /
+   .modal-content are position: relative) */
+.popup-continue-btn { position: absolute; left: 20px; bottom: 20px; z-index: 5; }
+.popup-close-btn    { position: absolute; right: 20px; top: 20px; z-index: 5; }
 
 .btn-group {
   display: flex;

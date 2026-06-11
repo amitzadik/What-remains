@@ -878,7 +878,7 @@
   // Hover swap for all .img-btn buttons (data-default/data-hover on the button)
   document.addEventListener('mouseover', e => {
     const btn = e.target.closest('.img-btn');
-    if (btn) btn.querySelector('img').src = btn.dataset.hover;
+    if (btn && !btn.disabled) btn.querySelector('img').src = btn.dataset.hover;
   });
   document.addEventListener('mouseout', e => {
     const btn = e.target.closest('.img-btn');
