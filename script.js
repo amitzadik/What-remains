@@ -731,19 +731,15 @@
 
   function renderGeneralArchive() {
     // Update home/add-new button based on how user arrived at archive
-    const archiveHomeImg = document.getElementById("archive-home-img");
-    if (archiveHomeImg) {
+    if (btnBackToLetters) {
       if (archiveSource === "questionnaire") {
-        archiveHomeImg.src = "images/home-default.png";
-        archiveHomeImg.dataset.hover = "images/home-hover.png";
-        archiveHomeImg.dataset.defaultSrc = "images/home-default.png";
-        archiveHomeImg.alt = "בית";
+        btnBackToLetters.dataset.default = "images/home-default.png";
+        btnBackToLetters.dataset.hover   = "images/home-hover.png";
       } else {
-        archiveHomeImg.src = "images/add-new-default.png";
-        archiveHomeImg.dataset.hover = "images/add-new-hover.png";
-        archiveHomeImg.dataset.defaultSrc = "images/add-new-default.png";
-        archiveHomeImg.alt = "הוסף";
+        btnBackToLetters.dataset.default = "images/add-new-default.png";
+        btnBackToLetters.dataset.hover   = "images/add-new-hover.png";
       }
+      btnBackToLetters.querySelector("img").src = btnBackToLetters.dataset.default;
     }
 
     const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
@@ -876,40 +872,14 @@
   // Boot
   // ============================================================
 
-  // Hover swap for all .btn-img elements with data-hover attribute
-  function bindImgBtnHover(root) {
-    (root || document).querySelectorAll(".btn-img[data-hover]").forEach(img => {
-      if (img.dataset.hoverBound) return;
-      img.dataset.hoverBound = "1";
-      const btn = img.closest("button");
-      if (!btn) return;
-      btn.addEventListener("mouseenter", () => {
-        if (!btn.disabled) img.src = img.dataset.hover;
-      });
-      btn.addEventListener("mouseleave", () => {
-        img.src = img.dataset.hoverOriginal || img.src;
-      });
-      // Store original src so mouseleave can restore it
-      // We'll restore the current src on mouseleave dynamically
-    });
-  }
-
-  // Re-bindable hover: reads current src/data-hover each time
-  document.addEventListener("mouseenter", (e) => {
-    const btn = e.target.closest("button.img-btn");
-    if (!btn || btn.disabled) return;
-    const img = btn.querySelector(".btn-img[data-hover]");
-    if (img) img.src = img.dataset.hover;
-  }, true);
-  document.addEventListener("mouseleave", (e) => {
-    const btn = e.target.closest("button.img-btn");
-    if (!btn) return;
-    const img = btn.querySelector(".btn-img[data-hover]");
-    if (img) img.src = img.dataset.defaultSrc || img.src;
-  }, true);
-  // Store default srcs at boot
-  document.querySelectorAll(".btn-img[data-hover]").forEach(img => {
-    img.dataset.defaultSrc = img.src;
+  // Hover swap for all .img-btn buttons (data-default/data-hover on the button)
+  document.addEventListener('mouseover', e => {
+    const btn = e.target.closest('.img-btn');
+    if (btn) btn.querySelector('img').src = btn.dataset.hover;
+  });
+  document.addEventListener('mouseout', e => {
+    const btn = e.target.closest('.img-btn');
+    if (btn) btn.querySelector('img').src = btn.dataset.default;
   });
 
   checkDepositBtn();
