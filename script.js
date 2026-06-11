@@ -683,15 +683,10 @@
   btnPersonalRestart.addEventListener("click", restartFlow);
 
   // ============================================================
-  // General archive (cabinet wall + code modal + content modal)
+  // General archive
   // ============================================================
-  const archiveWall = document.getElementById("archive-wall");
-  const archiveScrollZoneLeft  = document.getElementById("archive-scroll-zone-left");
-  const archiveScrollZoneRight = document.getElementById("archive-scroll-zone-right");
-  const countText  = document.getElementById("count-text");
-  const searchInput = document.getElementById("drawer-search");
-  const searchStatus = document.getElementById("search-status");
-  const archiveEmpty = document.getElementById("archive-empty");
+  const countText         = document.getElementById("count-text");
+  const searchInput       = document.getElementById("drawer-search");
   const btnGeneralRestart = document.getElementById("btn-general-restart");
 
   const codeModal        = document.getElementById("code-modal");
@@ -723,77 +718,15 @@
     return list;
   }
 
-  // Archive views: Phase A — cabinet wall (cabinets on rails, same
-  // component as the landing); Phase B — brass-plate drawer wall of
-  // everyone whose name starts with one of the letters on the chosen
-  // shelf.
-  const archiveViewCabinets  = document.getElementById("archive-view-cabinets");
-  const archiveViewDetail    = document.getElementById("archive-view-detail");
-  const archiveDetailLetter  = document.getElementById("archive-detail-letter");
   const archiveDetailDrawers = document.getElementById("archive-detail-drawers");
   const btnBackToLetters     = document.getElementById("btn-back-to-letters");
 
-  function drawersForCabinet(label) {
-    const letters = label.split("-").map(s => s.trim()).filter(Boolean);
-    return allDrawers()
-      .filter(d => d.name && letters.includes(d.name.trim().charAt(0)))
-      .sort((a, b) => a.name.localeCompare(b.name, "he"));
-  }
-
-  function showArchiveView(view) {
-    if (view === "cabinets") {
-      archiveViewDetail.classList.remove("is-active");
-      archiveViewCabinets.classList.add("is-active");
-    } else {
-      archiveViewCabinets.classList.remove("is-active");
-      archiveViewDetail.classList.add("is-active");
-    }
-  }
-
-  function renderArchiveCabinets() {
-    if (!archiveWall) return;
-    archiveWall.innerHTML = "";
-
-    // Same 21 alphabet-pair labels as the landing wall
-    CABINET_LABELS.forEach(label => {
-      const col = document.createElement("div");
-      col.className = "cabinet-col";
-      col.setAttribute("data-label", label);
-
-      const tag = document.createElement("div");
-      tag.className = "cabinet-label";
-      tag.textContent = label;
-      col.appendChild(tag);
-
-      col.insertAdjacentHTML("beforeend", wheelSVG());
-
-      // Same wheel hover (spin + push) as the landing wall
-      const wheel = col.querySelector(".cabinet-wheel");
-      if (wheel) {
-        wheel.addEventListener("mouseenter", () => activateCabinetCol(archiveWall, col));
-        wheel.addEventListener("mouseleave", () => resetCabinetCols(archiveWall));
-      }
-
-      // Cabinet click → Phase B (instead of the main UI)
-      col.addEventListener("click", () => openCabinetDetail(label));
-
-      archiveWall.appendChild(col);
-    });
-
-    centerWall(archiveWall);
-  }
-
   function renderGeneralArchive() {
-    if (countText) countText.textContent = allDrawers().length + " מגירות בארכיון";
-    renderArchiveCabinets();
-    showArchiveView("cabinets");
-  }
+    const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
+    if (countText) countText.textContent = drawers.length + " מגירות בארכיון";
 
-  function openCabinetDetail(label) {
-    archiveDetailLetter.textContent = label;
     archiveDetailDrawers.innerHTML = "";
-
-    drawersForCabinet(label).forEach(v => {
+    drawers.forEach(v => {
       const d = document.createElement("div");
       d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
       d.setAttribute("data-name", v.name);
@@ -811,12 +744,10 @@
       });
       archiveDetailDrawers.appendChild(d);
     });
-
-    showArchiveView("detail");
   }
 
   if (btnBackToLetters) {
-    btnBackToLetters.addEventListener("click", () => showArchiveView("cabinets"));
+    btnBackToLetters.addEventListener("click", () => showScreen("landing"));
   }
 
   // Search is no longer surfaced in the archive UI; keep a no-op filter

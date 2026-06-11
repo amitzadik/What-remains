@@ -489,65 +489,87 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .archive-footer { text-align: center; margin-top: 4rem; color: var(--gray); font-size: 0.9rem; }
 
+/* Landscape 3:2 wooden drawer */
 .wall-drawer {
   width: 100%;
   aspect-ratio: 3 / 2;
-  background:
-    linear-gradient(135deg,
-      var(--wood-light) 0%,
-      var(--wood) 45%,
-      var(--wood-dark) 100%);
-  border: 1px solid var(--ink);
+  background: linear-gradient(135deg, #BC9878 0%, #AC8969 40%, #9A7A5A 100%);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.4),
+    0 2px 4px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.15),
+    inset 0 -3px 6px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.2);
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
   overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.2);
 }
 .wall-drawer:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   z-index: 2;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,255,255,0.2);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.45),
+    0 3px 6px rgba(0,0,0,0.35),
+    inset 0 1px 2px rgba(255,255,255,0.15),
+    inset 0 -3px 6px rgba(0,0,0,0.2);
 }
 .wall-drawer.active-drawer {
   outline: 2px solid var(--stamp);
   outline-offset: -2px;
 }
 
-/* Light label plate near the top of the drawer */
+/* Handle — centered, lower strip */
+.wall-drawer::before {
+  content: "";
+  position: absolute;
+  bottom: 14%;
+  left: 30%;
+  right: 30%;
+  height: 12px;
+  background: linear-gradient(180deg, #C8A882 0%, #9A7A5A 100%);
+  border-radius: 3px;
+  box-shadow:
+    0 3px 6px rgba(0,0,0,0.35),
+    inset 0 1px rgba(255,255,255,0.2);
+  z-index: 2;
+}
+
+/* Parchment label plate */
 .wall-plate {
   position: absolute;
   top: 10%;
-  left: 15%;
-  right: 15%;
-  height: 28%;
-  background: #F5EDD8;
+  left: 10%;
+  right: 10%;
+  height: 42%;
+  background: linear-gradient(to bottom, #FAF2DC, #EDE0BF);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-main);
-  font-size: clamp(9px, 1.4vw, 12px);
+  font-size: 11px;
   color: var(--ink);
   text-align: center;
   font-weight: 500;
-  border: none;
-  padding: 0 4px;
+  padding: 2px 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border: 1px solid rgba(61,54,40,0.3);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.8);
+  z-index: 2;
 }
 
-/* Dark rounded "handle" below the plate */
+/* SVG fractal noise grain overlay */
 .wall-drawer::after {
   content: "";
   position: absolute;
-  top: 46%;
-  left: 32%;
-  right: 32%;
-  height: 7%;
-  background: var(--ink);
-  opacity: 0.45;
-  border-radius: 6px;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size: cover;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 3;
 }
 
 /* ============================================================
@@ -1249,7 +1271,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-general {
   padding: 0;
-  background-color: var(--cream);
+  background-color: #AC8969;
   overflow: hidden;
 }
 
@@ -1284,68 +1306,62 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-general .archive-cabinets-top .archive-title { margin-bottom: 0.3rem; }
 #screen-general .archive-cabinets-top .archive-sub   { margin-bottom: 0.3rem; }
 
-/* Phase B — letter detail layout */
-.archive-view--detail {
+/* Archive direct drawer grid */
+.archive-grid-view {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  padding: 1rem 0 0;
-  align-items: stretch;
   overflow-y: auto;
-}
-.archive-view--detail > .archive-back-btn,
-.archive-view--detail > .archive-detail-letter {
-  align-self: center;
-}
-.archive-view--detail > .archive-back-btn { align-self: flex-start; padding-left: 2rem; }
-
-#screen-general .archive-restart {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 6;
-  background: transparent;
-  border: 1px solid var(--ink);
-  padding: 0.5rem 1rem;
-  font-family: var(--font-main);
-  color: var(--ink);
-  cursor: pointer;
+  background-color: #AC8969;
 }
 
-/* Phase B — letter detail */
-.archive-back-btn {
-  align-self: flex-start;
-  background: transparent;
-  border: none;
-  color: var(--ink);
-  font-family: var(--font-main);
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
+/* Top nav bar */
+.archive-grid-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #AC8969;
+  flex-shrink: 0;
 }
-.archive-back-btn:hover {
-  text-decoration: underline;
-  background: transparent;
-  color: var(--ink);
-}
-
-.archive-detail-letter {
+.archive-grid-count {
   font-family: var(--font-main);
-  font-size: 4rem;
-  font-weight: 700;
+  font-size: 11px;
   color: var(--ink);
-  margin: 0.5rem 0 1rem;
+  flex: 1;
   text-align: center;
 }
 
+/* Unified nav buttons */
+.archive-nav-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #3D3628;
+  background: #F0E8D8;
+  color: #3D3628;
+  font-family: var(--font-main);
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 30px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.archive-nav-btn:hover {
+  background: #3D3628;
+  color: #F0E8D8;
+}
+
+#screen-general .archive-restart { display: none; }
+
+/* Drawer grid */
 .archive-detail-drawers {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(80px, 10vw, 120px), 1fr));
-  gap: 0;
-  justify-content: stretch;
-  width: 100%;
-  max-width: none;
-  direction: rtl;
-  background: var(--wood);
+  grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 18vw, 240px), 1fr));
+  gap: 16px;
+  padding: 16px;
+  background: #AC8969;
+  flex: 1;
 }
 .archive-detail-drawers .wall-drawer { margin: 0; }
 

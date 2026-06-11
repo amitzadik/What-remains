@@ -272,34 +272,25 @@
   <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
   <section id="screen-general" class="screen">
 
-    <!-- Phase A: cabinets on rails (same component as the landing wall) -->
-    <div class="archive-view archive-view--cabinets is-active" id="archive-view-cabinets">
-      <div class="archive-cabinets-top">
-        <div class="archive-title">ארכיון לנכדים</div>
-        <div class="archive-sub">בחר/י מדף כדי לראות את המגירות שלו</div>
-        <div class="archive-count" id="count-text"></div>
+    <!-- Direct drawer grid — no cabinet phase -->
+    <div class="archive-grid-view" id="archive-view-detail">
+      <div class="archive-grid-top">
+        <button id="btn-back-to-letters" type="button" class="archive-nav-btn">← חזרה</button>
+        <div class="archive-grid-count" id="count-text"></div>
+        <button id="btn-general-restart" type="button" class="archive-nav-btn">→ השתתפות חדשה</button>
       </div>
-      <button id="btn-general-restart" type="button" class="archive-restart">→ להשתתפות חדשה</button>
-
-      <!-- Cabinet wall — reuses the landing component styling -->
-      <div id="archive-wall" class="landing-bg"></div>
-
-      <!-- Edge auto-scroll zones -->
-      <div class="landing-scroll-zone landing-scroll-zone--left"  id="archive-scroll-zone-left"  aria-hidden="true"></div>
-      <div class="landing-scroll-zone landing-scroll-zone--right" id="archive-scroll-zone-right" aria-hidden="true"></div>
-    </div>
-
-    <!-- Phase B: cabinet detail — brass-plate drawers for the selected shelf -->
-    <div class="archive-view archive-view--detail" id="archive-view-detail">
-      <button id="btn-back-to-letters" type="button" class="archive-back-btn">← חזרה</button>
-      <div id="archive-detail-letter" class="archive-detail-letter">א-ב</div>
       <div id="archive-detail-drawers" class="archive-detail-drawers"></div>
     </div>
 
-    <!-- Legacy search elements kept hidden so existing wiring doesn't throw -->
+    <!-- Hidden stubs so JS wiring doesn't throw -->
+    <div id="archive-view-cabinets"    hidden></div>
+    <div id="archive-wall"             hidden></div>
+    <span id="archive-detail-letter"   hidden></span>
     <input type="hidden" id="drawer-search">
-    <span id="search-status" hidden></span>
-    <span id="archive-empty" hidden></span>
+    <span id="search-status"           hidden></span>
+    <span id="archive-empty"           hidden></span>
+    <div id="archive-scroll-zone-left"  hidden></div>
+    <div id="archive-scroll-zone-right" hidden></div>
   </section>
 
   <!-- ============== MODAL: CODE ENTRY ============== -->
