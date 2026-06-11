@@ -204,14 +204,17 @@
     });
   }
 
-  // Click on the card itself flips it around the X axis
-  const landingCardEl    = document.getElementById("landing-card");
+  // Flip buttons on both sides of the landing popup card
   const landingCardInner = document.getElementById("landing-card-inner");
-  if (landingCardEl && landingCardInner) {
-    landingCardEl.addEventListener("click", () => {
-      landingCardInner.classList.toggle("is-flipped");
-    });
-  }
+  ["btn-card-flip-left", "btn-card-flip-right"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn && landingCardInner) {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        landingCardInner.classList.toggle("is-flipped");
+      });
+    }
+  });
 
   [stampSearch, stampAdd].forEach(stamp => {
     if (!stamp) return;
@@ -228,6 +231,7 @@
   if (stampSearch) {
     stampSearch.addEventListener("click", () => {
       dismissLandingPopup();
+      archiveSource = "search";
       renderGeneralArchive();
       showScreen("general");
     });
@@ -638,6 +642,7 @@
   // ============================================================
   const btnToArchive = document.getElementById("btn-to-archive");
   btnToArchive.addEventListener("click", () => {
+    archiveSource = "questionnaire";
     renderGeneralArchive();
     showScreen("general");
   });
@@ -676,6 +681,7 @@
   }
 
   btnPersonalToGeneral.addEventListener("click", () => {
+    archiveSource = "questionnaire";
     renderGeneralArchive();
     showScreen("general");
   });
@@ -684,6 +690,8 @@
 
   // ============================================================
   // General archive
+  // archiveSource: "search" | "questionnaire" — controls home button image
+  let archiveSource = "search";
   // ============================================================
   const countText         = document.getElementById("count-text");
   const searchInput       = document.getElementById("drawer-search");
@@ -722,6 +730,23 @@
   const btnBackToLetters     = document.getElementById("btn-back-to-letters");
 
   function renderGeneralArchive() {
+    // Update home/add-new button based on how user arrived at archive
+    const archiveHomeImg = document.getElementById("archive-home-img");
+    if (archiveHomeImg) {
+      if (archiveSource === "questionnaire") {
+        // home-default.png not yet available — use back-default.png as fallback
+        archiveHomeImg.src = "images/back-default.png";
+        archiveHomeImg.dataset.hover = "images/back-hover.png";
+        archiveHomeImg.dataset.defaultSrc = "images/back-default.png";
+        archiveHomeImg.alt = "בית";
+      } else {
+        archiveHomeImg.src = "images/add-new-default.png";
+        archiveHomeImg.dataset.hover = "images/add-new-hover.png";
+        archiveHomeImg.dataset.defaultSrc = "images/add-new-default.png";
+        archiveHomeImg.alt = "הוסף";
+      }
+    }
+
     const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
     if (countText) countText.textContent = drawers.length + " מגירות בארכיון";
 
@@ -853,13 +878,39 @@
   // ============================================================
 
   // Hover swap for all .btn-img elements with data-hover attribute
-  document.querySelectorAll(".btn-img[data-hover]").forEach(img => {
-    const def = img.src;
-    const hov = img.dataset.hover;
-    const btn = img.closest("button");
+  function bindImgBtnHover(root) {
+    (root || document).querySelectorAll(".btn-img[data-hover]").forEach(img => {
+      if (img.dataset.hoverBound) return;
+      img.dataset.hoverBound = "1";
+      const btn = img.closest("button");
+      if (!btn) return;
+      btn.addEventListener("mouseenter", () => {
+        if (!btn.disabled) img.src = img.dataset.hover;
+      });
+      btn.addEventListener("mouseleave", () => {
+        img.src = img.dataset.hoverOriginal || img.src;
+      });
+      // Store original src so mouseleave can restore it
+      // We'll restore the current src on mouseleave dynamically
+    });
+  }
+
+  // Re-bindable hover: reads current src/data-hover each time
+  document.addEventListener("mouseenter", (e) => {
+    const btn = e.target.closest("button.img-btn");
+    if (!btn || btn.disabled) return;
+    const img = btn.querySelector(".btn-img[data-hover]");
+    if (img) img.src = img.dataset.hover;
+  }, true);
+  document.addEventListener("mouseleave", (e) => {
+    const btn = e.target.closest("button.img-btn");
     if (!btn) return;
-    btn.addEventListener("mouseenter", () => { if (!btn.disabled) img.src = hov; });
-    btn.addEventListener("mouseleave", () => { img.src = def; });
+    const img = btn.querySelector(".btn-img[data-hover]");
+    if (img) img.src = img.dataset.defaultSrc || img.src;
+  }, true);
+  // Store default srcs at boot
+  document.querySelectorAll(".btn-img[data-hover]").forEach(img => {
+    img.dataset.defaultSrc = img.src;
   });
 
   checkDepositBtn();

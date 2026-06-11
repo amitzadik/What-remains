@@ -179,11 +179,17 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
 
 .btn-img {
   display: block;
-  width: 210px;
-  height: 210px;
+  width: 105px;
+  height: 105px;
   user-select: none;
   pointer-events: none;
   transition: opacity 0.12s ease;
+}
+
+/* Popup/modal buttons — smaller */
+.btn-img--popup {
+  width: 52px;
+  height: 52px;
 }
 
 /* Back / close buttons — absolute top-right of their container */
@@ -807,6 +813,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #stamp-search:active,
 #stamp-add:active { transform: rotate(0deg) translateY(0) scale(0.97); }
+
+/* Flip buttons on both sides of the landing popup card */
+.landing-flip-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+.landing-flip-btn--left  { left: -64px; }
+.landing-flip-btn--right { right: -64px; }
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {
