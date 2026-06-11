@@ -165,7 +165,7 @@ button.red-btn:hover:not(:disabled) { background: var(--red); color: var(--bg-cr
 ============================================================ */
 .img-btn { background: none; border: none; padding: 0; cursor: pointer; }
 .img-btn img { display: block; }
-.img-btn:hover { background: none; color: inherit; }
+button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
 .img-btn:disabled { cursor: not-allowed; }
 .img-btn:disabled img { opacity: 0.35; }
 
