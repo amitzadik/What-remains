@@ -734,10 +734,9 @@
     const archiveHomeImg = document.getElementById("archive-home-img");
     if (archiveHomeImg) {
       if (archiveSource === "questionnaire") {
-        // home-default.png not yet available — use back-default.png as fallback
-        archiveHomeImg.src = "images/back-default.png";
-        archiveHomeImg.dataset.hover = "images/back-hover.png";
-        archiveHomeImg.dataset.defaultSrc = "images/back-default.png";
+        archiveHomeImg.src = "images/home-default.png";
+        archiveHomeImg.dataset.hover = "images/home-hover.png";
+        archiveHomeImg.dataset.defaultSrc = "images/home-default.png";
         archiveHomeImg.alt = "בית";
       } else {
         archiveHomeImg.src = "images/add-new-default.png";
