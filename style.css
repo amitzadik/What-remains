@@ -1386,7 +1386,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex: 1;
   height: 100%;
   border-left: 1px solid var(--ink);
-  padding: 0.5rem 0;
+  /* 12px reading-side inset — text never touches the dividing line */
+  padding: 0.5rem 12px 0.5rem 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1426,7 +1427,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* === Row 2: question === */
 .qform-question-row {
   flex-direction: column;
-  padding: 0.5rem 0;
+  /* 12px reading-side inset (the row's bottom border stays full width) */
+  padding: 0.5rem 12px 0.5rem 0;
 }
 .qform-question-row .qform-label { text-align: right; }
 .qform-question-text {
@@ -1448,7 +1450,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex-direction: column;
   padding: 0.45rem 0 0;
 }
-.qform-answer-row .qform-label { text-align: right; margin-bottom: 0.2rem; }
+.qform-answer-row .qform-label {
+  text-align: right;
+  margin-bottom: 0.2rem;
+  padding-right: 12px; /* inset the label, not the ruled lines */
+}
+
+/* The last ruled line would double up with the grid's bottom border —
+   the frame itself serves as the 5th line. */
+.qform-answer-row .answer-line:last-child { border-bottom: none; }
 
 .answer-line {
   height: 2em;                 /* one line of typed text */
@@ -1463,6 +1473,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .answer-line .line__text {
   display: block;
   width: 100%;
+  /* 12px reading-side inset — the ruled line itself stays full width */
+  padding-right: 12px;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -1502,6 +1514,38 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-img-btn:disabled { cursor: not-allowed; }
 .qform-img-btn:disabled img { opacity: 0.35; }
 
+/* "לא יודע/ת" — red bold text by default; on hover the stamp image
+   replaces it at its natural ratio, overlaid so the layout never jumps */
+.qform-dk-btn {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-main);
+}
+.qform-dk-btn:hover:not(:disabled) { background: none; color: inherit; }
+.qform-dk-text {
+  color: var(--stamp);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.qform-dk-img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  height: 100%;
+  width: auto;
+  visibility: hidden;
+}
+.qform-dk-btn:hover:not(:disabled) .qform-dk-text { visibility: hidden; }
+.qform-dk-btn:hover:not(:disabled) .qform-dk-img { visibility: visible; }
+.qform-dk-btn:disabled { cursor: not-allowed; }
+
 /* Stacked (frozen) sheets — gentle tilt + offset, buttons hidden */
 .qform-sheet--stacked {
   transform: translate(var(--stack-x, 0), var(--stack-y, 0)) rotate(var(--stack-rot, 0deg));
@@ -1517,10 +1561,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-stage--register .qform-sheet--active { visibility: hidden; }
 
 /* Header row: title top-right, home button top-left (RTL flex) */
+/* Header row, grouped in the top-right corner: back button (rightmost,
+   flush with the inner-area corner — same inset as the continue button
+   in the bottom-left, since the qform padding is symmetric), title
+   right next to it. */
 .register-head {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
 }
 .register-title {
   font-family: var(--font-main);

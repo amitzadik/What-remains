@@ -77,10 +77,10 @@
     <div class="qform-sheet" id="register-sheet">
     <article class="qform qform--register">
       <div class="register-head">
-        <div class="register-title">פרטי המפקיד</div>
-        <button id="btn-back-welcome" type="button" class="img-btn" data-default="images/home-default.png" data-hover="images/home-hover.png">
-          <img src="images/home-default.png" width="105" height="105">
+        <button id="btn-back-welcome" type="button" class="img-btn" data-default="images/back-default.png" data-hover="images/back-hover.png">
+          <img src="images/back-default.png" width="105" height="105">
         </button>
+        <div class="register-title">פרטי המפקיד</div>
       </div>
 
       <div class="register-table">
@@ -150,8 +150,9 @@
 
       <!-- Floating action buttons: continue (bottom-left) + don't-know (bottom-right) -->
       <div class="qform-actions">
-        <button id="btn-dk-q" type="button" class="img-btn qform-img-btn" data-default="images/i-dont-know.png" data-hover="images/i-dont-know.png">
-          <img src="images/i-dont-know.png" width="105" height="105">
+        <button id="btn-dk-q" type="button" class="qform-dk-btn">
+          <span class="qform-dk-text">לא יודע/ת</span>
+          <img class="qform-dk-img" src="images/i-dont-know.png" alt="">
         </button>
         <button id="btn-next-q" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
           <img src="images/next-default.png" width="105" height="105">
