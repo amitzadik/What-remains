@@ -2,7 +2,7 @@
   // ============================================================
   // Google Sheets webhook (Apps Script)
   // ============================================================
-  const SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2VT25WhYQdVHaDYx0-FflX-iUgXBfE4Pfu4N0bqZNBwp1TXxCrew4fq_QMg58AL80qg/exec";
+  const SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxTI0_-z1y4cR3XhUCu4jQ1bz6i0eYz5fiIhVBaik0SnIbfxyQC7vMETmcMVodUBCWJJQ/exec";
 
   // Fire-and-forget submission of the full questionnaire to the sheet.
   // Guarded by state.submitted so a row is written at most once per run.
