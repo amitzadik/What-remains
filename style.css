@@ -1507,7 +1507,66 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(var(--stack-x, 0), var(--stack-y, 0)) rotate(var(--stack-rot, 0deg));
 }
 .qform-sheet--stacked .qform-actions { visibility: hidden; }
+.qform-sheet--stacked .register-head .img-btn { visibility: hidden; }
 .qform-sheet--stacked [contenteditable] { caret-color: transparent; }
+
+/* === Register card — the first sheet of the pile === */
+/* While registering, the card is on top and the live question sheet
+   hides beneath it; freezing the card reveals the questions again. */
+#register-sheet { z-index: 50; }
+.qform-stage--register .qform-sheet--active { visibility: hidden; }
+
+/* Header row: title top-right, home button top-left (RTL flex) */
+.register-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.register-title {
+  font-family: var(--font-main);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* Three framed rows: label (right) | divider | input (left) */
+.register-table {
+  width: min(640px, 78%);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+.register-row {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--ink);
+}
+.register-row + .register-row { margin-top: -1px; }
+
+.register-label {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  border-left: 1px solid var(--ink);
+  font-family: var(--font-main);
+  font-size: 1.15rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.register-req { color: var(--stamp); margin-left: 2px; }
+
+.register-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 16px 18px;
+  font-family: var(--font-main);
+  font-size: 1.15rem;
+  color: var(--ink);
+  outline: none;
+  caret-color: var(--stamp);
+}
 
 @media (max-width: 600px) {
   .qform-label { font-size: 0.62rem; }

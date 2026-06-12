@@ -12,7 +12,8 @@
     const payload = {
       name: state.name || "", email: state.email || "", code: state.userCode || "",
       q1: q(0), q2: q(1), q3: q(2), q4: q(3), q5: q(4), q6: q(5), q7: q(6),
-      legacy_text: state.legacyText || ""
+      legacy_text: state.legacyText || "",
+      phone: state.phone || ""
     };
     try {
       fetch(SHEET_WEBHOOK_URL, {
@@ -62,6 +63,7 @@
   const state = {
     name: "",
     email: "",
+    phone: "",
     currentQuestion: 0,
     answers: [],
     dontKnow: [],
@@ -81,7 +83,6 @@
   // ============================================================
   const screens = {
     landing:   document.getElementById("screen-landing"),
-    register:  document.getElementById("screen-register"),
     questions: document.getElementById("screen-questions"),
     cards:     document.getElementById("screen-cards"),
     envelope:  document.getElementById("screen-envelope"),
@@ -171,18 +172,26 @@
   if (stampAdd) {
     stampAdd.addEventListener("click", () => {
       dismissLandingPopup();
-      checkDepositBtn();
-      showScreen("register");
-      setTimeout(() => nameInput.focus(), 60);
+      startRegistration();
     });
   }
 
+  // Enter the questionnaire flow with the register card as the active
+  // sheet on the questions stage.
+  function startRegistration() {
+    resetQuestionStage();
+    checkDepositBtn();
+    showScreen("questions");
+    setTimeout(() => nameInput.focus(), 60);
+  }
+
   // ============================================================
-  // Register (name + email)
+  // Register card (name + email + phone) — first sheet of the pile
   // ============================================================
   const btnBackWelcome = document.getElementById("btn-back-welcome");
   const nameInput  = document.getElementById("user-name");
   const emailInput = document.getElementById("user-email");
+  const phoneInput = document.getElementById("user-phone");
   const btnDeposit = document.getElementById("btn-deposit");
 
   function emailValid(v) {
@@ -200,15 +209,19 @@
   });
 
   btnDeposit.addEventListener("click", () => {
+    if (btnDeposit.disabled) return;
     state.name  = nameInput.value.trim();
     state.email = emailInput.value.trim();
+    state.phone = phoneInput ? phoneInput.value.trim() : "";
     state.userCode = String(pastViewers.length + 1).padStart(4, "0");
     state.currentQuestion = 0;
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
+    // The filled register card joins the pile; question 1 drops in on top
+    freezeRegisterCard();
     initQuestions();
-    showScreen("questions");
+    dropInLiveForm();
   });
 
   // ============================================================
@@ -260,13 +273,71 @@
     }
   }
 
-  function initQuestions() {
-    // Clear any frozen sheets left over from a previous run
-    const stage = document.querySelector("#screen-questions .qform-stage");
+  const registerSheet = document.getElementById("register-sheet");
+
+  function questionStage() {
+    return document.querySelector("#screen-questions .qform-stage");
+  }
+
+  // Fresh entry into the flow: clear frozen question sheets from a
+  // previous run, un-freeze the register card and put it back on top.
+  function resetQuestionStage() {
+    const stage = questionStage();
     if (stage) {
-      stage.querySelectorAll(".qform-sheet--stacked").forEach(s => s.remove());
+      stage.querySelectorAll(".qform-sheet--stacked").forEach(s => {
+        if (s !== registerSheet) s.remove();
+      });
+      stage.classList.add("qform-stage--register");
+    }
+    if (registerSheet) {
+      registerSheet.classList.remove("qform-sheet--stacked");
+      registerSheet.style.zIndex = "";
+      registerSheet.style.removeProperty("--stack-rot");
+      registerSheet.style.removeProperty("--stack-x");
+      registerSheet.style.removeProperty("--stack-y");
     }
     state.frozenCount = 0;
+  }
+
+  // The filled register card becomes the first frozen sheet of the pile
+  // (same tilt/dim treatment as a finished question).
+  function freezeRegisterCard() {
+    const stage = questionStage();
+    if (registerSheet) {
+      const idx = state.frozenCount;
+      const angle = STACK_ANGLES[idx % STACK_ANGLES.length];
+      registerSheet.classList.add("qform-sheet--stacked");
+      registerSheet.style.zIndex = String(idx + 1);
+      registerSheet.style.setProperty("--stack-rot", angle + "deg");
+      registerSheet.style.setProperty("--stack-x", (angle * 2) + "px");
+      registerSheet.style.setProperty("--stack-y", (4 + idx * 1.5) + "px");
+      state.frozenCount++;
+    }
+    if (stage) stage.classList.remove("qform-stage--register");
+  }
+
+  // Drop the live question form in from above, landing on the pile
+  function dropInLiveForm(onDone) {
+    const stage = questionStage();
+    const liveSheet = stage && stage.querySelector(".qform-sheet--active");
+    const liveForm = liveSheet && liveSheet.querySelector(".qform");
+    if (!liveForm) {
+      if (onDone) onDone();
+      return;
+    }
+    liveForm.style.transition = "none";
+    liveForm.style.transform = "translateY(-100%)";
+    void liveForm.offsetWidth; // commit the jump
+    liveForm.style.transition = "transform 300ms ease-in";
+    liveForm.style.transform = "translateY(0)";
+    setTimeout(() => {
+      liveForm.style.transition = "";
+      liveForm.style.transform = "";
+      if (onDone) onDone();
+    }, 320);
+  }
+
+  function initQuestions() {
     qDate.textContent = state.date;
     qName.textContent = state.name;
     renderQuestion();
@@ -328,21 +399,10 @@
     stage.insertBefore(frozen, liveSheet);
     state.frozenCount++;
 
-    // Swap the live form's content for the next question
+    // Swap the live form's content for the next question, then drop it
+    // in from above, landing straight on top of the pile
     advanceCallback();
-
-    // Live form drops IN from above, landing straight on top of the pile
-    liveForm.style.transition = "none";
-    liveForm.style.transform = "translateY(-100%)";
-    void liveForm.offsetWidth; // commit the jump
-    liveForm.style.transition = "transform 300ms ease-in";
-    liveForm.style.transform = "translateY(0)";
-
-    setTimeout(() => {
-      liveForm.style.transition = "";
-      liveForm.style.transform = "";
-      isQuestionTransitioning = false;
-    }, 320);
+    dropInLiveForm(() => { isQuestionTransitioning = false; });
   }
 
   // No JS scaling — the stage is sized responsively in CSS.
@@ -754,6 +814,7 @@
   function restartFlow() {
     state.name = "";
     state.email = "";
+    state.phone = "";
     state.currentQuestion = 0;
     state.answers = [];
     state.dontKnow = [];
@@ -765,6 +826,7 @@
 
     nameInput.value = "";
     emailInput.value = "";
+    if (phoneInput) phoneInput.value = "";
     clearLegacyLines();
     if (searchInput) {
       searchInput.value = "";
