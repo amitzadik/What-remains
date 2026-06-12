@@ -88,8 +88,7 @@
     legacy:    document.getElementById("screen-legacy"),
     record:    document.getElementById("screen-record"),
     print:     document.getElementById("screen-print"),
-    personal:  document.getElementById("screen-personal"),
-    general:   document.getElementById("screen-general")
+    personal:  document.getElementById("screen-personal")
   };
 
   function showScreen(name) {
@@ -106,12 +105,16 @@
   const stampSearch = document.getElementById("stamp-search");
   const stampAdd    = document.getElementById("stamp-add");
 
-  // The landing background shows the same archive drawer wall as the
-  // general archive (built with buildDrawerEl, defined with the archive).
+  // The landing IS the archive: it shows the full drawer wall, filtered
+  // live by the in-place search input when one is open.
   function renderLandingDrawers() {
     if (!landingBg) return;
     landingBg.innerHTML = "";
-    const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
+    const query = (searchInput && searchInput.value ? searchInput.value : "").trim();
+    let drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
+    if (query) {
+      drawers = drawers.filter(v => (v.name || "").includes(query));
+    }
     drawers.forEach(v => landingBg.appendChild(buildDrawerEl(v)));
   }
 
@@ -151,12 +154,18 @@
     if (landingOverlay) landingOverlay.classList.add("is-hidden");
   }
 
+  // Search stamp toggles the in-place search bar (no navigation)
   if (stampSearch) {
     stampSearch.addEventListener("click", () => {
       dismissLandingPopup();
-      archiveSource = "search";
-      renderGeneralArchive();
-      showScreen("general");
+      if (!searchInput) return;
+      searchInput.hidden = !searchInput.hidden;
+      if (!searchInput.hidden) {
+        searchInput.focus();
+      } else {
+        searchInput.value = "";
+        applySearchFilter();
+      }
     });
   }
   if (stampAdd) {
@@ -584,13 +593,12 @@
   });
 
   // ============================================================
-  // PHASE.PRINT_INSTRUCTIONS — simple text → ARCHIVE
+  // PHASE.PRINT_INSTRUCTIONS — simple text → back home (the archive)
   // ============================================================
   const btnToArchive = document.getElementById("btn-to-archive");
   btnToArchive.addEventListener("click", () => {
-    archiveSource = "questionnaire";
-    renderGeneralArchive();
-    showScreen("general");
+    renderLandingDrawers(); // refresh — includes the user's new drawer
+    showScreen("landing");
   });
 
   // ============================================================
@@ -627,21 +635,16 @@
   }
 
   btnPersonalToGeneral.addEventListener("click", () => {
-    archiveSource = "questionnaire";
-    renderGeneralArchive();
-    showScreen("general");
+    renderLandingDrawers(); // refresh — includes the user's new drawer
+    showScreen("landing");
   });
 
   btnPersonalRestart.addEventListener("click", restartFlow);
 
   // ============================================================
-  // General archive
-  // archiveSource: "search" | "questionnaire" — controls home button image
-  let archiveSource = "search";
+  // Archive (lives on the landing screen) — search + drawer modals
   // ============================================================
-  const countText         = document.getElementById("count-text");
-  const searchInput       = document.getElementById("drawer-search");
-  const btnGeneralRestart = document.getElementById("btn-general-restart");
+  const searchInput = document.getElementById("landing-search");
 
   const codeModal        = document.getElementById("code-modal");
   const codeModalContent = document.getElementById("code-modal-content");
@@ -672,11 +675,7 @@
     return list;
   }
 
-  const archiveDetailDrawers = document.getElementById("archive-detail-drawers");
-  const btnBackToLetters     = document.getElementById("btn-back-to-letters");
-
-  // Build one archive drawer element — shared by the general archive
-  // grid and the landing background wall.
+  // Build one archive drawer element for the landing drawer wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
     d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
@@ -696,36 +695,10 @@
     return d;
   }
 
-  function renderGeneralArchive() {
-    // Update home/add-new button based on how user arrived at archive
-    if (btnBackToLetters) {
-      if (archiveSource === "questionnaire") {
-        btnBackToLetters.dataset.default = "images/home-default.png";
-        btnBackToLetters.dataset.hover   = "images/home-hover.png";
-      } else {
-        btnBackToLetters.dataset.default = "images/add-new-default.png";
-        btnBackToLetters.dataset.hover   = "images/add-new-hover.png";
-      }
-      btnBackToLetters.querySelector("img").src = btnBackToLetters.dataset.default;
-    }
-
-    const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
-    if (countText) countText.textContent = drawers.length + " מגירות בארכיון";
-
-    archiveDetailDrawers.innerHTML = "";
-    drawers.forEach(v => archiveDetailDrawers.appendChild(buildDrawerEl(v)));
+  // Re-render the drawer wall with the current search query applied
+  function applySearchFilter() {
+    renderLandingDrawers();
   }
-
-  if (btnBackToLetters) {
-    btnBackToLetters.addEventListener("click", () => {
-      renderLandingDrawers(); // refresh — the user's drawer may have been added
-      showScreen("landing");
-    });
-  }
-
-  // Search is no longer surfaced in the archive UI; keep a no-op filter
-  // so legacy callers (restartFlow, future search) don't throw.
-  function applySearchFilter() { /* no-op */ }
 
   if (searchInput && searchInput.addEventListener) {
     searchInput.addEventListener("input", () => applySearchFilter());
@@ -775,8 +748,6 @@
   });
   btnCloseContent.addEventListener("click", () => contentModal.classList.remove("active"));
 
-  btnGeneralRestart.addEventListener("click", restartFlow);
-
   // ============================================================
   // Restart
   // ============================================================
@@ -797,7 +768,7 @@
     clearLegacyLines();
     if (searchInput) {
       searchInput.value = "";
-      applySearchFilter("");
+      searchInput.hidden = true;
     }
     clearLines();
     checkDepositBtn();

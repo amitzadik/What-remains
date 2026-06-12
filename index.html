@@ -34,6 +34,15 @@
       >
     </div>
 
+    <!-- In-place archive search, toggled by the search stamp -->
+    <input
+      type="text"
+      id="landing-search"
+      class="input-field landing-search"
+      placeholder="חיפוש לפי שם"
+      hidden
+    >
+
     <!-- Popup card overlay (click outside to dismiss) -->
     <div class="landing-card-overlay" id="landing-overlay">
       <div class="landing-card" id="landing-card">
@@ -297,34 +306,6 @@
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
-  <section id="screen-general" class="screen">
-
-    <!-- Direct drawer grid — no cabinet phase -->
-    <div class="archive-grid-view" id="archive-view-detail">
-      <div class="archive-grid-top">
-        <button id="btn-back-to-letters" type="button" class="img-btn img-btn--corner-back" data-default="images/back-default.png" data-hover="images/back-hover.png">
-        <img src="images/back-default.png" width="105" height="105">
-      </button>
-        <div class="archive-grid-count" id="count-text"></div>
-        <button id="btn-general-restart" type="button" class="img-btn" data-default="images/add-new-default.png" data-hover="images/add-new-hover.png">
-        <img src="images/add-new-default.png" width="105" height="105">
-      </button>
-      </div>
-      <div id="archive-detail-drawers" class="archive-detail-drawers"></div>
-    </div>
-
-    <!-- Hidden stubs so JS wiring doesn't throw -->
-    <div id="archive-view-cabinets"    hidden></div>
-    <div id="archive-wall"             hidden></div>
-    <span id="archive-detail-letter"   hidden></span>
-    <input type="hidden" id="drawer-search">
-    <span id="search-status"           hidden></span>
-    <span id="archive-empty"           hidden></span>
-    <div id="archive-scroll-zone-left"  hidden></div>
-    <div id="archive-scroll-zone-right" hidden></div>
   </section>
 
   <!-- ============== MODAL: CODE ENTRY ============== -->
