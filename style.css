@@ -1357,14 +1357,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow: hidden;
 }
 
-/* Ruled grid (header / question / answers) — framed, fully inside the
-   inner area so no line touches the page edge */
+/* Ruled grid — framed, fully inside the inner area so no line touches
+   the page edge. All 7 rows (header / question / 5 answer lines) share
+   the exact same height, so every horizontal line is evenly spaced. */
 .qform-grid {
   flex: 1 1 auto;
   min-height: 0;
   border: 1px solid var(--ink);
   display: grid;
-  grid-template-rows: 1fr 1fr auto;
+  grid-template-rows: repeat(7, 1fr);
 }
 
 /* every row has its bottom dividing line except the last one */
@@ -1426,11 +1427,18 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 /* === Row 2: question === */
 .qform-question-row {
+  position: relative;
   flex-direction: column;
   /* 12px reading-side inset (the row's bottom border stays full width) */
   padding: 0.5rem 12px 0.5rem 0;
 }
-.qform-question-row .qform-label { text-align: right; }
+/* "שאלה" label pinned to the top of its row — adds no height */
+.qform-question-row .qform-label {
+  position: absolute;
+  top: 0.5rem;
+  right: 12px;
+  text-align: right;
+}
 .qform-question-text {
   flex: 1;
   display: flex;
@@ -1445,15 +1453,17 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   padding: 0.3rem 0;
 }
 
-/* === Row 3: answer area — exactly 5 ruled lines === */
-.qform-answer-row {
-  flex-direction: column;
-  padding: 0.45rem 0 0;
-}
-.qform-answer-row .qform-label {
-  text-align: right;
-  margin-bottom: 0.2rem;
-  padding-right: 12px; /* inset the label, not the ruled lines */
+/* === Answer area — exactly 5 ruled lines === */
+/* The wrapper is layout-transparent: each ruled line is a direct 1fr
+   grid row, exactly like the header and the question rows. */
+.qform-answer-row { display: contents; }
+
+/* "תשובה" label pinned to the top of the first line — adds no height */
+.answer-line .qform-label {
+  position: absolute;
+  top: 0.5rem;
+  right: 12px;
+  margin: 0;
 }
 
 /* The last ruled line would double up with the grid's bottom border —
@@ -1461,7 +1471,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-answer-row .answer-line:last-child { border-bottom: none; }
 
 .answer-line {
-  height: 2em;                 /* one line of typed text */
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
   border-bottom: 1px solid var(--ink);
   display: flex;
   align-items: flex-end;
