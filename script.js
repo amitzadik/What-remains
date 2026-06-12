@@ -33,6 +33,7 @@
     recordMode: "",      // "text" or "audio"
     audioBlob: null,
     userCode: "",
+    frozenCount: 0,      // stacked (frozen) sheets behind the live question
     date: new Date().toLocaleDateString("he-IL", {
       day: "2-digit", month: "2-digit", year: "2-digit"
     })
@@ -332,64 +333,86 @@
   }
 
   function initQuestions() {
+    // Clear any frozen sheets left over from a previous run
+    const stage = document.querySelector("#screen-questions .qform-stage");
+    if (stage) {
+      stage.querySelectorAll(".qform-sheet--stacked").forEach(s => s.remove());
+    }
+    state.frozenCount = 0;
     qDate.textContent = state.date;
     qName.textContent = state.name;
     renderQuestion();
   }
 
   function handleAnswer(isDontKnow) {
-    state.answers[state.currentQuestion]  = isDontKnow ? null : getAnswerText();
-    state.dontKnow[state.currentQuestion] = isDontKnow;
+    const finishingIndex = state.currentQuestion;
+    state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
+    state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
     if (state.currentQuestion >= questions.length) {
       initCards();
       showScreen("cards");
       return;
     }
-    animateNextQuestion(() => renderQuestion());
+    animateNextQuestion(finishingIndex, () => renderQuestion());
   }
 
-  // Stack-of-papers transition between questions: the current form is
-  // cloned and pinned in place (it never moves), and the next form drops
-  // IN from above the stage, landing on top of the clone. The stage's
-  // CSS scale fits the pair to the viewport.
+  // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
+  const STACK_ANGLES = [-1.6, 1.3, -0.9, 1.8, -1.2, 0.7];
+
+  // Stack-of-papers transition. The live form stays the single interactive
+  // sheet; the finished question is frozen into a static, tilted, dimmed
+  // sheet that is inserted BEHIND the live one and kept there. The pile
+  // therefore accumulates: at question N there are N sheets.
   let isQuestionTransitioning = false;
-  function animateNextQuestion(advanceCallback) {
+  function animateNextQuestion(finishingIndex, advanceCallback) {
     const stage = document.querySelector("#screen-questions .qform-stage");
-    const form = stage && stage.querySelector(".qform");
-    if (!stage || !form || isQuestionTransitioning) {
+    const liveSheet = stage && stage.querySelector(".qform-sheet--active");
+    const liveForm = liveSheet && liveSheet.querySelector(".qform");
+    if (!stage || !liveSheet || !liveForm || isQuestionTransitioning) {
       advanceCallback();
       return;
     }
     isQuestionTransitioning = true;
 
-    // Clone the current form and overlay it inside the same stage
-    const clone = form.cloneNode(true);
-    clone.classList.add("is-departing");
-    clone.style.pointerEvents = "none";
-    clone.removeAttribute("id");
-    clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    stage.appendChild(clone);
+    // Freeze the finishing question into a static sheet behind the live one
+    const idx = state.frozenCount;
+    const angle = STACK_ANGLES[idx % STACK_ANGLES.length];
+    const frozen = document.createElement("div");
+    frozen.className = "qform-sheet qform-sheet--stacked";
+    frozen.style.zIndex = String(idx + 1); // below the active sheet
+    frozen.style.setProperty("--stack-rot", angle + "deg");
+    frozen.style.setProperty("--stack-x", (angle * 2) + "px");
+    frozen.style.setProperty("--stack-y", (4 + idx * 1.5) + "px");
 
-    // Swap the real form's content for the next question
+    const formClone = liveForm.cloneNode(true);
+    formClone.removeAttribute("id");
+    formClone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    formClone.querySelectorAll("[contenteditable]").forEach(el => {
+      el.setAttribute("contenteditable", "false");
+    });
+    // Show "לא יודע/ת" on the frozen page when the question was skipped
+    if (state.dontKnow[finishingIndex]) {
+      const firstLine = formClone.querySelector(".qform-answer-row .line__text");
+      if (firstLine) firstLine.textContent = "לא יודע/ת";
+    }
+    frozen.appendChild(formClone);
+    stage.insertBefore(frozen, liveSheet);
+    state.frozenCount++;
+
+    // Swap the live form's content for the next question
     advanceCallback();
 
-    // Real form jumps above the stage, no transition
-    form.classList.add("is-arriving");
-    form.style.transition = "none";
-    form.style.transform = "translateY(-100%)";
-    void form.offsetWidth; // commit the jump
-
-    // Only the new form animates — the clone stays perfectly still
-    // underneath, so the bottom "sheet" never moves.
-    form.style.transition = "transform 300ms ease-in";
-    form.style.transform = "translateY(0)";
+    // Live form drops IN from above, landing straight on top of the pile
+    liveForm.style.transition = "none";
+    liveForm.style.transform = "translateY(-100%)";
+    void liveForm.offsetWidth; // commit the jump
+    liveForm.style.transition = "transform 300ms ease-in";
+    liveForm.style.transform = "translateY(0)";
 
     setTimeout(() => {
-      clone.remove();
-      form.classList.remove("is-arriving");
-      form.style.transition = "";
-      form.style.transform = "";
+      liveForm.style.transition = "";
+      liveForm.style.transform = "";
       isQuestionTransitioning = false;
     }, 320);
   }

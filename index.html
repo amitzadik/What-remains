@@ -93,7 +93,9 @@
   <!-- ============== SCREEN: QUESTIONS (1-7) ============== -->
   <section id="screen-questions" class="screen">
     <div class="qform-stage">
+    <div class="qform-sheet qform-sheet--active">
     <article class="qform">
+      <div class="qform-grid">
 
       <!-- Row 1: header — 4 cells with vertical dividers -->
       <div class="qform-row qform-header">
@@ -131,24 +133,29 @@
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span></div>
       </div>
 
-      <!-- Last row: footer buttons with vertical divider -->
-      <div class="qform-row qform-footer">
+      </div><!-- /.qform-grid -->
+
+      <!-- Floating action buttons: continue (bottom-left) + don't-know (bottom-right) -->
+      <div class="qform-actions">
         <button id="btn-dk-q" type="button" class="img-btn qform-img-btn" data-default="images/i-dont-know.png" data-hover="images/i-dont-know.png">
           <img src="images/i-dont-know.png" width="105" height="105">
         </button>
-        <button id="btn-next-q" type="button" class="img-btn qform-img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+        <button id="btn-next-q" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
           <img src="images/next-default.png" width="105" height="105">
         </button>
       </div>
 
     </article>
     </div>
+    </div>
   </section>
 
   <!-- ============== SCREEN: LEGACY QUESTION ============== -->
   <section id="screen-legacy" class="screen">
     <div class="qform-stage">
+    <div class="qform-sheet qform-sheet--active">
     <article class="qform">
+      <div class="qform-grid">
 
       <div class="qform-row qform-header">
         <div class="qform-cell">
@@ -184,13 +191,16 @@
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span></div>
       </div>
 
-      <div class="qform-row qform-footer">
-        <button id="btn-legacy-next" type="button" class="img-btn qform-img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+      </div><!-- /.qform-grid -->
+
+      <div class="qform-actions">
+        <button id="btn-legacy-next" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
           <img src="images/next-default.png" width="105" height="105">
         </button>
       </div>
 
     </article>
+    </div>
     </div>
   </section>
 

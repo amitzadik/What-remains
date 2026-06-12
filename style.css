@@ -1392,16 +1392,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: center;
 }
 
-/* Stage is just a responsive box that sets the card's outer size and
-   keeps it centred with breathing room on every side. */
+/* Stage — responsive 3:2 page (design base 1500×1000), centred with
+   breathing room; overflow stays visible so the tilted pile and the
+   sheet shadows aren't clipped (the .screen clips at the viewport). */
 .qform-stage {
-  width: min(90vw, 1370px);
-  height: min(85vh, 969px);
+  width: min(90vw, calc(85vh * 1.5), 1500px);
+  aspect-ratio: 3 / 2;
   margin: auto;
   position: relative;
-  overflow: hidden;
   flex-shrink: 0;
 }
+
+/* Paper sheet wrapper — opaque, so the box-shadow keeps full strength
+   while the page itself sits at 0.8 opacity. */
+.qform-sheet {
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.28), 0 3px 8px rgba(0,0,0,0.18);
+}
+.qform-sheet--active { z-index: 100; }
+.qform-sheet--stacked { z-index: 1; pointer-events: none; }
+.qform-sheet--stacked .qform { opacity: 0.55; }
 
 .qform {
   width: 100%;
@@ -1410,14 +1421,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-image: var(--paper-tex);
   background-size: cover;
   background-repeat: no-repeat;
-  border: 1px solid var(--ink);
-  display: grid;
-  /* Header / question / answer (auto, fits 5 lines) / footer */
-  grid-template-rows: 1fr 1fr auto 1fr;
+  opacity: 0.8;
+  /* Inner area: 52px sides / 85px top+bottom at the 1500×1000 base,
+     kept proportional (both percentages resolve against width) */
+  padding: calc(100% * 85 / 1500) calc(100% * 52 / 1500);
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-main);
   direction: rtl;
   text-align: right;
   overflow: hidden;
+}
+
+/* Ruled grid (header / question / answers) — framed, fully inside the
+   inner area so no line touches the page edge */
+.qform-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid var(--ink);
+  display: grid;
+  grid-template-rows: 1fr 1fr auto;
 }
 
 /* every row has its bottom dividing line except the last one */
@@ -1427,10 +1450,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   min-height: 0;
   overflow: hidden;
 }
-.qform-row:last-child,
-.qform-lines .qform-row:last-of-type ~ .qform-row:last-child,
-.qform-footer { border-bottom: none; }
-.qform-footer { border-top: 1px solid var(--ink); border-bottom: none; }
+.qform-row:last-child { border-bottom: none; }
 
 /* The #lines wrapper is layout-transparent so the four answer rows
    become direct grid items of .qform. */
@@ -1442,7 +1462,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex: 1;
   height: 100%;
   border-left: 1px solid var(--ink);
-  padding: 0.5rem 0.9rem;
+  padding: 0.5rem 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1482,7 +1502,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* === Row 2: question === */
 .qform-question-row {
   flex-direction: column;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0;
 }
 .qform-question-row .qform-label { text-align: right; }
 .qform-question-text {
@@ -1502,7 +1522,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* === Row 3: answer area — exactly 5 ruled lines === */
 .qform-answer-row {
   flex-direction: column;
-  padding: 0.45rem 40px 0;   /* 40px inset on both sides */
+  padding: 0.45rem 0 0;
 }
 .qform-answer-row .qform-label { text-align: right; margin-bottom: 0.2rem; }
 
@@ -1532,41 +1552,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-answer-row .line__text:focus,
 .qform .line__text:focus { background: transparent; }
 
-/* === Last row: footer buttons — same row height as the header === */
-.qform-footer { padding: 0; }
-.qform-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  border-left: 1px solid var(--ink);
-  cursor: pointer;
-  font-family: var(--font-main);
-  font-size: clamp(13px, 1.4vw, 16px);
-  padding: 0;
-  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+/* === Floating action buttons — bottom corners of the inner area === */
+.qform-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 3.5%;
 }
-.qform-btn:last-child { border-left: none; }
-.qform-btn:hover:not(:disabled) { background: var(--parchment); }
-/* Muted "disabled" look for the next button only */
-.qform-btn:disabled {
-  opacity: 1;
-  cursor: not-allowed;
-  background: transparent;
-}
-.qform-btn--dk   { color: var(--stamp); font-weight: 700; }
-.qform-btn--next { color: var(--ink);   font-weight: 700; }
-.qform-btn--next:disabled {
-  color: var(--metal);
-  font-weight: 500;
-}
+/* Continue / submit button always sits in the bottom-LEFT corner; the
+   auto inline-start margin pushes it to the inline-end (left in RTL),
+   leaving "לא יודע/ת" in the bottom-RIGHT corner. */
+.qform-actions__continue { margin-inline-start: auto; }
 
-/* Image buttons inside qform footer */
 .qform-img-btn {
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1575,26 +1578,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-img-btn:disabled { cursor: not-allowed; }
 .qform-img-btn:disabled img { opacity: 0.35; }
 
+/* Stacked (frozen) sheets — gentle tilt + offset, buttons hidden */
+.qform-sheet--stacked {
+  transform: translate(var(--stack-x, 0), var(--stack-y, 0)) rotate(var(--stack-rot, 0deg));
+}
+.qform-sheet--stacked .qform-actions { visibility: hidden; }
+.qform-sheet--stacked [contenteditable] { caret-color: transparent; }
+
 @media (max-width: 600px) {
-  .qform {
-    --form-w: min(96vw, calc(80vh * 1.5));
-  }
   .qform-label { font-size: 0.62rem; }
   .qform-value { font-size: 0.85rem; }
   .qform-question-text { font-size: 1rem; }
-  .qform-btn { font-size: 1rem; }
-}
-
-/* === Question form: stack-of-papers slide transition === */
-.qform.is-arriving {
-  position: relative;
-  z-index: 2;
-}
-.qform.is-departing {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
 }
