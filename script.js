@@ -38,16 +38,26 @@
     "מתי נולד סבא?"
   ];
 
-  const pastViewers = [
-    { name: "נועה",   code: "0001", archive: "שאני אהבתי לצייר ולא הפסקתי אף פעם" },
-    { name: "יונתן",  code: "0002", archive: "שהייתי צוחק בקול הכי חזק בחדר" },
-    { name: "דנה",    code: "0003", archive: "שפחדתי מהחושך אבל תמיד השארתי את הדלת פתוחה" },
-    { name: "עומר",   code: "0004", archive: "שחלמתי ללמוד פסנתר" },
-    { name: "מיכל",   code: "0005", archive: "שלא דיברתי מספיק על מה שכאב לי" },
-    { name: "איתי",   code: "0006", archive: "שהמשפחה הייתה הדבר הכי חשוב" },
-    { name: "שירה",   code: "0007", archive: "שאפיתי עוגת שוקולד בכל יום שישי" },
-    { name: "אלון",   code: "0008", archive: "שרציתי לנסוע לים, תמיד" }
-  ];
+  // Real archive entries, loaded from the DB (Google Sheets) at boot.
+  let pastViewers = [];
+
+  // Load the archive entries via JSONP (a plain fetch to Apps Script is
+  // blocked by CORS). The landing wall re-renders when the data arrives.
+  function loadViewersFromDB() {
+    if (!SHEET_WEBHOOK_URL) return;
+    const cbName = "__wrViewersCb";
+    window[cbName] = function(res) {
+      pastViewers = (res && res.entries ? res.entries : []).map(function(e){
+        return { name: e.name, code: String(e.code).padStart(4, "0"), archive: e.legacy_text };
+      });
+      renderLandingDrawers();
+      delete window[cbName];
+      if (s && s.remove) s.remove();
+    };
+    var s = document.createElement("script");
+    s.src = SHEET_WEBHOOK_URL + "?callback=" + cbName + "&t=" + Date.now();
+    document.body.appendChild(s);
+  }
 
   const state = {
     name: "",
@@ -829,5 +839,6 @@
 
   checkDepositBtn();
   renderLandingDrawers();
+  loadViewersFromDB();
   showScreen("landing");
 })();
