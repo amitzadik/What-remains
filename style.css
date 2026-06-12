@@ -1285,7 +1285,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-general {
   padding: 0;
-  background-color: #AC8969;
+  background-color: var(--wood);
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
 }
 
@@ -1327,7 +1331,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background-color: #AC8969;
+  background-color: var(--wood);
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Top nav bar */
@@ -1336,7 +1344,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: #AC8969;
+  background-color: var(--wood);
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   flex-shrink: 0;
 }
 .archive-grid-count {
@@ -1374,7 +1386,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 18vw, 240px), 1fr));
   gap: 16px;
   padding: 16px;
-  background: #AC8969;
+  background-color: var(--wood);
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   flex: 1;
 }
 .archive-detail-drawers .wall-drawer { margin: 0; }
@@ -1386,7 +1402,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-legacy {
   padding: 0;
   background-color: var(--wood);
-  background-image: none;
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
