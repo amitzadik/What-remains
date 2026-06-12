@@ -61,7 +61,7 @@
   }
 
   // ============================================================
-  // Landing (PHASE.LANDING) — cabinet wall + intro card + stamps
+  // Landing (PHASE.LANDING) — archive drawer wall + intro card + stamps
   // ============================================================
   const landingBg = document.getElementById("landing-bg");
   const landingOverlay = document.getElementById("landing-overlay");
@@ -69,132 +69,14 @@
   const stampSearch = document.getElementById("stamp-search");
   const stampAdd    = document.getElementById("stamp-add");
 
-  const CABINET_LABELS = [
-    "א-ב","ב-ג","ג-ד","ד-ה","ה-ו","ו-ז","ז-ח","ח-ט","ט-י","י-כ",
-    "כ-ל","ל-מ","מ-נ","נ-ס","ס-ע","ע-פ","פ-צ","צ-ק","ק-ר","ר-ש","ש-ת"
-  ];
-
-  function wheelSVG() {
-    return (
-      '<svg class="cabinet-wheel" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-        '<circle cx="50" cy="50" r="44" fill="none" stroke="#3D3628" stroke-width="3"/>' +
-        '<line x1="50" y1="6"  x2="50" y2="94" stroke="#3D3628" stroke-width="8" stroke-linecap="round"/>' +
-        '<line x1="6"  y1="50" x2="94" y2="50" stroke="#3D3628" stroke-width="8" stroke-linecap="round"/>' +
-        '<circle cx="50" cy="50" r="9" fill="#3D3628"/>' +
-      '</svg>'
-    );
+  // The landing background shows the same archive drawer wall as the
+  // general archive (built with buildDrawerEl, defined with the archive).
+  function renderLandingDrawers() {
+    if (!landingBg) return;
+    landingBg.innerHTML = "";
+    const drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
+    drawers.forEach(v => landingBg.appendChild(buildDrawerEl(v)));
   }
-
-  function renderCabinetWall() {
-    if (!landingBg || landingBg.childElementCount) return;
-    CABINET_LABELS.forEach(label => {
-      const col = document.createElement("div");
-      col.className = "cabinet-col";
-      const tag = document.createElement("div");
-      tag.className = "cabinet-label";
-      tag.textContent = label;
-      col.appendChild(tag);
-      col.insertAdjacentHTML("beforeend", wheelSVG());
-      landingBg.appendChild(col);
-
-      // Hovering the wheel pushes neighbours apart and spins this wheel
-      const wheel = col.querySelector(".cabinet-wheel");
-      if (wheel) {
-        wheel.addEventListener("mouseenter", () => activateCabinetCol(landingBg, col, LANDING_RIGHT_TEAM_LAST));
-        wheel.addEventListener("mouseleave", () => resetCabinetCols(landingBg));
-      }
-    });
-
-    centerWall(landingBg);
-  }
-
-  // On the landing wall the first 11 cabinets are the right team, last 10
-  // the left team. On the archive wall the split is computed from the
-  // cabinet count (so an even/odd split based on the people present).
-  const LANDING_RIGHT_TEAM_LAST = 10;
-  const EDGE_SCROLL_SPEED = 2; // px per frame
-
-  function activateCabinetCol(wallEl, targetCol, rightTeamLast) {
-    if (!wallEl) return;
-    const cols = Array.from(wallEl.children).filter(c => c.classList.contains("cabinet-col"));
-    const targetIndex = cols.indexOf(targetCol);
-    if (targetIndex < 0) return;
-    const splitPoint = (typeof rightTeamLast === "number")
-      ? rightTeamLast
-      : Math.ceil(cols.length / 2) - 1;
-    const isRightTeam = targetIndex <= splitPoint;
-
-    cols.forEach((col, i) => {
-      col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
-      if (isRightTeam && i <= targetIndex) {
-        col.classList.add("is-pushed-right");
-      } else if (!isRightTeam && i >= targetIndex) {
-        col.classList.add("is-pushed-left");
-      }
-    });
-
-    void targetCol.offsetWidth; // restart spin animation
-    targetCol.classList.add("is-spinning");
-  }
-
-  function resetCabinetCols(wallEl) {
-    if (!wallEl) return;
-    Array.from(wallEl.children).forEach(col => {
-      col.classList.remove("is-pushed-right", "is-pushed-left", "is-spinning");
-    });
-  }
-
-  // Center the strip so middle cabinets sit in the viewport on first render
-  function centerWall(wallEl) {
-    if (!wallEl) return;
-    requestAnimationFrame(() => {
-      const maxScroll = wallEl.scrollWidth - wallEl.clientWidth;
-      if (maxScroll <= 0) return;
-      const isRTL = getComputedStyle(wallEl).direction === "rtl";
-      wallEl.scrollLeft = (isRTL ? -1 : 1) * (maxScroll / 2);
-    });
-  }
-
-  // Hover-driven edge auto-scroll, scoped to a given wall + zones
-  function bindEdgeScroll(wallEl, leftZoneEl, rightZoneEl) {
-    if (!wallEl) return;
-    let raf = null;
-    let dir = 0;
-
-    function loop() {
-      if (dir === 0) { raf = null; return; }
-      wallEl.scrollLeft += dir * EDGE_SCROLL_SPEED;
-      raf = requestAnimationFrame(loop);
-    }
-    function start(direction) {
-      if (dir === direction) return;
-      dir = direction;
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(loop);
-    }
-    function stop() {
-      dir = 0;
-      if (raf) { cancelAnimationFrame(raf); raf = null; }
-    }
-
-    if (rightZoneEl) {
-      rightZoneEl.addEventListener("mouseenter", () => start(+1));
-      rightZoneEl.addEventListener("mouseleave", stop);
-    }
-    if (leftZoneEl) {
-      leftZoneEl.addEventListener("mouseenter", () => start(-1));
-      leftZoneEl.addEventListener("mouseleave", stop);
-    }
-  }
-
-  const scrollZoneLeft  = document.getElementById("scroll-zone-left");
-  const scrollZoneRight = document.getElementById("scroll-zone-right");
-  bindEdgeScroll(landingBg, scrollZoneLeft, scrollZoneRight);
-
-  const archiveScrollLeft  = document.getElementById("archive-scroll-zone-left");
-  const archiveScrollRight = document.getElementById("archive-scroll-zone-right");
-  const archiveWallEl      = document.getElementById("archive-wall");
-  bindEdgeScroll(archiveWallEl, archiveScrollLeft, archiveScrollRight);
 
   // Click outside the card (on the overlay) dismisses it
   if (landingOverlay) {
@@ -755,6 +637,27 @@
   const archiveDetailDrawers = document.getElementById("archive-detail-drawers");
   const btnBackToLetters     = document.getElementById("btn-back-to-letters");
 
+  // Build one archive drawer element — shared by the general archive
+  // grid and the landing background wall.
+  function buildDrawerEl(v) {
+    const d = document.createElement("div");
+    d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
+    d.setAttribute("data-name", v.name);
+    const plate = document.createElement("div");
+    plate.className = "wall-plate";
+    plate.textContent = v.name;
+    d.appendChild(plate);
+
+    d.addEventListener("click", () => {
+      if (v.isUser) {
+        showContent(v.name, v.archive);
+      } else {
+        openCodeModal(v, d);
+      }
+    });
+    return d;
+  }
+
   function renderGeneralArchive() {
     // Update home/add-new button based on how user arrived at archive
     if (btnBackToLetters) {
@@ -772,28 +675,14 @@
     if (countText) countText.textContent = drawers.length + " מגירות בארכיון";
 
     archiveDetailDrawers.innerHTML = "";
-    drawers.forEach(v => {
-      const d = document.createElement("div");
-      d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
-      d.setAttribute("data-name", v.name);
-      const plate = document.createElement("div");
-      plate.className = "wall-plate";
-      plate.textContent = v.name;
-      d.appendChild(plate);
-
-      d.addEventListener("click", () => {
-        if (v.isUser) {
-          showContent(v.name, v.archive);
-        } else {
-          openCodeModal(v, d);
-        }
-      });
-      archiveDetailDrawers.appendChild(d);
-    });
+    drawers.forEach(v => archiveDetailDrawers.appendChild(buildDrawerEl(v)));
   }
 
   if (btnBackToLetters) {
-    btnBackToLetters.addEventListener("click", () => showScreen("landing"));
+    btnBackToLetters.addEventListener("click", () => {
+      renderLandingDrawers(); // refresh — the user's drawer may have been added
+      showScreen("landing");
+    });
   }
 
   // Search is no longer surfaced in the archive UI; keep a no-op filter
@@ -879,6 +768,7 @@
     contentModal.classList.remove("active");
     if (landingCardInner) landingCardInner.classList.remove("is-flipped");
 
+    renderLandingDrawers(); // back to the base drawer list (state cleared)
     showScreen("landing");
   }
 
@@ -909,6 +799,6 @@
   });
 
   checkDepositBtn();
-  renderCabinetWall();
+  renderLandingDrawers();
   showScreen("landing");
 })();
