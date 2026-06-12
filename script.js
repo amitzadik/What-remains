@@ -1,5 +1,31 @@
 (() => {
   // ============================================================
+  // Google Sheets webhook (Apps Script)
+  // ============================================================
+  const SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby2VT25WhYQdVHaDYx0-FflX-iUgXBfE4Pfu4N0bqZNBwp1TXxCrew4fq_QMg58AL80qg/exec";
+
+  // Fire-and-forget submission of the full questionnaire to the sheet.
+  // Guarded by state.submitted so a row is written at most once per run.
+  function submitToSheet() {
+    if (state.submitted || !SHEET_WEBHOOK_URL) return;
+    const q = i => state.dontKnow[i] ? "לא יודע/ת" : (state.answers[i] || "");
+    const payload = {
+      name: state.name || "", email: state.email || "", code: state.userCode || "",
+      q1: q(0), q2: q(1), q3: q(2), q4: q(3), q5: q(4), q6: q(5), q7: q(6),
+      legacy_text: state.legacyText || ""
+    };
+    try {
+      fetch(SHEET_WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      state.submitted = true;
+    } catch (err) { /* לא חוסם את חוויית המשתמש */ }
+  }
+
+  // ============================================================
   // Data
   // ============================================================
   const questions = [
@@ -33,6 +59,7 @@
     recordMode: "",      // "text" or "audio"
     audioBlob: null,
     userCode: "",
+    submitted: false,    // guards against a double webhook submission
     frozenCount: 0,      // stacked (frozen) sheets behind the live question
     date: new Date().toLocaleDateString("he-IL", {
       day: "2-digit", month: "2-digit", year: "2-digit"
@@ -386,6 +413,7 @@
     const txt = getLegacyText();
     if (txt === "") return;
     state.legacyText = txt;
+    submitToSheet(); // all 12 fields are now filled — fire-and-forget
     initRecordScreen();
     showScreen("record");
   });
@@ -752,6 +780,7 @@
     state.recordMode = "";
     state.audioBlob = null;
     state.userCode = "";
+    state.submitted = false;
 
     nameInput.value = "";
     emailInput.value = "";
