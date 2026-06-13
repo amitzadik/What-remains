@@ -694,12 +694,26 @@
     });
   }
 
+  // Folder dividers: clicking a tab brings its divider to the front
+  const folderTabs   = Array.from(document.querySelectorAll("#screen-personal .folder-tab"));
+  const folderBodies = Array.from(document.querySelectorAll("#screen-personal .folder-body"));
+  function activateFolder(idx) {
+    folderTabs.forEach((t, i)   => t.classList.toggle("is-active", i === idx));
+    folderBodies.forEach((b, i) => b.classList.toggle("is-active", i === idx));
+  }
+  folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
+  activateFolder(2); // default to the "דברים שכתבתי" divider (has content)
+
+  // Bottom-left: add to archive — placeholder, wired in the future
   btnPersonalToGeneral.addEventListener("click", () => {
-    renderLandingDrawers(); // refresh — includes the user's new drawer
-    showScreen("landing");
+    /* no-op for now — will lead to "add information" */
   });
 
-  btnPersonalRestart.addEventListener("click", restartFlow);
+  // Bottom-right: back home to the archive (keeps the user's drawer)
+  btnPersonalRestart.addEventListener("click", () => {
+    renderLandingDrawers();
+    showScreen("landing");
+  });
 
   // ============================================================
   // Archive (lives on the landing screen) — search + drawer modals

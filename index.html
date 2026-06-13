@@ -287,32 +287,41 @@
 
   <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
   <section id="screen-personal" class="screen">
-    <div class="archive-scroll">
-      <div class="drawer-page">
-        <div class="drawer-header">
-          <div class="drawer-name" id="p-name"></div>
-          <div class="drawer-code-label">קוד <span id="p-code"></span></div>
-        </div>
+    <div class="folder-wrap">
+      <div class="drawer-header">
+        <div class="drawer-name" id="p-name"></div>
+        <div class="drawer-code-label">קוד <span id="p-code"></span></div>
+      </div>
 
-        <div class="drawer-section">
-          <div class="section-label">המורשת</div>
-          <div class="legacy-text" id="p-legacy"></div>
+      <div class="folders">
+        <div class="folder-tabs">
+          <button type="button" class="folder-tab" data-folder="0">תמונות</button>
+          <button type="button" class="folder-tab" data-folder="1">סרטונים</button>
+          <button type="button" class="folder-tab" data-folder="2">דברים שכתבתי</button>
+          <button type="button" class="folder-tab" data-folder="3">השאלות מההתחלה</button>
         </div>
-
-        <div class="drawer-section">
-          <div class="section-label">תשובות לשבע השאלות</div>
-          <ol class="q-list" id="p-questions"></ol>
-        </div>
-
-        <div class="btn-group" style="justify-content: space-between;">
-          <button id="btn-personal-to-general" type="button" class="img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png">
-            <img src="images/next-default.png" width="105" height="105">
-          </button>
-          <button id="btn-personal-restart" type="button" class="img-btn img-btn--corner-back" data-default="images/back-default.png" data-hover="images/back-hover.png">
-            <img src="images/back-default.png" width="105" height="105">
-          </button>
+        <div class="folder-bodies">
+          <div class="folder-body" data-folder="0">
+            <div class="folder-empty">עדיין אין כאן תוכן</div>
+          </div>
+          <div class="folder-body" data-folder="1">
+            <div class="folder-empty">עדיין אין כאן תוכן</div>
+          </div>
+          <div class="folder-body" data-folder="2">
+            <div class="legacy-text" id="p-legacy"></div>
+          </div>
+          <div class="folder-body" data-folder="3">
+            <ol class="q-list" id="p-questions"></ol>
+          </div>
         </div>
       </div>
+
+      <button id="btn-personal-to-general" type="button" class="img-btn personal-add" data-default="images/add-new-default.png" data-hover="images/add-new-hover.png">
+        <img src="images/add-new-default.png" width="105" height="105">
+      </button>
+      <button id="btn-personal-restart" type="button" class="img-btn personal-back" data-default="images/back-default.png" data-hover="images/back-hover.png">
+        <img src="images/back-default.png" width="105" height="105">
+      </button>
     </div>
   </section>
 

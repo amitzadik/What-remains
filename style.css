@@ -105,6 +105,102 @@ html, body {
 /* Archive screens scroll */
 #screen-personal, #screen-general { padding: 0; }
 
+/* ===== Personal drawer — folder-divider layout on the wood ===== */
+#screen-personal {
+  background-color: var(--wood);
+  background-image: url('images/wood-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.folder-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 60px 110px;
+}
+.folder-wrap .drawer-header {
+  text-align: center;
+  margin-bottom: 18px;
+  padding-bottom: 0;
+  border-bottom: none;
+  flex: 0 0 auto;
+}
+
+/* Stack of folders: a row of index tabs above one swapping body card */
+.folders {
+  position: relative;
+  width: min(880px, 100%);
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.folder-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: -1px;   /* overlap the body's top border */
+  padding-inline-start: 18px;
+  z-index: 3;
+}
+.folder-tab {
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--ink);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 22px;
+  font-family: var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  opacity: 0.82;          /* inactive tabs sit slightly back */
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.folder-tab:hover:not(.is-active) { opacity: 0.95; }
+.folder-tab.is-active {
+  opacity: 1;
+  position: relative;
+  z-index: 4;
+}
+
+.folder-bodies {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.folder-body {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--ink);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.28), 0 3px 8px rgba(0,0,0,0.18);
+  padding: 32px 36px;
+  overflow-y: auto;
+  visibility: hidden;
+}
+.folder-body.is-active { visibility: visible; z-index: 2; }
+.folder-empty {
+  color: var(--metal);
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+/* Corner buttons — add (bottom-left), back home (bottom-right) */
+.personal-add  { position: absolute; left: 20px;  bottom: 20px; z-index: 5; }
+.personal-back { position: absolute; right: 20px; bottom: 20px; z-index: 5; }
+
 .archive-scroll {
   width: 100%;
   height: 100%;
