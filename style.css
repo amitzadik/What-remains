@@ -648,14 +648,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   #code-modal-content { height: 92vh; width: auto; }
 }
 
-/* Header grouped top-right: X button (rightmost) then the title block,
-   both sharing the same horizontal line */
+/* Title sits in flow on the top-right; the X is pinned 20px from the
+   top-right corner (like .popup-close-btn). padding-right reserves room
+   so the title never slides under the X. */
 #code-modal-content .code-head {
   display: flex;
   align-items: center;
   gap: 14px;
+  padding-right: 28px;
 }
-#code-modal-content .code-close { flex: 0 0 auto; }
+#code-modal-content .code-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 5;
+}
 #code-modal-content .code-title {
   font-family: var(--font-main);
   font-size: 1.8rem;
@@ -755,9 +762,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ----- Stamps (outside the card, top-left corner) ----- */
 #screen-landing .landing-stamps {
   position: absolute;
-  top: 8px;
-  left: 36px;
-  right: 36px;
+  top: 20px;
+  left: 20px;
+  right: 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -1610,7 +1617,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   border: none;
   padding: 0;
   cursor: pointer;
-  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
