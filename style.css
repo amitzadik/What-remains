@@ -638,6 +638,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: auto;
   padding: 44px 48px;
   text-align: right;
+  border: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -647,14 +648,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   #code-modal-content { height: 92vh; width: auto; }
 }
 
-/* Header grouped top-right: X button (rightmost) then the title block */
+/* Header grouped top-right: X button (rightmost) then the title block,
+   both sharing the same horizontal line */
 #code-modal-content .code-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
 }
 #code-modal-content .code-close { flex: 0 0 auto; }
-#code-modal-content .code-head-text { display: flex; flex-direction: column; }
 #code-modal-content .code-title {
   font-family: var(--font-main);
   font-size: 1.8rem;
@@ -666,7 +667,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-family: var(--font-main);
   font-size: 0.95rem;
   color: var(--metal);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 /* The 4 digit boxes, centred in the card */
@@ -676,6 +677,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 #code-modal-content .code-boxes {
   display: inline-flex;
+  /* numbering runs left→right; box 0 is the leftmost cell */
+  direction: ltr;
   border: 1px solid var(--ink);
 }
 #code-modal-content .code-box {
