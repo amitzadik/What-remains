@@ -709,8 +709,17 @@
   const codeModal        = document.getElementById("code-modal");
   const codeModalContent = document.getElementById("code-modal-content");
   const codeTarget       = document.getElementById("code-target");
-  const codeInput        = document.getElementById("drawer-code-input");
+  const codeBoxes        = Array.from(document.querySelectorAll("#code-boxes .code-box"));
   const errMsg           = document.getElementById("err-msg");
+
+  // The displayed value is masked (*) while the real digit lives in
+  // dataset.real, so checkCode reads the actual code, not the asterisks.
+  function getCodeValue() {
+    return codeBoxes.map(b => b.dataset.real || "").join("");
+  }
+  function clearCodeBoxes() {
+    codeBoxes.forEach(b => { b.dataset.real = ""; b.value = ""; });
+  }
   const btnSubmitCode    = document.getElementById("btn-submit-code");
   const btnCloseCode     = document.getElementById("btn-close-code");
 
@@ -770,15 +779,15 @@
     activeViewer = viewer || null;
     activeDrawerEl = drawerEl || null;
     codeTarget.textContent = viewer ? ("המגירה של " + viewer.name) : "הזינ/י את קוד המגירה";
-    codeInput.value = "";
+    clearCodeBoxes();
     errMsg.textContent = "";
     codeModal.classList.add("active");
-    setTimeout(() => codeInput.focus(), 50);
+    setTimeout(() => { if (codeBoxes[0]) codeBoxes[0].focus(); }, 50);
   }
 
   function checkCode() {
     if (!activeViewer) return;
-    const input = codeInput.value.trim();
+    const input = getCodeValue().trim();
     if (input === activeViewer.code) {
       codeModal.classList.remove("active");
       setTimeout(() => showContent(activeViewer.name, activeViewer.archive), 300);
@@ -792,6 +801,8 @@
         void activeDrawerEl.offsetWidth;
         activeDrawerEl.classList.add("shake");
       }
+      clearCodeBoxes();
+      if (codeBoxes[0]) codeBoxes[0].focus();
     }
   }
 
@@ -803,9 +814,36 @@
 
   btnCloseCode.addEventListener("click", () => codeModal.classList.remove("active"));
   btnSubmitCode.addEventListener("click", checkCode);
-  codeInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") checkCode();
+
+  // 4-box code entry: type a digit → mask as * and advance; Backspace
+  // clears/steps back; Enter or a full code submits.
+  codeBoxes.forEach((box, i) => {
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { checkCode(); return; }
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        if (box.dataset.real) {
+          box.dataset.real = "";
+          box.value = "";
+        } else {
+          const prev = codeBoxes[i - 1];
+          if (prev) { prev.dataset.real = ""; prev.value = ""; prev.focus(); }
+        }
+        return;
+      }
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        box.dataset.real = e.key;
+        box.value = "*";
+        const next = codeBoxes[i + 1];
+        if (next) next.focus();
+        else if (getCodeValue().length === 4) checkCode();
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault(); // block non-digits
+      }
+    });
   });
+
   btnCloseContent.addEventListener("click", () => contentModal.classList.remove("active"));
 
   // ============================================================

@@ -629,6 +629,79 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #err-msg { color: var(--red); font-size: 0.9rem; margin-top: 1rem; min-height: 1.2rem; }
 
+/* ===== Code-entry modal — landscape password card (scoped, does not
+   touch the generic .modal-content used by the content modal) ===== */
+#code-modal-content {
+  width: min(760px, 92vw);
+  aspect-ratio: 760 / 538;
+  max-width: 92vw;
+  height: auto;
+  padding: 44px 48px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* Scale down on short viewports — derive width from height, keep ratio */
+@media (max-height: 600px) {
+  #code-modal-content { height: 92vh; width: auto; }
+}
+
+/* Header grouped top-right: X button (rightmost) then the title block */
+#code-modal-content .code-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+#code-modal-content .code-close { flex: 0 0 auto; }
+#code-modal-content .code-head-text { display: flex; flex-direction: column; }
+#code-modal-content .code-title {
+  font-family: var(--font-main);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+}
+#code-modal-content .code-target {
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: var(--metal);
+  margin-top: 4px;
+}
+
+/* The 4 digit boxes, centred in the card */
+#code-modal-content .code-center {
+  margin: auto 0;
+  text-align: center;
+}
+#code-modal-content .code-boxes {
+  display: inline-flex;
+  border: 1px solid var(--ink);
+}
+#code-modal-content .code-box {
+  width: 88px;
+  height: 88px;
+  border: none;
+  /* single 1px divider between cells; outer frame on .code-boxes */
+  border-inline-start: 1px solid var(--ink);
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: 2.6rem;
+  color: var(--ink);
+  caret-color: var(--stamp);
+  outline: none;
+  padding: 0;
+  border-radius: 0;
+}
+#code-modal-content .code-box:first-child { border-inline-start: none; }
+#code-modal-content .code-err {
+  margin-top: 16px;
+  color: var(--stamp);
+  font-size: 0.9rem;
+  min-height: 1.2rem;
+}
+
 /* ============================================================
    Responsive
 ============================================================ */
