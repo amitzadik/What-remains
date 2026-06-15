@@ -138,45 +138,10 @@ html, body {
   inset: 0;
 }
 
-/* Tabs sit at fixed positions across the front sheet's width, just
-   above its top edge, and always render on top of the whole stack.
-   They do not move when a divider changes its stack rank. */
-.folder-tabs {
-  position: absolute;
-  left: 60px;
-  right: 60px;
-  top: calc(32% - 42px);   /* just above the front sheet's fixed top */
-  display: flex;
-  justify-content: space-between;
-  padding: 0 24px;
-  z-index: 30;             /* always above every sheet */
-  pointer-events: none;    /* only the tabs themselves catch clicks */
-}
-.folder-tab {
-  pointer-events: auto;
-  background-color: var(--bg-cream);
-  background-image: var(--paper-tex);
-  background-size: cover;
-  background-position: center;
-  border: none;
-  border-radius: 10px 10px 0 0;
-  padding: 9px 18px;
-  font-family: var(--font-main);
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: pointer;
-  white-space: nowrap;
-  opacity: 0.85;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.28), 0 2px 5px rgba(0,0,0,0.18);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.folder-tab:hover:not(.is-active) { opacity: 0.97; }
-.folder-tab.is-active { opacity: 1; transform: translateY(-3px); }
-
-/* The stacked dividers — front (rank 0) widest (60px each side) and
-   lowest; each rank further back is narrower and taller (top peeks up),
-   all anchored to the bottom of the screen. */
+/* The stacked dividers. All sheets share the same width (60px from each
+   side) and are anchored to the bottom; depth (--rank) only changes the
+   vertical offset + z-order, so each sheet's top peeks above the one in
+   front. The transition makes a clicked sheet slide forward. */
 .folder-bodies {
   position: absolute;
   inset: 0;
@@ -185,9 +150,9 @@ html, body {
   --rank: 0;
   position: absolute;
   bottom: 0;
-  left:  calc(60px + var(--rank) * 46px);
-  right: calc(60px + var(--rank) * 46px);
-  top:   calc(32% - var(--rank) * 5%);
+  left: 60px;
+  right: 60px;
+  top: calc(34% - var(--rank) * 6%);
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
   background-size: cover;
@@ -195,10 +160,19 @@ html, body {
   border: none;
   /* layered shadow so each divider lifts off the one behind it */
   box-shadow: 0 -6px 22px rgba(0,0,0,0.30), 0 -2px 8px rgba(0,0,0,0.22);
-  padding: 34px 36px 96px;
-  overflow: hidden;
+  overflow: visible;          /* let the attached tab stick above the top */
+  transition: top 0.35s ease;
 }
-.folder-content { height: 100%; overflow-y: auto; }
+
+/* Content clipped inside the sheet (below the tab, above the buttons) */
+.folder-content {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  top: 28px;
+  bottom: 130px;
+  overflow-y: auto;
+}
 .folder-body:not(.is-active) .folder-content { visibility: hidden; }
 .folder-empty {
   color: var(--metal);
@@ -206,6 +180,33 @@ html, body {
   text-align: center;
   margin-top: 2.5rem;
 }
+
+/* Each tab is attached to the top edge of its own sheet (a child of the
+   body), sticking up like a real divider tab and moving with the sheet.
+   A fixed horizontal slot per category keeps them side by side. */
+.folder-tab {
+  position: absolute;
+  top: -32px;
+  z-index: 1;
+  background-color: var(--bg-cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-position: center;
+  border: none;
+  border-radius: 12px 12px 0 0;
+  padding: 9px 20px;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 -5px 14px rgba(0,0,0,0.26), 0 2px 4px rgba(0,0,0,0.14);
+}
+.folder-body[data-folder="0"] .folder-tab { left: 4%; }    /* תמונות */
+.folder-body[data-folder="1"] .folder-tab { left: 28%; }   /* סרטונים */
+.folder-body[data-folder="2"] .folder-tab { left: 52%; }   /* דברים שכתבתי */
+.folder-body[data-folder="3"] .folder-tab { left: 76%; }   /* השאלות מההתחלה */
 
 /* Corner buttons — on the front divider, 20px from its edges
    (front divider is inset 60px, so 80px from the screen edges) */
