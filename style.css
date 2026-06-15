@@ -120,6 +120,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 36px 60px 110px;
 }
 .folder-wrap .drawer-header {
@@ -130,20 +131,21 @@ html, body {
   flex: 0 0 auto;
 }
 
-/* Stack of folders: a row of index tabs above one swapping body card */
+/* Stack of folders: a centred row of index tabs above one swapping
+   3:2 body card. The card grows responsively but always keeps 3:2. */
 .folders {
   position: relative;
-  width: min(880px, 100%);
-  flex: 1 1 auto;
-  min-height: 0;
+  width: min(90vw, calc(82vh * 1.5), 1100px);
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
 }
 .folder-tabs {
   display: flex;
+  justify-content: center;
   gap: 10px;
-  margin-bottom: -1px;   /* overlap the body's top border */
-  padding-inline-start: 18px;
+  margin-bottom: -2px;   /* connect the active tab to the body */
   z-index: 3;
 }
 .folder-tab {
@@ -151,8 +153,7 @@ html, body {
   background-image: var(--paper-tex);
   background-size: cover;
   background-position: center;
-  border: 1px solid var(--ink);
-  border-bottom: none;
+  border: none;
   border-radius: 12px 12px 0 0;
   padding: 12px 22px;
   font-family: var(--font-main);
@@ -162,6 +163,7 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
   opacity: 0.82;          /* inactive tabs sit slightly back */
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.12);
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .folder-tab:hover:not(.is-active) { opacity: 0.95; }
@@ -171,10 +173,12 @@ html, body {
   z-index: 4;
 }
 
+/* The 3:2 body box — height derived from width so the ratio holds at
+   every screen size */
 .folder-bodies {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
+  width: 100%;
+  aspect-ratio: 3 / 2;
 }
 .folder-body {
   position: absolute;
@@ -183,8 +187,8 @@ html, body {
   background-image: var(--paper-tex);
   background-size: cover;
   background-position: center;
-  border: 1px solid var(--ink);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.28), 0 3px 8px rgba(0,0,0,0.18);
+  border: none;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.32), 0 5px 14px rgba(0,0,0,0.20);
   padding: 32px 36px;
   overflow-y: auto;
   visibility: hidden;

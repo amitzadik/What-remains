@@ -726,17 +726,21 @@
   function activateFolder(idx) {
     folderTabs.forEach((t, i)   => t.classList.toggle("is-active", i === idx));
     folderBodies.forEach((b, i) => b.classList.toggle("is-active", i === idx));
+    // Add is available for תמונות/סרטונים/דברים שכתבתי, but not for
+    // "השאלות מההתחלה" (index 3)
+    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (idx === 3) ? "none" : "";
   }
   folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
   activateFolder(2); // default to the "דברים שכתבתי" divider (has content)
 
-  // Bottom-left: add to archive — placeholder, wired in the future
+  // Bottom-left: add to the active category — placeholder, wired later
   btnPersonalToGeneral.addEventListener("click", () => {
-    /* no-op for now — will lead to "add information" */
+    /* no-op for now — will lead to "add information" for the active folder */
   });
 
-  // Bottom-right: back home to the archive (keeps the user's drawer)
+  // Bottom-right: back to the archive; re-lock so re-entry needs the code
   btnPersonalRestart.addEventListener("click", () => {
+    activeViewer = null;
     renderLandingDrawers();
     showScreen("landing");
   });
@@ -794,13 +798,8 @@
     plate.textContent = v.name;
     d.appendChild(plate);
 
-    d.addEventListener("click", () => {
-      if (v.isUser) {
-        openDrawerInterior(v);
-      } else {
-        openCodeModal(v, d);
-      }
-    });
+    // Every drawer — including the user's own — requires the code
+    d.addEventListener("click", () => openCodeModal(v, d));
     return d;
   }
 
