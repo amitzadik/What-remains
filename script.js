@@ -49,7 +49,12 @@
     const cbName = "__wrViewersCb";
     window[cbName] = function(res) {
       pastViewers = (res && res.entries ? res.entries : []).map(function(e){
-        return { name: e.name, code: String(e.code).padStart(4, "0"), archive: e.legacy_text };
+        return {
+          name: e.name,
+          code: String(e.code).padStart(4, "0"),
+          archive: e.legacy_text,
+          answers: [e.q1, e.q2, e.q3, e.q4, e.q5, e.q6, e.q7]
+        };
       });
       renderLandingDrawers();
       delete window[cbName];
@@ -671,27 +676,48 @@
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
 
-  function renderPersonalArchive() {
-    pName.textContent = state.name || "(ללא שם)";
-    pCode.textContent = state.userCode;
-    pLegacy.textContent = state.legacyText || "(אין טקסט מורשת)";
-    pQuestions.innerHTML = "";
+  // Open the drawer interior (folder dividers) for a given viewer and
+  // show the screen. "דברים שכתבתי" = legacy text; "השאלות מההתחלה" =
+  // the 7 answers (full data for the user's own drawer via state; for DB
+  // drawers only when the sheet returns q1..q7 via viewer.answers).
+  function openDrawerInterior(viewer) {
+    if (!viewer) return;
+    pName.textContent   = viewer.name || "(ללא שם)";
+    pCode.textContent   = viewer.code || "";
+    pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
 
-    questions.forEach((q, i) => {
-      const isDk = state.dontKnow[i];
-      const ans  = isDk ? "לא יודע/ת" : (state.answers[i] || "(אין תשובה)");
-      const li = document.createElement("li");
-      li.className = "q-item";
-      const qDiv = document.createElement("div");
-      qDiv.className = "q-item-q";
-      qDiv.textContent = (i + 1) + ". " + q;
-      const aDiv = document.createElement("div");
-      aDiv.className = "q-item-a" + (isDk ? " dk" : "");
-      aDiv.textContent = ans;
-      li.appendChild(qDiv);
-      li.appendChild(aDiv);
-      pQuestions.appendChild(li);
-    });
+    let answers = null, dontKnow = null;
+    if (viewer.isUser) {
+      answers  = state.answers;
+      dontKnow = state.dontKnow;
+    } else if (Array.isArray(viewer.answers) && viewer.answers.some(a => a && String(a).trim())) {
+      answers  = viewer.answers;
+      dontKnow = viewer.answers.map(a => String(a).trim() === "לא יודע/ת");
+    }
+
+    pQuestions.innerHTML = "";
+    if (answers) {
+      questions.forEach((q, i) => {
+        const isDk = dontKnow && dontKnow[i];
+        const ans  = isDk ? "לא יודע/ת" : (answers[i] || "(אין תשובה)");
+        const li = document.createElement("li");
+        li.className = "q-item";
+        const qDiv = document.createElement("div");
+        qDiv.className = "q-item-q";
+        qDiv.textContent = (i + 1) + ". " + q;
+        const aDiv = document.createElement("div");
+        aDiv.className = "q-item-a" + (isDk ? " dk" : "");
+        aDiv.textContent = ans;
+        li.appendChild(qDiv);
+        li.appendChild(aDiv);
+        pQuestions.appendChild(li);
+      });
+    } else {
+      pQuestions.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
+    }
+
+    activateFolder(2); // default to the "דברים שכתבתי" divider
+    showScreen("personal");
   }
 
   // Folder dividers: clicking a tab brings its divider to the front
@@ -770,7 +796,7 @@
 
     d.addEventListener("click", () => {
       if (v.isUser) {
-        showContent(v.name, v.archive);
+        openDrawerInterior(v);
       } else {
         openCodeModal(v, d);
       }
@@ -804,7 +830,7 @@
     const input = getCodeValue().trim();
     if (input === activeViewer.code) {
       codeModal.classList.remove("active");
-      setTimeout(() => showContent(activeViewer.name, activeViewer.archive), 300);
+      setTimeout(() => openDrawerInterior(activeViewer), 300);
     } else {
       errMsg.textContent = "קוד שגוי";
       codeModalContent.classList.remove("shake");
