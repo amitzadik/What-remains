@@ -138,19 +138,28 @@ html, body {
   inset: 0;
 }
 
-/* Each divider carries its own tab, attached at the top edge of its
-   sheet and staggered horizontally, so all four read as separate index
-   dividers. The tab sits in each sheet's visible top strip. */
-.folder-tab {
+/* Tabs sit at fixed positions across the front sheet's width, just
+   above its top edge, and always render on top of the whole stack.
+   They do not move when a divider changes its stack rank. */
+.folder-tabs {
   position: absolute;
-  top: 14px;
-  z-index: 2;
+  left: 60px;
+  right: 60px;
+  top: calc(32% - 42px);   /* just above the front sheet's fixed top */
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 30;             /* always above every sheet */
+  pointer-events: none;    /* only the tabs themselves catch clicks */
+}
+.folder-tab {
+  pointer-events: auto;
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
   background-size: cover;
   background-position: center;
   border: none;
-  border-radius: 10px;
+  border-radius: 10px 10px 0 0;
   padding: 9px 18px;
   font-family: var(--font-main);
   font-size: 1rem;
@@ -158,14 +167,12 @@ html, body {
   color: var(--ink);
   cursor: pointer;
   white-space: nowrap;
+  opacity: 0.85;
   box-shadow: 0 6px 14px rgba(0,0,0,0.28), 0 2px 5px rgba(0,0,0,0.18);
-  transition: transform 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.folder-body[data-folder="0"] .folder-tab { left: 5%; }
-.folder-body[data-folder="1"] .folder-tab { left: 29%; }
-.folder-body[data-folder="2"] .folder-tab { left: 53%; }
-.folder-body[data-folder="3"] .folder-tab { left: 77%; }
-.folder-tab.is-active { transform: translateY(-2px); }
+.folder-tab:hover:not(.is-active) { opacity: 0.97; }
+.folder-tab.is-active { opacity: 1; transform: translateY(-3px); }
 
 /* The stacked dividers — front (rank 0) widest (60px each side) and
    lowest; each rank further back is narrower and taller (top peeks up),
@@ -188,7 +195,7 @@ html, body {
   border: none;
   /* layered shadow so each divider lifts off the one behind it */
   box-shadow: 0 -6px 22px rgba(0,0,0,0.30), 0 -2px 8px rgba(0,0,0,0.22);
-  padding: 64px 36px 96px;   /* top room for the attached tab */
+  padding: 34px 36px 96px;
   overflow: hidden;
 }
 .folder-content { height: 100%; overflow-y: auto; }
