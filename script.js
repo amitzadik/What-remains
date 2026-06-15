@@ -724,8 +724,17 @@
   const folderTabs   = Array.from(document.querySelectorAll("#screen-personal .folder-tab"));
   const folderBodies = Array.from(document.querySelectorAll("#screen-personal .folder-body"));
   function activateFolder(idx) {
-    folderTabs.forEach((t, i)   => t.classList.toggle("is-active", i === idx));
-    folderBodies.forEach((b, i) => b.classList.toggle("is-active", i === idx));
+    // Active divider comes to the front (rank 0, widest, content shown);
+    // the others fan out behind it by their index order (narrower/taller).
+    const order = [idx].concat([0, 1, 2, 3].filter(i => i !== idx));
+    order.forEach((folderIndex, rank) => {
+      const body = folderBodies[folderIndex];
+      if (!body) return;
+      body.style.setProperty("--rank", rank);
+      body.style.zIndex = String(10 - rank);
+      body.classList.toggle("is-active", rank === 0);
+    });
+    folderTabs.forEach((t, i) => t.classList.toggle("is-active", i === idx));
     // Add is available for תמונות/סרטונים/דברים שכתבתי, but not for
     // "השאלות מההתחלה" (index 3)
     if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (idx === 3) ? "none" : "";
