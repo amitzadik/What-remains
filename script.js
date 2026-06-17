@@ -73,8 +73,7 @@
     answers: [],
     dontKnow: [],
     legacyText: "",
-    recordMode: "",      // "text" or "audio"
-    audioBlob: null,
+    photoDataUrl: "",    // depositor photo (session only, not persisted)
     userCode: "",
     submitted: false,    // guards against a double webhook submission
     frozenCount: 0,      // stacked (frozen) sheets behind the live question
@@ -92,7 +91,7 @@
     cards:     document.getElementById("screen-cards"),
     envelope:  document.getElementById("screen-envelope"),
     legacy:    document.getElementById("screen-legacy"),
-    record:    document.getElementById("screen-record"),
+    camera:    document.getElementById("screen-camera"),
     print:     document.getElementById("screen-print"),
     personal:  document.getElementById("screen-personal")
   };
@@ -498,8 +497,8 @@
     if (txt === "") return;
     state.legacyText = txt;
     submitToSheet(); // all 12 fields are now filled — fire-and-forget
-    initRecordScreen();
-    showScreen("record");
+    initCameraScreen();
+    showScreen("camera");
   });
 
   // ============================================================
@@ -578,83 +577,84 @@
   });
 
   // ============================================================
-  // PHASE.RECORD — text or audio choice + recorder
+  // PHASE.CAMERA — depositor photo
   // ============================================================
-  const recordOptions    = document.getElementById("record-options");
-  const recordPanel      = document.getElementById("record-panel");
-  const btnRecordText    = document.getElementById("btn-record-text");
-  const btnRecordAudio   = document.getElementById("btn-record-audio");
-  const recordCircleBtn  = document.getElementById("record-circle-btn");
-  const recordStatus     = document.getElementById("record-status");
-  const recordTimerEl    = document.getElementById("record-timer");
-  const btnRecordDone    = document.getElementById("btn-record-done");
+  const cameraVideo   = document.getElementById("camera-video");
+  const cameraCanvas  = document.getElementById("camera-canvas");
+  const cameraPhoto   = document.getElementById("camera-photo");
+  const cameraMsg     = document.getElementById("camera-msg");
+  const cameraShutter = document.getElementById("camera-shutter");
+  const cameraRetake  = document.getElementById("camera-retake");
+  const btnCameraNext = document.getElementById("btn-camera-next");
+  const btnCameraBack = document.getElementById("btn-camera-back");
 
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let recordTimerInterval = null;
-  let recordStartTime = 0;
+  let cameraStream = null;
 
-  function initRecordScreen() {
-    state.recordMode = "";
-    state.audioBlob = null;
-    recordOptions.style.display = "";
-    recordPanel.hidden = true;
-    recordStatus.textContent = "לחץ להתחיל";
-    recordTimerEl.textContent = "00:00";
-    recordCircleBtn.classList.remove("is-recording");
-    btnRecordDone.disabled = true;
-  }
-
-  btnRecordText.addEventListener("click", () => {
-    state.recordMode = "text";
-    showScreen("print");
-  });
-
-  btnRecordAudio.addEventListener("click", () => {
-    state.recordMode = "audio";
-    recordOptions.style.display = "none";
-    recordPanel.hidden = false;
-  });
-
-  function updateRecordTimer() {
-    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
-    const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
-    const ss = String(elapsed % 60).padStart(2, "0");
-    recordTimerEl.textContent = mm + ":" + ss;
-  }
-
-  recordCircleBtn.addEventListener("click", async () => {
-    if (!mediaRecorder || mediaRecorder.state === "inactive") {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) audioChunks.push(e.data);
-        };
-        mediaRecorder.onstop = () => {
-          state.audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          stream.getTracks().forEach(t => t.stop());
-          recordStatus.textContent = "ההקלטה נשמרה";
-          btnRecordDone.disabled = false;
-        };
-        mediaRecorder.start();
-        recordStartTime = Date.now();
-        recordStatus.textContent = "מקליט… לחץ לעצירה";
-        recordCircleBtn.classList.add("is-recording");
-        recordTimerInterval = setInterval(updateRecordTimer, 200);
-      } catch (err) {
-        recordStatus.textContent = "אין הרשאה למיקרופון";
-      }
-    } else {
-      mediaRecorder.stop();
-      recordCircleBtn.classList.remove("is-recording");
-      clearInterval(recordTimerInterval);
+  // Always release the camera (turns the webcam light off) on any exit
+  function stopCameraStream() {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(t => t.stop());
+      cameraStream = null;
     }
+  }
+
+  async function initCameraScreen() {
+    // reset to live-preview state
+    cameraPhoto.hidden = true;
+    cameraPhoto.removeAttribute("src");
+    cameraVideo.hidden = false;
+    cameraMsg.hidden = true;
+    cameraMsg.textContent = "";
+    cameraRetake.hidden = true;
+    btnCameraNext.disabled = true;
+    cameraShutter.disabled = false;
+    stopCameraStream();
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" }, audio: false
+      });
+      cameraVideo.srcObject = cameraStream;
+    } catch (err) {
+      // Soft fallback — no camera / no permission: let the user continue
+      cameraVideo.hidden = true;
+      cameraMsg.textContent = "אין גישה למצלמה";
+      cameraMsg.hidden = false;
+      cameraShutter.disabled = true;
+      btnCameraNext.disabled = false;
+    }
+  }
+
+  cameraShutter.addEventListener("click", () => {
+    if (!cameraStream) return;
+    const w = cameraVideo.videoWidth, h = cameraVideo.videoHeight;
+    if (!w || !h) return;
+    cameraCanvas.width = w;
+    cameraCanvas.height = h;
+    cameraCanvas.getContext("2d").drawImage(cameraVideo, 0, 0, w, h);
+    const dataUrl = cameraCanvas.toDataURL("image/jpeg", 0.85);
+    state.photoDataUrl = dataUrl;
+    cameraPhoto.src = dataUrl;
+    cameraVideo.hidden = true;
+    cameraPhoto.hidden = false;
+    stopCameraStream();              // freeze + release the camera
+    btnCameraNext.disabled = false;
+    cameraRetake.hidden = false;
   });
 
-  btnRecordDone.addEventListener("click", () => {
+  cameraRetake.addEventListener("click", () => {
+    state.photoDataUrl = "";
+    initCameraScreen();
+  });
+
+  btnCameraNext.addEventListener("click", () => {
+    if (btnCameraNext.disabled) return;
+    stopCameraStream();
     showScreen("print");
+  });
+
+  btnCameraBack.addEventListener("click", () => {
+    stopCameraStream();
+    showScreen("legacy");
   });
 
   // ============================================================
@@ -673,6 +673,7 @@
   const pCode    = document.getElementById("p-code");
   const pLegacy  = document.getElementById("p-legacy");
   const pQuestions = document.getElementById("p-questions");
+  const pPhotos  = document.getElementById("p-photos");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
 
@@ -685,6 +686,17 @@
     pName.textContent   = viewer.name || "(ללא שם)";
     pCode.textContent   = viewer.code || "";
     pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
+
+    // "תמונות" — show the depositor photo for the user's own drawer
+    // (session only; not persisted to the DB)
+    if (pPhotos) {
+      if (viewer.isUser && state.photoDataUrl) {
+        pPhotos.innerHTML = '<img class="drawer-photo" alt="תמונת המפקיד">';
+        pPhotos.querySelector("img").src = state.photoDataUrl;
+      } else {
+        pPhotos.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
+      }
+    }
 
     let answers = null, dontKnow = null;
     if (viewer.isUser) {
@@ -907,8 +919,7 @@
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
-    state.recordMode = "";
-    state.audioBlob = null;
+    state.photoDataUrl = "";
     state.userCode = "";
     state.submitted = false;
 
@@ -922,7 +933,7 @@
     }
     clearLines();
     checkDepositBtn();
-    initRecordScreen();
+    stopCameraStream();
 
     codeModal.classList.remove("active");
     contentModal.classList.remove("active");

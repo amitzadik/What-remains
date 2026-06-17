@@ -245,23 +245,35 @@
     </div>
   </section>
 
-  <!-- ============== SCREEN: RECORD (text or audio) ============== -->
-  <section id="screen-record" class="screen">
-    <div class="record-wrap">
-      <div class="record-title">איך תרצה להשאיר את זה?</div>
+  <!-- ============== SCREEN: CAMERA (depositor photo) ============== -->
+  <section id="screen-camera" class="screen">
+    <div class="qform-stage">
+      <div class="qform-sheet qform-sheet--active">
+        <article class="qform qform--register">
+          <div class="register-head">
+            <div class="register-title">תמונת המפקיד</div>
+          </div>
 
-      <div class="record-options" id="record-options">
-        <button id="btn-record-text"  type="button" class="record-option">טקסט</button>
-        <button id="btn-record-audio" type="button" class="record-option">הקלטה</button>
-      </div>
+          <div class="camera-center">
+            <div class="camera-area">
+              <video id="camera-video" autoplay playsinline muted></video>
+              <canvas id="camera-canvas" hidden></canvas>
+              <img id="camera-photo" hidden alt="">
+              <div id="camera-msg" class="camera-msg" hidden></div>
+            </div>
+            <button id="camera-shutter" type="button" class="camera-shutter" aria-label="צילום"></button>
+            <button id="camera-retake" type="button" class="camera-retake" hidden>צילום מחדש</button>
+          </div>
 
-      <div class="record-panel" id="record-panel" hidden>
-        <button id="record-circle-btn" type="button" class="record-circle" aria-label="התחל או עצור הקלטה"></button>
-        <div class="record-status" id="record-status">לחץ להתחיל</div>
-        <div class="record-timer" id="record-timer">00:00</div>
-        <button id="btn-record-done" type="button" class="img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
-          <img src="images/next-default.png" width="105" height="105">
-        </button>
+          <div class="qform-actions">
+            <button id="btn-camera-next" type="button" class="img-btn qform-img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+              <img src="images/next-default.png" width="105" height="105">
+            </button>
+            <button id="btn-camera-back" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/back-default.png" data-hover="images/back-hover.png">
+              <img src="images/back-default.png" width="105" height="105">
+            </button>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -297,7 +309,7 @@
         <div class="folder-bodies">
           <div class="folder-body" data-folder="0">
             <button type="button" class="folder-tab" data-folder="0">תמונות</button>
-            <div class="folder-content"><div class="folder-empty">עדיין אין כאן תוכן</div></div>
+            <div class="folder-content" id="p-photos"><div class="folder-empty">עדיין אין כאן תוכן</div></div>
           </div>
           <div class="folder-body" data-folder="1">
             <button type="button" class="folder-tab" data-folder="1">סרטונים</button>

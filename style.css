@@ -1249,102 +1249,82 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ============================================================
    PHASE.RECORD — text or audio choice
 ============================================================ */
-#screen-record {
-  padding: 0;
-  background-color: var(--cream);
-}
-
-.record-wrap {
-  width: min(620px, 92vw);
+/* Camera card — centred capture area, shutter, retake link */
+.camera-center {
   margin: auto;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4vh 2rem;
-  gap: 2rem;
+  gap: 18px;
+  width: min(560px, 86%);
 }
-
-.record-title {
-  font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 1rem;
-  color: var(--gray);
-}
-
-.record-options {
-  display: flex;
-  gap: 2rem;
+.camera-area {
+  position: relative;
   width: 100%;
-  justify-content: center;
-}
-
-.record-option {
-  flex: 1;
-  max-width: 220px;
-  padding: 1.6rem 1rem;
-  font-family: var(--font-main);
-  font-weight: 500;
-  font-size: 1.4rem;
-  color: var(--ink);
-  background: transparent;
+  aspect-ratio: 4 / 3;
   border: 1px solid var(--ink);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.05);
 }
-.record-option:hover { background: var(--ink); color: var(--cream); }
-
-.record-panel {
+.camera-area video,
+.camera-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.camera-area video[hidden],
+.camera-area img[hidden] { display: none; }
+.camera-msg {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
-  margin-top: 1rem;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  color: var(--metal);
 }
-.record-panel[hidden] { display: none; }
+.camera-msg[hidden] { display: none; }
 
-.record-circle {
-  width: 110px;
-  height: 110px;
+.camera-shutter {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  border: 4px solid var(--red);
+  border: 3px solid var(--ink);
   background: transparent;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s;
+  flex: 0 0 auto;
 }
-.record-circle::after {
+.camera-shutter::after {
   content: "";
   position: absolute;
-  top: 50%; left: 50%;
-  width: 36px; height: 36px;
+  inset: 6px;
   border-radius: 50%;
-  background: var(--red);
-  transform: translate(-50%, -50%);
-  transition: all 0.2s;
+  background: var(--ink);
 }
-.record-circle.is-recording::after {
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  animation: rec-pulse 1.2s ease-in-out infinite;
-}
-@keyframes rec-pulse {
-  0%, 100% { opacity: 0.9; }
-  50%      { opacity: 0.5; }
-}
+.camera-shutter:disabled { opacity: 0.35; cursor: not-allowed; }
 
-.record-status {
+.camera-retake {
+  background: none;
+  border: none;
+  color: var(--stamp);
+  cursor: pointer;
   font-family: var(--font-main);
   font-size: 1rem;
-  color: var(--gray);
+  text-decoration: underline;
 }
-.record-timer {
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 1.6rem;
-  color: var(--red);
-  letter-spacing: 0.05em;
+.camera-retake[hidden] { display: none; }
+
+/* Depositor photo shown inside the drawer's "תמונות" divider */
+.drawer-photo {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
 }
 
 /* ============================================================
@@ -1495,7 +1475,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    PHASE.QUESTION — archival form on wood
 ============================================================ */
 #screen-questions,
-#screen-legacy {
+#screen-legacy,
+#screen-camera {
   padding: 0;
   background-color: var(--wood);
   background-image: url('images/wood-texture.jpg');
