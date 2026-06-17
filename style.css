@@ -132,10 +132,12 @@ html, body {
 }
 
 /* The stack lives across the whole screen; tabs float on top, the four
-   dividers are stacked and anchored to the bottom. */
+   dividers are stacked and anchored to the bottom. The perspective lets
+   the stack lean back like folders standing on a desk. */
 .folders {
   position: absolute;
   inset: 0;
+  perspective: 1100px;
 }
 
 /* The stacked dividers. All sheets share the same width (60px from each
@@ -145,6 +147,9 @@ html, body {
 .folder-bodies {
   position: absolute;
   inset: 0;
+  /* lean the whole stack (sheets + tabs) back; bottom stays put */
+  transform: rotateX(18deg);
+  transform-origin: bottom center;
 }
 .folder-body {
   --rank: 0;
@@ -152,7 +157,7 @@ html, body {
   bottom: 0;
   left: 60px;
   right: 60px;
-  top: calc(34% - var(--rank) * 6%);
+  top: calc(38% - var(--rank) * 5%);
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
   background-size: cover;
@@ -186,7 +191,7 @@ html, body {
    A fixed horizontal slot per category keeps them side by side. */
 .folder-tab {
   position: absolute;
-  top: -32px;
+  top: -28px;                 /* its bottom overlaps a few px into the body */
   z-index: 1;
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
@@ -194,14 +199,16 @@ html, body {
   background-position: center;
   border: none;
   border-radius: 12px 12px 0 0;
-  padding: 9px 20px;
+  padding: 9px 20px 14px;     /* extra bottom padding extends into the body */
   font-family: var(--font-main);
   font-size: 1rem;
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 -5px 14px rgba(0,0,0,0.26), 0 2px 4px rgba(0,0,0,0.14);
+  /* only the upward shadow that lifts the whole folder above those behind
+     it — no downward shadow that would seam against its own body */
+  box-shadow: 0 -5px 14px rgba(0,0,0,0.26);
 }
 .folder-body[data-folder="0"] .folder-tab { left: 4%; }    /* תמונות */
 .folder-body[data-folder="1"] .folder-tab { left: 28%; }   /* סרטונים */
