@@ -818,7 +818,13 @@
     d.setAttribute("data-name", v.name);
     const plate = document.createElement("div");
     plate.className = "wall-plate";
-    plate.textContent = v.name;
+    const nameEl = document.createElement("span");
+    nameEl.className = "wall-plate-name";
+    nameEl.textContent = v.name;
+    const boxEl = document.createElement("span");
+    boxEl.className = "wall-plate-box"; // decorative, stays empty (not the code)
+    plate.appendChild(nameEl);
+    plate.appendChild(boxEl);
     d.appendChild(plate);
 
     // Every drawer — including the user's own — requires the code
