@@ -137,7 +137,6 @@ html, body {
 .folders {
   position: absolute;
   inset: 0;
-  perspective: 1100px;
 }
 
 /* The stacked dividers. All sheets share the same width (60px from each
@@ -147,9 +146,6 @@ html, body {
 .folder-bodies {
   position: absolute;
   inset: 0;
-  /* lean the whole stack (sheets + tabs) back; bottom stays put */
-  transform: rotateX(18deg);
-  transform-origin: bottom center;
 }
 .folder-body {
   --rank: 0;
@@ -157,7 +153,7 @@ html, body {
   bottom: 0;
   left: 60px;
   right: 60px;
-  top: calc(38% - var(--rank) * 5%);
+  top: calc(34% - var(--rank) * 6%);
   background-color: var(--bg-cream);
   background-image: var(--paper-tex);
   background-size: cover;
