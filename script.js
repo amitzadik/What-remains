@@ -606,7 +606,7 @@
     cameraMsg.hidden = true;
     cameraMsg.textContent = "";
     cameraRetake.hidden = true;
-    btnCameraNext.disabled = true;
+    btnCameraNext.disabled = false; // photo is optional — continue always allowed
     cameraShutter.disabled = false;
     stopCameraStream();
     try {
