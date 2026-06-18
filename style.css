@@ -159,43 +159,31 @@ html, body {
 .folder-body {
   --rank: 0;
   position: absolute;
-  bottom: 0;
-  top: calc(50% - var(--rank) * 11%);   /* ~25% smaller, staggered */
+  left: 60px;
+  right: 60px;
+  bottom: 0;                                   /* flush to the bottom */
+  top: calc(550px - var(--rank) * 120px);      /* backmost tab ~100px below the header */
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: 100% auto;                  /* full width, keep the image proportion */
   border: none;
-  filter: drop-shadow(0 -4px 10px rgba(0,0,0,0.25));
+  /* shadow follows the folder/tab silhouette of the PNG, not a rectangle */
+  filter: drop-shadow(0 5px 9px rgba(0,0,0,0.4));
   overflow: visible;
-  transition: top 0.35s ease, left 0.35s ease, right 0.35s ease;
+  transition: top 0.35s ease;
 }
-/* The folder image lives on a backdrop layer so the caption/content on
-   top are never affected. */
-.folder-body::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: center / 100% 100% no-repeat;
-}
-.folder-body[data-folder="0"]::before,
-.folder-body[data-folder="2"]::before { background-image: url("images/folder-left.png"); }
-.folder-body[data-folder="1"]::before,
-.folder-body[data-folder="3"]::before { background-image: url("images/folder-right.png"); }
+.folder-body[data-folder="0"],
+.folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
+.folder-body[data-folder="1"],
+.folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
 
-/* Fanned slots — all four tabs at distinct x (2 left, 2 right) */
-.folder-body[data-folder="2"] { left: 6%;  right: 38%; }   /* left  */
-.folder-body[data-folder="0"] { left: 24%; right: 20%; }   /* left  */
-.folder-body[data-folder="3"] { left: 20%; right: 24%; }   /* right */
-.folder-body[data-folder="1"] { left: 38%; right: 6%;  }   /* right */
-
-/* The active folder pulls to centre-front (animated via the transition) */
-.folder-body.is-active { left: 18%; right: 18%; }
-
-/* Content clipped inside the sheet (below the tab, above the buttons) */
+/* Content on the folder face (below the tab); only the active folder shows it */
 .folder-content {
   position: absolute;
-  left: 36px;
-  right: 36px;
-  top: 18%;          /* clear the tab printed at the top of the folder image */
-  bottom: 130px;
+  left: 12%;
+  right: 12%;
+  top: 10vw;
+  bottom: 120px;
   overflow-y: auto;
 }
 .folder-body:not(.is-active) .folder-content { visibility: hidden; }
@@ -206,15 +194,12 @@ html, body {
   margin-top: 2.5rem;
 }
 
-/* Each tab is attached to the top edge of its own sheet (a child of the
-   body), sticking up like a real divider tab and moving with the sheet.
-   A fixed horizontal slot per category keeps them side by side. */
-/* The tab is now printed on the folder image; this is just the clickable
-   caption sitting on top of it. Transparent — no paper/border/shadow. */
+/* Clickable caption sitting on the printed tab — the whole box is the
+   click target (top-left for 0,2; top-right for 1,3) */
 .folder-tab {
   position: absolute;
   top: 0;
-  height: 16%;            /* sits on the printed tab; whole box is clickable */
+  height: 8vw;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -222,23 +207,21 @@ html, body {
   background: none;
   border: none;
   font-family: var(--font-main);
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
   white-space: nowrap;
 }
-/* the click box covers the tab notch — left for 0,2; right for 1,3 */
 .folder-body[data-folder="0"] .folder-tab,
-.folder-body[data-folder="2"] .folder-tab { left: 4%; width: 42%; }
+.folder-body[data-folder="2"] .folder-tab { left: 4%; width: 40%; }
 .folder-body[data-folder="1"] .folder-tab,
-.folder-body[data-folder="3"] .folder-tab { right: 4%; width: 42%; }
-.folder-body[data-folder="3"] .folder-tab { font-size: 0.62rem; }
+.folder-body[data-folder="3"] .folder-tab { right: 4%; width: 40%; }
+.folder-body[data-folder="3"] .folder-tab { font-size: 0.8rem; }
 
-/* Corner buttons — on the front divider, 20px from its edges
-   (front divider is inset 60px, so 80px from the screen edges) */
-.personal-add  { position: absolute; left:  calc(18% + 24px); bottom: 20px; z-index: 25; }
-.personal-back { position: absolute; right: calc(18% + 24px); bottom: 20px; z-index: 25; }
+/* Corner buttons — on the front folder, 20px in from the 60px side margin */
+.personal-add  { position: absolute; left: 80px;  bottom: 20px; z-index: 25; }
+.personal-back { position: absolute; right: 80px; bottom: 20px; z-index: 25; }
 
 .archive-scroll {
   width: 100%;
