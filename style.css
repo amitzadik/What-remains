@@ -107,8 +107,8 @@ html, body {
 
 /* ===== Personal drawer — folder-divider layout on the wood ===== */
 #screen-personal {
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -881,7 +881,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-landing {
   padding: 0;
-  background-color: var(--cream);
+  background-color: #0E0E0E;
   background-image: none;
   overflow: hidden;
 }
@@ -1202,7 +1202,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-envelope {
   padding: 0;
-  background-color: var(--cream);
+  background-color: #0E0E0E;
 }
 
 .env-wrap {
@@ -1402,8 +1402,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-general {
   padding: 0;
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1448,8 +1448,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1461,8 +1461,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1503,8 +1503,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 18vw, 240px), 1fr));
   gap: 16px;
   padding: 16px;
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1519,8 +1519,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-legacy,
 #screen-camera {
   padding: 0;
-  background-color: var(--wood);
-  background-image: url('images/wood-texture.jpg');
+  background-color: #0E0E0E;
+  background-image: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
