@@ -313,7 +313,7 @@
       registerSheet.classList.add("qform-sheet--stacked");
       registerSheet.style.zIndex = String(idx + 1);
       registerSheet.style.setProperty("--stack-rot", angle + "deg");
-      registerSheet.style.setProperty("--stack-x", (angle * 7) + "px");
+      registerSheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
       registerSheet.style.setProperty("--stack-y", (10 + idx * 16) + "px");
       state.frozenCount++;
     }
@@ -385,7 +385,7 @@
     frozen.className = "qform-sheet qform-sheet--stacked";
     frozen.style.zIndex = String(idx + 1); // below the active sheet
     frozen.style.setProperty("--stack-rot", angle + "deg");
-    frozen.style.setProperty("--stack-x", (angle * 7) + "px");
+    frozen.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
     frozen.style.setProperty("--stack-y", (10 + idx * 16) + "px");
 
     const formClone = liveForm.cloneNode(true);
