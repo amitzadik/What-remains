@@ -167,17 +167,18 @@ html, body {
   transition: top 0.35s ease, left 0.35s ease, right 0.35s ease;
 }
 /* The folder image lives on a backdrop layer so the caption/content on
-   top are never mirrored. folder-left.png is missing, so the left-tab
-   folders mirror the existing right image. */
+   top are never affected. */
 .folder-body::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url("images/folder-right.png") center / 100% 100% no-repeat;
+  background: center / 100% 100% no-repeat;
 }
 .folder-body[data-folder="0"]::before,
-.folder-body[data-folder="2"]::before { transform: scaleX(-1); }  /* left tab */
+.folder-body[data-folder="2"]::before { background-image: url("images/folder-left.png"); }
+.folder-body[data-folder="1"]::before,
+.folder-body[data-folder="3"]::before { background-image: url("images/folder-right.png"); }
 
 /* Fanned slots — all four tabs at distinct x (2 left, 2 right) */
 .folder-body[data-folder="2"] { left: 6%;  right: 38%; }   /* left  */
