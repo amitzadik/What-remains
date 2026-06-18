@@ -215,9 +215,9 @@ html, body {
   white-space: nowrap;
 }
 .folder-body[data-folder="0"] .folder-tab,
-.folder-body[data-folder="2"] .folder-tab { left: 4%; width: 40%; }
+.folder-body[data-folder="2"] .folder-tab { left: 0; width: 33%; }   /* centred on the left tab */
 .folder-body[data-folder="1"] .folder-tab,
-.folder-body[data-folder="3"] .folder-tab { right: 4%; width: 40%; }
+.folder-body[data-folder="3"] .folder-tab { right: 0; width: 33%; }  /* centred on the right tab */
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.95rem; }
 /* no dark hover on the tabs (override the generic button:hover) */
 button.folder-tab:hover { background: none; color: var(--ink); }
