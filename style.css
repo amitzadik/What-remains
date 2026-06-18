@@ -162,7 +162,7 @@ html, body {
   bottom: 0;
   left: 60px;
   right: 60px;
-  top: calc(34% - var(--rank) * 9%);   /* larger step so each tab peeks fully */
+  top: calc(46% - var(--rank) * 13%);  /* bigger step: all 4 tabs peek (tops 46/33/20/7%) */
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
@@ -202,11 +202,13 @@ html, body {
    caption sitting on top of it. Transparent — no paper/border/shadow. */
 .folder-tab {
   position: absolute;
-  top: 3%;
+  top: 0;
+  height: 17%;            /* whole protruding tab strip is the click target */
   z-index: 1;
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
-  padding: 4px 8px;
   font-family: var(--font-main);
   font-size: 0.82rem;
   font-weight: 600;
@@ -214,11 +216,21 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
 }
-/* left-tab folders → caption top-left; right-tab folders → top-right */
+/* left-tab folders → caption strip top-left; right-tab folders → top-right */
 .folder-body[data-folder="0"] .folder-tab,
-.folder-body[data-folder="2"] .folder-tab { left: 8%; }
+.folder-body[data-folder="2"] .folder-tab {
+  left: 0;
+  width: 46%;
+  justify-content: flex-start;
+  padding-left: 7%;
+}
 .folder-body[data-folder="1"] .folder-tab,
-.folder-body[data-folder="3"] .folder-tab { right: 8%; }
+.folder-body[data-folder="3"] .folder-tab {
+  right: 0;
+  width: 46%;
+  justify-content: flex-end;
+  padding-right: 7%;
+}
 /* the long caption needs to fit on the tab */
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.68rem; }
 
