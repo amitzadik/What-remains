@@ -162,7 +162,7 @@ html, body {
   left: 60px;
   right: 60px;
   bottom: 0;                                   /* flush to the bottom */
-  top: calc(510px - var(--rank) * 120px);      /* raised: back folder ~60px below the header */
+  top: calc(430px - var(--rank) * 120px);      /* raised higher up the screen */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
