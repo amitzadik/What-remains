@@ -881,7 +881,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-landing {
   padding: 0;
-  background-color: #0E0E0E;
+  background-color: var(--cream);
   background-image: none;
   overflow: hidden;
 }
