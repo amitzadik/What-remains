@@ -728,7 +728,7 @@
       pQuestions.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
     }
 
-    activateFolder(2); // default to the "דברים שכתבתי" divider
+    activateFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
     showScreen("personal");
   }
 

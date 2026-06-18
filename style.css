@@ -162,7 +162,7 @@ html, body {
   left: 60px;
   right: 60px;
   bottom: 0;                                   /* flush to the bottom */
-  top: calc(550px - var(--rank) * 120px);      /* backmost tab ~100px below the header */
+  top: calc(510px - var(--rank) * 120px);      /* raised: back folder ~60px below the header */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
@@ -219,6 +219,8 @@ html, body {
 .folder-body[data-folder="1"] .folder-tab,
 .folder-body[data-folder="3"] .folder-tab { right: 4%; width: 40%; }
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.95rem; }
+/* no dark hover on the tabs (override the generic button:hover) */
+button.folder-tab:hover { background: none; color: var(--ink); }
 
 /* Corner buttons — on the front folder, 20px in from the 60px side margin */
 .personal-add  { position: absolute; left: 80px;  bottom: 20px; z-index: 25; }
