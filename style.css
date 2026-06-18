@@ -213,36 +213,26 @@ html, body {
 .folder-tab {
   position: absolute;
   top: 0;
-  height: 17%;            /* whole protruding tab strip is the click target */
+  height: 16%;            /* sits on the printed tab; whole box is clickable */
   z-index: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   font-family: var(--font-main);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
   white-space: nowrap;
 }
-/* left-tab folders → caption strip top-left; right-tab folders → top-right */
+/* the click box covers the tab notch — left for 0,2; right for 1,3 */
 .folder-body[data-folder="0"] .folder-tab,
-.folder-body[data-folder="2"] .folder-tab {
-  left: 0;
-  width: 46%;
-  justify-content: flex-start;
-  padding-left: 7%;
-}
+.folder-body[data-folder="2"] .folder-tab { left: 4%; width: 42%; }
 .folder-body[data-folder="1"] .folder-tab,
-.folder-body[data-folder="3"] .folder-tab {
-  right: 0;
-  width: 46%;
-  justify-content: flex-end;
-  padding-right: 7%;
-}
-/* the long caption needs to fit on the tab */
-.folder-body[data-folder="3"] .folder-tab { font-size: 0.68rem; }
+.folder-body[data-folder="3"] .folder-tab { right: 4%; width: 42%; }
+.folder-body[data-folder="3"] .folder-tab { font-size: 0.62rem; }
 
 /* Corner buttons — on the front divider, 20px from its edges
    (front divider is inset 60px, so 80px from the screen edges) */
