@@ -198,7 +198,7 @@ html, body {
    click target (top-left for 0,2; top-right for 1,3) */
 .folder-tab {
   position: absolute;
-  top: 5vw;          /* sits centred on the printed tab */
+  top: calc(5vw - 20px);   /* sits centred on the printed tab, raised 20px */
   height: 7vw;
   z-index: 1;
   display: flex;
@@ -219,8 +219,8 @@ html, body {
 .folder-body[data-folder="1"] .folder-tab,
 .folder-body[data-folder="3"] .folder-tab { right: 0; width: 33%; }  /* centred on the right tab */
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.95rem; }
-/* no dark hover on the tabs (override the generic button:hover) */
-button.folder-tab:hover { background: none; color: var(--ink); }
+/* hover darkening at 50% strength (override the generic button:hover) */
+button.folder-tab:hover { background: rgba(61, 54, 40, 0.5); color: var(--ink); }
 
 /* Corner buttons — on the front folder, 20px in from the 60px side margin */
 .personal-add  { position: absolute; left: 80px;  bottom: 20px; z-index: 25; }
