@@ -122,12 +122,22 @@ html, body {
 .folder-wrap .drawer-header {
   position: absolute;
   top: 14px;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 80%;
   text-align: center;
   margin: 0;
-  padding-bottom: 0;
+  padding: 10px 28px;
   border-bottom: none;
+  /* white paper label so the name + code sit on paper, not on the wood */
+  background-color: #FBF8EF;
+  background-image: var(--paper-tex);
+  background-blend-mode: lighten;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.22);
   z-index: 20;
 }
 
