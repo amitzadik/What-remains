@@ -313,8 +313,8 @@
       registerSheet.classList.add("qform-sheet--stacked");
       registerSheet.style.zIndex = String(idx + 1);
       registerSheet.style.setProperty("--stack-rot", angle + "deg");
-      registerSheet.style.setProperty("--stack-x", (angle * 2) + "px");
-      registerSheet.style.setProperty("--stack-y", (4 + idx * 1.5) + "px");
+      registerSheet.style.setProperty("--stack-x", (angle * 7) + "px");
+      registerSheet.style.setProperty("--stack-y", (10 + idx * 16) + "px");
       state.frozenCount++;
     }
     if (stage) stage.classList.remove("qform-stage--register");
@@ -361,7 +361,7 @@
   }
 
   // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
-  const STACK_ANGLES = [-1.6, 1.3, -0.9, 1.8, -1.2, 0.7];
+  const STACK_ANGLES = [-2.6, 2.1, -1.5, 2.8, -1.9, 1.2];
 
   // Stack-of-papers transition. The live form stays the single interactive
   // sheet; the finished question is frozen into a static, tilted, dimmed
@@ -385,8 +385,8 @@
     frozen.className = "qform-sheet qform-sheet--stacked";
     frozen.style.zIndex = String(idx + 1); // below the active sheet
     frozen.style.setProperty("--stack-rot", angle + "deg");
-    frozen.style.setProperty("--stack-x", (angle * 2) + "px");
-    frozen.style.setProperty("--stack-y", (4 + idx * 1.5) + "px");
+    frozen.style.setProperty("--stack-x", (angle * 7) + "px");
+    frozen.style.setProperty("--stack-y", (10 + idx * 16) + "px");
 
     const formClone = liveForm.cloneNode(true);
     formClone.removeAttribute("id");
