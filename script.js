@@ -735,8 +735,9 @@
   // Folder dividers: clicking a tab brings its divider to the front
   const folderTabs   = Array.from(document.querySelectorAll("#screen-personal .folder-tab"));
   const folderBodies = Array.from(document.querySelectorAll("#screen-personal .folder-body"));
-  // Default front→back order: דברים שכתבתי(2), השאלות(3), תמונות(0), סרטונים(1)
-  let stackOrder = [2, 3, 0, 1];
+  // Default front→back order by tab side: right, left, right, left —
+  // השאלות(3,R), דברים שכתבתי(2,L), סרטונים(1,R), תמונות(0,L)
+  let stackOrder = [3, 2, 1, 0];
   function activateFolder(idx) {
     // Bring the clicked divider to the front; the rest keep their order,
     // so the clicked sheet slides forward (animated via the CSS transition).
@@ -754,7 +755,7 @@
     if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (idx === 3) ? "none" : "";
   }
   folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
-  activateFolder(2); // default front divider: "דברים שכתבתי"
+  activateFolder(3); // default front divider: "השאלות מההתחלה" (right tab, closest)
 
   // Bottom-left: add to the active category — placeholder, wired later
   btnPersonalToGeneral.addEventListener("click", () => {

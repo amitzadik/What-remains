@@ -198,7 +198,7 @@ html, body {
    click target (top-left for 0,2; top-right for 1,3) */
 .folder-tab {
   position: absolute;
-  top: 0;
+  top: 7vw;          /* drop onto the printed tab (PNG has clear space above it) */
   height: 8vw;
   z-index: 1;
   display: flex;
