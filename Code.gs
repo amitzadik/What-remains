@@ -34,6 +34,11 @@ function doPost(e) {
     data.legacy_text || "",
     data.phone || ""
   ]);
+
+  // Give every new drawer its own Drive folder right away (named by code),
+  // even before any file is uploaded.
+  getOrCreateCodeFolder_(data.code);
+
   return ContentService.createTextOutput(JSON.stringify({ result: "ok" }))
     .setMimeType(ContentService.MimeType.JSON);
 }
@@ -79,4 +84,14 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Returns the Drive subfolder for a drawer's 4-digit code, creating it under
+// the fixed parent folder on first use (idempotent).
+function getOrCreateCodeFolder_(code) {
+  var name = String(code || "").padStart(4, "0");
+  var parent = DriveApp.getFolderById("1mQrtBKfU2MCdVi3hUTnuGMpMimp6uSTn");
+  var existing = parent.getFoldersByName(name);
+  if (existing.hasNext()) return existing.next();
+  return parent.createFolder(name);
 }
