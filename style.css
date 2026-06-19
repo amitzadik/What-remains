@@ -860,6 +860,66 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   min-height: 1.2rem;
 }
 
+/* ===== Login modal — archival cream card, mirrors the code modal ===== */
+#login-modal-content {
+  max-width: 420px;
+  padding: 40px 40px 32px;
+  text-align: right;
+  border: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+#login-modal-content .code-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 28px;
+}
+#login-modal-content .code-close { position: absolute; top: 16px; right: 16px; z-index: 5; }
+#login-modal-content .code-title {
+  font-family: var(--font-main);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+.login-row { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+.login-label {
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--stamp);
+}
+.login-err {
+  color: var(--stamp);
+  font-size: 0.9rem;
+  min-height: 1.2rem;
+  text-align: right;
+}
+.login-form .popup-continue-btn { align-self: center; margin-top: 4px; }
+.login-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  padding: 10px 0;
+}
+.login-status-text { font-family: var(--font-main); font-size: 1.05rem; color: var(--ink); }
+.login-logout-btn {
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--stamp);
+  background: none;
+  border: 1px solid var(--stamp);
+  border-radius: 0;
+  padding: 8px 24px;
+  cursor: pointer;
+}
+.login-logout-btn:hover { background: rgba(180, 74, 62, 0.08); }
+
 /* ============================================================
    Responsive
 ============================================================ */
@@ -943,6 +1003,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #stamp-search:active,
 #stamp-add:active { transform: rotate(0deg) translateY(0) scale(0.97); }
+
+/* Login + my-drawer sit immediately to the right of the search stamp */
+#screen-landing .landing-stamps-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  pointer-events: none;
+}
+#screen-landing .landing-stamps-left .landing-stamp { pointer-events: auto; }
+
+#stamp-login,
+#stamp-mydrawer { transform: rotate(0deg); }
+#stamp-login:hover,
+#stamp-mydrawer:hover { transform: rotate(0deg) translateY(-2px); }
+#stamp-login:active,
+#stamp-mydrawer:active { transform: rotate(0deg) translateY(0) scale(0.97); }
+
+/* The my-drawer stamp is hinted as inactive until a session exists */
+#screen-landing .landing-stamps:not(.is-authed) #stamp-mydrawer { opacity: 0.6; }
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {

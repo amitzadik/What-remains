@@ -108,6 +108,9 @@
   const landingCard    = document.getElementById("landing-card");
   const stampSearch = document.getElementById("stamp-search");
   const stampAdd    = document.getElementById("stamp-add");
+  const stampLogin    = document.getElementById("stamp-login");
+  const stampMyDrawer = document.getElementById("stamp-mydrawer");
+  const landingStamps = document.querySelector("#screen-landing .landing-stamps");
 
   // The landing IS the archive: it shows the full drawer wall, filtered
   // live by the in-place search input when one is open.
@@ -146,8 +149,7 @@
     });
   }
 
-  [stampSearch, stampAdd].forEach(stamp => {
-    if (!stamp) return;
+  document.querySelectorAll("#screen-landing .landing-stamp").forEach(stamp => {
     const def = stamp.src;
     const hov = stamp.dataset.hover;
     stamp.addEventListener("mouseenter", () => { if (hov) stamp.src = hov; });
@@ -176,6 +178,123 @@
     stampAdd.addEventListener("click", () => {
       dismissLandingPopup();
       startRegistration();
+    });
+  }
+
+  // ============================================================
+  // Auth / session — shared contract: localStorage "wr_session"
+  //   { email, code, name }. "logged in" = session exists with a code.
+  // ============================================================
+  const WR_SESSION_KEY = "wr_session";
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(WR_SESSION_KEY) || "null"); }
+    catch (e) { return null; }
+  }
+  function isLoggedIn() {
+    const s = getSession();
+    return !!(s && s.code);
+  }
+  function setSession(sess) { localStorage.setItem(WR_SESSION_KEY, JSON.stringify(sess)); }
+  function clearSession() { localStorage.removeItem(WR_SESSION_KEY); }
+
+  // True while viewing a drawer the logged-in user owns (gates the edit UI)
+  let ownerView = false;
+
+  function updateHeaderAuthState() {
+    if (landingStamps) landingStamps.classList.toggle("is-authed", isLoggedIn());
+  }
+
+  // --- Login modal ---
+  const loginModal       = document.getElementById("login-modal");
+  const loginForm        = document.getElementById("login-form");
+  const loginStatus      = document.getElementById("login-status");
+  const loginStatusEmail = document.getElementById("login-status-email");
+  const loginEmail       = document.getElementById("login-email");
+  const loginCode        = document.getElementById("login-code");
+  const loginErr         = document.getElementById("login-err");
+  const btnSubmitLogin   = document.getElementById("btn-submit-login");
+  const btnCloseLogin    = document.getElementById("btn-close-login");
+  const btnLogout        = document.getElementById("btn-logout");
+
+  function openLoginModal() {
+    const sess = getSession();
+    if (sess && sess.code) {
+      loginForm.hidden = true;
+      loginStatus.hidden = false;
+      loginStatusEmail.textContent = sess.email || "";
+    } else {
+      loginForm.hidden = false;
+      loginStatus.hidden = true;
+      loginEmail.value = "";
+      loginCode.value = "";
+      loginErr.textContent = "";
+    }
+    loginModal.classList.add("active");
+    if (!(sess && sess.code)) setTimeout(() => loginEmail.focus(), 50);
+  }
+  function closeLoginModal() { loginModal.classList.remove("active"); }
+
+  async function submitLogin() {
+    const email = (loginEmail.value || "").trim();
+    const rawCode = (loginCode.value || "").trim();
+    loginErr.textContent = "";
+    if (!email || !rawCode) { loginErr.textContent = "יש למלא מייל וקוד"; return; }
+    const code = rawCode.padStart(4, "0");   // zero-pad to 4 digits before sending
+    btnSubmitLogin.disabled = true;
+    try {
+      // Same POST pattern as submitToSheet (text/plain → no preflight), but
+      // CORS-readable so we can act on { ok } instead of fire-and-forget.
+      const res = await fetch(SHEET_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "login", email: email, code: code })
+      });
+      const data = await res.json();
+      if (data && data.ok) {
+        setSession({ email: email, code: data.code, name: data.name });
+        closeLoginModal();
+        updateHeaderAuthState();
+      } else {
+        loginErr.textContent = "מייל או קוד שגויים";
+      }
+    } catch (err) {
+      loginErr.textContent = "שגיאת תקשורת, נסו שוב";
+    } finally {
+      btnSubmitLogin.disabled = false;
+    }
+  }
+
+  if (btnSubmitLogin) btnSubmitLogin.addEventListener("click", submitLogin);
+  if (btnCloseLogin)  btnCloseLogin.addEventListener("click", closeLoginModal);
+  if (loginEmail) loginEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
+  if (loginCode)  loginCode.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
+  if (btnLogout) btnLogout.addEventListener("click", () => {
+    clearSession();
+    updateHeaderAuthState();
+    closeLoginModal();
+  });
+
+  // Open the logged-in user's own drawer directly (auto-unlock, owner view)
+  function openOwnDrawer(sess) {
+    let viewer = allDrawers().find(v => v.code === sess.code);
+    if (!viewer) viewer = { name: sess.name || "", code: sess.code, archive: "", answers: null };
+    activeViewer = viewer;
+    openDrawerInterior(viewer);
+  }
+
+  // Header: login + my-drawer stamps
+  if (stampLogin) {
+    stampLogin.addEventListener("click", () => {
+      dismissLandingPopup();
+      openLoginModal();   // logged-in → status/logout view; else → form
+    });
+  }
+  if (stampMyDrawer) {
+    stampMyDrawer.addEventListener("click", () => {
+      dismissLandingPopup();
+      const sess = getSession();
+      if (sess && sess.code) openOwnDrawer(sess);
+      else openLoginModal();
     });
   }
 
@@ -726,6 +845,9 @@
   // drawers only when the sheet returns q1..q7 via viewer.answers).
   function openDrawerInterior(viewer) {
     if (!viewer) return;
+    // Owner view = logged-in session whose code matches this drawer's code.
+    const _sess = getSession();
+    ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
     pName.textContent   = viewer.name || "(ללא שם)";
     pCode.textContent   = viewer.code || "";
     pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
@@ -793,9 +915,9 @@
       body.classList.toggle("is-active", rank === 0);
     });
     folderTabs.forEach((t, i) => t.classList.toggle("is-active", i === idx));
-    // Add is available for תמונות/סרטונים/דברים שכתבתי, but not for
-    // "השאלות מההתחלה" (index 3)
-    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (idx === 3) ? "none" : "";
+    // Add/edit controls show only for the drawer owner, and not on
+    // "השאלות מההתחלה" (index 3). Non-owners get a read-only view.
+    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (ownerView && idx !== 3) ? "" : "none";
   }
   folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
   activateFolder(3); // default front divider: "השאלות מההתחלה" (right tab, closest)
@@ -871,8 +993,17 @@
     plate.appendChild(boxEl);
     d.appendChild(plate);
 
-    // Every drawer — including the user's own — requires the code
-    d.addEventListener("click", () => openCodeModal(v, d));
+    // Owner (logged-in, code matches) skips the code prompt; everyone
+    // else must enter the drawer's code to view it.
+    d.addEventListener("click", () => {
+      const sess = getSession();
+      if (sess && sess.code && sess.code === v.code) {
+        activeViewer = v;
+        openDrawerInterior(v);
+      } else {
+        openCodeModal(v, d);
+      }
+    });
     return d;
   }
 
@@ -1020,6 +1151,7 @@
   });
 
   checkDepositBtn();
+  updateHeaderAuthState();
   renderLandingDrawers();
   loadViewersFromDB();
   showScreen("landing");

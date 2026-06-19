@@ -18,13 +18,29 @@
 
     <!-- Stamps (outside the popup — always visible, top-left) -->
     <div class="landing-stamps">
-      <img
-        id="stamp-search"
-        class="landing-stamp"
-        src="images/search-default.png"
-        data-hover="images/search-hover.png"
-        alt="חיפוש בארכיון"
-      >
+      <div class="landing-stamps-left">
+        <img
+          id="stamp-search"
+          class="landing-stamp"
+          src="images/search-default.png"
+          data-hover="images/search-hover.png"
+          alt="חיפוש בארכיון"
+        >
+        <img
+          id="stamp-login"
+          class="landing-stamp"
+          src="images/login-default.png"
+          data-hover="images/login-hover.png"
+          alt="התחברות"
+        >
+        <img
+          id="stamp-mydrawer"
+          class="landing-stamp"
+          src="images/my-drawer-default.png"
+          data-hover="images/my-drawer-hover.png"
+          alt="המגירה שלי"
+        >
+      </div>
       <img
         id="stamp-add"
         class="landing-stamp"
@@ -355,6 +371,40 @@
       <button id="btn-submit-code" type="button" class="img-btn popup-continue-btn" data-default="images/locked-default.png" data-hover="images/locked-hover.png">
         <img src="images/locked-default.png" width="52" height="52">
       </button>
+    </div>
+  </div>
+
+  <!-- ============== MODAL: LOGIN ============== -->
+  <div id="login-modal" class="modal-overlay">
+    <div class="modal-content" id="login-modal-content">
+      <div class="code-head">
+        <button id="btn-close-login" type="button" class="img-btn code-close" data-default="images/close-default.png" data-hover="images/close-hover.png">
+          <img src="images/close-default.png" width="44" height="44">
+        </button>
+        <div class="code-title">התחברות</div>
+      </div>
+
+      <!-- Not-logged-in: the login form -->
+      <div class="login-form" id="login-form">
+        <div class="login-row">
+          <label class="login-label" for="login-email">מייל</label>
+          <input type="email" id="login-email" class="register-input input-ltr" autocomplete="email">
+        </div>
+        <div class="login-row">
+          <label class="login-label" for="login-code">קוד</label>
+          <input type="text" id="login-code" class="register-input input-ltr" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+        </div>
+        <div id="login-err" class="login-err"></div>
+        <button id="btn-submit-login" type="button" class="img-btn popup-continue-btn" data-default="images/locked-default.png" data-hover="images/locked-hover.png">
+          <img src="images/locked-default.png" width="52" height="52">
+        </button>
+      </div>
+
+      <!-- Logged-in: status + logout -->
+      <div class="login-status" id="login-status" hidden>
+        <div class="login-status-text">מחובר/ת כ־<span id="login-status-email"></span></div>
+        <button id="btn-logout" type="button" class="login-logout-btn">התנתקות</button>
+      </div>
     </div>
   </div>
 
