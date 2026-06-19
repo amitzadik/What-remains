@@ -159,8 +159,8 @@ html, body {
 .folder-body {
   --rank: 0;
   position: absolute;
-  left: 60px;
-  right: 60px;
+  left: 20px;                                  /* spread out — 20px from the screen edge */
+  right: 20px;
   bottom: 0;                                   /* flush to the bottom */
   top: calc(430px - var(--rank) * 120px);      /* raised higher up the screen */
   background-position: top center;

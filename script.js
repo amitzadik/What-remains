@@ -877,7 +877,6 @@
   // uploadable for now; each maps to an accepted file type.
   let currentDrawerCode = "";
   let activeFolderIdx = 3;
-  let isUploading = false;
   const FOLDER_CATEGORY = { 0: "image", 1: "video" };
 
   // One reusable hidden file input drives all drawer uploads.
@@ -895,8 +894,7 @@
   // submitToSheet — the response isn't CORS-readable), then refresh the
   // gallery via the JSONP "files" listing.
   function uploadFileToDrawer(file, code) {
-    if (isUploading || !SHEET_WEBHOOK_URL) return;
-    isUploading = true;
+    if (!SHEET_WEBHOOK_URL) return;
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = String(reader.result || "");
@@ -919,9 +917,9 @@
         });
       } catch (err) { /* לא חוסם */ }
       // No readable response — give Drive a moment, then reload the listing.
-      setTimeout(() => { isUploading = false; loadDrawerFiles(code); }, 4000);
+      setTimeout(() => loadDrawerFiles(code), 4000);
     };
-    reader.onerror = () => { isUploading = false; loadDrawerFiles(code); };
+    reader.onerror = () => loadDrawerFiles(code);
     reader.readAsDataURL(file);
   }
 
