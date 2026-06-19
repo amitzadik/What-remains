@@ -834,8 +834,33 @@
     initCameraScreen();
   });
 
+  // Upload the depositor's registration photo into their drawer's Drive
+  // folder (so it persists like any other uploaded file, not just in-session).
+  function uploadDepositorPhoto() {
+    if (!state.photoDataUrl || !state.userCode || !SHEET_WEBHOOK_URL) return;
+    const dataUrl = state.photoDataUrl;
+    const comma = dataUrl.indexOf(",");
+    const mime = (dataUrl.slice(5, comma).split(";")[0]) || "image/jpeg";
+    const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+    try {
+      fetch(SHEET_WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "upload",
+          code: state.userCode,
+          filename: "depositor-photo.jpg",
+          mimeType: mime,
+          data: base64
+        })
+      });
+    } catch (err) { /* לא חוסם */ }
+  }
+
   btnCameraNext.addEventListener("click", () => {
     if (btnCameraNext.disabled) return;
+    uploadDepositorPhoto();
     stopCameraStream();
     showScreen("print");
   });
@@ -971,10 +996,6 @@
     const videos = files.filter(f => f.type === "video");
     if (pPhotos) {
       let html = "";
-      // The depositor's session photo (not on Drive) leads the owner's gallery
-      if (state.photoDataUrl && currentDrawerCode === state.userCode) {
-        html += '<img class="drawer-file" alt="תמונת המפקיד" src="' + state.photoDataUrl + '">';
-      }
       images.forEach(f => {
         html += '<img class="drawer-file" loading="lazy" alt="" ' +
                 'src="https://drive.google.com/thumbnail?id=' + f.id + '&sz=w1000">';
