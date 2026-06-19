@@ -1312,6 +1312,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0.8;
 }
 .camera-area video[hidden],
 .camera-area img[hidden] { display: none; }
