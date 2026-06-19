@@ -767,7 +767,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-repeat: no-repeat;
   background-position: center;
   padding: 2.5rem;
-  border: 1px solid var(--line);
+  border: none;
   text-align: center;
   max-width: 400px;
   width: 100%;
@@ -860,15 +860,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   min-height: 1.2rem;
 }
 
-/* ===== Login modal — archival cream card, mirrors the code modal ===== */
+/* ===== Login modal — archival cream card, 3:2 popup like the others ===== */
 #login-modal-content {
-  max-width: 420px;
-  padding: 40px 40px 32px;
+  width: min(668px, 92vw);
+  aspect-ratio: 3 / 2;
+  max-width: 92vw;
+  height: auto;
+  padding: 44px 48px;
   text-align: right;
-  border: 1px solid var(--ink);
+  border: none;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  overflow: hidden;
+}
+/* Scale down on short viewports — derive width from height, keep ratio */
+@media (max-height: 600px) {
+  #login-modal-content { height: 92vh; width: auto; }
 }
 #login-modal-content .code-head {
   display: flex;
@@ -876,13 +883,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   gap: 14px;
   padding-right: 28px;
 }
-#login-modal-content .code-close { position: absolute; top: 16px; right: 16px; z-index: 5; }
+#login-modal-content .code-close { position: absolute; top: 20px; right: 20px; z-index: 5; }
 #login-modal-content .code-title {
   font-family: var(--font-main);
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--ink);
 }
+/* Form / status are centred in the card's spare vertical space */
+.login-form, .login-status { margin: auto 0; }
 .login-form { display: flex; flex-direction: column; gap: 16px; }
 .login-row { display: flex; flex-direction: column; gap: 6px; text-align: right; }
 .login-label {
@@ -904,21 +913,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   gap: 18px;
   text-align: center;
-  padding: 10px 0;
 }
-.login-status-text { font-family: var(--font-main); font-size: 1.05rem; color: var(--ink); }
+.login-status-text { font-family: var(--font-main); font-size: 1.2rem; color: var(--ink); }
 .login-logout-btn {
   font-family: var(--font-main);
   font-size: 1rem;
   font-weight: 700;
   color: var(--stamp);
   background: none;
-  border: 1px solid var(--stamp);
-  border-radius: 0;
-  padding: 8px 24px;
+  border: none;
+  padding: 4px 8px;
   cursor: pointer;
+  text-decoration: underline;
 }
-.login-logout-btn:hover { background: rgba(180, 74, 62, 0.08); }
+.login-logout-btn:hover { opacity: 0.8; }
 
 /* ============================================================
    Responsive
@@ -953,9 +961,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   left: 0;
   right: 0;
   bottom: 0;
-  top: 32%;
+  top: calc(32% - 48px);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 18vw, 240px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(clamp(128px, 14.4vw, 192px), 1fr));
   gap: 16px;
   padding: 16px;
   align-content: start;

@@ -262,6 +262,10 @@
       clearTimeout(timer);
       if (data && data.ok) {
         setSession({ email: email, code: data.code, name: data.name });
+        // Don't keep the typed email/code lying around after logging in
+        loginEmail.value = "";
+        loginCode.value = "";
+        loginErr.textContent = "";
         closeLoginModal();
         updateHeaderAuthState();
       } else {
@@ -285,6 +289,14 @@
   if (btnLogout) btnLogout.addEventListener("click", () => {
     clearSession();
     updateHeaderAuthState();
+    // Reset the modal back to the (empty) login form so it no longer shows
+    // "מחובר כ..." and keeps no stale email/code around.
+    loginStatus.hidden = true;
+    loginStatusEmail.textContent = "";
+    loginForm.hidden = false;
+    loginEmail.value = "";
+    loginCode.value = "";
+    loginErr.textContent = "";
     closeLoginModal();
   });
 
