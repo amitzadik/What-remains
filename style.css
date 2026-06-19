@@ -162,7 +162,7 @@ html, body {
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
   bottom: 0;                                   /* flush to the bottom */
-  top: calc(430px - var(--rank) * 100px);      /* raised higher up the screen */
+  top: calc(390px - var(--rank) * 100px);      /* raised higher up the screen */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
@@ -563,8 +563,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 .drawer-page { padding: 3rem 2rem 6rem; max-width: 900px; margin: 0 auto; }
 .drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-.drawer-name { font-size: 2.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0.5rem; }
-.drawer-code-label { color: var(--red); font-size: 1rem; letter-spacing: 0.3rem; }
+.drawer-name { font-size: 2rem; color: var(--ink); font-weight: bold; margin-bottom: 0.5rem; }
+.drawer-code-label { color: var(--red); font-size: 0.8rem; letter-spacing: 0.3rem; }
 .drawer-section { margin-bottom: 2.5rem; }
 .section-label { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.8rem; letter-spacing: 0.05rem; }
 .legacy-text { font-family: var(--font-serif); font-size: 1.9rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
@@ -938,7 +938,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .line__text { font-size: 1.15rem; }
   button.q-btn { font-size: 1.2rem; }
   .q-header-row .q-cell { padding: 0 0.5rem; }
-  .drawer-name { font-size: 1.8rem; }
+  .drawer-name { font-size: 1.44rem; }
   .archive-title { font-size: 1.8rem; }
   .print-instructions { font-size: 1.15rem; }
 }
