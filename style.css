@@ -1468,6 +1468,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   aspect-ratio: 16 / 9;
   border: 1px solid var(--line);
 }
+.drawer-files .is-uploading { opacity: 0.55; }
 
 /* ============================================================
    PHASE.PRINT_INSTRUCTIONS — simple centered text

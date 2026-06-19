@@ -897,11 +897,11 @@
   function uploadFileToDrawer(file, code) {
     if (isUploading || !SHEET_WEBHOOK_URL) return;
     isUploading = true;
-    const targetEl = activeFolderIdx === 0 ? pPhotos : pVideos;
-    if (targetEl) targetEl.innerHTML = '<div class="folder-empty">מעלה…</div>';
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = String(reader.result || "");
+      // Optimistic: show the picked file on the page immediately.
+      showLocalPreview(file, dataUrl);
       const comma = dataUrl.indexOf(",");
       const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
       try {
@@ -923,6 +923,32 @@
     };
     reader.onerror = () => { isUploading = false; loadDrawerFiles(code); };
     reader.readAsDataURL(file);
+  }
+
+  // Render a just-picked file into its folder right away (before the Drive
+  // round-trip finishes), dimmed until the gallery reloads from Drive.
+  function showLocalPreview(file, dataUrl) {
+    const isVideo = (file.type || "").indexOf("video/") === 0;
+    const targetEl = isVideo ? pVideos : pPhotos;
+    if (!targetEl) return;
+    let grid = targetEl.querySelector(".drawer-files");
+    if (!grid) {
+      targetEl.innerHTML = '<div class="drawer-files"></div>';
+      grid = targetEl.querySelector(".drawer-files");
+    }
+    let el;
+    if (isVideo) {
+      el = document.createElement("video");
+      el.className = "drawer-file-video is-uploading";
+      el.controls = true;
+      el.src = dataUrl;
+    } else {
+      el = document.createElement("img");
+      el.className = "drawer-file is-uploading";
+      el.alt = "";
+      el.src = dataUrl;
+    }
+    grid.appendChild(el);
   }
 
   // Fetch the drawer's files via JSONP and render them into the folders.
