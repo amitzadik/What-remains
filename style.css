@@ -1739,8 +1739,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-img-btn:disabled { cursor: not-allowed; }
 .qform-img-btn:disabled img { opacity: 0.35; }
 
-/* "לא יודע/ת" — red bold text; on hover it stays the same size and just
-   gains an underline, so the text never resizes or jumps */
+/* "לא יודע/ת" — red bold text by default; on hover the stamp image
+   replaces it. The image is sized to the button's text width so the
+   stamped wording renders at the same size as the plain text and the
+   layout never jumps */
 .qform-dk-btn {
   position: relative;
   background: none;
@@ -1762,11 +1764,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   inset: 0;
   margin: auto;
-  height: 100%;
-  width: auto;
+  width: 115%;
+  height: auto;
   visibility: hidden;
 }
-.qform-dk-btn:hover:not(:disabled) .qform-dk-text { text-decoration: underline; }
+.qform-dk-btn:hover:not(:disabled) .qform-dk-text { visibility: hidden; }
+.qform-dk-btn:hover:not(:disabled) .qform-dk-img { visibility: visible; }
 .qform-dk-btn:disabled { cursor: not-allowed; }
 
 /* Stacked (frozen) sheets — gentle tilt + offset, buttons hidden */
