@@ -88,7 +88,6 @@
   const screens = {
     landing:   document.getElementById("screen-landing"),
     questions: document.getElementById("screen-questions"),
-    cards:     document.getElementById("screen-cards"),
     envelope:  document.getElementById("screen-envelope"),
     legacy:    document.getElementById("screen-legacy"),
     camera:    document.getElementById("screen-camera"),
@@ -353,8 +352,8 @@
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
     if (state.currentQuestion >= questions.length) {
-      initCards();
-      showScreen("cards");
+      initEnvelope();
+      showScreen("envelope");
       return;
     }
     animateNextQuestion(finishingIndex, () => renderQuestion());
@@ -499,41 +498,6 @@
     submitToSheet(); // all 12 fields are now filled — fire-and-forget
     initCameraScreen();
     showScreen("camera");
-  });
-
-  // ============================================================
-  // PHASE.CARDS — stacked answer cards
-  // ============================================================
-  const cardsStack    = document.getElementById("cards-stack");
-  const btnCardsNext  = document.getElementById("btn-cards-next");
-
-  function initCards() {
-    cardsStack.innerHTML = "";
-    questions.forEach((q, i) => {
-      const card = document.createElement("div");
-      card.className = "stack-card";
-
-      const label = document.createElement("div");
-      label.className = "stack-card-label";
-      label.textContent = q;
-
-      const answer = document.createElement("div");
-      answer.className = "stack-card-answer";
-      if (state.dontKnow[i]) {
-        answer.classList.add("is-empty");
-      } else {
-        answer.textContent = state.answers[i] || "";
-      }
-
-      card.appendChild(label);
-      card.appendChild(answer);
-      cardsStack.appendChild(card);
-    });
-  }
-
-  btnCardsNext.addEventListener("click", () => {
-    initEnvelope();
-    showScreen("envelope");
   });
 
   // ============================================================
