@@ -162,7 +162,7 @@ html, body {
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
   bottom: 0;                                   /* flush to the bottom */
-  top: calc(430px - var(--rank) * 120px);      /* raised higher up the screen */
+  top: calc(430px - var(--rank) * 100px);      /* raised higher up the screen */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
