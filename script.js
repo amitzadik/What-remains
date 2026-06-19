@@ -23,6 +23,10 @@
         body: JSON.stringify(payload)
       });
       state.submitted = true;
+      // Log in the just-created depositor so the session persists across a
+      // page refresh (and the header reflects the logged-in state).
+      setSession({ email: state.email || "", code: state.userCode || "", name: state.name || "" });
+      updateHeaderAuthState();
     } catch (err) { /* לא חוסם את חוויית המשתמש */ }
   }
 
@@ -835,7 +839,14 @@
   const btnToArchive = document.getElementById("btn-to-archive");
   btnToArchive.addEventListener("click", () => {
     renderLandingDrawers(); // refresh — includes the user's new drawer
-    showScreen("landing");
+    // Land the just-created depositor straight inside their own drawer,
+    // logged in as the owner; fall back to the archive if no session.
+    const sess = getSession();
+    if (sess && sess.code) {
+      openOwnDrawer(sess);
+    } else {
+      showScreen("landing");
+    }
   });
 
   // ============================================================
