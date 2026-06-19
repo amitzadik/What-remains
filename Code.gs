@@ -39,6 +39,33 @@ function doPost(e) {
 }
 function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+
+  // Login verification via query params. Served over GET so it works with
+  // JSONP (a plain cross-origin fetch to Apps Script is CORS-blocked) and
+  // never writes a row to the sheet.
+  var p = (e && e.parameter) || {};
+  if (p.action === "login") {
+    var loginEmail = String(p.email || "").trim().toLowerCase();
+    var loginCode  = String(p.code || "").padStart(4, "0");
+    var rows = sheet.getDataRange().getValues();
+    var result = { ok: false };
+    for (var r = 1; r < rows.length; r++) {
+      var row = rows[r];
+      var rowEmail = String(row[2] || "").trim().toLowerCase();
+      var rowCode  = String(row[3] || "").padStart(4, "0");
+      if (rowEmail === loginEmail && rowCode === loginCode) {
+        result = { ok: true, code: rowCode, name: row[1] };
+        break;
+      }
+    }
+    var loginOut = JSON.stringify(result);
+    if (p.callback) {
+      return ContentService.createTextOutput(p.callback + "(" + loginOut + ")")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(loginOut).setMimeType(ContentService.MimeType.JSON);
+  }
+
   var values = sheet.getDataRange().getValues();
   var entries = values.slice(1)
     .filter(function(r){ return r[1]; })            // יש שם

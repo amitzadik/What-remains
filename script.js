@@ -234,22 +234,28 @@
   }
   function closeLoginModal() { loginModal.classList.remove("active"); }
 
-  async function submitLogin() {
+  function submitLogin() {
     const email = (loginEmail.value || "").trim();
     const rawCode = (loginCode.value || "").trim();
     loginErr.textContent = "";
     if (!email || !rawCode) { loginErr.textContent = "יש למלא מייל וקוד"; return; }
     const code = rawCode.padStart(4, "0");   // zero-pad to 4 digits before sending
+    if (!SHEET_WEBHOOK_URL) { loginErr.textContent = "שגיאת תקשורת, נסו שוב"; return; }
     btnSubmitLogin.disabled = true;
-    try {
-      // Same POST pattern as submitToSheet (text/plain → no preflight), but
-      // CORS-readable so we can act on { ok } instead of fire-and-forget.
-      const res = await fetch(SHEET_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "login", email: email, code: code })
-      });
-      const data = await res.json();
+
+    // JSONP (GET) — same proven pattern as loadViewersFromDB. A plain
+    // cross-origin fetch to Apps Script is CORS-blocked, and a GET never
+    // writes a row to the sheet.
+    const cbName = "__wrLoginCb" + Date.now();
+    let s;
+    function cleanup() {
+      delete window[cbName];
+      if (s && s.remove) s.remove();
+      btnSubmitLogin.disabled = false;
+    }
+    const timer = setTimeout(() => { cleanup(); loginErr.textContent = "שגיאת תקשורת, נסו שוב"; }, 10000);
+    window[cbName] = function(data) {
+      clearTimeout(timer);
       if (data && data.ok) {
         setSession({ email: email, code: data.code, name: data.name });
         closeLoginModal();
@@ -257,11 +263,15 @@
       } else {
         loginErr.textContent = "מייל או קוד שגויים";
       }
-    } catch (err) {
-      loginErr.textContent = "שגיאת תקשורת, נסו שוב";
-    } finally {
-      btnSubmitLogin.disabled = false;
-    }
+      cleanup();
+    };
+    s = document.createElement("script");
+    s.src = SHEET_WEBHOOK_URL + "?action=login&callback=" + cbName +
+            "&email=" + encodeURIComponent(email) +
+            "&code=" + encodeURIComponent(code) +
+            "&t=" + Date.now();
+    s.onerror = function() { clearTimeout(timer); cleanup(); loginErr.textContent = "שגיאת תקשורת, נסו שוב"; };
+    document.body.appendChild(s);
   }
 
   if (btnSubmitLogin) btnSubmitLogin.addEventListener("click", submitLogin);
