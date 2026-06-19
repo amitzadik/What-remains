@@ -1136,155 +1136,148 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-color: var(--cream);
 }
 
+#screen-cards {
+  padding: 0;
+  background-color: #0E0E0E;
+  background-image: none;
+}
+
 .cards-wrap {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4vh 4vw 3vh;
-  overflow-y: auto;
-}
-
-.cards-stack {
-  width: min(720px, 92vw);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  margin: 0 auto 2rem;
-}
-
-.stack-card {
-  background-color: var(--cream);
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px rgba(60, 40, 10, 0.10);
-  padding: 1rem 1.5rem 1.2rem;
-  margin-top: -28px;
-  transform-origin: center;
-  width: 100%;
-}
-.stack-card:first-child { margin-top: 0; }
-.stack-card:nth-child(odd)  { transform: rotate(-0.6deg); }
-.stack-card:nth-child(even) { transform: rotate(0.5deg); }
-
-.stack-card-label {
-  font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 0.95rem;
-  color: var(--gray);
-  margin-bottom: 0.5rem;
-}
-
-.stack-card-answer {
-  font-family: var(--font-main);
-  font-weight: 500;
-  font-size: 1.15rem;
-  color: var(--ink);
-  min-height: 1.8em;
-  padding: 0.2rem 0.2rem 0.4rem;
-  border-bottom: 1px solid var(--line);
-  white-space: pre-wrap;
-}
-.stack-card-answer.is-empty {
-  height: 1.6em;
-  border-bottom: 1px solid var(--line);
-}
-
-.cards-actions {
-  display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  gap: 2.4vh;
+  padding: 3vh 4vw;
+  overflow: hidden;
 }
 
-/* ============================================================
-   PHASE.ENVELOPE — cards slide into envelope, stamp appears
-============================================================ */
-#screen-envelope {
-  padding: 0;
-  background-color: #0E0E0E;
+/* Sizing wrapper for the pile + envelope; aspect matches a qform sheet */
+.cards-scene {
+  position: relative;
+  width: min(90vw, calc(68vh * 1.5), 1300px);
+  aspect-ratio: 3 / 2;
+  flex-shrink: 0;
 }
 
-.env-wrap {
+/* The real pile reuses .qform-stage; here it fills the scene and shrinks
+   a touch while sealing. */
+#cards-stage {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4vh 4vw;
+  margin: 0;
+  transform-origin: center 58%;
+  transition: transform 0.7s cubic-bezier(.22, .61, .36, 1);
 }
+.cards-scene.is-sealing #cards-stage { transform: scale(0.8); }
 
-.env-stage {
-  position: relative;
-  width: min(560px, 86vw);
+/* Envelope — rises from below (open) and closes over the pile */
+.cards-env {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 92%;
   aspect-ratio: 3 / 2;
-  margin: 0 auto 2rem;
-  perspective: 1000px;
+  transform: translate(-50%, 132%);
+  transition: transform 0.8s cubic-bezier(.22, .61, .36, 1);
+  perspective: 1200px;
+  z-index: 200;
+  pointer-events: none;
 }
+.cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
 
-.env-back {
+.cards-env-pocket {
   position: absolute;
   inset: 0;
-  background: var(--wood);
+  background: linear-gradient(180deg, var(--wood-light), var(--wood));
   border: 1px solid var(--ink);
-  z-index: 1;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+/* the two diagonal seams of the envelope front */
+.cards-env-pocket::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), rgba(0,0,0,0.16) 50%, transparent calc(50% + 1px)),
+    linear-gradient(to top left,  transparent calc(50% - 1px), rgba(0,0,0,0.16) 50%, transparent calc(50% + 1px));
 }
 
-.env-flap {
+.cards-env-flap {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 55%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 58%;
   background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
   border: 1px solid var(--ink);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  z-index: 4;
-  opacity: 0.95;
+  transform-origin: top center;
+  transform: rotateX(180deg);   /* open */
+  transition: transform 0.6s ease;
+  z-index: 3;
 }
+.cards-scene.is-sealed .cards-env-flap { transform: rotateX(0deg); } /* closed */
 
-.env-cards { position: absolute; inset: 0; z-index: 2; }
-
-.env-card {
+/* Red wax-style stamp showing the answered count */
+.cards-env-stamp {
   position: absolute;
-  top: 50%; left: 50%;
-  width: 64%;
-  height: 78%;
-  background-color: var(--cream);
-  border: 1px solid var(--line);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transform: translate(-50%, -250%) rotate(-12deg);
-  opacity: 0;
-  animation: env-card-in 0.55s forwards;
-}
-
-@keyframes env-card-in {
-  0%   { transform: translate(-50%, -250%) rotate(-12deg); opacity: 0; }
-  60%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) rotate(var(--rot, -2deg)); opacity: 1; }
-}
-
-.env-stamp {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  padding: 0.4rem 0.9rem;
-  border: 3px solid var(--stamp);
+  top: 50%;
+  left: 50%;
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 50%;
+  border: 4px solid var(--stamp);     /* #B44A3E */
   color: var(--stamp);
+  background: rgba(250, 246, 238, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-main);
   font-weight: 700;
-  font-size: 1.6rem;
-  background: rgba(250, 246, 238, 0.5);
-  transform: rotate(-12deg);
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+  transform: translate(-50%, -50%) rotate(-14deg) scale(1.5);
   opacity: 0;
-  z-index: 5;
-  transition: opacity 0.5s ease, transform 0.4s ease;
-  letter-spacing: 0.05em;
+  z-index: 4;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
 }
-.env-stage.is-sealed .env-stamp {
+.cards-scene.is-stamped .cards-env-stamp {
   opacity: 1;
-  transform: rotate(-12deg) scale(1);
+  transform: translate(-50%, -50%) rotate(-14deg) scale(1);
 }
 
-.env-actions { display: flex; justify-content: center; margin-top: 1rem; }
+/* "גלול להמשך" — white prompt, gently pulsing */
+.cards-hint {
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  color: #FFFFFF;
+  letter-spacing: 0.05em;
+  animation: cards-hint-pulse 1.8s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+.cards-hint.is-hidden { opacity: 0; pointer-events: none; }
+@keyframes cards-hint-pulse {
+  0%, 100% { opacity: 0.45; transform: translateY(0); }
+  50%      { opacity: 0.95; transform: translateY(5px); }
+}
+
+/* Continue button — hidden until the stamp lands */
+.cards-actions {
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.cards-actions.is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
 
 /* ============================================================
    PHASE.RECORD — text or audio choice

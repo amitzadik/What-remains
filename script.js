@@ -88,7 +88,7 @@
   const screens = {
     landing:   document.getElementById("screen-landing"),
     questions: document.getElementById("screen-questions"),
-    envelope:  document.getElementById("screen-envelope"),
+    cards:     document.getElementById("screen-cards"),
     legacy:    document.getElementById("screen-legacy"),
     camera:    document.getElementById("screen-camera"),
     print:     document.getElementById("screen-print"),
@@ -352,8 +352,8 @@
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
     if (state.currentQuestion >= questions.length) {
-      initEnvelope();
-      showScreen("envelope");
+      initCards();
+      showScreen("cards");
       return;
     }
     animateNextQuestion(finishingIndex, () => renderQuestion());
@@ -501,41 +501,120 @@
   });
 
   // ============================================================
-  // PHASE.ENVELOPE — cards slide into envelope, stamp appears
+  // PHASE.CARDS — summary pile (qform cards) + envelope seal
   // ============================================================
-  const envStage      = document.getElementById("env-stage");
-  const envCardsHost  = document.getElementById("env-cards");
-  const envStamp      = document.getElementById("env-stamp");
-  const btnEnvelopeNext = document.getElementById("btn-envelope-next");
+  const cardsWrap    = document.getElementById("cards-wrap");
+  const cardsScene   = document.getElementById("cards-scene");
+  const cardsStage   = document.getElementById("cards-stage");
+  const cardsHint    = document.getElementById("cards-hint");
+  const cardsActions = document.getElementById("cards-actions");
+  const cardsStamp   = document.getElementById("cards-env-stamp");
+  const btnCardsNext = document.getElementById("btn-cards-next");
 
-  function initEnvelope() {
-    envCardsHost.innerHTML = "";
-    envStage.classList.remove("is-sealed");
-    btnEnvelopeNext.disabled = true;
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
 
-    const STAGGER = 0.35; // seconds between cards
-    const DURATION = 0.55;
-    questions.forEach((_, i) => {
-      const card = document.createElement("div");
-      card.className = "env-card";
-      const rot = ((i % 2 === 0) ? -1 : 1) * (1 + Math.random() * 3);
-      card.style.setProperty("--rot", rot + "deg");
-      card.style.animationDelay = (i * STAGGER) + "s";
-      envCardsHost.appendChild(card);
+  // The five ruled answer lines, filled with the user's answer (split by
+  // newline) — or "לא יודע/ת" when the question was skipped.
+  function buildAnswerLines(i) {
+    const parts = state.dontKnow[i]
+      ? ["לא יודע/ת"]
+      : String(state.answers[i] || "").split("\n");
+    let html = "";
+    for (let k = 0; k < 5; k++) {
+      const label = k === 0 ? '<span class="qform-label">תשובה</span>' : "";
+      html += '<div class="answer-line">' + label +
+              '<span class="line__text">' + esc(parts[k] || "") + "</span></div>";
+    }
+    return html;
+  }
+
+  // A single summary card, marked up exactly like the live .qform sheets.
+  function cardFormHTML(i) {
+    return '' +
+      '<article class="qform">' +
+        '<div class="qform-grid">' +
+          '<div class="qform-row qform-header">' +
+            '<div class="qform-cell"><span class="qform-label">שם העונה</span>' +
+              '<span class="qform-value">' + esc(state.name) + '</span></div>' +
+            '<div class="qform-cell"><span class="qform-label">על</span>' +
+              '<span class="qform-value">' + esc(questionAbouts[i] || "") + '</span></div>' +
+            '<div class="qform-cell"><span class="qform-label">תאריך</span>' +
+              '<span class="qform-value">' + esc(state.date) + '</span></div>' +
+            '<div class="qform-cell qform-cell-num"><span class="qform-label">מס׳ שאלה</span>' +
+              '<span class="qform-value qform-num">' + (i + 1) + '/' + questions.length + '</span></div>' +
+          '</div>' +
+          '<div class="qform-row qform-question-row"><span class="qform-label">שאלה</span>' +
+            '<div class="qform-question-text">' + esc(questions[i]) + '</div></div>' +
+          '<div class="qform-row qform-answer-row">' + buildAnswerLines(i) + '</div>' +
+        '</div>' +
+      '</article>';
+  }
+
+  let cardsSealed = false;
+
+  function initCards() {
+    cardsStage.innerHTML = "";
+    cardsScene.classList.remove("is-sealing", "is-sealed", "is-stamped");
+    cardsHint.classList.remove("is-hidden");
+    cardsActions.classList.remove("is-visible");
+    btnCardsNext.disabled = true;
+    cardsSealed = false;
+
+    // Build the pile: the last question sits crisp on top, the earlier
+    // ones fan out behind it (same tilt/offset as the question pile).
+    questions.forEach((q, i) => {
+      const sheet = document.createElement("div");
+      if (i === questions.length - 1) {
+        sheet.className = "qform-sheet qform-sheet--active";
+        sheet.style.zIndex = "100";
+      } else {
+        const angle = STACK_ANGLES[i % STACK_ANGLES.length];
+        sheet.className = "qform-sheet qform-sheet--stacked";
+        sheet.style.zIndex = String(i + 1);
+        sheet.style.setProperty("--stack-rot", angle + "deg");
+        sheet.style.setProperty("--stack-x", (Math.sign(angle) * (24 + i * 16)) + "px");
+        sheet.style.setProperty("--stack-y", (8 + i * 14) + "px");
+      }
+      sheet.innerHTML = cardFormHTML(i);
+      cardsStage.appendChild(sheet);
     });
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
-    envStamp.textContent = answeredCount + "/" + questions.length;
-
-    const totalMs = (questions.length * STAGGER + DURATION) * 1000;
-    setTimeout(() => {
-      envStage.classList.add("is-sealed");
-      btnEnvelopeNext.disabled = false;
-    }, totalMs);
+    cardsStamp.textContent = answeredCount + "/" + questions.length;
   }
 
-  btnEnvelopeNext.addEventListener("click", () => {
-    if (btnEnvelopeNext.disabled) return;
+  // Scroll-triggered finish: pile shrinks, the open envelope rises from
+  // below and closes, a red stamp lands, then the continue button lights up.
+  function sealCards() {
+    if (cardsSealed) return;
+    cardsSealed = true;
+    cardsHint.classList.add("is-hidden");
+    cardsScene.classList.add("is-sealing");                       // pile shrinks, envelope rises
+    setTimeout(() => cardsScene.classList.add("is-sealed"), 850); // flap closes
+    setTimeout(() => cardsScene.classList.add("is-stamped"), 1500); // red stamp
+    setTimeout(() => {                                            // continue lights up
+      cardsActions.classList.add("is-visible");
+      btnCardsNext.disabled = false;
+    }, 1950);
+  }
+
+  function cardsScrollIntent() {
+    if (!screens.cards.classList.contains("active")) return;
+    sealCards();
+  }
+  cardsWrap.addEventListener("wheel", cardsScrollIntent, { passive: true });
+  cardsWrap.addEventListener("touchmove", cardsScrollIntent, { passive: true });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+      cardsScrollIntent();
+    }
+  });
+
+  btnCardsNext.addEventListener("click", () => {
+    if (btnCardsNext.disabled) return;
     initLegacy();
     showScreen("legacy");
   });
