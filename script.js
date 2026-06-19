@@ -869,8 +869,107 @@
   const pLegacy  = document.getElementById("p-legacy");
   const pQuestions = document.getElementById("p-questions");
   const pPhotos  = document.getElementById("p-photos");
+  const pVideos  = document.getElementById("p-videos");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
+
+  // Drawer-upload state. Only photos (folder 0) and videos (folder 1) are
+  // uploadable for now; each maps to an accepted file type.
+  let currentDrawerCode = "";
+  let activeFolderIdx = 3;
+  let isUploading = false;
+  const FOLDER_CATEGORY = { 0: "image", 1: "video" };
+
+  // One reusable hidden file input drives all drawer uploads.
+  const uploadInput = document.createElement("input");
+  uploadInput.type = "file";
+  uploadInput.style.display = "none";
+  document.body.appendChild(uploadInput);
+  uploadInput.addEventListener("change", () => {
+    const file = uploadInput.files && uploadInput.files[0];
+    uploadInput.value = ""; // let the same file be re-picked later
+    if (file && currentDrawerCode) uploadFileToDrawer(file, currentDrawerCode);
+  });
+
+  // Upload a file into the drawer's Drive folder (fire-and-forget POST, like
+  // submitToSheet — the response isn't CORS-readable), then refresh the
+  // gallery via the JSONP "files" listing.
+  function uploadFileToDrawer(file, code) {
+    if (isUploading || !SHEET_WEBHOOK_URL) return;
+    isUploading = true;
+    const targetEl = activeFolderIdx === 0 ? pPhotos : pVideos;
+    if (targetEl) targetEl.innerHTML = '<div class="folder-empty">מעלה…</div>';
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      const comma = dataUrl.indexOf(",");
+      const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+      try {
+        fetch(SHEET_WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "upload",
+            code: code,
+            filename: file.name || "file",
+            mimeType: file.type || "application/octet-stream",
+            data: base64
+          })
+        });
+      } catch (err) { /* לא חוסם */ }
+      // No readable response — give Drive a moment, then reload the listing.
+      setTimeout(() => { isUploading = false; loadDrawerFiles(code); }, 4000);
+    };
+    reader.onerror = () => { isUploading = false; loadDrawerFiles(code); };
+    reader.readAsDataURL(file);
+  }
+
+  // Fetch the drawer's files via JSONP and render them into the folders.
+  function loadDrawerFiles(code) {
+    if (!code || !SHEET_WEBHOOK_URL) return;
+    const cbName = "__wrFilesCb" + Date.now();
+    let s;
+    window[cbName] = function(res) {
+      renderDrawerFiles((res && res.files) ? res.files : []);
+      delete window[cbName];
+      if (s && s.remove) s.remove();
+    };
+    s = document.createElement("script");
+    s.src = SHEET_WEBHOOK_URL + "?action=files&callback=" + cbName +
+            "&code=" + encodeURIComponent(code) + "&t=" + Date.now();
+    s.onerror = function() { delete window[cbName]; if (s && s.remove) s.remove(); };
+    document.body.appendChild(s);
+  }
+
+  function renderDrawerFiles(files) {
+    const images = files.filter(f => f.type === "image");
+    const videos = files.filter(f => f.type === "video");
+    if (pPhotos) {
+      let html = "";
+      // The depositor's session photo (not on Drive) leads the owner's gallery
+      if (state.photoDataUrl && currentDrawerCode === state.userCode) {
+        html += '<img class="drawer-file" alt="תמונת המפקיד" src="' + state.photoDataUrl + '">';
+      }
+      images.forEach(f => {
+        html += '<img class="drawer-file" loading="lazy" alt="" ' +
+                'src="https://drive.google.com/thumbnail?id=' + f.id + '&sz=w1000">';
+      });
+      pPhotos.innerHTML = html
+        ? '<div class="drawer-files">' + html + '</div>'
+        : '<div class="folder-empty">עדיין אין כאן תוכן</div>';
+    }
+    if (pVideos) {
+      let vhtml = "";
+      videos.forEach(f => {
+        vhtml += '<iframe class="drawer-file-video" loading="lazy" allow="autoplay" ' +
+                 'src="https://drive.google.com/file/d/' + f.id + '/preview"></iframe>';
+      });
+      pVideos.innerHTML = vhtml
+        ? '<div class="drawer-files">' + vhtml + '</div>'
+        : '<div class="folder-empty">עדיין אין כאן תוכן</div>';
+    }
+  }
 
   // Open the drawer interior (folder dividers) for a given viewer and
   // show the screen. "דברים שכתבתי" = legacy text; "השאלות מההתחלה" =
@@ -881,6 +980,7 @@
     // Owner view = logged-in session whose code matches this drawer's code.
     const _sess = getSession();
     ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
+    currentDrawerCode = viewer.code || "";
     pName.textContent   = viewer.name || "(ללא שם)";
     pCode.textContent   = viewer.code || "";
     pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
@@ -927,6 +1027,7 @@
     }
 
     activateFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
+    loadDrawerFiles(currentDrawerCode); // populate the photos/videos galleries
     showScreen("personal");
   }
 
@@ -937,6 +1038,7 @@
   // השאלות(3,R), דברים שכתבתי(2,L), סרטונים(1,R), תמונות(0,L)
   let stackOrder = [3, 2, 1, 0];
   function activateFolder(idx) {
+    activeFolderIdx = idx;
     // Bring the clicked divider to the front; the rest keep their order,
     // so the clicked sheet slides forward (animated via the CSS transition).
     stackOrder = [idx].concat(stackOrder.filter(i => i !== idx));
@@ -948,16 +1050,23 @@
       body.classList.toggle("is-active", rank === 0);
     });
     folderTabs.forEach((t, i) => t.classList.toggle("is-active", i === idx));
-    // Add/edit controls show only for the drawer owner, and not on
-    // "השאלות מההתחלה" (index 3). Non-owners get a read-only view.
-    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = (ownerView && idx !== 3) ? "" : "none";
+    // The + (upload) button shows only for the owner, and only on the
+    // uploadable folders — תמונות (0) and סרטונים (1). Read-only otherwise.
+    if (btnPersonalToGeneral) {
+      btnPersonalToGeneral.style.display =
+        (ownerView && (idx === 0 || idx === 1)) ? "" : "none";
+    }
   }
   folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
   activateFolder(3); // default front divider: "השאלות מההתחלה" (right tab, closest)
 
-  // Bottom-left: add to the active category — placeholder, wired later
+  // Bottom-left +: pick a file for the active folder (photos/videos only)
   btnPersonalToGeneral.addEventListener("click", () => {
-    /* no-op for now — will lead to "add information" for the active folder */
+    if (!ownerView || !currentDrawerCode) return;
+    const cat = FOLDER_CATEGORY[activeFolderIdx];
+    if (!cat) return; // only תמונות / סרטונים are uploadable for now
+    uploadInput.accept = cat === "image" ? "image/*" : "video/*";
+    uploadInput.click();
   });
 
   // Bottom-right: back to the archive; re-lock so re-entry needs the code

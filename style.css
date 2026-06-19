@@ -1448,6 +1448,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   margin: 0 auto;
 }
 
+/* Uploaded photos/videos gallery inside a drawer folder */
+.drawer-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-content: flex-start;
+  justify-content: center;
+}
+.drawer-files .drawer-file {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.04);
+}
+.drawer-files .drawer-file-video {
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+}
+
 /* ============================================================
    PHASE.PRINT_INSTRUCTIONS — simple centered text
 ============================================================ */

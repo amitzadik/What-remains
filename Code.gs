@@ -24,6 +24,20 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  // File upload: store the file inside the drawer's own Drive folder (by code).
+  if (data.action === "upload") {
+    var upCode = String(data.code || "").padStart(4, "0");
+    var folder = getOrCreateCodeFolder_(upCode);
+    var bytes = Utilities.base64Decode(data.data || "");
+    var blob = Utilities.newBlob(bytes, data.mimeType || "application/octet-stream", data.filename || "file");
+    var newFile = folder.createFile(blob);
+    // Make it viewable by anyone with the link so the archive can show it.
+    try { newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (shareErr) {}
+    return ContentService.createTextOutput(JSON.stringify({
+      ok: true, id: newFile.getId(), name: newFile.getName()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   sheet.appendRow([
     new Date(),
     data.name || "",
@@ -69,6 +83,28 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JAVASCRIPT);
     }
     return ContentService.createTextOutput(loginOut).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // List the files in a drawer's Drive folder (for the gallery), classified
+  // into image / video / other by MIME type.
+  if (p.action === "files") {
+    var fCode = String(p.code || "").padStart(4, "0");
+    var fFolder = getOrCreateCodeFolder_(fCode);
+    var it = fFolder.getFiles();
+    var files = [];
+    while (it.hasNext()) {
+      var fl = it.next();
+      var mime = fl.getMimeType();
+      var type = mime.indexOf("image/") === 0 ? "image"
+               : mime.indexOf("video/") === 0 ? "video" : "other";
+      files.push({ id: fl.getId(), name: fl.getName(), mime: mime, type: type });
+    }
+    var filesOut = JSON.stringify({ ok: true, files: files });
+    if (p.callback) {
+      return ContentService.createTextOutput(p.callback + "(" + filesOut + ")")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(filesOut).setMimeType(ContentService.MimeType.JSON);
   }
 
   var values = sheet.getDataRange().getValues();
