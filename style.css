@@ -650,7 +650,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   left: 30%;
   right: 13%;
   height: 16%;
-  transform: translateY(4px);   /* nudge the name down */
+  transform: translate(2px, 0);   /* nudge the name right 2px / up 4px from before */
   display: flex;
   align-items: center;
   justify-content: center;
