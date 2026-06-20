@@ -317,10 +317,10 @@
   }
   if (stampMyDrawer) {
     stampMyDrawer.addEventListener("click", () => {
-      dismissLandingPopup();
       const sess = getSession();
-      if (sess && sess.code) openOwnDrawer(sess);
-      else openLoginModal();
+      if (!sess || !sess.code) return;   // disabled until logged in
+      dismissLandingPopup();
+      openOwnDrawer(sess);
     });
   }
 

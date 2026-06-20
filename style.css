@@ -967,8 +967,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #stamp-login:active,
 #stamp-mydrawer:active { transform: rotate(0deg) translateY(0) scale(0.97); }
 
-/* The my-drawer stamp is hinted as inactive until a session exists */
-#screen-landing .landing-stamps:not(.is-authed) #stamp-mydrawer { opacity: 0.6; }
+/* My-drawer is disabled (like the next button) until someone is logged in */
+#screen-landing .landing-stamps:not(.is-authed) #stamp-mydrawer {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 /* ----- Modal overlay + horizontal 3:2 paper card ----- */
 .landing-card-overlay {
