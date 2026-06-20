@@ -1174,10 +1174,7 @@
     const nameEl = document.createElement("span");
     nameEl.className = "wall-plate-name";
     nameEl.textContent = v.name;
-    const boxEl = document.createElement("span");
-    boxEl.className = "wall-plate-box"; // decorative, stays empty (not the code)
     plate.appendChild(nameEl);
-    plate.appendChild(boxEl);
     d.appendChild(plate);
 
     // Owner (logged-in, code matches) skips the code prompt; everyone
