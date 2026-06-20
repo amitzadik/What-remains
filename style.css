@@ -630,12 +630,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: url("images/drawer.png") center / contain no-repeat;
   position: relative;
   cursor: pointer;
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
   transition: transform 0.18s ease, filter 0.18s ease;
 }
 .wall-drawer:hover {
   transform: translateY(-4px) scale(1.03);
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.45)) brightness(1.05);
+  filter: brightness(1.05);
   z-index: 2;
 }
 .wall-drawer.active-drawer {
@@ -900,7 +899,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   left: 0;
   right: 0;
   bottom: 0;
-  top: calc(32% - 48px);
+  top: calc(32% - 88px);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(clamp(128px, 14.4vw, 192px), 1fr));
   gap: 16px;
