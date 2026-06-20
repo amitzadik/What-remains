@@ -626,7 +626,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Each drawer IS the drawer.png image; name overlays the label area */
 .wall-drawer {
   width: 100%;
-  aspect-ratio: 2246 / 1432;          /* drawer.png natural ratio */
+  aspect-ratio: 3965 / 2664;          /* drawer.png natural ratio */
   background: url("images/drawer.png") center / contain no-repeat;
   position: relative;
   cursor: pointer;
