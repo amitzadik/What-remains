@@ -728,7 +728,7 @@
     });
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
-    cardsStamp.textContent = answeredCount + "/" + questions.length;
+    cardsStamp.src = "images/stamp" + answeredCount + ".png";
   }
 
   // Scroll-triggered finish: pile shrinks, the open envelope rises from
