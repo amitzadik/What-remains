@@ -1070,7 +1070,7 @@
       pQuestions.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
     }
 
-    activateFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
+    openFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
     loadDrawerFiles(currentDrawerCode); // populate the photos/videos galleries
     showScreen("personal");
   }
@@ -1101,8 +1101,23 @@
         (ownerView && (idx === 0 || idx === 1)) ? "" : "none";
     }
   }
-  folderTabs.forEach((tab, i) => tab.addEventListener("click", () => activateFolder(i)));
-  activateFolder(3); // default front divider: "השאלות מההתחלה" (right tab, closest)
+  // Open one folder (bring it forward + reveal); opening one closes any other.
+  function openFolder(idx) {
+    activateFolder(idx);
+    folderBodies.forEach((b, i) => b.classList.toggle("is-open", i === idx));
+  }
+  // Clicking a folder toggles it; clicking the open one closes it back in.
+  function toggleFolder(idx) {
+    const body = folderBodies[idx];
+    if (!body) return;
+    if (body.classList.contains("is-open")) {
+      body.classList.remove("is-open");
+    } else {
+      openFolder(idx);
+    }
+  }
+  folderTabs.forEach((tab, i) => tab.addEventListener("click", () => toggleFolder(i)));
+  openFolder(3); // default open divider: "השאלות מההתחלה" (right tab, closest)
 
   // Bottom-left +: pick a file for the active folder (photos/videos only)
   btnPersonalToGeneral.addEventListener("click", () => {

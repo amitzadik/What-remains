@@ -170,12 +170,20 @@ html, body {
   /* shadow follows the folder/tab silhouette of the PNG, not a rectangle */
   filter: drop-shadow(0 5px 9px rgba(0,0,0,0.4));
   overflow: visible;
-  transition: top 0.35s ease;
+  transition: top 0.35s ease, transform 0.15s ease;
 }
 .folder-body[data-folder="0"],
 .folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
+
+/* Open folder lifts further out of the stack (transform → no layout shift) */
+.folder-body.is-open { transform: translateY(-40px); }
+
+/* Hover lift — real cursors only, and only when motion is allowed */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #screen-personal .folder-body:not(.is-open):hover { transform: translateY(-6px); }
+}
 
 /* Content on the folder face (below the tab); only the active folder shows it */
 .folder-content {
@@ -186,7 +194,8 @@ html, body {
   bottom: 120px;
   overflow-y: auto;
 }
-.folder-body:not(.is-active) .folder-content { visibility: hidden; }
+.folder-content { visibility: hidden; }
+.folder-body.is-open .folder-content { visibility: visible; }
 .folder-empty {
   color: var(--metal);
   font-size: 1.2rem;
