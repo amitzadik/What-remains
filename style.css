@@ -1252,9 +1252,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Continue button — sits ON the folder, revealed only after the stamp */
 .cards-env-next {
   position: absolute;
-  left: 50%;
-  bottom: 12%;
-  transform: translateX(-50%);
+  left: calc(100% * 52 / 1500);    /* same bottom-left inset as the questions card */
+  bottom: calc(100% * 85 / 1500);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.45s ease;
