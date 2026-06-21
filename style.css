@@ -1198,7 +1198,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   margin: 0;
   transform-origin: center 58%;
-  transition: transform 0.7s cubic-bezier(.22, .61, .36, 1);
+  transition: transform 1.6s cubic-bezier(.22, .61, .36, 1);
 }
 .cards-scene.is-sealing #cards-stage { transform: scale(0.64); }
 
@@ -1207,10 +1207,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 92%;
+  width: 110%;                        /* enlarged ~20% */
   aspect-ratio: 4547 / 3281;          /* brown-folder.png natural ratio */
   transform: translate(-50%, 132%);
-  transition: transform 0.8s cubic-bezier(.22, .61, .36, 1);
+  transition: transform 1.8s cubic-bezier(.22, .61, .36, 1);
   background: url("images/brown-folder.png") center / contain no-repeat;
   z-index: 200;
   pointer-events: none;
@@ -1249,18 +1249,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   50%      { opacity: 0.95; transform: translateY(5px); }
 }
 
-/* Continue button — hidden until the stamp lands */
-.cards-actions {
-  display: flex;
-  justify-content: center;
+/* Continue button — sits ON the folder, revealed only after the stamp */
+.cards-env-next {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
   opacity: 0;
-  transform: translateY(8px);
   pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.45s ease;
+  z-index: 5;
 }
-.cards-actions.is-visible {
+.cards-scene.is-done .cards-env-next {
   opacity: 1;
-  transform: none;
   pointer-events: auto;
 }
 

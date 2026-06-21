@@ -652,7 +652,6 @@
   const cardsScene   = document.getElementById("cards-scene");
   const cardsStage   = document.getElementById("cards-stage");
   const cardsHint    = document.getElementById("cards-hint");
-  const cardsActions = document.getElementById("cards-actions");
   const cardsStamp   = document.getElementById("cards-env-stamp");
   const btnCardsNext = document.getElementById("btn-cards-next");
 
@@ -702,9 +701,8 @@
 
   function initCards() {
     cardsStage.innerHTML = "";
-    cardsScene.classList.remove("is-sealing", "is-sealed", "is-stamped");
+    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done");
     cardsHint.classList.remove("is-hidden");
-    cardsActions.classList.remove("is-visible");
     btnCardsNext.disabled = true;
     cardsSealed = false;
 
@@ -738,14 +736,13 @@
   function sealCards() {
     if (cardsSealed) return;
     cardsSealed = true;
-    cardsHint.classList.add("is-hidden");
-    cardsScene.classList.add("is-sealing");                       // pile shrinks, envelope rises
-    setTimeout(() => cardsScene.classList.add("is-sealed"), 850); // flap closes
-    setTimeout(() => cardsScene.classList.add("is-stamped"), 1500); // red stamp
-    setTimeout(() => {                                            // continue lights up
-      cardsActions.classList.add("is-visible");
+    cardsHint.classList.add("is-hidden");                         // hide "גלול להמשך" once scrolling begins
+    cardsScene.classList.add("is-sealing");                       // pile shrinks + folder rises (slow)
+    setTimeout(() => cardsScene.classList.add("is-stamped"), 2000); // stamp lands after the folder settles
+    setTimeout(() => {                                            // continue appears ON the folder, after the stamp
+      cardsScene.classList.add("is-done");
       btnCardsNext.disabled = false;
-    }, 1950);
+    }, 2700);
   }
 
   function cardsScrollIntent() {

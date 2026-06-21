@@ -240,18 +240,16 @@
         <div class="qform-stage" id="cards-stage"></div>
 
         <!-- Folder that rises from below and seals the pile -->
-        <div class="cards-env" id="cards-env" aria-hidden="true">
+        <div class="cards-env" id="cards-env">
           <img class="cards-env-stamp" id="cards-env-stamp" alt="" src="images/stamp0.png">
+          <!-- Continue button sits ON the folder, revealed after the stamp -->
+          <button id="btn-cards-next" type="button" class="img-btn cards-env-next" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+            <img src="images/next-default.png" width="105" height="105">
+          </button>
         </div>
       </div>
 
       <div class="cards-hint" id="cards-hint">גלול להמשך</div>
-
-      <div class="cards-actions" id="cards-actions">
-        <button id="btn-cards-next" type="button" class="img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
-          <img src="images/next-default.png" width="105" height="105">
-        </button>
-      </div>
     </div>
   </section>
 
