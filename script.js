@@ -458,7 +458,7 @@
       registerSheet.style.zIndex = String(idx + 1);
       registerSheet.style.setProperty("--stack-rot", angle + "deg");
       registerSheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
-      registerSheet.style.setProperty("--stack-y", (10 + idx * 16) + "px");
+      registerSheet.style.setProperty("--stack-y", ((10 + idx * 16) - 50) + "px");
       state.frozenCount++;
     }
     if (stage) stage.classList.remove("qform-stage--register");
@@ -530,7 +530,7 @@
     frozen.style.zIndex = String(idx + 1); // below the active sheet
     frozen.style.setProperty("--stack-rot", angle + "deg");
     frozen.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
-    frozen.style.setProperty("--stack-y", (10 + idx * 16) + "px");
+    frozen.style.setProperty("--stack-y", ((10 + idx * 16) - 50) + "px");
 
     const formClone = liveForm.cloneNode(true);
     formClone.removeAttribute("id");
@@ -723,7 +723,7 @@
         sheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + i * 18)) + "px");
         // Shift the vertical spread up so the pile fans above the centre too,
         // not only downward.
-        sheet.style.setProperty("--stack-y", ((10 + i * 16) - 40) + "px");
+        sheet.style.setProperty("--stack-y", ((10 + i * 16) - 50) + "px");
       }
       sheet.innerHTML = cardFormHTML(i);
       cardsStage.appendChild(sheet);
