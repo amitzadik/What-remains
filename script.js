@@ -720,8 +720,8 @@
         sheet.className = "qform-sheet qform-sheet--stacked";
         sheet.style.zIndex = String(i + 1);
         sheet.style.setProperty("--stack-rot", angle + "deg");
-        sheet.style.setProperty("--stack-x", (Math.sign(angle) * (24 + i * 16)) + "px");
-        sheet.style.setProperty("--stack-y", (8 + i * 14) + "px");
+        sheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + i * 18)) + "px");
+        sheet.style.setProperty("--stack-y", (10 + i * 16) + "px");
       }
       sheet.innerHTML = cardFormHTML(i);
       cardsStage.appendChild(sheet);

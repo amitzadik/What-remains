@@ -1202,53 +1202,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-scene.is-sealing #cards-stage { transform: scale(0.8); }
 
-/* Envelope — rises from below (open) and closes over the pile */
+/* Folder (brown-folder.png) — rises from below and seals the pile */
 .cards-env {
   position: absolute;
   top: 50%;
   left: 50%;
   width: 92%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4547 / 3281;          /* brown-folder.png natural ratio */
   transform: translate(-50%, 132%);
   transition: transform 0.8s cubic-bezier(.22, .61, .36, 1);
-  perspective: 1200px;
+  background: url("images/brown-folder.png") center / contain no-repeat;
   z-index: 200;
   pointer-events: none;
 }
 .cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
-
-.cards-env-pocket {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, var(--wood-light), var(--wood));
-  border: 1px solid var(--ink);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
-}
-/* the two diagonal seams of the envelope front */
-.cards-env-pocket::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to top right, transparent calc(50% - 1px), rgba(0,0,0,0.16) 50%, transparent calc(50% + 1px)),
-    linear-gradient(to top left,  transparent calc(50% - 1px), rgba(0,0,0,0.16) 50%, transparent calc(50% + 1px));
-}
-
-.cards-env-flap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 58%;
-  background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
-  border: 1px solid var(--ink);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top center;
-  transform: rotateX(180deg);   /* open */
-  transition: transform 0.6s ease;
-  z-index: 3;
-}
-.cards-scene.is-sealed .cards-env-flap { transform: rotateX(0deg); } /* closed */
 
 /* Red wax-style stamp showing the answered count */
 .cards-env-stamp {
