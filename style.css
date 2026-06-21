@@ -1594,6 +1594,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-sheet--active { z-index: 100; }
 .qform-sheet--stacked { z-index: 1; pointer-events: none; }
 .qform-sheet--stacked .qform { opacity: 0.55; }
+/* Fainter text on the stacked (frozen) question sheets behind the live one */
+.qform-sheet--stacked .qform-question-text,
+.qform-sheet--stacked .line__text,
+.qform-sheet--stacked .qform-value,
+.qform-sheet--stacked .qform-label,
+.qform-sheet--stacked .qform-num {
+  opacity: 0.5;
+}
 
 .qform {
   width: 100%;
