@@ -118,6 +118,11 @@ html, body {
   width: 100%;
   height: 100%;
   padding: 0;
+  /* Folder-stack sizing — tweak freely */
+  --open-h: 85%;        /* open folder fills ~85% of the drawer area, bottom-anchored */
+  --band-top: 76px;     /* closed tabs band sits just below the owner header */
+  --band-step: 14px;    /* slight vertical offset between stacked closed tabs */
+  --tab-band-h: 12vw;   /* visible height of a closed folder (tab only) */
 }
 .folder-wrap .drawer-header {
   position: absolute;
@@ -161,24 +166,31 @@ html, body {
   position: absolute;
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
-  bottom: 0;                                   /* flush to the bottom */
-  top: calc(390px - var(--rank) * 100px);      /* raised higher up the screen */
+  /* Closed: thin tab-only band just below the owner header, slightly offset */
+  top: calc(var(--band-top) + var(--rank) * var(--band-step));
+  height: var(--tab-band-h);
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
   border: none;
   /* shadow follows the folder/tab silhouette of the PNG, not a rectangle */
   filter: drop-shadow(0 5px 9px rgba(0,0,0,0.4));
-  overflow: visible;
-  transition: top 0.35s ease, transform 0.15s ease;
+  overflow: hidden;                            /* clip the body so only the tab shows */
+  transition: top 0.2s ease, height 0.2s ease, transform 0.2s ease;
 }
 .folder-body[data-folder="0"],
 .folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
 
-/* Open folder lifts further out of the stack (transform → no layout shift) */
-.folder-body.is-open { transform: translateY(-40px); }
+/* Open folder dominates: expands to ~85% of the area, anchored to the bottom.
+   top is kept as a calc (not auto) so the size change animates smoothly. */
+.folder-body.is-open {
+  top: calc(100% - var(--open-h));
+  height: var(--open-h);
+  overflow: visible;
+  transform: none;
+}
 
 /* Hover lift — real cursors only, and only when motion is allowed */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -196,6 +208,13 @@ html, body {
 }
 .folder-content { visibility: hidden; }
 .folder-body.is-open .folder-content { visibility: visible; }
+/* Centre the empty-state text in the enlarged area; real content stays
+   top-aligned and scrolls (overflow-y on .folder-content). */
+.folder-content:has(.folder-empty) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .folder-empty {
   color: var(--metal);
   font-size: 1.2rem;
@@ -228,8 +247,9 @@ html, body {
 .folder-body[data-folder="1"] .folder-tab,
 .folder-body[data-folder="3"] .folder-tab { right: 0; width: 33%; }  /* centred on the right tab */
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.95rem; }
-/* hover darkening at 50% strength (override the generic button:hover) */
-button.folder-tab:hover { background: rgba(61, 54, 40, 0.5); color: var(--ink); }
+/* Hover is purely the lift (on .folder-body) — no colour/background change.
+   This also neutralises the generic button:hover highlight. */
+button.folder-tab:hover { background: none; color: inherit; }
 
 /* Corner buttons — on the front folder, 20px in from the 60px side margin */
 .personal-add  { position: absolute; left: 80px;  bottom: 20px; z-index: 25; }
