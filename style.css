@@ -1769,7 +1769,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-actions {
   flex: 0 0 auto;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   margin-top: 3.5%;
 }
 /* Continue / submit button always sits in the bottom-LEFT corner; the
@@ -1800,6 +1800,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: none;
   border: none;
   padding: 0;
+  margin-inline-start: 12px;   /* align its right edge to the answer-text inset */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1810,7 +1811,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-dk-text {
   color: var(--stamp);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
 }
 .qform-dk-img {
   position: absolute;
