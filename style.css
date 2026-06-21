@@ -1200,7 +1200,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform-origin: center 58%;
   transition: transform 0.7s cubic-bezier(.22, .61, .36, 1);
 }
-.cards-scene.is-sealing #cards-stage { transform: scale(0.8); }
+.cards-scene.is-sealing #cards-stage { transform: scale(0.64); }
 
 /* Folder (brown-folder.png) — rises from below and seals the pile */
 .cards-env {

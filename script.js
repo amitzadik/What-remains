@@ -721,7 +721,9 @@
         sheet.style.zIndex = String(i + 1);
         sheet.style.setProperty("--stack-rot", angle + "deg");
         sheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + i * 18)) + "px");
-        sheet.style.setProperty("--stack-y", (10 + i * 16) + "px");
+        // Shift the vertical spread up so the pile fans above the centre too,
+        // not only downward.
+        sheet.style.setProperty("--stack-y", ((10 + i * 16) - 40) + "px");
       }
       sheet.innerHTML = cardFormHTML(i);
       cardsStage.appendChild(sheet);
