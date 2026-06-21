@@ -166,16 +166,15 @@ html, body {
   position: absolute;
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
-  /* Closed: thin tab-only band just below the owner header, slightly offset */
-  top: calc(var(--band-top) + var(--rank) * var(--band-step));
-  height: var(--tab-band-h);
+  bottom: 0;                                   /* flush to the bottom */
+  top: calc(390px - var(--rank) * 100px);      /* closed/resting: large stacked folders */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
   border: none;
   /* shadow follows the folder/tab silhouette of the PNG, not a rectangle */
   filter: drop-shadow(0 5px 9px rgba(0,0,0,0.4));
-  overflow: hidden;                            /* clip the body so only the tab shows */
+  overflow: visible;
   transition: top 0.2s ease, height 0.2s ease, transform 0.2s ease;
 }
 .folder-body[data-folder="0"],
@@ -183,13 +182,22 @@ html, body {
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
 
-/* Open folder dominates: expands to ~85% of the area, anchored to the bottom.
-   top is kept as a calc (not auto) so the size change animates smoothly. */
+/* Open folder dominates: ~85% of the area + 20px higher, bottom-anchored. */
 .folder-body.is-open {
-  top: calc(100% - var(--open-h));
-  height: var(--open-h);
+  top: calc(100% - var(--open-h) - 20px);
+  bottom: auto;
+  height: calc(var(--open-h) + 20px);
   overflow: visible;
   transform: none;
+}
+
+/* While a folder is open, the others recede to a thin tab band up top.
+   With nothing open, folders fall back to the large stacked look above. */
+.folder-bodies.has-open .folder-body:not(.is-open) {
+  top: calc(var(--band-top) + var(--rank) * var(--band-step));
+  bottom: auto;
+  height: var(--tab-band-h);
+  overflow: hidden;
 }
 
 /* Hover lift — real cursors only, and only when motion is allowed */

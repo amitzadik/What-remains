@@ -1101,10 +1101,12 @@
         (ownerView && (idx === 0 || idx === 1)) ? "" : "none";
     }
   }
+  const folderBodiesEl = document.querySelector("#screen-personal .folder-bodies");
   // Open one folder (bring it forward + reveal); opening one closes any other.
   function openFolder(idx) {
     activateFolder(idx);
     folderBodies.forEach((b, i) => b.classList.toggle("is-open", i === idx));
+    if (folderBodiesEl) folderBodiesEl.classList.add("has-open"); // others recede to tabs
   }
   // Clicking a folder toggles it; clicking the open one closes it back in.
   function toggleFolder(idx) {
@@ -1112,6 +1114,7 @@
     if (!body) return;
     if (body.classList.contains("is-open")) {
       body.classList.remove("is-open");
+      if (folderBodiesEl) folderBodiesEl.classList.remove("has-open"); // back to the large stack
     } else {
       openFolder(idx);
     }
