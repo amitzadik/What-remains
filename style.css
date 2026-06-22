@@ -278,8 +278,13 @@ html, body {
 .folder-body[data-folder="3"] .folder-tab { right: 0; width: 33%; }  /* centred on the right tab */
 .folder-body[data-folder="3"] .folder-tab { font-size: 0.95rem; }
 /* Hover is purely the lift (on .folder-body) — no colour/background change.
-   This also neutralises the generic button:hover highlight. */
-button.folder-tab:hover { background: none; color: inherit; }
+   Scoped with the screen id so it beats the generic button:hover (which sets
+   a brown background and would otherwise win by source order). */
+#screen-personal button.folder-tab:hover,
+#screen-personal button.folder-tab:hover:not(:disabled) {
+  background: none;
+  color: inherit;
+}
 
 /* Close stamp on the open tab's left — 20×20, visible only while open */
 .folder-close {
@@ -292,7 +297,7 @@ button.folder-tab:hover { background: none; color: inherit; }
   border: none;
   padding: 0;
   cursor: pointer;
-  z-index: 3;
+  z-index: 6;
 }
 .folder-close img { display: block; width: 20px; height: 20px; }
 .folder-body.is-open .folder-close { display: block; }
