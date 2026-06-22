@@ -123,6 +123,7 @@ html, body {
   --band-top: 76px;     /* closed tabs band sits just below the owner header */
   --band-step: 14px;    /* slight vertical offset between stacked closed tabs */
   --tab-band-h: 12vw;   /* visible height of a closed folder (tab only) */
+  --stack-rise: 100px;  /* how far the whole folder area is pulled up */
 }
 .folder-wrap .drawer-header {
   position: absolute;
@@ -160,15 +161,14 @@ html, body {
 .folder-bodies {
   position: absolute;
   inset: 0;
-  transform: translateY(-120px);   /* raise the whole folder area up */
 }
 .folder-body {
   --rank: 0;
   position: absolute;
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
-  bottom: 0;                                   /* flush to the bottom */
-  top: calc(390px - var(--rank) * 100px);      /* closed/resting: large stacked folders */
+  bottom: 0;                                   /* stretch to the screen bottom */
+  top: calc(390px - var(--stack-rise) - var(--rank) * 100px);  /* closed/resting: large stacked folders */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
@@ -183,11 +183,11 @@ html, body {
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
 
-/* Open folder dominates: ~85% of the area + 20px higher, bottom-anchored. */
+/* Open folder dominates: raised, and stretched down to the screen bottom. */
 .folder-body.is-open {
-  top: calc(100% - var(--open-h) - 20px);
-  bottom: auto;
-  height: calc(var(--open-h) + 20px);
+  top: calc(100% - var(--open-h) - 20px - var(--stack-rise));
+  bottom: 0;
+  height: auto;
   overflow: visible;
   transform: none;
 }
@@ -195,7 +195,7 @@ html, body {
 /* While a folder is open, the others recede to a thin tab band up top.
    With nothing open, folders fall back to the large stacked look above. */
 .folder-bodies.has-open .folder-body:not(.is-open) {
-  top: calc(var(--band-top) + var(--rank) * var(--band-step));
+  top: calc(var(--band-top) - var(--stack-rise) + var(--rank) * var(--band-step));
   bottom: auto;
   height: var(--tab-band-h);
   overflow: hidden;
@@ -206,12 +206,33 @@ html, body {
   #screen-personal .folder-body:not(.is-open):hover { transform: translateY(-6px); }
 }
 
-/* Content on the folder face (below the tab); only the active folder shows it */
+/* Per-folder search box, top-right of the open folder face */
+.folder-search {
+  position: absolute;
+  top: 12vw;
+  right: 12%;
+  width: min(220px, 34%);
+  display: none;                 /* only the open folder shows it */
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: var(--ink);
+  padding: 4px 6px;
+  outline: none;
+  direction: rtl;
+  text-align: right;
+  z-index: 4;
+}
+.folder-body.is-open .folder-search { display: block; }
+
+/* Content on the folder face (below the tab + search); only the open folder shows it */
 .folder-content {
   position: absolute;
   left: 12%;
   right: 12%;
-  top: 10vw;
+  top: 16vw;
   bottom: 120px;
   overflow-y: auto;
 }
