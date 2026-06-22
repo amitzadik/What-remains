@@ -183,10 +183,24 @@ html, body {
 .folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
-/* Only "השאלות מההתחלה" is brown: tint its parchment image with the project brown */
-.folder-body[data-folder="3"] {
+/* Only "השאלות מההתחלה" is brown. Tint just the folder graphic (not the whole
+   box, which reaches the screen bottom) by blending the project brown into the
+   parchment image and masking to the image's shape — so no brown fills below
+   the folder and it never covers the neighbouring folders. */
+.folder-body[data-folder="3"] { background-image: none; }
+.folder-body[data-folder="3"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background-color: var(--folder-brown);
+  background-image: url("images/folder-right.png");
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
   background-blend-mode: multiply;
+  -webkit-mask: url("images/folder-right.png") top center / 100% auto no-repeat;
+          mask: url("images/folder-right.png") top center / 100% auto no-repeat;
+  pointer-events: none;
 }
 
 /* Answered-count stamp on the "השאלות מההתחלה" folder (count comes from JS) */
