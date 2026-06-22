@@ -192,13 +192,10 @@ html, body {
   transform: none;
 }
 
-/* While a folder is open, the others recede to a thin tab band up top.
+/* While a folder is open, the others disappear entirely.
    With nothing open, folders fall back to the large stacked look above. */
 .folder-bodies.has-open .folder-body:not(.is-open) {
-  top: calc(var(--band-top) - var(--stack-rise) + var(--rank) * var(--band-step));
-  bottom: auto;
-  height: var(--tab-band-h);
-  overflow: hidden;
+  display: none;
 }
 
 /* Hover lift — real cursors only, and only when motion is allowed */
@@ -289,9 +286,9 @@ html, body {
 /* Close stamp on the open tab's left — 20×20, visible only while open */
 .folder-close {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  top: calc(8.5vw - 30px);   /* vertically centred on the tab */
+  width: 30px;
+  height: 30px;
+  top: calc(8.5vw - 35px);   /* vertically centred on the tab */
   display: none;
   background: none;
   border: none;
@@ -299,7 +296,7 @@ html, body {
   cursor: pointer;
   z-index: 6;
 }
-.folder-close img { display: block; width: 20px; height: 20px; }
+.folder-close img { display: block; width: 30px; height: 30px; }
 .folder-body.is-open .folder-close { display: block; }
 /* Sit on the LEFT side of the tab (left tabs: 0,2 / right tabs: 1,3) */
 .folder-body[data-folder="0"] .folder-close,
