@@ -160,6 +160,7 @@ html, body {
 .folder-bodies {
   position: absolute;
   inset: 0;
+  transform: translateY(-120px);   /* raise the whole folder area up */
 }
 .folder-body {
   --rank: 0;
