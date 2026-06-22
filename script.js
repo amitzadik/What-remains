@@ -892,6 +892,7 @@
   const pCode    = document.getElementById("p-code");
   const pLegacy  = document.getElementById("p-legacy");
   const pQuestions = document.getElementById("p-questions");
+  const qfolderStamp = document.getElementById("qfolder-stamp");
   const pPhotos  = document.getElementById("p-photos");
   const pVideos  = document.getElementById("p-videos");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
@@ -1049,25 +1050,21 @@
       dontKnow = viewer.answers.map(a => String(a).trim() === "לא יודע/ת");
     }
 
+    // "השאלות מההתחלה" shows the exact 7 opening question cards (reused
+    // verbatim via cardFormHTML), each scaled to 30% inside a footprint wrap.
     pQuestions.innerHTML = "";
-    if (answers) {
-      questions.forEach((q, i) => {
-        const isDk = dontKnow && dontKnow[i];
-        const ans  = isDk ? "לא יודע/ת" : (answers[i] || "(אין תשובה)");
-        const li = document.createElement("li");
-        li.className = "q-item";
-        const qDiv = document.createElement("div");
-        qDiv.className = "q-item-q";
-        qDiv.textContent = (i + 1) + ". " + q;
-        const aDiv = document.createElement("div");
-        aDiv.className = "q-item-a" + (isDk ? " dk" : "");
-        aDiv.textContent = ans;
-        li.appendChild(qDiv);
-        li.appendChild(aDiv);
-        pQuestions.appendChild(li);
-      });
-    } else {
-      pQuestions.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
+    questions.forEach((q, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "qfolder-card-wrap";
+      wrap.innerHTML =
+        '<div class="qfolder-card"><div class="qform-sheet">' + cardFormHTML(i) + '</div></div>';
+      pQuestions.appendChild(wrap);
+    });
+
+    // Answered-count stamp (out of 7) — read from the opening flow's state.
+    if (qfolderStamp) {
+      const answeredCount = state.dontKnow.filter(x => !x).length;
+      qfolderStamp.textContent = answeredCount + "/" + questions.length;
     }
 
     openFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)

@@ -124,6 +124,7 @@ html, body {
   --band-step: 14px;    /* slight vertical offset between stacked closed tabs */
   --tab-band-h: 12vw;   /* visible height of a closed folder (tab only) */
   --stack-rise: 100px;  /* how far the whole folder area is pulled up */
+  --folder-brown: var(--wood);  /* brown tint for the "השאלות מההתחלה" folder */
 }
 .folder-wrap .drawer-header {
   position: absolute;
@@ -182,6 +183,60 @@ html, body {
 .folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
+/* Only "השאלות מההתחלה" is brown: tint its parchment image with the project brown */
+.folder-body[data-folder="3"] {
+  background-color: var(--folder-brown);
+  background-blend-mode: multiply;
+}
+
+/* Answered-count stamp on the "השאלות מההתחלה" folder (count comes from JS) */
+.qfolder-stamp {
+  position: absolute;
+  top: 12vw;
+  left: 10%;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: 3px solid var(--stamp);
+  color: var(--stamp);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.03em;
+  transform: rotate(-12deg);
+  z-index: 5;
+}
+.folder-body[data-folder="3"].is-open .qfolder-stamp { display: flex; }
+
+/* Open "השאלות מההתחלה": the 7 opening question cards, each scaled to 30%.
+   The card is the exact opening qform card (.qform-sheet > .qform); the wrap
+   takes the scaled (30%) footprint so the grid spacing stays correct. The
+   1500x1000 base is the qform design base, so 3:2 keeps the original proportions. */
+.qfolder-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 450px);
+  gap: 18px;
+  justify-content: center;
+  align-content: start;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.qfolder-card-wrap {
+  width: 450px;     /* 1500 * 0.3 */
+  height: 300px;    /* 1000 * 0.3 (3:2) */
+  overflow: hidden;
+}
+.qfolder-card {
+  position: relative;
+  width: 1500px;
+  height: 1000px;
+  transform: scale(0.3);
+  transform-origin: top left;
+}
 
 /* Open folder dominates: raised, and stretched down to the screen bottom. */
 .folder-body.is-open {
