@@ -256,7 +256,7 @@ html, body {
   top: 5vw;   /* sits on the printed tab (aligned for accurate hover/click) */
   height: 7vw;
   box-sizing: border-box;
-  padding-bottom: 32px;   /* lifts the centred label ~16px without moving the hover box */
+  padding-bottom: 40px;   /* lifts the centred label ~20px without moving the hover box */
   z-index: 1;
   display: flex;
   align-items: center;
@@ -290,7 +290,7 @@ html, body {
   position: absolute;
   width: 30px;
   height: 30px;
-  top: calc(8.5vw - 15px);   /* vertically centred on the tab */
+  top: calc(8.5vw - 35px);   /* centre of the X aligned to the (lifted) label */
   display: none;
   background: none;
   border: none;
