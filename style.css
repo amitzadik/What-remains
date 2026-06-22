@@ -256,7 +256,7 @@ html, body {
   top: 5vw;   /* sits on the printed tab (aligned for accurate hover/click) */
   height: 7vw;
   box-sizing: border-box;
-  padding-bottom: 20px;   /* lifts the centred label ~10px without moving the hover box */
+  padding-bottom: 32px;   /* lifts the centred label ~16px without moving the hover box */
   z-index: 1;
   display: flex;
   align-items: center;
