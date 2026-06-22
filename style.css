@@ -183,6 +183,12 @@ html, body {
 .folder-body[data-folder="2"] { background-image: url("images/folder-left.png"); }
 .folder-body[data-folder="1"],
 .folder-body[data-folder="3"] { background-image: url("images/folder-right.png"); }
+/* Fixed stack: brown "השאלות" (3) at the back; the others zigzag right/left
+   in front (tabs back→front: R,L,R,L). Never reordered (click or hover). */
+.folder-body[data-folder="0"] { --rank: 0; z-index: 10; }  /* front */
+.folder-body[data-folder="1"] { --rank: 1; z-index: 9; }
+.folder-body[data-folder="2"] { --rank: 2; z-index: 8; }
+.folder-body[data-folder="3"] { --rank: 3; z-index: 7; }   /* back */
 /* Only "השאלות מההתחלה" is brown. Tint just the folder graphic (not the whole
    box, which reaches the screen bottom) by blending the project brown into the
    parchment image and masking to the image's shape — so no brown fills below
@@ -203,27 +209,19 @@ html, body {
   pointer-events: none;
 }
 
-/* Answered-count stamp on the "השאלות מההתחלה" folder (count comes from JS) */
+/* Answered-count stamp on the "השאלות מההתחלה" folder — a stampN.png image
+   chosen by the answered count (set in JS). */
 .qfolder-stamp {
   position: absolute;
   top: 12vw;
   left: 10%;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
-  border: 3px solid var(--stamp);
-  color: var(--stamp);
+  width: 8rem;
+  height: auto;
   display: none;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 0.03em;
-  transform: rotate(-12deg);
   z-index: 5;
+  pointer-events: none;
 }
-.folder-body[data-folder="3"].is-open .qfolder-stamp { display: flex; }
+.folder-body[data-folder="3"].is-open .qfolder-stamp { display: block; }
 
 /* Open "השאלות מההתחלה": the 7 opening question cards, each scaled to 30%.
    The card is the exact opening qform card (.qform-sheet > .qform); the wrap

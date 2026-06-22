@@ -1061,10 +1061,10 @@
       pQuestions.appendChild(wrap);
     });
 
-    // Answered-count stamp (out of 7) — read from the opening flow's state.
+    // Answered-count stamp — pick stampN.png by the answered count (from state).
     if (qfolderStamp) {
       const answeredCount = state.dontKnow.filter(x => !x).length;
-      qfolderStamp.textContent = answeredCount + "/" + questions.length;
+      qfolderStamp.src = "images/stamp" + answeredCount + ".png";
     }
 
     openFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
@@ -1075,22 +1075,11 @@
   // Folder dividers: clicking a tab brings its divider to the front
   const folderTabs   = Array.from(document.querySelectorAll("#screen-personal .folder-tab"));
   const folderBodies = Array.from(document.querySelectorAll("#screen-personal .folder-body"));
-  // Default front→back order by tab side: right, left, right, left —
-  // השאלות(3,R), דברים שכתבתי(2,L), סרטונים(1,R), תמונות(0,L)
-  let stackOrder = [3, 2, 1, 0];
+  // Fixed stack order is set in CSS by data-folder (brown "השאלות" at the back,
+  // the others zigzag right/left). The order never changes — not on click, not
+  // on hover; opening a folder just makes it dominate (is-open) over the rest.
   function activateFolder(idx) {
     activeFolderIdx = idx;
-    // Bring the clicked divider to the front; the rest keep their order,
-    // so the clicked sheet slides forward (animated via the CSS transition).
-    stackOrder = [idx].concat(stackOrder.filter(i => i !== idx));
-    stackOrder.forEach((folderIndex, rank) => {
-      const body = folderBodies[folderIndex];
-      if (!body) return;
-      body.style.setProperty("--rank", rank);
-      body.style.zIndex = String(10 - rank);
-      body.classList.toggle("is-active", rank === 0);
-    });
-    folderTabs.forEach((t, i) => t.classList.toggle("is-active", i === idx));
     // The + (upload) button shows only for the owner, and only on the
     // uploadable folders — תמונות (0) and סרטונים (1). Read-only otherwise.
     if (btnPersonalToGeneral) {
