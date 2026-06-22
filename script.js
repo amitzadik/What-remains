@@ -1120,6 +1120,15 @@
     }
   }
   folderTabs.forEach((tab, i) => tab.addEventListener("click", () => toggleFolder(i)));
+  // Close stamp on the open tab → close the folder back into the stack
+  document.querySelectorAll("#screen-personal .folder-close").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const body = btn.closest(".folder-body");
+      if (body) body.classList.remove("is-open");
+      if (folderBodiesEl) folderBodiesEl.classList.remove("has-open");
+    });
+  });
   openFolder(3); // default open divider: "השאלות מההתחלה" (right tab, closest)
 
   // Bottom-left +: pick a file for the active folder (photos/videos only)
