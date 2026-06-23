@@ -267,8 +267,8 @@ html, body {
    (24% in from the right), and flow left; the left bound is loose so the 30%
    cards keep their size and still fit beside the stamp. */
 .folder-body[data-folder="3"] .folder-content {
-  left: 8%;
-  right: 24%;
+  left: 20%;
+  right: 12%;
 }
 .qfolder-cards {
   justify-content: start;
