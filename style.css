@@ -263,6 +263,15 @@ html, body {
   transform-origin: top right;
 }
 
+/* "השאלות מההתחלה": bound the cards between the tab text (right) and the
+   stamp (left) — stamp is at left:10% width:8rem, so its right edge is the
+   left boundary; cards start from the right so they align to the tab text. */
+.folder-body[data-folder="3"] .folder-content {
+  left: calc(10% + 8rem);
+  right: 8%;
+}
+.qfolder-cards { justify-content: start; }
+
 /* Open folder dominates: raised, and stretched down to the screen bottom. */
 .folder-body.is-open {
   top: calc(100% - var(--open-h) - 20px - var(--stack-rise));
