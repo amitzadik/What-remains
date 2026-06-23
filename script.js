@@ -649,10 +649,12 @@
 
   // The five ruled answer lines, filled with the user's answer (split by
   // newline) — or "לא יודע/ת" when the question was skipped.
-  function buildAnswerLines(i) {
-    const parts = state.dontKnow[i]
+  function buildAnswerLines(i, src) {
+    const ans = (src && src.answers) || state.answers;
+    const dk  = (src && src.dontKnow) || state.dontKnow;
+    const parts = dk[i]
       ? ["לא יודע/ת"]
-      : String(state.answers[i] || "").split("\n");
+      : String(ans[i] || "").split("\n");
     let html = "";
     for (let k = 0; k < 5; k++) {
       const label = k === 0 ? '<span class="qform-label">תשובה</span>' : "";
@@ -663,23 +665,27 @@
   }
 
   // A single summary card, marked up exactly like the live .qform sheets.
-  function cardFormHTML(i) {
+  // `src` (optional) supplies the viewer's name/date/answers; without it the
+  // card falls back to the logged-in user's own state (the live flow).
+  function cardFormHTML(i, src) {
+    const nm = (src && src.name != null) ? src.name : state.name;
+    const dt = (src && src.date != null) ? src.date : state.date;
     return '' +
       '<article class="qform">' +
         '<div class="qform-grid">' +
           '<div class="qform-row qform-header">' +
             '<div class="qform-cell"><span class="qform-label">שם העונה</span>' +
-              '<span class="qform-value">' + esc(state.name) + '</span></div>' +
+              '<span class="qform-value">' + esc(nm) + '</span></div>' +
             '<div class="qform-cell"><span class="qform-label">על</span>' +
               '<span class="qform-value">' + esc(questionAbouts[i] || "") + '</span></div>' +
             '<div class="qform-cell"><span class="qform-label">תאריך</span>' +
-              '<span class="qform-value">' + esc(state.date) + '</span></div>' +
+              '<span class="qform-value">' + esc(dt) + '</span></div>' +
             '<div class="qform-cell qform-cell-num"><span class="qform-label">מס׳ שאלה</span>' +
               '<span class="qform-value qform-num">' + (i + 1) + '/' + questions.length + '</span></div>' +
           '</div>' +
           '<div class="qform-row qform-question-row"><span class="qform-label">שאלה</span>' +
             '<div class="qform-question-text">' + esc(questions[i]) + '</div></div>' +
-          '<div class="qform-row qform-answer-row">' + buildAnswerLines(i) + '</div>' +
+          '<div class="qform-row qform-answer-row">' + buildAnswerLines(i, src) + '</div>' +
         '</div>' +
       '</article>';
   }
@@ -1037,18 +1043,28 @@
 
     // "השאלות מההתחלה" shows the exact 7 opening question cards (reused
     // verbatim via cardFormHTML), each scaled to 30% inside a footprint wrap.
+    // The card data for THIS drawer: own drawer uses live state, a DB drawer
+    // uses the answers fetched from the sheet (empty arrays when unanswered,
+    // so we never leak the logged-in user's answers into someone else's cards).
+    const cardData = {
+      name: viewer.name || state.name,
+      date: viewer.isUser ? state.date : "",
+      answers: answers || [],
+      dontKnow: dontKnow || []
+    };
+
     pQuestions.innerHTML = "";
     questions.forEach((q, i) => {
       const wrap = document.createElement("div");
       wrap.className = "qfolder-card-wrap";
       wrap.innerHTML =
-        '<div class="qfolder-card"><div class="qform-sheet">' + cardFormHTML(i) + '</div></div>';
+        '<div class="qfolder-card"><div class="qform-sheet">' + cardFormHTML(i, cardData) + '</div></div>';
       pQuestions.appendChild(wrap);
     });
 
-    // Answered-count stamp — pick stampN.png by the answered count (from state).
+    // Answered-count stamp — pick stampN.png by THIS drawer's answered count.
     if (qfolderStamp) {
-      const answeredCount = state.dontKnow.filter(x => !x).length;
+      const answeredCount = cardData.dontKnow.filter(x => !x).length;
       qfolderStamp.src = "images/stamp" + answeredCount + ".png";
     }
 

@@ -251,15 +251,15 @@ html, body {
   overflow: hidden;
 }
 .qfolder-card-wrap { position: relative; }
-/* The 7 question forms: full-size markup scaled to a TRUE 30% miniature,
-   anchored top-right for RTL so it fills exactly the 30% footprint. */
+/* The 7 question forms: full-size markup scaled to a TRUE 20% miniature
+   (shrunk from 30% so 3 fit per row), anchored top-right for RTL. */
 .qfolder-card {
   position: absolute;
   top: 0;
   right: 0;
   width: 1500px;
   height: 1000px;
-  transform: scale(0.3);
+  transform: scale(0.2);
   transform-origin: top right;
 }
 
@@ -270,7 +270,11 @@ html, body {
   left: 8%;
   right: 24%;
 }
-.qfolder-cards { justify-content: start; }
+.qfolder-cards {
+  justify-content: start;
+  grid-template-columns: repeat(auto-fill, 300px);   /* 1500 * 0.2 — 3 per row */
+}
+.qfolder-card-wrap { width: 300px; }                 /* 1500 * 0.2 */
 
 /* Open folder dominates: raised, and stretched down to the screen bottom. */
 .folder-body.is-open {
