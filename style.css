@@ -263,12 +263,12 @@ html, body {
   transform-origin: top right;
 }
 
-/* "השאלות מההתחלה": bound the cards between the tab text (right) and the
-   stamp (left) — stamp is at left:10% width:8rem, so its right edge is the
-   left boundary; cards start from the right so they align to the tab text. */
+/* "השאלות מההתחלה": cards are right-anchored to the line under the tab text
+   (24% in from the right), and flow left; the left bound is loose so the 30%
+   cards keep their size and still fit beside the stamp. */
 .folder-body[data-folder="3"] .folder-content {
-  left: calc(10% + 8rem);
-  right: 8%;
+  left: 8%;
+  right: 24%;
 }
 .qfolder-cards { justify-content: start; }
 
