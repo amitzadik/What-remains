@@ -251,15 +251,15 @@ html, body {
   overflow: hidden;
 }
 .qfolder-card-wrap { position: relative; }
-/* The 7 question forms: full-size markup scaled to a TRUE 20% miniature
-   (shrunk from 30% so 3 fit per row), anchored top-right for RTL. */
+/* The 7 question forms: full-size markup scaled to a true miniature
+   (scale set by --qf-scale, the largest that fits 3 per row), top-right RTL. */
 .qfolder-card {
   position: absolute;
   top: 0;
   right: 0;
   width: 1500px;
   height: 1000px;
-  transform: scale(0.2);
+  transform: scale(var(--qf-scale, 0.2));
   transform-origin: top right;
 }
 
@@ -267,14 +267,16 @@ html, body {
    (24% in from the right), and flow left; the left bound is loose so the 30%
    cards keep their size and still fit beside the stamp. */
 .folder-body[data-folder="3"] .folder-content {
-  left: 20%;
+  left: calc(10% + 8rem);   /* reaches the red stamp's right edge on the left */
   right: 12%;
 }
 .qfolder-cards {
   justify-content: start;
-  grid-template-columns: repeat(auto-fill, 300px);   /* 1500 * 0.2 — 3 per row */
+  /* exactly 3 columns; --qf-scale is set by JS to the largest size (<=30%)
+     that still fits 3 per row on the current screen. */
+  grid-template-columns: repeat(3, calc(1500px * var(--qf-scale, 0.2)));
 }
-.qfolder-card-wrap { width: 300px; }                 /* 1500 * 0.2 */
+.qfolder-card-wrap { width: calc(1500px * var(--qf-scale, 0.2)); }
 
 /* Open folder dominates: raised, and stretched down to the screen bottom. */
 .folder-body.is-open {
