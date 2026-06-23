@@ -210,9 +210,6 @@
 
   // --- Login modal ---
   const loginModal       = document.getElementById("login-modal");
-  const loginForm        = document.getElementById("login-form");
-  const loginStatus      = document.getElementById("login-status");
-  const loginStatusEmail = document.getElementById("login-status-email");
   const loginEmail       = document.getElementById("login-email");
   const loginCode        = document.getElementById("login-code");
   const loginErr         = document.getElementById("login-err");
@@ -222,19 +219,13 @@
 
   function openLoginModal() {
     const sess = getSession();
-    if (sess && sess.code) {
-      loginForm.hidden = true;
-      loginStatus.hidden = false;
-      loginStatusEmail.textContent = sess.email || "";
-    } else {
-      loginForm.hidden = false;
-      loginStatus.hidden = true;
-      loginEmail.value = "";
-      loginCode.value = "";
-      loginErr.textContent = "";
-    }
+    const loggedIn = !!(sess && sess.code);
+    loginEmail.value = "";
+    loginCode.value = "";
+    loginErr.textContent = "";
+    if (btnLogout) btnLogout.hidden = !loggedIn;   // logout shows only when logged in
     loginModal.classList.add("active");
-    if (!(sess && sess.code)) setTimeout(() => loginEmail.focus(), 50);
+    if (!loggedIn) setTimeout(() => loginEmail.focus(), 50);
   }
   function closeLoginModal() { loginModal.classList.remove("active"); }
 
@@ -289,11 +280,7 @@
   if (btnLogout) btnLogout.addEventListener("click", () => {
     clearSession();
     updateHeaderAuthState();
-    // Reset the modal back to the (empty) login form so it no longer shows
-    // "מחובר כ..." and keeps no stale email/code around.
-    loginStatus.hidden = true;
-    loginStatusEmail.textContent = "";
-    loginForm.hidden = false;
+    btnLogout.hidden = true;          // back to pre-login state
     loginEmail.value = "";
     loginCode.value = "";
     loginErr.textContent = "";

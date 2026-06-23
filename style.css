@@ -949,73 +949,89 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   min-height: 1.2rem;
 }
 
-/* ===== Login modal — archival cream card, 3:2 popup like the others ===== */
+/* ===== Login modal — archival cream card, פרטי-המפקיד form style ===== */
 #login-modal-content {
-  width: min(668px, 92vw);
-  aspect-ratio: 3 / 2;
+  width: min(560px, 92vw);
   max-width: 92vw;
-  height: auto;
-  padding: 44px 48px;
+  padding: 40px 44px;
   text-align: right;
   border: none;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 22px;
+  overflow: visible;
 }
-/* Scale down on short viewports — derive width from height, keep ratio */
-@media (max-height: 600px) {
-  #login-modal-content { height: 92vh; width: auto; }
-}
-#login-modal-content .code-head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-right: 28px;
-}
-#login-modal-content .code-close { position: absolute; top: 20px; right: 20px; z-index: 5; }
-#login-modal-content .code-title {
-  font-family: var(--font-main);
-  font-size: 1.8rem;
+#login-modal-content .code-close { position: absolute; top: 16px; left: 16px; z-index: 5; }
+
+/* Title — heading (serif) font, ink, right-aligned per RTL */
+.login-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
   font-weight: 700;
   color: var(--ink);
+  text-align: right;
 }
-/* Form / status are centred in the card's spare vertical space */
-.login-form, .login-status { margin: auto 0; }
-.login-form { display: flex; flex-direction: column; gap: 16px; }
-.login-row { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+
+/* Framed rows: label (right) | divider | input (left) — like .register-table */
+.login-grid { display: flex; flex-direction: column; }
+.login-row {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--ink);
+}
+.login-row + .login-row { margin-top: -1px; }
 .login-label {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-left: 1px solid var(--ink);
   font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--stamp);
+  font-size: 0.95rem;
+  color: var(--ink);
+  white-space: nowrap;
 }
+.login-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 14px 16px;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  color: var(--ink);
+  outline: none;
+  caret-color: var(--stamp);
+}
+
 .login-err {
   color: var(--stamp);
+  font-family: var(--font-main);
   font-size: 0.9rem;
   min-height: 1.2rem;
   text-align: right;
 }
-.login-form .popup-continue-btn { align-self: center; margin-top: 4px; }
-.login-status {
+
+/* Actions: round lock button (left) + logout (right).
+   direction:ltr keeps lock physically left / logout physically right. */
+.login-actions {
   display: flex;
-  flex-direction: column;
+  direction: ltr;
   align-items: center;
-  gap: 18px;
-  text-align: center;
+  justify-content: space-between;
 }
-.login-status-text { font-family: var(--font-main); font-size: 1.2rem; color: var(--ink); }
+.login-lock { flex: 0 0 auto; }
 .login-logout-btn {
-  font-family: var(--font-main);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--stamp);
   background: none;
   border: none;
   padding: 4px 8px;
   cursor: pointer;
-  text-decoration: underline;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--stamp);
 }
-.login-logout-btn:hover { opacity: 0.8; }
+.login-logout-btn:hover { opacity: 0.85; }
+.login-logout-btn[hidden] { display: none; }
 
 /* ============================================================
    Responsive
