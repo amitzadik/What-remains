@@ -876,7 +876,6 @@
   // Personal archive (the user's own drawer)
   // ============================================================
   const pName    = document.getElementById("p-name");
-  const pCode    = document.getElementById("p-code");
   const pLegacy  = document.getElementById("p-legacy");
   const pQuestions = document.getElementById("p-questions");
   const qfolderStamp = document.getElementById("qfolder-stamp");
@@ -1014,7 +1013,6 @@
     ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
     currentDrawerCode = viewer.code || "";
     pName.textContent   = viewer.name || "(ללא שם)";
-    pCode.textContent   = viewer.code || "";
     pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
 
     // "תמונות" — show the depositor photo for the user's own drawer
