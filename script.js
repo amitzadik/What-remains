@@ -1008,19 +1008,15 @@
     }
   }
 
-  // Size the "השאלות מההתחלה" cards as large as possible while keeping 3 per
-  // row: try 30%, then 25%, then 20% — pick the largest that fits, and if even
-  // 20% doesn't fit (very narrow screen) shrink just enough to keep 3 columns.
+  // Size the "השאלות מההתחלה" cards so 3 per row fill the whole content width
+  // (from the right edge to the red stamp on the left) — no wasted space.
   // Content width = 100% - 12% (right) - (10% + 8rem) (left, to the stamp).
   function sizeQuestionCards() {
     if (!pQuestions) return;
     const gap = 18;
-    const bandW = window.innerWidth * 0.78 - 8 * 16;   // 8rem = 8 * 16px
-    const fit3 = (bandW - 2 * gap) / 3 / 1500;          // scale at which 3 columns exactly fit
-    const scale = fit3 >= 0.30 ? 0.30
-                : fit3 >= 0.25 ? 0.25
-                : fit3 >= 0.20 ? 0.20
-                : Math.max(0.1, fit3);
+    const bandW = window.innerWidth * 0.78 - 8 * 16 - 20;   // to the stamp, minus a scrollbar buffer
+    let scale = (bandW - 2 * gap) / 3 / 1500;               // 3 columns fill the width
+    scale = Math.max(0.12, Math.min(1, scale));
     pQuestions.style.setProperty("--qf-scale", String(scale));
   }
   window.addEventListener("resize", sizeQuestionCards);
