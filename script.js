@@ -210,6 +210,7 @@
 
   // --- Login modal ---
   const loginModal       = document.getElementById("login-modal");
+  const loginModalContent = document.getElementById("login-modal-content");
   const loginEmail       = document.getElementById("login-email");
   const loginCode        = document.getElementById("login-code");
   const loginErr         = document.getElementById("login-err");
@@ -222,6 +223,7 @@
     loginEmail.value = "";
     loginCode.value = "";
     loginErr.textContent = "";
+    if (loginModalContent) loginModalContent.classList.remove("is-flipping");
     loginModal.classList.add("active");
     if (!loggedIn) setTimeout(() => loginEmail.focus(), 50);
   }
@@ -255,8 +257,13 @@
         loginEmail.value = "";
         loginCode.value = "";
         loginErr.textContent = "";
-        closeLoginModal();
-        updateHeaderAuthState();
+        // Flip the card like the opening landing animation, then close.
+        if (loginModalContent) loginModalContent.classList.add("is-flipping");
+        setTimeout(() => {
+          closeLoginModal();
+          if (loginModalContent) loginModalContent.classList.remove("is-flipping");
+          updateHeaderAuthState();
+        }, 700);
       } else {
         loginErr.textContent = "מייל או קוד שגויים";
       }

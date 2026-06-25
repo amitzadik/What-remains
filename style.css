@@ -1000,6 +1000,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow: visible;
   position: relative;
 }
+/* Success flip — same 3D feel as the opening landing-card flip */
+#login-modal { perspective: 1500px; }
+#login-modal-content {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.7s ease;
+}
+#login-modal-content.is-flipping { transform: rotateY(180deg); }
 #login-modal-content .code-close { position: absolute; top: 32px; right: 32px; left: auto; z-index: 5; }
 #login-modal-content .code-close img { width: 60px; height: 60px; }
 
