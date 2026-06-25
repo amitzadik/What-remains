@@ -214,7 +214,7 @@ html, body {
   position: absolute;
   top: 8vw;                             /* in the brown gap ABOVE the top-middle card */
   left: 50%;                            /* centered over the top-middle card */
-  width: 12rem;                         /* slightly smaller so 0/7 reads cleanly over one card */
+  width: 15rem;                         /* 12rem + 25% */
   height: auto;
   display: none;
   z-index: 30;                          /* sits above the cards */
