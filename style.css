@@ -215,7 +215,7 @@ html, body {
    chosen by the answered count (set in JS). */
 .qfolder-stamp {
   position: absolute;
-  top: 16vw;                            /* over the top row's upper area */
+  top: 8vw;                             /* in the brown gap ABOVE the top-middle card */
   left: 50%;                            /* centered over the top-middle card */
   width: 12rem;                         /* slightly smaller so 0/7 reads cleanly over one card */
   height: auto;
@@ -332,7 +332,7 @@ html, body {
   left: 12%;
   right: 12%;
   top: 16vw;
-  bottom: 24px;                /* extend the cards area down to the folder's lower inner edge */
+  bottom: 0;                   /* cards area continues all the way to the screen bottom */
   overflow-y: auto;            /* cards scroll INSIDE the folder, not the page */
   /* clear the floating arrow (105px tall + its 24px inset) so the last row
      can scroll fully into view and isn't hidden behind the arrow */
