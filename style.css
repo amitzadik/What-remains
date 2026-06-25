@@ -215,14 +215,14 @@ html, body {
    chosen by the answered count (set in JS). */
 .qfolder-stamp {
   position: absolute;
-  top: 12vw;
-  left: 10%;
-  width: 16rem;                          /* substantially larger so 0/7 reads clearly */
+  top: 16vw;                            /* over the top row's upper area */
+  left: 50%;                            /* centered over the top-middle card */
+  width: 12rem;                         /* slightly smaller so 0/7 reads cleanly over one card */
   height: auto;
   display: none;
-  z-index: 30;                           /* sits above the cards */
+  z-index: 30;                          /* sits above the cards */
   pointer-events: none;
-  transform: rotate(-20deg);
+  transform: translateX(-50%) rotate(-20deg);
   transform-origin: center;
 }
 .folder-body[data-folder="3"].is-open .qfolder-stamp { display: block; }
@@ -332,9 +332,11 @@ html, body {
   left: 12%;
   right: 12%;
   top: 16vw;
-  bottom: 120px;
-  max-height: var(--open-h);   /* tied to the open folder's established height (85%) */
+  bottom: 24px;                /* extend the cards area down to the folder's lower inner edge */
   overflow-y: auto;            /* cards scroll INSIDE the folder, not the page */
+  /* clear the floating arrow (105px tall + its 24px inset) so the last row
+     can scroll fully into view and isn't hidden behind the arrow */
+  padding-bottom: 129px;
 }
 .folder-content { visibility: hidden; }
 .folder-body.is-open .folder-content { visibility: visible; }
@@ -412,6 +414,9 @@ html, body {
 /* Corner buttons — on the front folder, 20px in from the 60px side margin */
 .personal-add  { position: absolute; left: 80px;  bottom: 20px; z-index: 25; }
 .personal-back { position: absolute; right: 80px; bottom: 20px; z-index: 25; }
+/* Open state: bottom-right arrow sits exactly 24px from the open folder's right
+   and bottom edges. The folder is inset 20px from the screen, so 20 + 24 = 44. */
+.folder-wrap:has(.folder-body.is-open) .personal-back { right: 44px; bottom: 24px; }
 
 .archive-scroll {
   width: 100%;
