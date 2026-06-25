@@ -1014,7 +1014,9 @@
   function sizeQuestionCards() {
     if (!pQuestions) return;
     const gap = 10;
-    const bandW = window.innerWidth * 0.90 - 20;            // 100% - 6% right - 4% left, minus a scrollbar buffer
+    // .folder-body is inset 20px each side, and .folder-content is 4% left / 6%
+    // right of it, with a vertical scrollbar — so the real card band is:
+    const bandW = (window.innerWidth - 40) * 0.90 - 20;
     let scale = (bandW - 2 * gap) / 3 / 1500;               // 3 columns fill the width
     scale = Math.max(0.12, Math.min(1, scale));
     pQuestions.style.setProperty("--qf-scale", String(scale));
