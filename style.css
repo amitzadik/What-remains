@@ -131,20 +131,17 @@ html, body {
   top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  width: max-content;
+  width: 260px;
   max-width: 80%;
+  aspect-ratio: 348 / 195;        /* keep name-label.png proportions — no distortion */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   margin: 0;
-  padding: 10px 28px;
   border-bottom: none;
-  /* white paper label so the name + code sit on paper, not on the wood */
-  background-color: #FBF8EF;
-  background-image: var(--paper-tex);
-  background-blend-mode: lighten;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+  /* name-label.png as the plate graphic, replacing the plain rectangle */
+  background: url("images/name-label.png") center / contain no-repeat;
   z-index: 20;
 }
 /* While a folder is open, hide the depositor name plate; it returns on close. */
