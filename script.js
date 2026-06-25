@@ -276,6 +276,25 @@
   if (loginEmail) loginEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
   if (loginCode)  loginCode.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
 
+  // Account screen — shown when a logged-in user clicks the person icon.
+  const accountModal     = document.getElementById("account-modal");
+  const accountCode      = document.getElementById("account-code");
+  const btnAccountLogout = document.getElementById("btn-account-logout");
+  function openAccountModal() {
+    const sess = getSession();
+    if (accountCode) accountCode.textContent = (sess && sess.code) ? sess.code : "";
+    if (accountModal) accountModal.classList.add("active");
+  }
+  function closeAccountModal() { if (accountModal) accountModal.classList.remove("active"); }
+  if (accountModal) accountModal.addEventListener("click", (e) => {
+    if (e.target === accountModal) closeAccountModal();   // click outside the card closes it
+  });
+  if (btnAccountLogout) btnAccountLogout.addEventListener("click", () => {
+    clearSession();
+    updateHeaderAuthState();
+    closeAccountModal();
+  });
+
   // Open the logged-in user's own drawer directly (auto-unlock, owner view)
   function openOwnDrawer(sess) {
     let viewer = allDrawers().find(v => v.code === sess.code);
@@ -288,7 +307,9 @@
   if (stampLogin) {
     stampLogin.addEventListener("click", () => {
       dismissLandingPopup();
-      openLoginModal();   // logged-in → status/logout view; else → form
+      const sess = getSession();
+      if (sess && sess.code) openAccountModal();   // logged in → account screen
+      else openLoginModal();                        // not logged in → login form
     });
   }
   if (stampMyDrawer) {

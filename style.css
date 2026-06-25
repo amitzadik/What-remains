@@ -1056,6 +1056,42 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .login-lock { flex: 0 0 auto; }
 
+/* ===== Account screen — shown when a logged-in user clicks the person icon ===== */
+#account-modal-content {
+  width: min(720px, 92vw);
+  max-width: 92vw;
+  aspect-ratio: 820 / 580;        /* landscape paper proportions from the design */
+  padding: 40px 44px;
+  border-radius: 10px;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;        /* the connected line sits centered */
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.account-line {
+  font-family: var(--font-main);
+  font-size: 1.9rem;
+  color: var(--ink);
+  direction: rtl;
+}
+.account-logout {
+  position: absolute;
+  left: 32px;
+  bottom: 28px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--stamp);
+}
+.account-logout:hover { opacity: 0.85; }
+
 /* ============================================================
    Responsive
 ============================================================ */
