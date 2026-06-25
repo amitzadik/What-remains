@@ -844,8 +844,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  /* name-label.png replaces the white label rectangle baked into drawer.png */
-  background: url("images/name-label.png") center / 100% 100% no-repeat;
   z-index: 2;
 }
 
