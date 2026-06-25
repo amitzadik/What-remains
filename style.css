@@ -986,20 +986,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 /* ===== Login modal — archival cream card, פרטי-המפקיד form style ===== */
 #login-modal-content {
-  width: min(560px, 92vw);
+  width: min(820px, 92vw);
   max-width: 92vw;
-  padding: 40px 44px;
+  aspect-ratio: 820 / 580;        /* landscape paper card, per the design */
+  padding: 0;
   text-align: right;
   border: none;
+  border-radius: 10px;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.16);
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  justify-content: center;        /* input rows sit centered */
+  align-items: center;
   overflow: visible;
+  position: relative;
 }
-#login-modal-content .code-close { position: absolute; top: 16px; left: 16px; z-index: 5; }
+#login-modal-content .code-close { position: absolute; top: 32px; right: 32px; left: auto; z-index: 5; }
+#login-modal-content .code-close img { width: 60px; height: 60px; }
 
-/* Title — SimplerPro mono font, ink, right-aligned per RTL */
+/* Title — SimplerPro mono font, ink, top-right corner */
 .login-title {
+  position: absolute;
+  top: 44px;
+  right: 130px;
   font-family: var(--font-main);
   font-size: 2rem;
   font-weight: 700;
@@ -1007,8 +1016,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-align: right;
 }
 
-/* Framed rows: label (right) | divider | input (left) — like .register-table */
-.login-grid { display: flex; flex-direction: column; }
+/* Framed rows: label (right) | divider | input (left) — centered block */
+.login-grid { display: flex; flex-direction: column; width: 73%; }
 .login-row {
   display: flex;
   align-items: stretch;
@@ -1049,10 +1058,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Actions: round lock button (left) + logout (right).
    direction:ltr keeps lock physically left / logout physically right. */
 .login-actions {
-  display: flex;
-  direction: ltr;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute;
+  left: 32px;
+  bottom: 28px;
 }
 .login-lock { flex: 0 0 auto; }
 
