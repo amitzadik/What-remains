@@ -215,7 +215,6 @@
   const loginErr         = document.getElementById("login-err");
   const btnSubmitLogin   = document.getElementById("btn-submit-login");
   const btnCloseLogin    = document.getElementById("btn-close-login");
-  const btnLogout        = document.getElementById("btn-logout");
 
   function openLoginModal() {
     const sess = getSession();
@@ -223,7 +222,6 @@
     loginEmail.value = "";
     loginCode.value = "";
     loginErr.textContent = "";
-    if (btnLogout) btnLogout.hidden = !loggedIn;   // logout shows only when logged in
     loginModal.classList.add("active");
     if (!loggedIn) setTimeout(() => loginEmail.focus(), 50);
   }
@@ -277,15 +275,6 @@
   if (btnCloseLogin)  btnCloseLogin.addEventListener("click", closeLoginModal);
   if (loginEmail) loginEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
   if (loginCode)  loginCode.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
-  if (btnLogout) btnLogout.addEventListener("click", () => {
-    clearSession();
-    updateHeaderAuthState();
-    btnLogout.hidden = true;          // back to pre-login state
-    loginEmail.value = "";
-    loginCode.value = "";
-    loginErr.textContent = "";
-    closeLoginModal();
-  });
 
   // Open the logged-in user's own drawer directly (auto-unlock, owner view)
   function openOwnDrawer(sess) {

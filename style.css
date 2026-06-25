@@ -1055,18 +1055,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: space-between;
 }
 .login-lock { flex: 0 0 auto; }
-.login-logout-btn {
-  background: none;
-  border: none;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-family: var(--font-main);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--stamp);
-}
-.login-logout-btn:hover { opacity: 0.85; }
-.login-logout-btn[hidden] { display: none; }
 
 /* ============================================================
    Responsive
