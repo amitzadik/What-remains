@@ -1013,8 +1013,8 @@
   // Content width = 100% - 12% (right) - (10% + 8rem) (left, to the stamp).
   function sizeQuestionCards() {
     if (!pQuestions) return;
-    const gap = 18;
-    const bandW = window.innerWidth * 0.78 - 8 * 16 - 20;   // to the stamp, minus a scrollbar buffer
+    const gap = 10;
+    const bandW = window.innerWidth * 0.90 - 20;            // 100% - 6% right - 4% left, minus a scrollbar buffer
     let scale = (bandW - 2 * gap) / 3 / 1500;               // 3 columns fill the width
     scale = Math.max(0.12, Math.min(1, scale));
     pQuestions.style.setProperty("--qf-scale", String(scale));

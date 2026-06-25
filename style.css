@@ -147,6 +147,8 @@ html, body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.22);
   z-index: 20;
 }
+/* While a folder is open, hide the depositor name plate; it returns on close. */
+.folder-wrap:has(.folder-body.is-open) .drawer-header { display: none; }
 
 /* The stack lives across the whole screen; tabs float on top, the four
    dividers are stacked and anchored to the bottom. */
@@ -215,11 +217,13 @@ html, body {
   position: absolute;
   top: 12vw;
   left: 10%;
-  width: 8rem;
+  width: 16rem;                          /* substantially larger so 0/7 reads clearly */
   height: auto;
   display: none;
-  z-index: 5;
+  z-index: 30;                           /* sits above the cards */
   pointer-events: none;
+  transform: rotate(-20deg);
+  transform-origin: center;
 }
 .folder-body[data-folder="3"].is-open .qfolder-stamp { display: block; }
 
@@ -267,20 +271,21 @@ html, body {
    (24% in from the right), and flow left; the left bound is loose so the 30%
    cards keep their size and still fit beside the stamp. */
 .folder-body[data-folder="3"] .folder-content {
-  left: calc(10% + 8rem);   /* reaches the red stamp's right edge on the left */
-  right: 12%;
+  left: 4%;    /* extend the cards further toward the left edge */
+  right: 6%;
 }
 .qfolder-cards {
   justify-content: start;
-  /* exactly 3 columns; --qf-scale is set by JS to the largest size (<=30%)
-     that still fits 3 per row on the current screen. */
+  gap: 10px;   /* tighter gap so the 3 cards span more of the folder width */
+  /* exactly 3 columns; --qf-scale is set by JS so the 3 cards fill the width. */
   grid-template-columns: repeat(3, calc(1500px * var(--qf-scale, 0.2)));
 }
 .qfolder-card-wrap { width: calc(1500px * var(--qf-scale, 0.2)); }
 
-/* Open folder dominates: raised, and stretched down to the screen bottom. */
+/* Open folder dominates: raised toward the (hidden) name plate, and stretched
+   down to the screen bottom. */
 .folder-body.is-open {
-  top: calc(100% - var(--open-h) - 20px - var(--stack-rise));
+  top: calc(100% - var(--open-h) - 130px - var(--stack-rise));
   bottom: 0;
   height: auto;
   overflow: visible;
