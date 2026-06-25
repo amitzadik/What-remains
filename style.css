@@ -168,7 +168,7 @@ html, body {
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
   bottom: 0;                                   /* stretch to the screen bottom */
-  top: calc(438px - var(--stack-rise) - var(--rank) * 100px);  /* closed/resting: large stacked folders (lowered 48px) */
+  top: calc(490px - var(--stack-rise) - var(--rank) * 100px);  /* closed/resting: large stacked folders (lowered 48px + 52px) */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
