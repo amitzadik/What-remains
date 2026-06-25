@@ -985,32 +985,49 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* ===== Login modal — archival cream card, פרטי-המפקיד form style ===== */
-#login-modal-content {
+/* Two-face flip: login form (front) flips 180° to the connected card (back),
+   same 3D feel as the opening landing-card flip. */
+#login-modal { perspective: 1500px; }
+.login-flip {
+  position: relative;
   width: min(820px, 92vw);
   max-width: 92vw;
   aspect-ratio: 820 / 580;        /* landscape paper card, per the design */
-  padding: 0;
-  text-align: right;
+  transform-style: preserve-3d;
+  transition: transform 0.7s ease;
+}
+.login-flip.is-flipped { transform: rotateY(180deg); }
+.login-face {
+  position: absolute;
+  inset: 0;
+  max-width: none;
   border: none;
   box-shadow: 0 12px 34px rgba(0,0,0,0.16);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.login-face-back { transform: rotateY(180deg); }
+
+#login-modal-content {
+  padding: 0;
+  text-align: right;
   display: flex;
   flex-direction: column;
   justify-content: center;        /* input rows sit centered */
   align-items: center;
-  overflow: visible;
-  position: relative;
 }
-/* Success flip — same 3D feel as the opening landing-card flip */
-#login-modal { perspective: 1500px; }
-#login-modal-content {
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform 0.7s ease;
-}
-#login-modal-content.is-flipping { transform: rotateY(180deg); }
 #login-modal-content .code-close { position: absolute; top: 32px; right: 32px; left: auto; z-index: 5; }
 #login-modal-content .code-close img { width: 60px; height: 60px; }
+
+/* Back face — connected / logout card (same look as the account modal) */
+#login-back-content {
+  padding: 40px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 
 /* Title — SimplerPro mono font, ink, top-right corner */
 .login-title {

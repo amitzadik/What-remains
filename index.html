@@ -380,31 +380,40 @@
 
   <!-- ============== MODAL: LOGIN ============== -->
   <div id="login-modal" class="modal-overlay">
-    <div class="modal-content" id="login-modal-content">
-      <button id="btn-close-login" type="button" class="img-btn code-close" data-default="images/close-default.png" data-hover="images/close-hover.png">
-        <img src="images/close-default.png" width="44" height="44">
-      </button>
+    <div class="login-flip" id="login-flip">
+      <!-- FRONT: login form -->
+      <div class="modal-content login-face" id="login-modal-content">
+        <button id="btn-close-login" type="button" class="img-btn code-close" data-default="images/close-default.png" data-hover="images/close-hover.png">
+          <img src="images/close-default.png" width="44" height="44">
+        </button>
 
-      <div class="login-title">התחברות למשתמש</div>
+        <div class="login-title">התחברות למשתמש</div>
 
-      <div class="login-grid">
-        <div class="login-row">
-          <label class="login-label" for="login-email">כתובת מייל</label>
-          <input type="email" id="login-email" class="login-input input-ltr" autocomplete="email">
+        <div class="login-grid">
+          <div class="login-row">
+            <label class="login-label" for="login-email">כתובת מייל</label>
+            <input type="email" id="login-email" class="login-input input-ltr" autocomplete="email">
+          </div>
+          <div class="login-row">
+            <label class="login-label" for="login-code">סיסמא</label>
+            <input type="password" id="login-code" class="login-input input-ltr" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+          </div>
         </div>
-        <div class="login-row">
-          <label class="login-label" for="login-code">סיסמא</label>
-          <input type="password" id="login-code" class="login-input input-ltr" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+
+        <div id="login-err" class="login-err"></div>
+
+        <div class="login-actions">
+          <!-- Submit: round lock button, same shape/size as the question back button -->
+          <button id="btn-submit-login" type="button" class="img-btn login-lock" data-default="images/locked-default.png" data-hover="images/locked-hover.png" aria-label="התחברות">
+            <img src="images/locked-default.png" width="105" height="105">
+          </button>
         </div>
       </div>
 
-      <div id="login-err" class="login-err"></div>
-
-      <div class="login-actions">
-        <!-- Submit: round lock button, same shape/size as the question back button -->
-        <button id="btn-submit-login" type="button" class="img-btn login-lock" data-default="images/locked-default.png" data-hover="images/locked-hover.png" aria-label="התחברות">
-          <img src="images/locked-default.png" width="105" height="105">
-        </button>
+      <!-- BACK: connected / logout card, revealed by the flip after login -->
+      <div class="modal-content login-face login-face-back" id="login-back-content">
+        <div class="account-line">מפקיד/ה מס׳ <span id="login-back-code"></span> מחובר/ת</div>
+        <button id="btn-back-logout" type="button" class="account-logout">התנתקות</button>
       </div>
     </div>
   </div>

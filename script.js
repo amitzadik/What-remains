@@ -211,6 +211,9 @@
   // --- Login modal ---
   const loginModal       = document.getElementById("login-modal");
   const loginModalContent = document.getElementById("login-modal-content");
+  const loginFlip        = document.getElementById("login-flip");
+  const loginBackCode    = document.getElementById("login-back-code");
+  const btnBackLogout    = document.getElementById("btn-back-logout");
   const loginEmail       = document.getElementById("login-email");
   const loginCode        = document.getElementById("login-code");
   const loginErr         = document.getElementById("login-err");
@@ -223,7 +226,7 @@
     loginEmail.value = "";
     loginCode.value = "";
     loginErr.textContent = "";
-    if (loginModalContent) loginModalContent.classList.remove("is-flipping");
+    if (loginFlip) loginFlip.classList.remove("is-flipped");
     loginModal.classList.add("active");
     if (!loggedIn) setTimeout(() => loginEmail.focus(), 50);
   }
@@ -257,13 +260,14 @@
         loginEmail.value = "";
         loginCode.value = "";
         loginErr.textContent = "";
-        // Flip the card like the opening landing animation, then close.
-        if (loginModalContent) loginModalContent.classList.add("is-flipping");
+        // Flip 180° to the connected card; it stays ~2s, then the modal closes.
+        updateHeaderAuthState();
+        if (loginBackCode) loginBackCode.textContent = data.code || "";
+        if (loginFlip) loginFlip.classList.add("is-flipped");
         setTimeout(() => {
           closeLoginModal();
-          if (loginModalContent) loginModalContent.classList.remove("is-flipping");
-          updateHeaderAuthState();
-        }, 700);
+          if (loginFlip) loginFlip.classList.remove("is-flipped");
+        }, 2700);   // 0.7s flip + 2s visible
       } else {
         loginErr.textContent = "מייל או קוד שגויים";
       }
@@ -282,6 +286,12 @@
   if (btnCloseLogin)  btnCloseLogin.addEventListener("click", closeLoginModal);
   if (loginEmail) loginEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
   if (loginCode)  loginCode.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
+  if (btnBackLogout) btnBackLogout.addEventListener("click", () => {
+    clearSession();
+    updateHeaderAuthState();
+    closeLoginModal();
+    if (loginFlip) loginFlip.classList.remove("is-flipped");
+  });
 
   // Account screen — shown when a logged-in user clicks the person icon.
   const accountModal     = document.getElementById("account-modal");
