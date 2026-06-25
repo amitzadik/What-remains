@@ -168,7 +168,7 @@ html, body {
   left: 20px;                                  /* spread out — 20px from the screen edge */
   right: 20px;
   bottom: 0;                                   /* stretch to the screen bottom */
-  top: calc(390px - var(--stack-rise) - var(--rank) * 100px);  /* closed/resting: large stacked folders */
+  top: calc(438px - var(--stack-rise) - var(--rank) * 100px);  /* closed/resting: large stacked folders (lowered 48px) */
   background-position: top center;
   background-repeat: no-repeat;
   background-size: 100% auto;                  /* full width, keep the image proportion */
@@ -750,7 +750,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 .drawer-page { padding: 3rem 2rem 6rem; max-width: 900px; margin: 0 auto; }
 .drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-.drawer-name { font-size: 1.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0; }
+.drawer-name { font-size: 1.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0; transform: translateY(12px); }
 .drawer-section { margin-bottom: 2.5rem; }
 .section-label { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.8rem; letter-spacing: 0.05rem; }
 .legacy-text { font-family: var(--font-main); font-size: 1.9rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
