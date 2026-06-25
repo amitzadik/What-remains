@@ -281,6 +281,8 @@ html, body {
   grid-template-columns: repeat(3, calc(1500px * var(--qf-scale, 0.2)));
 }
 .qfolder-card-wrap { width: calc(1500px * var(--qf-scale, 0.2)); }
+/* No black frame stroke around the folder card miniatures (live form keeps its frame). */
+.qfolder-card .qform-grid { border: none; }
 
 /* Open folder dominates: raised toward the (hidden) name plate, and stretched
    down to the screen bottom. */
@@ -1551,11 +1553,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    fill the frame: images cover it, videos sit framed inside it. */
 .drawer-files .drawer-file {
   object-fit: cover;
-  border: 1px solid var(--line);
   background: rgba(0, 0, 0, 0.04);
-}
-.drawer-files .drawer-file-video {
-  border: 1px solid var(--line);
 }
 .drawer-files .is-uploading { opacity: 0.55; }
 
