@@ -411,9 +411,10 @@ html, body {
 .folder-body[data-folder="1"] .folder-close,
 .folder-body[data-folder="3"] .folder-close { left: 68%; }
 
-/* Corner buttons — 16px from each screen edge, in both open and closed states. */
-.personal-add  { position: absolute; left: 16px;  bottom: 16px; z-index: 25; }
-.personal-back { position: absolute; right: 16px; bottom: 16px; z-index: 25; }
+/* Corner buttons — 16px from each folder edge (folder is inset 20px from the
+   screen, so 20 + 16 = 36 horizontally; folder bottom is the screen bottom). */
+.personal-add  { position: absolute; left: 36px;  bottom: 16px; z-index: 25; }
+.personal-back { position: absolute; right: 36px; bottom: 16px; z-index: 25; }
 
 .archive-scroll {
   width: 100%;
