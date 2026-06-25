@@ -128,7 +128,7 @@ html, body {
 }
 .folder-wrap .drawer-header {
   position: absolute;
-  top: 14px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
   width: 260px;
@@ -750,7 +750,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 .drawer-page { padding: 3rem 2rem 6rem; max-width: 900px; margin: 0 auto; }
 .drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-.drawer-name { font-size: 2rem; color: var(--ink); font-weight: bold; margin-bottom: 0; }
+.drawer-name { font-size: 1.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0; }
 .drawer-section { margin-bottom: 2.5rem; }
 .section-label { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.8rem; letter-spacing: 0.05rem; }
 .legacy-text { font-family: var(--font-main); font-size: 1.9rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
