@@ -1084,7 +1084,7 @@
       qfolderStamp.src = "images/stamp" + answeredCount + ".png";
     }
 
-    openFolder(3); // front divider: "השאלות מההתחלה" (right tab, closest)
+    closeAllFolders(); // open the drawer showing the closed folder stack
     loadDrawerFiles(currentDrawerCode); // populate the photos/videos galleries
     showScreen("personal");
   }
@@ -1111,6 +1111,12 @@
     folderBodies.forEach((b, i) => b.classList.toggle("is-open", i === idx));
     if (folderBodiesEl) folderBodiesEl.classList.add("has-open"); // others recede to tabs
   }
+  // Show the closed folder stack (no divider pre-opened); hide the upload +.
+  function closeAllFolders() {
+    folderBodies.forEach(b => b.classList.remove("is-open"));
+    if (folderBodiesEl) folderBodiesEl.classList.remove("has-open");
+    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = "none";
+  }
   // Clicking a folder toggles it; clicking the open one closes it back in.
   function toggleFolder(idx) {
     const body = folderBodies[idx];
@@ -1132,7 +1138,7 @@
       if (folderBodiesEl) folderBodiesEl.classList.remove("has-open");
     });
   });
-  openFolder(3); // default open divider: "השאלות מההתחלה" (right tab, closest)
+  closeAllFolders(); // default: closed folder stack until a tab is clicked
 
   // Bottom-left +: pick a file for the active folder (photos/videos only)
   btnPersonalToGeneral.addEventListener("click", () => {
