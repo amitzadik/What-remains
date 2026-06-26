@@ -1162,7 +1162,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   top: calc(32% - 88px);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(clamp(128px, 14.4vw, 192px), 1fr));
-  gap: 16px;
+  gap: 12px;
   padding: 16px;
   align-content: start;
   overflow-y: auto;
