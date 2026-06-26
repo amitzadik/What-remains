@@ -1117,12 +1117,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: var(--font-main);
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--stamp);
+  line-height: 0;
 }
-.account-logout:hover { opacity: 0.85; }
+.account-logout:hover { background: none; }
+.account-logout img {
+  display: block;
+  width: clamp(132px, 20vw, 180px);
+  height: auto;
+}
 
 /* ============================================================
    Responsive
@@ -1992,12 +1994,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-img-btn:disabled { cursor: not-allowed; }
 .qform-img-btn:disabled img { opacity: 0.35; }
 
-/* "לא יודע/ת" — red bold text by default; on hover the stamp image
-   replaces it. The image is sized to the button's text width so the
-   stamped wording renders at the same size as the plain text and the
-   layout never jumps */
 .qform-dk-btn {
-  position: relative;
   background: none;
   border: none;
   padding: 0;
@@ -2006,24 +2003,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-main);
+  line-height: 0;
 }
 .qform-dk-btn:hover:not(:disabled) { background: none; color: inherit; }
-.qform-dk-text {
-  color: var(--stamp);
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-.qform-dk-img {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 115%;
+.qform-dk-btn img {
+  display: block;
+  width: clamp(154px, 22vw, 210px);
   height: auto;
-  visibility: hidden;
 }
-.qform-dk-btn:hover:not(:disabled) .qform-dk-text { visibility: hidden; }
-.qform-dk-btn:hover:not(:disabled) .qform-dk-img { visibility: visible; }
 .qform-dk-btn:disabled { cursor: not-allowed; }
 
 /* Stacked (frozen) sheets — gentle tilt + offset, buttons hidden */
