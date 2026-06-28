@@ -1331,7 +1331,7 @@
   // Build one archive drawer element for the landing drawer wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
-    d.className = "wall-drawer" + (v.isUser ? " active-drawer" : "");
+    d.className = "wall-drawer";
     d.setAttribute("data-name", v.name);
     const plate = document.createElement("div");
     plate.className = "wall-plate";

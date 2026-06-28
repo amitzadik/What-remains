@@ -823,11 +823,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   filter: brightness(1.05);
   z-index: 2;
 }
-.wall-drawer.active-drawer {
-  outline: 2px solid var(--stamp);
-  outline-offset: -2px;
-}
-
 /* Depositor-name overlay, positioned over the printed label strip of
    drawer.png (absolute inside the drawer so it can be nudged later) */
 .wall-plate {
