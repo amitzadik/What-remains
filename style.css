@@ -1345,19 +1345,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-indent: 60px;
 }
 .landing-body p:last-child { margin-bottom: 0; }
-.landing-label.is-typing::after,
-.landing-body p.is-typing::after,
-.qform-question-text.is-typing::after {
-  content: "|";
-  display: inline-block;
-  margin-inline-start: 2px;
-  animation: landing-type-caret 0.8s steps(1) infinite;
-}
-
-@keyframes landing-type-caret {
-  50% { opacity: 0; }
-}
-
 @media (max-width: 820px) {
   .landing-card { padding: 6% 7% 5%; }
   .landing-body { font-size: 16px; line-height: 1.7; }
