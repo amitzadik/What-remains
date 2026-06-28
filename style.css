@@ -1488,19 +1488,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(-50%, -50%) rotate(-14deg) scale(1);
 }
 
-/* "גלול להמשך" — white prompt, gently pulsing */
+/* "גלול להמשך" — cream prompt, gently pulsing */
 .cards-hint {
   font-family: var(--font-main);
   font-size: 1.4rem;
-  color: #FFFFFF;
+  color: #FCF6ED;
   letter-spacing: 0.05em;
   animation: cards-hint-pulse 1.8s ease-in-out infinite;
   transition: opacity 0.4s ease;
 }
 .cards-hint.is-hidden { opacity: 0; pointer-events: none; }
 @keyframes cards-hint-pulse {
-  0%, 100% { opacity: 0.45; transform: translateY(0); }
-  50%      { opacity: 0.95; transform: translateY(5px); }
+  0%, 100% { opacity: 0.45; transform: translateY(20px); }
+  50%      { opacity: 0.95; transform: translateY(25px); }
 }
 
 /* Continue button — sits ON the folder, revealed only after the stamp */

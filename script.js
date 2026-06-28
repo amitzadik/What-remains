@@ -820,11 +820,42 @@
   }
 
   let cardsSealed = false;
+  let cardsHintRun = 0;
+
+  function typeCardsHint() {
+    if (!cardsHint) return;
+    const text = cardsHint.dataset.text || cardsHint.textContent;
+    cardsHint.dataset.text = text;
+    cardsHint.textContent = "";
+    cardsHintRun += 1;
+    const run = cardsHintRun;
+
+    if (reduceMotion) {
+      cardsHint.textContent = text;
+      return;
+    }
+
+    const chars = Array.from(text);
+    let charIndex = 0;
+
+    function tick() {
+      if (run !== cardsHintRun) return;
+      cardsHint.textContent += chars[charIndex] || "";
+      charIndex += 1;
+
+      if (charIndex < chars.length) {
+        window.setTimeout(tick, 70);
+      }
+    }
+
+    tick();
+  }
 
   function initCards() {
     cardsStage.innerHTML = "";
     cardsScene.classList.remove("is-sealing", "is-stamped", "is-done");
     cardsHint.classList.remove("is-hidden");
+    typeCardsHint();
     btnCardsNext.disabled = true;
     cardsSealed = false;
 
