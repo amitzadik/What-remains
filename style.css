@@ -1351,7 +1351,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .landing-body p:last-child { margin-bottom: 0; }
 .landing-label.is-typing::after,
-.landing-body p.is-typing::after {
+.landing-body p.is-typing::after,
+.qform-question-text.is-typing::after {
   content: "|";
   display: inline-block;
   margin-inline-start: 2px;

@@ -196,7 +196,7 @@
 
       if (charIndex < chars.length) {
         const prev = chars[charIndex - 1];
-        const delay = /[.,!?;:،.]/.test(prev) ? 115 : 28;
+        const delay = /[.,!?;:،.]/.test(prev) ? 165 : 45;
         window.setTimeout(tick, delay);
         return;
       }
@@ -480,13 +480,59 @@
   function renderQuestion() {
     const idx = state.currentQuestion;
     qNum.textContent  = (idx + 1) + "/" + questions.length;
-    qText.textContent = questions[idx];
+    typeQuestionText(questions[idx]);
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
     btnNext.disabled = true;
     if (lines[0]) {
       lines[0].focus();
       placeCaretAtEnd(lines[0]);
+    }
+  }
+
+  let questionTypewriterRun = 0;
+  let activeQuestionText = "";
+
+  function typeQuestionText(text) {
+    activeQuestionText = text || "";
+    questionTypewriterRun += 1;
+    const run = questionTypewriterRun;
+
+    if (!qText) return;
+    qText.textContent = "";
+
+    if (reduceMotion) {
+      qText.textContent = activeQuestionText;
+      return;
+    }
+
+    const chars = Array.from(activeQuestionText);
+    let charIndex = 0;
+    qText.classList.add("is-typing");
+
+    function tick() {
+      if (run !== questionTypewriterRun) return;
+      qText.textContent += chars[charIndex] || "";
+      charIndex += 1;
+
+      if (charIndex < chars.length) {
+        const prev = chars[charIndex - 1];
+        const delay = /[.,!?;:،.]/.test(prev) ? 150 : 42;
+        window.setTimeout(tick, delay);
+        return;
+      }
+
+      qText.classList.remove("is-typing");
+    }
+
+    tick();
+  }
+
+  function finishQuestionTypewriter() {
+    questionTypewriterRun += 1;
+    if (qText) {
+      qText.classList.remove("is-typing");
+      qText.textContent = activeQuestionText;
     }
   }
 
@@ -562,6 +608,7 @@
 
   function handleAnswer(isDontKnow) {
     const finishingIndex = state.currentQuestion;
+    finishQuestionTypewriter();
     state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
