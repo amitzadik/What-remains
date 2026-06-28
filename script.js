@@ -149,8 +149,63 @@
         dismissLandingPopup();
       } else {
         landingCardInner.classList.add("is-flipped");
+        startLandingTypewriter("back");
       }
     });
+  }
+
+  const landingTypewriterState = new WeakMap();
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function setupLandingTypewriter() {
+    document.querySelectorAll(".landing-card-face").forEach(face => {
+      const parts = [...face.querySelectorAll(".landing-label, .landing-body p")];
+      landingTypewriterState.set(face, {
+        parts: parts.map(el => ({ el, text: el.textContent })),
+        started: false
+      });
+      parts.forEach(el => { el.textContent = ""; });
+    });
+  }
+
+  function startLandingTypewriter(faceName) {
+    const face = document.querySelector(`.landing-card-${faceName}`);
+    const state = face && landingTypewriterState.get(face);
+    if (!state || state.started) return;
+    state.started = true;
+
+    if (reduceMotion) {
+      state.parts.forEach(part => { part.el.textContent = part.text; });
+      return;
+    }
+
+    typeLandingPart(state.parts, 0);
+  }
+
+  function typeLandingPart(parts, partIndex) {
+    const part = parts[partIndex];
+    if (!part) return;
+
+    const chars = Array.from(part.text);
+    let charIndex = 0;
+    part.el.classList.add("is-typing");
+
+    function tick() {
+      part.el.textContent += chars[charIndex] || "";
+      charIndex += 1;
+
+      if (charIndex < chars.length) {
+        const prev = chars[charIndex - 1];
+        const delay = /[.,!?;:،.]/.test(prev) ? 115 : 28;
+        window.setTimeout(tick, delay);
+        return;
+      }
+
+      part.el.classList.remove("is-typing");
+      window.setTimeout(() => typeLandingPart(parts, partIndex + 1), 180);
+    }
+
+    tick();
   }
 
   document.querySelectorAll("#screen-landing .landing-stamp").forEach(stamp => {
@@ -1399,6 +1454,8 @@
   checkDepositBtn();
   updateHeaderAuthState();
   renderLandingDrawers();
+  setupLandingTypewriter();
+  startLandingTypewriter("front");
   loadViewersFromDB();
   showScreen("landing");
 })();
