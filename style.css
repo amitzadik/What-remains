@@ -46,7 +46,7 @@
   --card-bg:         var(--parchment);
   --card-alt:        var(--parchment);
   --gray:            var(--metal);
-  --line:            var(--ink);
+  --line:            transparent;
   --red:             var(--stamp);
 
   --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
@@ -278,7 +278,7 @@ html, body {
   grid-template-columns: repeat(3, calc(1500px * var(--qf-scale, 0.2)));
 }
 .qfolder-card-wrap { width: calc(1500px * var(--qf-scale, 0.2)); }
-/* No black frame stroke around the folder card miniatures (live form keeps its frame). */
+/* Folder card miniatures keep the clean, unframed look. */
 .qfolder-card .qform-grid { border: none; }
 
 /* Open folder dominates: raised toward the (hidden) name plate, and stretched
@@ -311,7 +311,7 @@ html, body {
   display: none;                 /* only the open folder shows it */
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--ink);
+  border-bottom: none;
   font-family: var(--font-main);
   font-size: 0.95rem;
   color: var(--ink);
@@ -435,7 +435,7 @@ html, body {
 .input-field {
   border: none;
   background: transparent;
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
   font-family: var(--font-main);
   font-size: 1.2rem;
   color: var(--ink);
@@ -456,7 +456,7 @@ html, body {
 button {
   font-family: var(--font-main);
   background: transparent;
-  border: 1px solid var(--ink);
+  border: none;
   color: var(--ink);
   padding: 0.8rem 1.5rem;
   cursor: pointer;
@@ -555,13 +555,13 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
 
 .q-header-row {
   display: flex;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: none;
+  border-bottom: none;
   padding: 0.5rem 0;
   margin-bottom: 2rem;
 }
 .q-header-row .q-cell {
-  border-left: 1px solid var(--line);
+  border-left: none;
   padding: 0 1rem;
   flex: 1;
   display: flex;
@@ -585,7 +585,7 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
   flex-direction: column;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
   text-align: right;
 }
 .q-question-text {
@@ -602,7 +602,7 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
   flex-direction: column;
   flex: 1;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
 }
 
 /* Contenteditable ruled lines (preserved from earlier turn) */
@@ -618,7 +618,7 @@ button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
 .line {
   position: relative;
   height: 40px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
   display: flex;
   align-items: flex-end;
 }
@@ -654,14 +654,14 @@ textarea.q-ruled-area {
 
 .q-footer-row {
   display: flex;
-  border-top: 1px solid var(--line);
+  border-top: none;
   padding-top: 0.5rem;
   margin-top: 1rem;
 }
 .q-footer-row .q-cell {
   flex: 1;
   padding: 0;
-  border-left: 1px solid var(--line);
+  border-left: none;
   display: flex;
   justify-content: center;
 }
@@ -724,13 +724,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .pc-header {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
+  border-top: none;
+  border-bottom: none;
   padding: 0.5rem 0;
   margin-bottom: 1.5rem;
 }
 .pc-header > div { flex: 1; }
-.pc-header .right-col { text-align: right; border-left: 1px solid var(--ink); padding-left: 0.5rem; }
+.pc-header .right-col { text-align: right; border-left: none; padding-left: 0.5rem; }
 .pc-header .left-col  { text-align: left; padding-right: 0.5rem; }
 .pc-body { flex: 1; display: flex; flex-direction: column; }
 .pc-ruled {
@@ -749,13 +749,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    Personal archive (drawer page)
 ============================================================ */
 .drawer-page { padding: 3rem 2rem 6rem; max-width: 900px; margin: 0 auto; }
-.drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
+.drawer-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: none; }
 .drawer-name { font-size: 1.5rem; color: var(--ink); font-weight: bold; margin-bottom: 0; transform: translateY(16px); }
 .drawer-section { margin-bottom: 2.5rem; }
 .section-label { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.8rem; letter-spacing: 0.05rem; }
 .legacy-text { font-family: var(--font-main); font-size: 1.9rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
 .q-list { list-style: none; padding: 0; margin: 0; }
-.q-item { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--line); }
+.q-item { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: none; }
 .q-item:last-child { border-bottom: none; }
 .q-item-q { color: var(--gray); font-size: 0.95rem; margin-bottom: 0.4rem; }
 .q-item-a { font-size: 1.2rem; color: var(--ink); white-space: pre-wrap; }
@@ -958,14 +958,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: inline-flex;
   /* numbering runs left→right; box 0 is the leftmost cell */
   direction: ltr;
-  border: 1px solid var(--ink);
+  border: none;
 }
 #code-modal-content .code-box {
   width: 88px;
   height: 88px;
   border: none;
   /* single 1px divider between cells; outer frame on .code-boxes */
-  border-inline-start: 1px solid var(--ink);
+  border-inline-start: none;
   background: transparent;
   text-align: center;
   font-family: var(--font-main);
@@ -1046,14 +1046,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .login-row {
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--ink);
+  border: none;
 }
 .login-row + .login-row { margin-top: -1px; }
 .login-label {
   display: flex;
   align-items: center;
   padding: 14px 16px;
-  border-left: 1px solid var(--ink);
+  border-left: none;
   font-family: var(--font-main);
   font-size: 0.95rem;
   color: var(--ink);
@@ -1404,7 +1404,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   right: 24px;
   z-index: 6;
   background: transparent;
-  border: 1px solid var(--ink);
+  border: none;
   padding: 0.5rem 1rem;
   font-family: var(--font-main);
   color: var(--ink);
@@ -1546,13 +1546,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  width: min(560px, 86%);
+  width: min(672px, 96%);
 }
 .camera-area {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  border: 1px solid var(--ink);
+  border: none;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.05);
 }
@@ -1584,7 +1584,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  border: 3px solid var(--ink);
+  border: none;
   background: transparent;
   cursor: pointer;
   position: relative;
@@ -1739,7 +1739,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-nav-btn {
   height: 32px;
   padding: 0 12px;
-  border: 1px solid #3D3628;
+  border: none;
   background: #F0E8D8;
   color: #3D3628;
   font-family: var(--font-main);
@@ -1843,14 +1843,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-grid {
   flex: 1 1 auto;
   min-height: 0;
-  border: 1px solid var(--ink);
+  border: none;
   display: grid;
   grid-template-rows: repeat(7, 1fr);
 }
 
 /* every row has its bottom dividing line except the last one */
 .qform-row {
-  border-bottom: 1px solid var(--ink);
+  border-bottom: none;
   display: flex;
   min-height: 0;
   overflow: hidden;
@@ -1866,7 +1866,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-header .qform-cell {
   flex: 1;
   height: 100%;
-  border-left: 1px solid var(--ink);
+  border-left: none;
   /* 12px reading-side inset — text never touches the dividing line */
   padding: 0.5rem 12px 0.5rem 0;
   display: flex;
@@ -1954,7 +1954,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   min-height: 0;
   overflow: hidden;
-  border-bottom: 1px solid var(--ink);
+  border-bottom: none;
   display: flex;
   align-items: flex-end;
   font-family: var(--font-main);
@@ -2067,7 +2067,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .register-row {
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--ink);
+  border: none;
 }
 .register-row + .register-row { margin-top: -1px; }
 
@@ -2075,7 +2075,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: center;
   padding: 16px 18px;
-  border-left: 1px solid var(--ink);
+  border-left: none;
   font-family: var(--font-main);
   font-size: 1.15rem;
   color: var(--ink);
