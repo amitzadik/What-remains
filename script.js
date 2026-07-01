@@ -1048,6 +1048,7 @@
   const pPhotos  = document.getElementById("p-photos");
   const pVideos  = document.getElementById("p-videos");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
+  const btnPersonalArchiveSearch = document.getElementById("btn-personal-archive-search");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
 
   // Drawer-upload state. Only photos (folder 0) and videos (folder 1) are
@@ -1055,6 +1056,9 @@
   let currentDrawerCode = "";
   let activeFolderIdx = 3;
   const FOLDER_CATEGORY = { 0: "image", 1: "video" };
+
+  function openArchiveSearch() {
+  }
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1263,6 +1267,9 @@
       btnPersonalToGeneral.style.display =
         (ownerView && (idx === 0 || idx === 1)) ? "" : "none";
     }
+  }
+  if (btnPersonalArchiveSearch) {
+    btnPersonalArchiveSearch.addEventListener("click", openArchiveSearch);
   }
   const folderBodiesEl = document.querySelector("#screen-personal .folder-bodies");
   // Open one folder (bring it forward + reveal); opening one closes any other.

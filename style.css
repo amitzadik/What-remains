@@ -410,7 +410,18 @@ html, body {
 
 /* Corner buttons — 16px from each folder edge (folder is inset 20px from the
    screen, so 20 + 16 = 36 horizontally; folder bottom is the screen bottom). */
-.personal-add  { position: absolute; left: 36px;  bottom: 16px; z-index: 25; }
+.personal-actions {
+  position: absolute;
+  left: 36px;
+  bottom: 16px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  direction: ltr;
+}
+.personal-add,
+.personal-search { flex: 0 0 auto; }
 .personal-back { position: absolute; right: 36px; bottom: 16px; z-index: 25; }
 
 .archive-scroll {
