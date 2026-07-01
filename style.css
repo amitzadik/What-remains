@@ -1530,6 +1530,98 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* ============================================================
+   PHASE.CARDS — Beat 2: sealed "past" folder recedes, the user's own
+   empty folder rises on top, and the background goes dark -> light.
+   All timings / offsets / colours are tunable here.
+============================================================ */
+#screen-cards {
+  --bridge-dur: 2s;                 /* beat 2 total duration (~1.5–2.5s) */
+  --bridge-light: #FAF6EE;          /* blank-page background (past = dark) */
+  --sealed-recede-y: 9%;            /* how far the sealed folder drifts down */
+  --sealed-recede-opacity: 0.55;    /* how dim the sealed folder becomes */
+  --blank-rise-from: 135%;          /* empty folder starts below the scene */
+  --blank-offset-y: -7%;            /* empty folder settles slightly up, so the sealed peeks beneath */
+}
+
+/* Background dark -> light, tied to the rise (one continuous motion) */
+#screen-cards:has(.cards-scene.is-bridged) { background-color: var(--bridge-light); }
+
+/* The sealed folder settles + recedes: dims and drifts down, still partly visible */
+.cards-scene.is-bridged .cards-env {
+  transform: translate(-50%, calc(-50% + var(--sealed-recede-y)));
+  opacity: var(--sealed-recede-opacity);
+}
+/* The old continue button belongs to beat 1; hide it once the bridge runs */
+.cards-scene.is-bridged .cards-env-next { opacity: 0; pointer-events: none; }
+
+/* The user's own empty folder — same folder visual family, lighter/brighter,
+   stacked ON TOP of the sealed one. Starts below and rises into place. */
+.cards-blank {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%;                        /* same footprint as .cards-env */
+  aspect-ratio: 4547 / 3281;          /* brown-folder.png natural ratio */
+  transform: translate(-50%, var(--blank-rise-from));
+  opacity: 0;
+  z-index: 210;                       /* above the sealed folder (200) */
+  cursor: pointer;
+}
+.cards-blank-folder {
+  position: absolute;
+  inset: 0;
+  background: url("images/brown-folder.png") center / contain no-repeat;
+  filter: brightness(1.35) saturate(0.72);   /* lighter than the sealed folder */
+}
+/* Tab label — same tab type family as the rest of the system */
+.cards-blank-tab {
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-main);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  white-space: nowrap;
+  z-index: 2;
+}
+/* Empty ruled field lines only — reads as open and waiting (no real form yet) */
+.cards-blank-lines {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 30%;
+  bottom: 16%;
+  z-index: 1;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 33px,
+    rgba(61, 54, 40, 0.4) 33px,
+    rgba(61, 54, 40, 0.4) 34px
+  );
+}
+.cards-scene.is-bridged .cards-blank {
+  transform: translate(-50%, calc(-50% + var(--blank-offset-y)));
+  opacity: 1;
+}
+
+/* Animate only when motion is allowed; reduced motion snaps to the end state
+   (two-folder stack, light background, empty folder on top). */
+@media (prefers-reduced-motion: no-preference) {
+  #screen-cards { transition: background-color var(--bridge-dur) ease; }
+  .cards-scene.is-bridged .cards-env {
+    transition: transform var(--bridge-dur) ease, opacity var(--bridge-dur) ease;
+  }
+  .cards-blank {
+    transition: transform var(--bridge-dur) cubic-bezier(.22, .61, .36, 1),
+                opacity var(--bridge-dur) ease;
+  }
+}
+
+/* ============================================================
    PHASE.RECORD — text or audio choice
 ============================================================ */
 /* Camera card — centred capture area, shutter, retake link */

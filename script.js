@@ -770,6 +770,7 @@
   const cardsHint    = document.getElementById("cards-hint");
   const cardsStamp   = document.getElementById("cards-env-stamp");
   const btnCardsNext = document.getElementById("btn-cards-next");
+  const cardsBlank   = document.getElementById("cards-blank");
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -853,7 +854,7 @@
 
   function initCards() {
     cardsStage.innerHTML = "";
-    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done");
+    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done", "is-bridged");
     cardsHint.classList.remove("is-hidden");
     typeCardsHint();
     btnCardsNext.disabled = true;
@@ -896,7 +897,14 @@
       cardsScene.classList.add("is-done");
       btnCardsNext.disabled = false;
     }, 2700);
+    // Beat 2 — runs automatically after beat 1: the sealed "past" folder
+    // recedes and the user's own empty folder rises on top (dark -> light).
+    setTimeout(() => cardsScene.classList.add("is-bridged"), 3100);
   }
+
+  // Stub for the next step (fill/leave experience) — wired but not built yet.
+  function beginLeaving() { /* TODO: build the fill/leave flow later */ }
+  if (cardsBlank) cardsBlank.addEventListener("click", beginLeaving);
 
   function cardsScrollIntent() {
     if (!screens.cards.classList.contains("active")) return;
