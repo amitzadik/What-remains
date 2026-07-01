@@ -2049,6 +2049,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-weight: 500;
   color: var(--ink);
 }
+/* Details form: back (top-right) + continue (bottom-left) buttons sit 16px
+   from the white card edges (#register-sheet has no padding, so 16px lands
+   on the card edge, not the padded content box). */
+#register-sheet #btn-back-welcome {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+}
+#register-sheet .qform-actions__continue {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 3;
+}
 
 /* Three framed rows: label (right) | divider | input (left) */
 .register-table {
