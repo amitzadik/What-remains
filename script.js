@@ -373,6 +373,7 @@
     let viewer = allDrawers().find(v => v.code === sess.code);
     if (!viewer) viewer = { name: sess.name || "", code: sess.code, archive: "", answers: null };
     activeViewer = viewer;
+    activeDrawerEl = document.querySelector('.wall-drawer[data-name="' + CSS.escape(viewer.name || "") + '"]') || null;
     openDrawerInterior(viewer);
   }
 
@@ -1232,6 +1233,7 @@
   // drawers only when the sheet returns q1..q7 via viewer.answers).
   function openDrawerInterior(viewer) {
     if (!viewer) return;
+    if (activeDrawerEl) activeDrawerEl.classList.add("is-opened");
     // Owner view = logged-in session whose code matches this drawer's code.
     const _sess = getSession();
     ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
@@ -1405,22 +1407,14 @@
     return list;
   }
 
-  // Build one archive drawer element for the landing drawer wall.
+  // Build one archive envelope element for the landing archive wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
     d.className = "wall-drawer envelope-card";
     d.setAttribute("data-name", v.name);
     d.innerHTML =
-      '<div class="envelope-card__layers" aria-hidden="true">' +
-        '<span class="envelope-card__layer envelope-card__layer--one"></span>' +
-        '<span class="envelope-card__layer envelope-card__layer--two"></span>' +
-        '<span class="envelope-card__layer envelope-card__layer--three"></span>' +
-      '</div>' +
-      '<div class="envelope-card__body" aria-hidden="true">' +
-        '<span class="envelope-card__fold envelope-card__fold--left"></span>' +
-        '<span class="envelope-card__fold envelope-card__fold--right"></span>' +
-        '<span class="envelope-card__fold envelope-card__fold--bottom"></span>' +
-      '</div>';
+      '<img class="envelope-card__image envelope-card__image--closed" src="images/wenvelope-closed.png" alt="">' +
+      '<img class="envelope-card__image envelope-card__image--opened" src="images/wenvelope-opened.png" alt="">';
     const plate = document.createElement("div");
     plate.className = "wall-plate";
     const nameEl = document.createElement("span");
@@ -1435,6 +1429,7 @@
       const sess = getSession();
       if (sess && sess.code && sess.code === v.code) {
         activeViewer = v;
+        activeDrawerEl = d;
         openDrawerInterior(v);
       } else {
         openCodeModal(v, d);
