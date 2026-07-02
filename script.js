@@ -95,6 +95,7 @@
     cards:     document.getElementById("screen-cards"),
     legacy:    document.getElementById("screen-legacy"),
     camera:    document.getElementById("screen-camera"),
+    envelope:  document.getElementById("screen-envelope"),
     print:     document.getElementById("screen-print"),
     personal:  document.getElementById("screen-personal")
   };
@@ -935,6 +936,8 @@
   const cameraRetake  = document.getElementById("camera-retake");
   const btnCameraNext = document.getElementById("btn-camera-next");
   const btnCameraBack = document.getElementById("btn-camera-back");
+  const envelopeTransition = document.getElementById("memory-envelope-transition");
+  const btnEnvelopeNext = document.getElementById("btn-envelope-next");
 
   let cameraStream = null;
 
@@ -1018,12 +1021,32 @@
     } catch (err) { /* לא חוסם */ }
   }
 
+  function initEnvelopeTransition() {
+    if (!envelopeTransition) return;
+    envelopeTransition.classList.remove("is-closing", "is-sealed");
+    if (btnEnvelopeNext) btnEnvelopeNext.disabled = true;
+    void envelopeTransition.offsetWidth;
+    envelopeTransition.classList.add("is-closing");
+    setTimeout(() => {
+      envelopeTransition.classList.add("is-sealed");
+      if (btnEnvelopeNext) btnEnvelopeNext.disabled = false;
+    }, reduceMotion ? 0 : 2300);
+  }
+
   btnCameraNext.addEventListener("click", () => {
     if (btnCameraNext.disabled) return;
     uploadDepositorPhoto();
     stopCameraStream();
-    showScreen("print");
+    initEnvelopeTransition();
+    showScreen("envelope");
   });
+
+  if (btnEnvelopeNext) {
+    btnEnvelopeNext.addEventListener("click", () => {
+      if (btnEnvelopeNext.disabled) return;
+      showScreen("print");
+    });
+  }
 
   btnCameraBack.addEventListener("click", () => {
     stopCameraStream();
@@ -1377,8 +1400,19 @@
   // Build one archive drawer element for the landing drawer wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
-    d.className = "wall-drawer";
+    d.className = "wall-drawer envelope-card";
     d.setAttribute("data-name", v.name);
+    d.innerHTML =
+      '<div class="envelope-card__layers" aria-hidden="true">' +
+        '<span class="envelope-card__layer envelope-card__layer--one"></span>' +
+        '<span class="envelope-card__layer envelope-card__layer--two"></span>' +
+        '<span class="envelope-card__layer envelope-card__layer--three"></span>' +
+      '</div>' +
+      '<div class="envelope-card__body" aria-hidden="true">' +
+        '<span class="envelope-card__fold envelope-card__fold--left"></span>' +
+        '<span class="envelope-card__fold envelope-card__fold--right"></span>' +
+        '<span class="envelope-card__fold envelope-card__fold--bottom"></span>' +
+      '</div>';
     const plate = document.createElement("div");
     plate.className = "wall-plate";
     const nameEl = document.createElement("span");

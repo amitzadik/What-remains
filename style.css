@@ -810,7 +810,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .wall-drawer.search-dim { opacity: 0.25; }
-.wall-drawer.search-hit { outline: 2px solid var(--red); outline-offset: 2px; }
+.wall-drawer.search-hit { outline: 2px solid var(--red); outline-offset: 6px; }
 
 .archive-wall {
   display: grid;
@@ -820,42 +820,93 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .archive-footer { text-align: center; margin-top: 4rem; color: var(--gray); font-size: 0.9rem; }
 
-/* Each drawer IS the drawer.png image; name overlays the label area */
+/* Archive envelope card: a translucent archival object with memory layers. */
 .wall-drawer {
   width: 100%;
-  aspect-ratio: 3965 / 2664;          /* drawer.png natural ratio */
-  background: url("images/drawer.png") center / contain no-repeat;
+  aspect-ratio: 1.32 / 1;
+  background: transparent;
   position: relative;
   cursor: pointer;
-  transition: transform 0.18s ease, filter 0.18s ease;
+  filter: drop-shadow(0 16px 24px rgba(61,54,40,0.16));
+  transition: transform 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
 }
 .wall-drawer:hover {
-  transform: translateY(-4px) scale(1.03);
-  filter: brightness(1.05);
+  transform: translateY(-7px) rotate(-1deg);
+  filter: drop-shadow(0 20px 28px rgba(61,54,40,0.22));
   z-index: 2;
 }
-/* Depositor-name overlay, positioned over the printed label strip of
-   drawer.png (absolute inside the drawer so it can be nudged later) */
+.envelope-card__layers,
+.envelope-card__body,
+.envelope-card__fold,
+.envelope-card__layer {
+  position: absolute;
+  display: block;
+}
+.envelope-card__layers {
+  inset: 2% 9% 32% 9%;
+  z-index: 1;
+}
+.envelope-card__layer {
+  left: 6%;
+  right: 6%;
+  bottom: 0;
+  height: 62%;
+  background-color: rgba(250,246,238,0.72);
+  background-image: var(--paper-tex);
+  background-size: 440px 440px;
+  border: 1px solid rgba(61,54,40,0.22);
+  box-shadow: 0 4px 12px rgba(61,54,40,0.08);
+  transform-origin: center bottom;
+}
+.envelope-card__layer--one { transform: translate(12px, -2px) rotate(4deg); opacity: 0.8; }
+.envelope-card__layer--two { transform: translate(-8px, 8px) rotate(-5deg); opacity: 0.72; }
+.envelope-card__layer--three { transform: translate(1px, 18px) rotate(1deg); opacity: 0.9; }
+.envelope-card__body {
+  inset: 27% 3% 2% 3%;
+  z-index: 2;
+  background-color: rgba(240,232,216,0.82);
+  background-image: var(--paper-tex);
+  background-size: 520px 520px;
+  border: 1px solid rgba(61,54,40,0.32);
+  overflow: hidden;
+  backdrop-filter: blur(1px);
+}
+.envelope-card__body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(160deg, transparent 49.5%, rgba(61,54,40,0.2) 50%, transparent 50.7%),
+    linear-gradient(20deg, transparent 49.5%, rgba(61,54,40,0.17) 50%, transparent 50.8%);
+  opacity: 0.8;
+}
+.envelope-card__fold--bottom {
+  inset: auto 0 0 0;
+  height: 58%;
+  background: linear-gradient(166deg, rgba(250,246,238,0.38), rgba(172,137,105,0.18));
+  clip-path: polygon(0 100%, 50% 18%, 100% 100%);
+  border-top: 1px solid rgba(61,54,40,0.14);
+}
 .wall-plate {
   position: absolute;
-  top: 15%;
-  left: 30%;
-  right: 13%;
-  height: 16%;
-  transform: translate(2px, 0);   /* nudge the name right 2px / up 4px from before */
+  left: 12%;
+  right: 12%;
+  bottom: 18%;
+  height: 28%;
+  transform: rotate(-1deg);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  z-index: 2;
+  z-index: 4;
+  padding: 0 10px;
 }
 
-/* Depositor name — same text styling as before, no label graphic */
 .wall-plate-name {
   max-width: 100%;
   font-family: var(--font-main);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: clamp(12px, 1.25vw, 17px);
+  font-weight: 600;
   color: var(--ink);
   text-align: center;
   white-space: nowrap;
@@ -1861,7 +1912,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-questions,
 #screen-legacy,
-#screen-camera {
+#screen-camera,
+#screen-envelope {
   padding: 0;
   background-color: #0E0E0E;
   background-image: none;
@@ -1872,6 +1924,152 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   justify-content: center;
 }
+
+/* ============================================================
+   PHASE.ENVELOPE — closing the memory layers into an envelope
+============================================================ */
+#screen-envelope {
+  background-color: #F4EFE5;
+}
+.memory-envelope-transition {
+  position: relative;
+  width: min(92vw, 1240px);
+  height: min(84vh, 760px);
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.15fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 76px);
+  padding: clamp(24px, 4vw, 56px);
+}
+.memory-envelope-copy {
+  font-family: var(--font-main);
+  font-size: clamp(1.45rem, 3vw, 3rem);
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--ink);
+  max-width: 13em;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.8s ease 1.45s, transform 0.8s ease 1.45s;
+}
+.memory-envelope-transition.is-closing .memory-envelope-copy {
+  opacity: 1;
+  transform: translateY(0);
+}
+.memory-envelope-scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  transform: translateY(2%);
+}
+.memory-layer {
+  position: absolute;
+  left: 13%;
+  right: 13%;
+  top: 10%;
+  height: 58%;
+  background-color: rgba(250,246,238,0.9);
+  background-image: var(--paper-tex);
+  background-size: 620px 620px;
+  border: 1px solid rgba(61,54,40,0.28);
+  box-shadow: 0 14px 32px rgba(61,54,40,0.15);
+  transform-origin: center;
+  transition:
+    transform 1.35s cubic-bezier(.22,.61,.36,1),
+    opacity 1.2s ease;
+}
+.memory-layer::before,
+.memory-layer::after {
+  content: "";
+  position: absolute;
+  background: rgba(61,54,40,0.26);
+}
+.memory-layer::before {
+  right: 8%;
+  left: 8%;
+  top: 24%;
+  height: 1px;
+  box-shadow: 0 34px rgba(61,54,40,0.19), 0 68px rgba(61,54,40,0.15);
+}
+.memory-layer::after {
+  right: 8%;
+  top: 10%;
+  width: 32%;
+  height: 1px;
+}
+.memory-layer--question { transform: translate(34px, -34px) rotate(7deg); z-index: 6; }
+.memory-layer--legacy { transform: translate(-18px, 8px) rotate(-4deg); z-index: 5; opacity: 0.86; }
+.memory-layer--photo {
+  transform: translate(10px, 42px) rotate(2deg);
+  z-index: 4;
+  background:
+    linear-gradient(rgba(250,246,238,0.16), rgba(250,246,238,0.16)),
+    radial-gradient(circle at 50% 38%, rgba(61,54,40,0.26) 0 16%, transparent 17%),
+    linear-gradient(145deg, rgba(172,137,105,0.26), rgba(250,246,238,0.72));
+}
+.memory-envelope-transition.is-closing .memory-layer--question {
+  transform: translate(1%, 32%) rotate(1deg) scale(0.74);
+}
+.memory-envelope-transition.is-closing .memory-layer--legacy {
+  transform: translate(-2%, 36%) rotate(-2deg) scale(0.74);
+}
+.memory-envelope-transition.is-closing .memory-layer--photo {
+  transform: translate(0, 40%) rotate(2deg) scale(0.74);
+}
+.memory-envelope-transition.is-sealed .memory-layer {
+  opacity: 0.42;
+}
+.memory-envelope-object {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 3%;
+  height: 58%;
+  z-index: 10;
+}
+.memory-envelope-back,
+.memory-envelope-pocket,
+.memory-envelope-flap {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(240,232,216,0.82);
+  background-image: var(--paper-tex);
+  background-size: 640px 640px;
+  border: 1px solid rgba(61,54,40,0.28);
+}
+.memory-envelope-back {
+  transform: translateY(7%);
+  opacity: 0.62;
+}
+.memory-envelope-pocket {
+  clip-path: polygon(0 0, 50% 62%, 100% 0, 100% 100%, 0 100%);
+  box-shadow: 0 22px 34px rgba(61,54,40,0.18);
+}
+.memory-envelope-flap {
+  top: -70%;
+  height: 80%;
+  transform-origin: center bottom;
+  transform: rotateX(0deg);
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  opacity: 0.8;
+  transition: transform 0.95s cubic-bezier(.22,.61,.36,1) 1.05s;
+}
+.memory-envelope-transition.is-closing .memory-envelope-flap {
+  transform: rotateX(180deg);
+}
+.envelope-next {
+  position: absolute;
+  left: clamp(20px, 4vw, 56px);
+  bottom: clamp(18px, 3vw, 40px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+.memory-envelope-transition.is-sealed .envelope-next {
+  opacity: 1;
+  pointer-events: auto;
+}
+.envelope-next:disabled img { opacity: 0.35; }
 
 /* Stage — responsive 3:2 page (design base 1500×1000), centred with
    breathing room; overflow stays visible so the tilted pile and the
@@ -2202,4 +2400,167 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .qform-label { font-size: 0.62rem; }
   .qform-value { font-size: 0.85rem; }
   .qform-question-text { font-size: 1rem; }
+}
+
+/* ============================================================
+   Envelope archive refinement — scoped overrides for the personal record
+============================================================ */
+#screen-personal {
+  background-color: #F4EFE5;
+}
+.folder-wrap {
+  --open-h: 82%;
+  --stack-rise: 46px;
+}
+.folder-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(250,246,238,0.72), rgba(250,246,238,0.72)),
+    var(--paper-tex);
+  background-size: auto, 620px 620px;
+  pointer-events: none;
+}
+.folder-wrap .drawer-header {
+  background: rgba(250,246,238,0.76);
+  border: 1px solid rgba(61,54,40,0.22);
+  box-shadow: 0 8px 18px rgba(61,54,40,0.1);
+  aspect-ratio: auto;
+  min-height: 54px;
+  top: 18px;
+}
+.folder-body,
+.folder-body[data-folder="0"],
+.folder-body[data-folder="1"],
+.folder-body[data-folder="2"],
+.folder-body[data-folder="3"] {
+  left: clamp(18px, 4vw, 64px);
+  right: clamp(18px, 4vw, 64px);
+  top: calc(350px - var(--stack-rise) - var(--rank) * 74px);
+  background-image: var(--paper-tex);
+  background-color: rgba(240,232,216,0.86);
+  background-size: 620px 620px;
+  border: 1px solid rgba(61,54,40,0.28);
+  box-shadow: 0 16px 28px rgba(61,54,40,0.16);
+  filter: none;
+  transform: translateX(calc((var(--rank) - 1.5) * 10px)) rotate(calc((var(--rank) - 1.5) * -1.2deg));
+  overflow: hidden;
+}
+.folder-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(155deg, transparent 49.7%, rgba(61,54,40,0.13) 50%, transparent 50.8%),
+    linear-gradient(25deg, transparent 49.7%, rgba(61,54,40,0.11) 50%, transparent 50.8%),
+    linear-gradient(to bottom, rgba(255,255,255,0.28), rgba(172,137,105,0.08));
+  pointer-events: none;
+  z-index: 0;
+}
+.folder-body[data-folder="3"]::before {
+  background:
+    linear-gradient(155deg, transparent 49.7%, rgba(61,54,40,0.13) 50%, transparent 50.8%),
+    linear-gradient(25deg, transparent 49.7%, rgba(61,54,40,0.11) 50%, transparent 50.8%),
+    linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(180,74,62,0.07));
+  -webkit-mask: none;
+          mask: none;
+}
+.folder-body.is-open {
+  top: 104px;
+  left: clamp(14px, 3vw, 48px);
+  right: clamp(14px, 3vw, 48px);
+  bottom: 0;
+  transform: rotate(0deg);
+  background-color: rgba(250,246,238,0.9);
+  box-shadow: 0 22px 44px rgba(61,54,40,0.18);
+}
+.folder-bodies.has-open .folder-body:not(.is-open) {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+.folder-tab {
+  top: 18px;
+  height: 58px;
+  padding: 0 18px;
+  background: rgba(250,246,238,0.56);
+  border-bottom: 1px solid rgba(61,54,40,0.24);
+  letter-spacing: 0.04em;
+  z-index: 3;
+}
+.folder-body[data-folder="0"] .folder-tab,
+.folder-body[data-folder="2"] .folder-tab,
+.folder-body[data-folder="1"] .folder-tab,
+.folder-body[data-folder="3"] .folder-tab {
+  right: 0;
+  left: auto;
+  width: min(330px, 42%);
+}
+#screen-personal button.folder-tab:hover,
+#screen-personal button.folder-tab:hover:not(:disabled) {
+  background: rgba(250,246,238,0.7);
+}
+.folder-close {
+  top: 31px;
+  left: 24px !important;
+  z-index: 7;
+}
+.folder-search {
+  top: 96px;
+  right: clamp(22px, 5vw, 84px);
+  z-index: 4;
+}
+.folder-content,
+.folder-body[data-folder="3"] .folder-content {
+  top: 148px;
+  left: clamp(22px, 5vw, 84px);
+  right: clamp(22px, 5vw, 84px);
+  bottom: 0;
+  z-index: 2;
+}
+.legacy-text,
+.folder-empty {
+  background: rgba(250,246,238,0.6);
+  padding: 18px;
+}
+.drawer-files .drawer-file,
+.drawer-files .drawer-file-video,
+.qfolder-card-wrap {
+  box-shadow: 0 10px 20px rgba(61,54,40,0.12);
+}
+.personal-actions,
+.personal-back {
+  filter: drop-shadow(0 8px 16px rgba(61,54,40,0.16));
+}
+
+@media (max-width: 760px) {
+  .memory-envelope-transition {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
+  }
+  .memory-envelope-copy {
+    max-width: none;
+    font-size: 1.45rem;
+  }
+  .memory-envelope-scene {
+    align-self: start;
+  }
+  .landing-bg {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  }
+  .folder-body,
+  .folder-body[data-folder="0"],
+  .folder-body[data-folder="1"],
+  .folder-body[data-folder="2"],
+  .folder-body[data-folder="3"] {
+    top: calc(310px - var(--stack-rise) - var(--rank) * 58px);
+  }
+  .folder-tab {
+    width: min(260px, 68%) !important;
+    font-size: 0.95rem;
+  }
 }
