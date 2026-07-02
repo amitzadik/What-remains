@@ -1654,6 +1654,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     rgba(61, 54, 40, 0.4) 34px
   );
 }
+.cards-blank-continue {
+  position: absolute;
+  left: 12%;
+  bottom: 13%;
+  z-index: 4;
+  border: 1px solid rgba(61,54,40,0.72);
+  background: rgba(250,246,238,0.86);
+  color: var(--ink);
+  font-family: var(--font-main);
+  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  font-weight: 600;
+  padding: 0.7em 1.15em;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(61,54,40,0.14);
+}
+.cards-blank-continue:hover,
+.cards-blank-continue:focus-visible {
+  background: rgba(255,252,244,0.96);
+  outline: none;
+  transform: translateY(-2px);
+}
 .cards-scene.is-bridged .cards-blank {
   transform: translate(-50%, calc(-50% + var(--blank-offset-y)));
   opacity: 1;

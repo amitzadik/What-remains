@@ -772,6 +772,7 @@
   const cardsStamp   = document.getElementById("cards-env-stamp");
   const btnCardsNext = document.getElementById("btn-cards-next");
   const cardsBlank   = document.getElementById("cards-blank");
+  const btnBeginLeaving = document.getElementById("btn-begin-leaving");
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -903,9 +904,17 @@
     setTimeout(() => cardsScene.classList.add("is-bridged"), 3100);
   }
 
-  // Stub for the next step (fill/leave experience) — wired but not built yet.
-  function beginLeaving() { /* TODO: build the fill/leave flow later */ }
+  function beginLeaving() {
+    initLegacy();
+    showScreen("legacy");
+  }
   if (cardsBlank) cardsBlank.addEventListener("click", beginLeaving);
+  if (btnBeginLeaving) {
+    btnBeginLeaving.addEventListener("click", (e) => {
+      e.stopPropagation();
+      beginLeaving();
+    });
+  }
 
   function cardsScrollIntent() {
     if (!screens.cards.classList.contains("active")) return;
@@ -921,8 +930,7 @@
 
   btnCardsNext.addEventListener("click", () => {
     if (btnCardsNext.disabled) return;
-    initLegacy();
-    showScreen("legacy");
+    beginLeaving();
   });
 
   // ============================================================
