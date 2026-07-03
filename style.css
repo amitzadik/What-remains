@@ -2183,7 +2183,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   right: 3vw;
   left: 3vw;
   top: 50%;
-  transform: translateY(-50%) scale(1.65) rotate(var(--trace-rot, 0deg));
+  --trace-scale: 1.6;
+  transform: translateY(-50%) scale(var(--trace-scale));
   transform-origin: center;
   font-family: var(--font-main);
   font-size: clamp(3rem, 7.6vw, 8rem);
@@ -2197,20 +2198,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   white-space: normal;
 }
 
-.question-memory-trace__item[data-age="0"] { opacity: 0.3; filter: blur(10px); }
-.question-memory-trace__item[data-age="1"] { opacity: 0.24; filter: blur(14px); }
-.question-memory-trace__item[data-age="2"] { opacity: 0.18; filter: blur(18px); }
+.question-memory-trace__item[data-age="0"] { --trace-scale: 1.6; opacity: 0.28; filter: blur(10px); }
+.question-memory-trace__item[data-age="1"] { --trace-scale: 1.85; opacity: 0.22; filter: blur(14px); }
+.question-memory-trace__item[data-age="2"] { --trace-scale: 2.12; opacity: 0.16; filter: blur(18px); }
 .question-memory-trace__item[data-age="3"],
 .question-memory-trace__item[data-age="4"],
 .question-memory-trace__item[data-age="5"],
-.question-memory-trace__item[data-age="6"] { opacity: 0.12; filter: blur(22px); }
+.question-memory-trace__item[data-age="6"] { --trace-scale: 2.42; opacity: 0.1; filter: blur(22px); }
 
-.question-memory-trace__item[data-slot="0"] { --trace-rot: -1deg; top: 16%; right: -18vw; left: 34vw; transform: translateY(-50%) scale(1.64) rotate(var(--trace-rot)); }
-.question-memory-trace__item[data-slot="1"] { --trace-rot: 1.2deg; top: 82%; right: 20vw; left: -18vw; transform: translateY(-50%) scale(1.86) rotate(var(--trace-rot)); }
-.question-memory-trace__item[data-slot="2"] { --trace-rot: -0.6deg; top: 42%; right: 48vw; left: -28vw; transform: translateY(-50%) scale(2.18) rotate(var(--trace-rot)); }
-.question-memory-trace__item[data-slot="3"] { --trace-rot: 0.9deg; top: 61%; right: -24vw; left: 46vw; transform: translateY(-50%) scale(2.34) rotate(var(--trace-rot)); }
-.question-memory-trace__item[data-slot="4"] { --trace-rot: -1.4deg; top: 4%; right: 28vw; left: -16vw; transform: translateY(-50%) scale(2.5) rotate(var(--trace-rot)); }
-.question-memory-trace__item[data-slot="5"] { --trace-rot: 0.5deg; top: 96%; right: -14vw; left: 28vw; transform: translateY(-50%) scale(2.6) rotate(var(--trace-rot)); }
+.question-memory-trace__item[data-slot="0"] { top: 14%; right: -20vw; left: 38vw; }
+.question-memory-trace__item[data-slot="1"] { top: 84%; right: 22vw; left: -20vw; }
+.question-memory-trace__item[data-slot="2"] { top: 40%; right: 50vw; left: -30vw; }
+.question-memory-trace__item[data-slot="3"] { top: 63%; right: -26vw; left: 48vw; }
+.question-memory-trace__item[data-slot="4"] { top: 2%; right: 30vw; left: -18vw; }
+.question-memory-trace__item[data-slot="5"] { top: 98%; right: -16vw; left: 30vw; }
 }
 
 /* ============================================================
@@ -2597,7 +2598,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .qform-dk-btn:disabled { cursor: not-allowed; }
 
-/* Stacked (frozen) sheets — gentle tilt + offset, buttons hidden */
+/* Frozen sheets are hidden in the live questionnaire; memory appears as text traces only. */
 .qform-sheet--stacked {
   transform: translate(var(--stack-x, 0), var(--stack-y, 0)) rotate(var(--stack-rot, 0deg));
 }
@@ -2610,6 +2611,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-questions .qform-sheet--stacked {
+  transform: none;
   visibility: hidden;
 }
 
