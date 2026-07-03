@@ -1401,10 +1401,34 @@
         name: state.name,
         code: state.userCode,
         archive: state.legacyText,
+        answers: state.answers,
         isUser: true
       });
     }
     return list;
+  }
+
+  function envelopeLayerTypes(v) {
+    const layers = [];
+    const archiveText = String(v.archive || "").trim();
+    const answers = Array.isArray(v.answers) ? v.answers : [];
+    const memoryAnswers = answers.filter(a => {
+      const txt = String(a || "").trim();
+      return txt && txt !== "לא יודע/ת";
+    });
+
+    if (archiveText) layers.push("text");
+    if (v.isUser && state.photoDataUrl) layers.push("photo");
+    memoryAnswers.slice(0, 4).forEach(() => layers.push("memory"));
+    if (!layers.length) layers.push("quiet");
+    return layers.slice(0, 6);
+  }
+
+  function envelopeLayerHTML(v) {
+    return envelopeLayerTypes(v).map((type, i) =>
+      '<span class="envelope-card__memory-layer envelope-card__memory-layer--' +
+      type + '" data-layer="' + (i + 1) + '"></span>'
+    ).join("");
   }
 
   // Build one archive envelope element for the landing archive wall.
@@ -1412,9 +1436,13 @@
     const d = document.createElement("div");
     d.className = "wall-drawer envelope-card";
     d.setAttribute("data-name", v.name);
+    d.setAttribute("data-layer-count", String(envelopeLayerTypes(v).length));
     d.innerHTML =
-      '<img class="envelope-card__image envelope-card__image--closed" src="images/wenvelope-closed.png" alt="">' +
-      '<img class="envelope-card__image envelope-card__image--opened" src="images/wenvelope-opened.png" alt="">';
+      '<img class="envelope-card__image envelope-card__image--base envelope-card__image--closed" src="images/closed-envelope.png" alt="">' +
+      '<img class="envelope-card__image envelope-card__image--base envelope-card__image--opened" src="images/opened-envelope.png" alt="">' +
+      '<div class="envelope-card__memory-layers" aria-hidden="true">' + envelopeLayerHTML(v) + '</div>' +
+      '<img class="envelope-card__image envelope-card__image--front envelope-card__image--closed" src="images/wenvelope-closed.png" alt="">' +
+      '<img class="envelope-card__image envelope-card__image--front envelope-card__image--opened" src="images/wenvelope-opened.png" alt="">';
     const plate = document.createElement("div");
     plate.className = "wall-plate";
     const nameEl = document.createElement("span");
