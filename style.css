@@ -1655,21 +1655,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
 
-/* Stamp image (stampN.png by answered count), placed as a quiet archive mark */
+/* Stamp image (stampN.png by answered count), placed as a fresh archive mark */
 .cards-env-stamp {
   position: absolute;
   top: 14%;
   right: 15%;
   width: 16%;
   height: auto;
-  transform: rotate(-9deg) scale(1.12);
+  transform: rotate(-4deg) scale(1.12);
   opacity: 0;
   z-index: 4;
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
 }
 .cards-scene.is-stamped .cards-env-stamp {
-  opacity: 0.48;
-  transform: rotate(-9deg) scale(1);
+  opacity: 1;
+  transform: rotate(-4deg) scale(1);
 }
 
 /* "גלול להמשך" — cream prompt, gently pulsing */
