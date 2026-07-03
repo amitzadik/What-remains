@@ -493,10 +493,13 @@
     }
   }
 
-  function setQuestionMemoryTrace(text) {
+  function setQuestionMemoryTrace(items) {
     if (!qMemoryTrace) return;
-    qMemoryTrace.textContent = text || "";
-    qMemoryTrace.classList.toggle("is-visible", Boolean(text));
+    const traces = Array.isArray(items) ? items : (items ? [items] : []);
+    qMemoryTrace.innerHTML = traces.map((text, i) => (
+      '<span class="question-memory-trace__item" data-trace="' + i + '">' + esc(text) + '</span>'
+    )).join("");
+    qMemoryTrace.classList.toggle("is-visible", traces.length > 0);
   }
 
   let questionTypewriterRun = 0;
@@ -627,7 +630,7 @@
       showScreen("cards");
       return;
     }
-    setQuestionMemoryTrace(questions[finishingIndex]);
+    setQuestionMemoryTrace(questions.slice(0, state.currentQuestion));
     animateNextQuestion(finishingIndex, () => renderQuestion());
   }
 
