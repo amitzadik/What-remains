@@ -1634,6 +1634,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: transform 1.8s cubic-bezier(.22, .61, .36, 1), opacity 0.45s ease;
   background: url("images/brown-folder.png") center / contain no-repeat;
   z-index: 200;
+  opacity: 0.75;
   pointer-events: none;
 }
 .cards-env::before,
@@ -1722,7 +1723,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* The single large folder becomes the writing surface for the transition copy. */
 .cards-scene.is-bridged .cards-env {
   transform: translate(-50%, -50%);
-  opacity: 0.8;
+  opacity: 0.75;
 }
 .cards-scene.is-bridged .cards-env::before { opacity: 0.12; }
 .cards-scene.is-bridged .cards-env::after { opacity: 0.24; }
