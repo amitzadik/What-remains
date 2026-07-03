@@ -2153,6 +2153,39 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: center;
 }
 
+#screen-questions {
+  background-color: #F4EFE5;
+  background-image: var(--paper-tex);
+  overflow: hidden;
+}
+
+.question-memory-trace {
+  position: absolute;
+  z-index: 0;
+  right: 4vw;
+  left: 4vw;
+  top: 50%;
+  transform: translateY(-50%) scale(1.32);
+  transform-origin: center;
+  font-family: var(--font-main);
+  font-size: clamp(3rem, 8vw, 8.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  direction: rtl;
+  text-align: right;
+  color: rgba(61, 54, 40, 0.32);
+  opacity: 0;
+  filter: blur(0.7px);
+  pointer-events: none;
+  transition: opacity 0.55s ease, transform 0.65s ease;
+  white-space: normal;
+}
+
+.question-memory-trace.is-visible {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.4);
+}
+
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
 ============================================================ */
@@ -2308,6 +2341,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   margin: auto;
   position: relative;
   flex-shrink: 0;
+  z-index: 1;
 }
 
 /* Paper sheet wrapper — opaque, so the box-shadow keeps full strength
@@ -2543,6 +2577,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-sheet--stacked .qform-actions { visibility: hidden; }
 .qform-sheet--stacked .register-head .img-btn { visibility: hidden; }
 .qform-sheet--stacked [contenteditable] { caret-color: transparent; }
+
+#screen-questions .qform-sheet {
+  box-shadow: 0 10px 30px rgba(61, 54, 40, 0.08);
+}
+
+#screen-questions .qform-sheet--stacked {
+  visibility: hidden;
+}
+
+#screen-questions .qform {
+  opacity: 0.94;
+}
+
+#screen-questions .qform-grid,
+#screen-questions .qform-row,
+#screen-questions .answer-line,
+#screen-questions .qform-header .qform-cell {
+  border-color: rgba(61, 54, 40, 0.28);
+}
+
+#screen-questions .qform-label {
+  color: rgba(61, 54, 40, 0.58);
+}
 
 /* === Register card — the first sheet of the pile === */
 /* While registering, the card is on top and the live question sheet

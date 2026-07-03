@@ -451,6 +451,7 @@
   const qName  = document.getElementById("q-name");
   const qAbout = document.getElementById("q-about");
   const qText  = document.getElementById("q-text");
+  const qMemoryTrace = document.getElementById("question-memory-trace");
   const btnNext = document.getElementById("btn-next-q");
   const btnDk   = document.getElementById("btn-dk-q");
   const lines = Array.from(document.querySelectorAll("#lines .line__text"));
@@ -490,6 +491,12 @@
       lines[0].focus();
       placeCaretAtEnd(lines[0]);
     }
+  }
+
+  function setQuestionMemoryTrace(text) {
+    if (!qMemoryTrace) return;
+    qMemoryTrace.textContent = text || "";
+    qMemoryTrace.classList.toggle("is-visible", Boolean(text));
   }
 
   let questionTypewriterRun = 0;
@@ -554,6 +561,7 @@
       });
       stage.classList.add("qform-stage--register");
     }
+    setQuestionMemoryTrace("");
     if (registerSheet) {
       registerSheet.classList.remove("qform-sheet--stacked");
       registerSheet.style.zIndex = "";
@@ -619,16 +627,15 @@
       showScreen("cards");
       return;
     }
+    setQuestionMemoryTrace(questions[finishingIndex]);
     animateNextQuestion(finishingIndex, () => renderQuestion());
   }
 
   // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
   const STACK_ANGLES = [-2.6, 2.1, -1.5, 2.8, -1.9, 1.2];
 
-  // Stack-of-papers transition. The live form stays the single interactive
-  // sheet; the finished question is frozen into a static, tilted, dimmed
-  // sheet that is inserted BEHIND the live one and kept there. The pile
-  // therefore accumulates: at question N there are N sheets.
+  // Question transition. The live form stays the single interactive sheet;
+  // the previous prompt remains as a soft memory trace behind it.
   let isQuestionTransitioning = false;
   function animateNextQuestion(finishingIndex, advanceCallback) {
     const stage = document.querySelector("#screen-questions .qform-stage");
@@ -640,33 +647,7 @@
     }
     isQuestionTransitioning = true;
 
-    // Freeze the finishing question into a static sheet behind the live one
-    const idx = state.frozenCount;
-    const angle = STACK_ANGLES[idx % STACK_ANGLES.length];
-    const frozen = document.createElement("div");
-    frozen.className = "qform-sheet qform-sheet--stacked";
-    frozen.style.zIndex = String(idx + 1); // below the active sheet
-    frozen.style.setProperty("--stack-rot", angle + "deg");
-    frozen.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
-    frozen.style.setProperty("--stack-y", ((10 + idx * 16) - 50) + "px");
-
-    const formClone = liveForm.cloneNode(true);
-    formClone.removeAttribute("id");
-    formClone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    formClone.querySelectorAll("[contenteditable]").forEach(el => {
-      el.setAttribute("contenteditable", "false");
-    });
-    // Show "לא יודע/ת" on the frozen page when the question was skipped
-    if (state.dontKnow[finishingIndex]) {
-      const firstLine = formClone.querySelector(".qform-answer-row .line__text");
-      if (firstLine) firstLine.textContent = "לא יודע/ת";
-    }
-    frozen.appendChild(formClone);
-    stage.insertBefore(frozen, liveSheet);
-    state.frozenCount++;
-
-    // Swap the live form's content for the next question, then drop it
-    // in from above, landing straight on top of the pile
+    // Swap the live form's content for the next question, then drop it in.
     advanceCallback();
     dropInLiveForm(() => { isQuestionTransitioning = false; });
   }
