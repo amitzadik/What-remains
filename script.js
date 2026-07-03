@@ -511,7 +511,7 @@
         trace = document.createElement("span");
         trace.className = "question-memory-trace__item";
         trace.dataset.questionIndex = String(i);
-        trace.dataset.slot = String(i % 6);
+        trace.dataset.slot = String(i % 7);
         trace.textContent = text;
         container.appendChild(trace);
       }

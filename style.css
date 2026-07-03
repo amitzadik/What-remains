@@ -2027,38 +2027,39 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .question-memory-trace__item {
   position: absolute;
-  right: 3vw;
-  left: 3vw;
+  right: -8vw;
+  left: -8vw;
   top: 50%;
-  --trace-scale: 1.6;
+  --trace-scale: 2.2;
   transform: translateY(-50%) scale(var(--trace-scale));
   transform-origin: center;
   font-family: var(--font-main);
-  font-size: clamp(3rem, 7.6vw, 8rem);
+  font-size: clamp(3.1rem, 8vw, 8.6rem);
   font-weight: 600;
   line-height: 1.06;
   direction: rtl;
   text-align: right;
   color: rgba(61, 54, 40, 0.95);
-  filter: blur(14px);
-  opacity: 0.18;
+  filter: blur(22px);
+  opacity: 0.12;
   white-space: normal;
 }
 
-.question-memory-trace__item[data-age="0"] { --trace-scale: 1.6; opacity: 0.3; filter: blur(10px); }
-.question-memory-trace__item[data-age="1"] { --trace-scale: 1.85; opacity: 0.24; filter: blur(14px); }
-.question-memory-trace__item[data-age="2"] { --trace-scale: 2.12; opacity: 0.18; filter: blur(18px); }
-.question-memory-trace__item[data-age="3"] { --trace-scale: 2.34; opacity: 0.12; filter: blur(22px); }
-.question-memory-trace__item[data-age="4"],
+.question-memory-trace__item[data-age="0"] { --trace-scale: 1.8; opacity: 0.25; filter: blur(12px); }
+.question-memory-trace__item[data-age="1"] { --trace-scale: 2.05; opacity: 0.2; filter: blur(16px); }
+.question-memory-trace__item[data-age="2"] { --trace-scale: 2.3; opacity: 0.15; filter: blur(20px); }
+.question-memory-trace__item[data-age="3"] { --trace-scale: 2.55; opacity: 0.1; filter: blur(24px); }
+.question-memory-trace__item[data-age="4"] { --trace-scale: 2.75; opacity: 0.07; filter: blur(28px); }
 .question-memory-trace__item[data-age="5"],
-.question-memory-trace__item[data-age="6"] { --trace-scale: 2.55; opacity: 0.08; filter: blur(26px); }
+.question-memory-trace__item[data-age="6"] { --trace-scale: 3; opacity: 0.05; filter: blur(32px); }
 
-.question-memory-trace__item[data-slot="0"] { top: 14%; right: -20vw; left: 38vw; }
-.question-memory-trace__item[data-slot="1"] { top: 84%; right: 22vw; left: -20vw; }
-.question-memory-trace__item[data-slot="2"] { top: 40%; right: 50vw; left: -30vw; }
-.question-memory-trace__item[data-slot="3"] { top: 63%; right: -26vw; left: 48vw; }
-.question-memory-trace__item[data-slot="4"] { top: 2%; right: 30vw; left: -18vw; }
-.question-memory-trace__item[data-slot="5"] { top: 98%; right: -16vw; left: 30vw; }
+.question-memory-trace__item[data-slot="0"] { top: -8%; right: -34vw; left: 42vw; }
+.question-memory-trace__item[data-slot="1"] { top: 23%; right: 38vw; left: -42vw; }
+.question-memory-trace__item[data-slot="2"] { top: 54%; right: -44vw; left: 52vw; }
+.question-memory-trace__item[data-slot="3"] { top: 86%; right: 18vw; left: -34vw; }
+.question-memory-trace__item[data-slot="4"] { top: 112%; right: -20vw; left: 18vw; }
+.question-memory-trace__item[data-slot="5"] { top: 39%; right: 62vw; left: -58vw; }
+.question-memory-trace__item[data-slot="6"] { top: 70%; right: -58vw; left: 60vw; }
 }
 
 /* ============================================================
