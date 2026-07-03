@@ -1787,22 +1787,55 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ============================================================
    PHASE.RECORD — text or audio choice
 ============================================================ */
-/* Camera card — centred capture area, shutter, retake link */
+/* Camera memory print — album-like capture area */
+#screen-camera {
+  background-color: #FAF6EE;
+  background-image: var(--paper-tex);
+}
+
+.camera-memory {
+  width: min(760px, 88vw);
+  min-height: min(760px, 86vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(22px, 4vh, 40px);
+}
+
+.camera-memory-title {
+  font-family: var(--font-main);
+  font-size: clamp(1.45rem, 2.1vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  text-align: center;
+}
+
 .camera-center {
   margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  width: min(672px, 96%);
+  gap: clamp(18px, 3vh, 30px);
+  width: min(620px, 100%);
 }
+
+.camera-print {
+  width: 100%;
+  padding: clamp(18px, 3.2vw, 34px) clamp(18px, 3.2vw, 34px) clamp(58px, 7vw, 86px);
+  background: rgba(255, 254, 249, 0.96);
+  box-shadow: 0 10px 26px rgba(61, 54, 40, 0.09);
+  transform: rotate(-1.1deg);
+}
+
 .camera-area {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
   border: none;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(61, 54, 40, 0.06);
 }
 .camera-area video,
 .camera-area img {
@@ -1810,7 +1843,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   object-fit: cover;
   display: block;
-  opacity: 0.8;
+  opacity: 0.88;
+  filter: saturate(0.86) contrast(0.94);
 }
 .camera-area video[hidden],
 .camera-area img[hidden] { display: none; }
@@ -1828,35 +1862,43 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .camera-msg[hidden] { display: none; }
 
-.camera-shutter {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-  flex: 0 0 auto;
+.camera-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
-.camera-shutter::after {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.camera-shutter:disabled { opacity: 0.35; cursor: not-allowed; }
 
-.camera-retake {
-  background: none;
+.camera-action {
   border: none;
-  color: var(--stamp);
+  background: rgba(250, 246, 238, 0.88);
+  color: var(--ink);
   cursor: pointer;
   font-family: var(--font-main);
-  font-size: 1rem;
-  text-decoration: underline;
+  font-size: clamp(1rem, 1.35vw, 1.22rem);
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.82em 1.5em;
+  min-width: 118px;
+  box-shadow: none;
+  transition: background-color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
 }
-.camera-retake[hidden] { display: none; }
+
+.camera-action--primary {
+  background: rgba(61, 54, 40, 0.92);
+  color: #FAF6EE;
+}
+
+.camera-action:hover,
+.camera-action:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.camera-action:hover { background: rgba(255, 254, 249, 0.98); }
+.camera-action--primary:hover { background: rgba(61, 54, 40, 1); }
+.camera-action:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
 .drawer-photo {
@@ -2024,7 +2066,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-questions,
 #screen-legacy,
-#screen-camera,
 #screen-envelope {
   padding: 0;
   background-color: #0E0E0E;

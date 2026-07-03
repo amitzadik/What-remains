@@ -965,7 +965,7 @@
     cameraVideo.hidden = false;
     cameraMsg.hidden = true;
     cameraMsg.textContent = "";
-    cameraRetake.hidden = true;
+    if (cameraRetake) cameraRetake.hidden = true;
     btnCameraNext.disabled = false; // photo is optional — continue always allowed
     cameraShutter.disabled = false;
     stopCameraStream();
@@ -998,13 +998,16 @@
     cameraPhoto.hidden = false;
     stopCameraStream();              // freeze + release the camera
     btnCameraNext.disabled = false;
-    cameraRetake.hidden = false;
+    cameraShutter.disabled = true;
+    if (cameraRetake) cameraRetake.hidden = false;
   });
 
-  cameraRetake.addEventListener("click", () => {
-    state.photoDataUrl = "";
-    initCameraScreen();
-  });
+  if (cameraRetake) {
+    cameraRetake.addEventListener("click", () => {
+      state.photoDataUrl = "";
+      initCameraScreen();
+    });
+  }
 
   // Upload the depositor's registration photo into their drawer's Drive
   // folder (so it persists like any other uploaded file, not just in-session).
@@ -1057,10 +1060,12 @@
     });
   }
 
-  btnCameraBack.addEventListener("click", () => {
-    stopCameraStream();
-    showScreen("legacy");
-  });
+  if (btnCameraBack) {
+    btnCameraBack.addEventListener("click", () => {
+      stopCameraStream();
+      showScreen("legacy");
+    });
+  }
 
   // ============================================================
   // PHASE.PRINT_INSTRUCTIONS — simple text → back home (the archive)

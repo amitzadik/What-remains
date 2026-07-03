@@ -266,33 +266,21 @@
 
   <!-- ============== SCREEN: CAMERA (depositor photo) ============== -->
   <section id="screen-camera" class="screen">
-    <div class="qform-stage">
-      <div class="qform-sheet qform-sheet--active">
-        <article class="qform qform--register">
-          <div class="register-head">
-            <div class="register-title">תמונת המפקיד</div>
+    <div class="camera-memory">
+      <div class="camera-memory-title">תמונה לאלבום הזיכרון</div>
+      <div class="camera-center">
+        <div class="camera-print">
+          <div class="camera-area">
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas" hidden></canvas>
+            <img id="camera-photo" hidden alt="">
+            <div id="camera-msg" class="camera-msg" hidden></div>
           </div>
-
-          <div class="camera-center">
-            <div class="camera-area">
-              <video id="camera-video" autoplay playsinline muted></video>
-              <canvas id="camera-canvas" hidden></canvas>
-              <img id="camera-photo" hidden alt="">
-              <div id="camera-msg" class="camera-msg" hidden></div>
-            </div>
-            <button id="camera-shutter" type="button" class="camera-shutter" aria-label="צילום"></button>
-            <button id="camera-retake" type="button" class="camera-retake" hidden>צילום מחדש</button>
-          </div>
-
-          <div class="qform-actions">
-            <button id="btn-camera-back" type="button" class="img-btn qform-img-btn" data-default="images/back-default.png" data-hover="images/back-hover.png">
-              <img src="images/back-default.png" width="105" height="105">
-            </button>
-            <button id="btn-camera-next" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png">
-              <img src="images/next-default.png" width="105" height="105">
-            </button>
-          </div>
-        </article>
+        </div>
+        <div class="camera-actions">
+          <button id="camera-shutter" type="button" class="camera-action">לצלם</button>
+          <button id="btn-camera-next" type="button" class="camera-action camera-action--primary">להמשיך</button>
+        </div>
       </div>
     </div>
   </section>
