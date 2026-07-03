@@ -1631,10 +1631,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 110%;                        /* enlarged ~20% */
   aspect-ratio: 4547 / 3281;          /* brown-folder.png natural ratio */
   transform: translate(-50%, 132%);
-  transition: transform 1.8s cubic-bezier(.22, .61, .36, 1);
+  transition: transform 1.8s cubic-bezier(.22, .61, .36, 1), opacity 0.45s ease;
   background: url("images/brown-folder.png") center / contain no-repeat;
   z-index: 200;
   pointer-events: none;
+}
+.cards-env::before,
+.cards-env::after {
+  content: "";
+  position: absolute;
+  inset: 9% 11% 10% 11%;
+  background: rgba(255, 254, 249, 0.34);
+  pointer-events: none;
+  z-index: -1;
+}
+.cards-env::before {
+  transform: translate(-3%, -4%) rotate(-4deg);
+  opacity: 0;
+}
+.cards-env::after {
+  transform: translate(4%, -2%) rotate(3deg);
+  opacity: 0;
 }
 .cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
 
@@ -1694,26 +1711,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-cards {
   --bridge-dur: 2s;                 /* beat 2 total duration (~1.5–2.5s) */
   --bridge-light: #FAF6EE;          /* blank-page background (past = dark) */
-  --sealed-recede-y: 9%;            /* how far the sealed folder drifts down */
-  --sealed-recede-opacity: 0.55;    /* how dim the sealed folder becomes */
-  --blank-rise-from: 135%;          /* empty folder starts below the scene */
-  --blank-offset-y: -7%;            /* empty folder settles slightly up, so the sealed peeks beneath */
+  --blank-rise-from: 135%;          /* copy layer starts below with the folder */
+  --blank-offset-y: 0%;             /* copy settles directly on the single folder */
   --blank-type-speed: 48ms;          /* typewriter speed for the transition sentence */
 }
 
 /* Background dark -> light, tied to the rise (one continuous motion) */
 #screen-cards:has(.cards-scene.is-bridged) { background-color: var(--bridge-light); }
 
-/* The sealed folder settles + recedes: dims and drifts down, still partly visible */
+/* The single large folder becomes the writing surface for the transition copy. */
 .cards-scene.is-bridged .cards-env {
-  transform: translate(-50%, calc(-50% + var(--sealed-recede-y)));
-  opacity: var(--sealed-recede-opacity);
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
 }
+.cards-scene.is-bridged .cards-env::before { opacity: 0.5; }
+.cards-scene.is-bridged .cards-env::after { opacity: 0.34; }
 /* The old continue button belongs to beat 1; hide it once the bridge runs */
 .cards-scene.is-bridged .cards-env-next { opacity: 0; pointer-events: none; }
 
-/* The user's own empty folder — same folder visual family, lighter/brighter,
-   stacked ON TOP of the sealed one. Starts below and rises into place. */
+/* Copy layer for the single large folder. It starts below with the folder and
+   settles onto the same surface, without drawing another document. */
 .cards-blank {
   position: absolute;
   top: 50%;
@@ -1727,35 +1744,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: grid;
   place-items: center;
 }
-.cards-blank::before,
-.cards-blank::after {
-  content: "";
-  position: absolute;
-  inset: 8% 10% 10% 10%;
-  background: rgba(255, 254, 249, 0.38);
-  z-index: 0;
-  pointer-events: none;
-}
-.cards-blank::before {
-  transform: translate(-3%, -4%) rotate(-4deg);
-  opacity: 0.62;
-}
-.cards-blank::after {
-  transform: translate(4%, -2%) rotate(3deg);
-  opacity: 0.42;
-}
-.cards-blank-folder {
-  position: absolute;
-  inset: 0;
-  background: url("images/brown-folder.png") center / contain no-repeat;
-  filter: brightness(1.18) saturate(0.72);
-  opacity: 0.82;
-  pointer-events: none;
-  z-index: 1;
-}
 .cards-blank-copy {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   max-width: 650px;
   width: min(650px, 86%);
   text-align: center;
@@ -1795,19 +1786,18 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   z-index: 4;
   border: none;
-  background: rgba(61, 54, 40, 0.9);
-  color: var(--ink);
-  font-family: var(--font-main);
-  font-size: clamp(1rem, 1.45vw, 1.35rem);
-  font-weight: 600;
-  padding: 0.78em 1.35em;
-  cursor: pointer;
-  color: #FAF6EE;
+  background: none;
+  padding: 0;
   box-shadow: none;
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
-  transition: background-color 0.25s ease, transform 0.35s ease, opacity 0.35s ease;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.cards-blank-continue img {
+  display: block;
+  width: clamp(72px, 8vw, 105px);
+  height: auto;
 }
 .cards-scene.is-copy-done .cards-blank-continue {
   opacity: 1;
@@ -1816,7 +1806,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-blank-continue:hover,
 .cards-blank-continue:focus-visible {
-  background: rgba(61, 54, 40, 1);
+  background: none;
   outline: none;
   transform: translateY(-2px);
 }
@@ -1833,8 +1823,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   46%, 100% { opacity: 0; }
 }
 
-/* Animate only when motion is allowed; reduced motion snaps to the end state
-   (two-folder stack, light background, empty folder on top). */
+/* Animate only when motion is allowed; reduced motion snaps to the single-folder state. */
 @media (prefers-reduced-motion: no-preference) {
   #screen-cards { transition: background-color var(--bridge-dur) ease; }
   .cards-scene.is-bridged .cards-env {
