@@ -494,26 +494,31 @@
   }
 
   function setQuestionMemoryTrace(items) {
-    if (!qMemoryTrace) return;
+    setMemoryTraceItems(qMemoryTrace, items);
+  }
+
+  function setMemoryTraceItems(container, items) {
+    if (!container) return;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
     if (!traces.length) {
-      qMemoryTrace.innerHTML = "";
-      qMemoryTrace.classList.remove("is-visible");
+      container.innerHTML = "";
+      container.classList.remove("is-visible");
       return;
     }
     traces.forEach((text, i) => {
-      let trace = qMemoryTrace.querySelector('[data-question-index="' + i + '"]');
+      let trace = container.querySelector('[data-question-index="' + i + '"]');
       if (!trace) {
         trace = document.createElement("span");
         trace.className = "question-memory-trace__item";
         trace.dataset.questionIndex = String(i);
         trace.dataset.slot = String(i % 6);
         trace.textContent = text;
-        qMemoryTrace.appendChild(trace);
+        container.appendChild(trace);
       }
+      trace.textContent = text;
       trace.dataset.age = String(traces.length - i - 1);
     });
-    qMemoryTrace.classList.toggle("is-visible", traces.length > 0);
+    container.classList.toggle("is-visible", traces.length > 0);
   }
 
   let questionTypewriterRun = 0;
@@ -773,6 +778,7 @@
   const cardsBlank   = document.getElementById("cards-blank");
   const cardsBlankType = document.getElementById("cards-blank-typewriter");
   const btnBeginLeaving = document.getElementById("btn-begin-leaving");
+  const cardsMemoryTrace = document.getElementById("cards-memory-trace");
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -866,26 +872,14 @@
     cardsCopyRun += 1;
     cardsSealed = false;
 
-    // Build the pile: the last question sits crisp on top, the earlier
-    // ones fan out behind it (same tilt/offset as the question pile).
-    questions.forEach((q, i) => {
-      const sheet = document.createElement("div");
-      if (i === questions.length - 1) {
-        sheet.className = "qform-sheet qform-sheet--active";
-        sheet.style.zIndex = "100";
-      } else {
-        const angle = STACK_ANGLES[i % STACK_ANGLES.length];
-        sheet.className = "qform-sheet qform-sheet--stacked";
-        sheet.style.zIndex = String(i + 1);
-        sheet.style.setProperty("--stack-rot", angle + "deg");
-        sheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + i * 18)) + "px");
-        // Shift the vertical spread up so the pile fans above the centre too,
-        // not only downward.
-        sheet.style.setProperty("--stack-y", ((10 + i * 16) - 50) + "px");
-      }
-      sheet.innerHTML = cardFormHTML(i);
-      cardsStage.appendChild(sheet);
-    });
+    // Final pre-stamp screen: one sharp foreground summary, with earlier
+    // questions accumulated as memory traces in the background.
+    setMemoryTraceItems(cardsMemoryTrace, questions.slice(0, -1));
+    const sheet = document.createElement("div");
+    sheet.className = "qform-sheet qform-sheet--active";
+    sheet.style.zIndex = "100";
+    sheet.innerHTML = cardFormHTML(questions.length - 1);
+    cardsStage.appendChild(sheet);
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
     cardsStamp.src = "images/stamp" + answeredCount + ".png";

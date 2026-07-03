@@ -232,11 +232,12 @@
     </div>
   </section>
 
-  <!-- ============== SCREEN: CARDS — summary pile + envelope seal ============== -->
+  <!-- ============== SCREEN: CARDS — accumulated memory traces + envelope seal ============== -->
   <section id="screen-cards" class="screen">
+    <div class="question-memory-trace cards-memory-trace" id="cards-memory-trace" aria-hidden="true"></div>
     <div class="cards-wrap" id="cards-wrap">
       <div class="cards-scene" id="cards-scene">
-        <!-- Pile of qform-style cards (one per question), built by initCards -->
+        <!-- One sharp final summary form; previous questions live as traces behind it -->
         <div class="qform-stage" id="cards-stage"></div>
 
         <!-- Folder that rises from below and seals the pile -->

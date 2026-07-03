@@ -1585,17 +1585,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* ============================================================
-   PHASE.CARDS — stacked answer cards
+   PHASE.CARDS — accumulated memory traces before sealing
 ============================================================ */
 #screen-cards {
   padding: 0;
-  background-color: var(--cream);
-}
-
-#screen-cards {
-  padding: 0;
-  background-color: #0E0E0E;
-  background-image: none;
+  background-color: #F4EFE5;
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .cards-wrap {
@@ -1608,6 +1606,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   gap: 2.4vh;
   padding: 3vh 4vw;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 /* Sizing wrapper for the pile + envelope; aspect matches a qform sheet */
@@ -1618,8 +1618,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   flex-shrink: 0;
 }
 
-/* The real pile reuses .qform-stage; here it fills the scene and shrinks
-   a touch while sealing. */
+/* One foreground summary form; previous questions appear only as traces. */
 #cards-stage {
   width: 100%;
   height: 100%;
@@ -1628,6 +1627,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: transform 1.6s cubic-bezier(.22, .61, .36, 1);
 }
 .cards-scene.is-sealing #cards-stage { transform: scale(0.64); }
+#screen-cards #cards-stage .qform-sheet {
+  box-shadow: none;
+}
+#screen-cards #cards-stage .qform {
+  background: transparent;
+  opacity: 1;
+}
+#screen-cards #cards-stage .qform-grid,
+#screen-cards #cards-stage .qform-row,
+#screen-cards #cards-stage .answer-line,
+#screen-cards #cards-stage .qform-header .qform-cell {
+  border-color: var(--ink);
+}
 
 /* Folder (brown-folder.png) — rises from below and seals the pile */
 .cards-env {
@@ -1683,7 +1695,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-hint {
   font-family: var(--font-main);
   font-size: 1.4rem;
-  color: #FCF6ED;
+  color: rgba(61, 54, 40, 0.72);
   letter-spacing: 0.05em;
   animation: cards-hint-pulse 1.8s ease-in-out infinite;
   transition: opacity 0.4s ease;
@@ -1717,7 +1729,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-cards {
   --bridge-dur: 2s;                 /* beat 2 total duration (~1.5–2.5s) */
-  --bridge-light: #0E0E0E;          /* keep the transition on the dark archive background */
+  --bridge-light: #F4EFE5;          /* keep the transition on the shared paper environment */
   --blank-rise-from: 135%;          /* copy layer starts below with the folder */
   --blank-offset-y: 0%;             /* copy settles directly on the single folder */
   --blank-type-speed: 48ms;          /* typewriter speed for the transition sentence */
@@ -1733,20 +1745,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-scene.is-bridged .cards-env::before { opacity: 0.12; }
 .cards-scene.is-bridged .cards-env::after { opacity: 0.24; }
-.cards-scene.is-bridged #cards-stage .qform-sheet {
-  opacity: 0.2;
-}
-.cards-scene.is-bridged #cards-stage .qform-grid,
-.cards-scene.is-bridged #cards-stage .qform-row,
-.cards-scene.is-bridged #cards-stage .answer-line {
-  border-color: rgba(61, 54, 40, 0.15);
-}
-.cards-scene.is-bridged #cards-stage .line__text,
-.cards-scene.is-bridged #cards-stage .qform-label,
-.cards-scene.is-bridged #cards-stage .qform-value,
-.cards-scene.is-bridged #cards-stage .qform-question-text {
-  opacity: 0.25;
-}
 /* The old continue button belongs to beat 1; hide it once the bridge runs */
 .cards-scene.is-bridged .cards-env-next { opacity: 0; pointer-events: none; }
 
