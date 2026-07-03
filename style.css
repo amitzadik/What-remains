@@ -827,7 +827,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Archive envelope card: PNG envelope in front, data-driven memory layers inside. */
 .wall-drawer {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 3 / 2.35;
   background: transparent;
   position: relative;
   cursor: pointer;
@@ -842,9 +842,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-card__image {
   position: absolute;
   display: block;
-  inset: 0;
+  inset: 0 0 18% 0;
   width: 100%;
-  height: 100%;
+  height: 82%;
   object-fit: contain;
   pointer-events: none;
   transition: opacity 0.34s ease, transform 0.34s ease;
@@ -890,7 +890,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .envelope-card__memory-layers {
   position: absolute;
-  inset: 0;
+  inset: 0 0 18% 0;
   z-index: 2;
   pointer-events: none;
 }
@@ -971,11 +971,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .wall-drawer:hover .envelope-card__memory-layer[data-layer="6"] { transform: translate(2%, -7%) rotate(2deg); }
 .wall-plate {
   position: absolute;
-  left: 20%;
-  right: 20%;
-  bottom: 15%;
+  left: 6%;
+  right: 6%;
+  bottom: 0;
   min-height: 18%;
-  transform: rotate(-0.3deg);
+  transform: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -985,6 +985,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   z-index: 7;
   padding: 4px 10px;
   color: rgba(61,54,40,0.9);
+  pointer-events: none;
 }
 
 .wall-plate-name {
