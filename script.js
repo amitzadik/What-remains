@@ -767,15 +767,10 @@
   });
 
   // ============================================================
-  // PHASE.CARDS — summary pile (qform cards) + envelope seal
+  // PHASE.CARDS — memory traces before the personal message
   // ============================================================
-  const cardsWrap    = document.getElementById("cards-wrap");
   const cardsScene   = document.getElementById("cards-scene");
-  const cardsStage   = document.getElementById("cards-stage");
-  const cardsHint    = document.getElementById("cards-hint");
-  const cardsStamp   = document.getElementById("cards-env-stamp");
-  const btnCardsNext = document.getElementById("btn-cards-next");
-  const cardsBlank   = document.getElementById("cards-blank");
+  const cardsStamp   = document.getElementById("cards-memory-stamp");
   const cardsBlankType = document.getElementById("cards-blank-typewriter");
   const btnBeginLeaving = document.getElementById("btn-begin-leaving");
   const cardsMemoryTrace = document.getElementById("cards-memory-trace");
@@ -828,61 +823,18 @@
       '</article>';
   }
 
-  let cardsSealed = false;
-  let cardsHintRun = 0;
   let cardsCopyRun = 0;
 
-  function typeCardsHint() {
-    if (!cardsHint) return;
-    const text = cardsHint.dataset.text || cardsHint.textContent;
-    cardsHint.dataset.text = text;
-    cardsHint.textContent = "";
-    cardsHintRun += 1;
-    const run = cardsHintRun;
-
-    if (reduceMotion) {
-      cardsHint.textContent = text;
-      return;
-    }
-
-    const chars = Array.from(text);
-    let charIndex = 0;
-
-    function tick() {
-      if (run !== cardsHintRun) return;
-      cardsHint.textContent += chars[charIndex] || "";
-      charIndex += 1;
-
-      if (charIndex < chars.length) {
-        window.setTimeout(tick, 70);
-      }
-    }
-
-    tick();
-  }
-
   function initCards() {
-    cardsStage.innerHTML = "";
-    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done", "is-bridged", "is-typing", "is-copy-done");
-    cardsHint.classList.remove("is-hidden");
-    typeCardsHint();
-    btnCardsNext.disabled = true;
+    if (cardsScene) cardsScene.classList.remove("is-typing", "is-copy-done");
     if (btnBeginLeaving) btnBeginLeaving.disabled = true;
     if (cardsBlankType) cardsBlankType.textContent = "";
     cardsCopyRun += 1;
-    cardsSealed = false;
-
-    // Final pre-stamp screen: one sharp foreground summary, with earlier
-    // questions accumulated as memory traces in the background.
-    setMemoryTraceItems(cardsMemoryTrace, questions.slice(0, -1));
-    const sheet = document.createElement("div");
-    sheet.className = "qform-sheet qform-sheet--active";
-    sheet.style.zIndex = "100";
-    sheet.innerHTML = cardFormHTML(questions.length - 1);
-    cardsStage.appendChild(sheet);
+    setMemoryTraceItems(cardsMemoryTrace, questions);
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
-    cardsStamp.src = "images/stamp" + answeredCount + ".png";
+    if (cardsStamp) cardsStamp.src = "images/stamp" + answeredCount + ".png";
+    window.setTimeout(typeBlankCopy, reduceMotion ? 0 : 250);
   }
 
   function cardsTypeSpeed() {
@@ -930,55 +882,17 @@
     tick();
   }
 
-  // Scroll-triggered finish: pile shrinks, the open envelope rises from
-  // below and closes, a red stamp lands, then the continue button lights up.
-  function sealCards() {
-    if (cardsSealed) return;
-    cardsSealed = true;
-    cardsHint.classList.add("is-hidden");                         // hide "גלול להמשך" once scrolling begins
-    cardsScene.classList.add("is-sealing");                       // pile shrinks + folder rises (slow)
-    setTimeout(() => cardsScene.classList.add("is-stamped"), 2000); // stamp lands after the folder settles
-    setTimeout(() => {                                            // continue appears ON the folder, after the stamp
-      cardsScene.classList.add("is-done");
-      btnCardsNext.disabled = false;
-    }, 2700);
-    // Beat 2 — runs automatically after beat 1: the sealed "past" folder
-    // recedes and the user's own empty folder rises on top (dark -> light).
-    setTimeout(() => {
-      cardsScene.classList.add("is-bridged");
-      typeBlankCopy();
-    }, 3100);
-  }
-
   function beginLeaving() {
     if (!cardsScene.classList.contains("is-copy-done")) return;
     initLegacy();
     showScreen("legacy");
   }
-  if (cardsBlank) cardsBlank.addEventListener("click", beginLeaving);
   if (btnBeginLeaving) {
     btnBeginLeaving.addEventListener("click", (e) => {
       e.stopPropagation();
       beginLeaving();
     });
   }
-
-  function cardsScrollIntent() {
-    if (!screens.cards.classList.contains("active")) return;
-    sealCards();
-  }
-  cardsWrap.addEventListener("wheel", cardsScrollIntent, { passive: true });
-  cardsWrap.addEventListener("touchmove", cardsScrollIntent, { passive: true });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
-      cardsScrollIntent();
-    }
-  });
-
-  btnCardsNext.addEventListener("click", () => {
-    if (btnCardsNext.disabled) return;
-    beginLeaving();
-  });
 
   // ============================================================
   // PHASE.CAMERA — depositor photo

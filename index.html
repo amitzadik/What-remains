@@ -232,36 +232,19 @@
     </div>
   </section>
 
-  <!-- ============== SCREEN: CARDS — accumulated memory traces + envelope seal ============== -->
+  <!-- ============== SCREEN: CARDS — accumulated memory traces before preserving ============== -->
   <section id="screen-cards" class="screen">
     <div class="question-memory-trace cards-memory-trace" id="cards-memory-trace" aria-hidden="true"></div>
     <div class="cards-wrap" id="cards-wrap">
       <div class="cards-scene" id="cards-scene">
-        <!-- One sharp final summary form; previous questions live as traces behind it -->
-        <div class="qform-stage" id="cards-stage"></div>
-
-        <!-- Folder that rises from below and seals the pile -->
-        <div class="cards-env" id="cards-env">
-          <img class="cards-env-stamp" id="cards-env-stamp" alt="" src="images/stamp0.png">
-          <!-- Continue button sits ON the folder, revealed after the stamp -->
-          <button id="btn-cards-next" type="button" class="img-btn cards-env-next" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
-            <img src="images/next-default.png" width="105" height="105">
+        <img class="cards-memory-stamp" id="cards-memory-stamp" alt="" src="images/stamp0.png">
+        <div class="cards-memory-copy">
+          <p id="cards-blank-typewriter" data-text="מה שישאר מאיתנו הוא לא רק מה שזוכרים עלינו, אלא גם מה שבחרנו להשאיר לדורות הבאים."></p>
+          <button id="btn-begin-leaving" type="button" class="img-btn cards-blank-continue" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך" disabled>
+            <img src="images/next-default.png" width="105" height="105" alt="">
           </button>
         </div>
-
-        <!-- Beat 2: the user's own empty folder rises on top of the sealed one -->
-        <div class="cards-blank" id="cards-blank">
-          <div class="cards-blank-copy">
-            <p id="cards-blank-typewriter" data-text="מה שישאר מאיתנו הוא לא רק מה שזוכרים עלינו,
-אלא גם מה שבחרנו להשאיר לדורות הבאים."></p>
-            <button id="btn-begin-leaving" type="button" class="img-btn cards-blank-continue" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך" disabled>
-              <img src="images/next-default.png" width="105" height="105" alt="">
-            </button>
-          </div>
-        </div>
       </div>
-
-      <div class="cards-hint" id="cards-hint">גלול להמשך</div>
     </div>
   </section>
 
