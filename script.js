@@ -1448,7 +1448,11 @@
     const nameEl = document.createElement("span");
     nameEl.className = "wall-plate-name";
     nameEl.textContent = v.name;
+    const metaEl = document.createElement("span");
+    metaEl.className = "wall-plate-meta";
+    metaEl.textContent = envelopeLayerTypes(v).length + " שכבות";
     plate.appendChild(nameEl);
+    plate.appendChild(metaEl);
     d.appendChild(plate);
 
     // Owner (logged-in, code matches) skips the code prompt; everyone

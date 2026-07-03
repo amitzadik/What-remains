@@ -827,12 +827,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: transparent;
   position: relative;
   cursor: pointer;
-  filter: drop-shadow(0 16px 24px rgba(61,54,40,0.16));
-  transition: transform 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
+  filter: none;
+  transition: transform 0.32s ease, opacity 0.32s ease;
 }
 .wall-drawer:hover {
-  transform: translateY(-7px) rotate(-1deg);
-  filter: drop-shadow(0 20px 28px rgba(61,54,40,0.22));
+  transform: translateY(-5px) scale(1.015) rotate(-0.5deg);
+  filter: none;
   z-index: 2;
 }
 .envelope-card__image {
@@ -843,24 +843,39 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   object-fit: contain;
   pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition: opacity 0.34s ease, transform 0.34s ease;
   user-select: none;
 }
 .envelope-card__image--base {
   z-index: 1;
-  opacity: 0.2;
+  opacity: 0.14;
   transform: translateY(-3%);
 }
 .envelope-card__image--front {
   z-index: 5;
 }
-.envelope-card__image--closed { opacity: 1; }
+.envelope-card__image--front.envelope-card__image--closed {
+  opacity: 0.8;
+  transform: translateY(0) scale(1);
+}
 .envelope-card__image--opened {
   opacity: 0;
-  transform: translateY(-2%);
+  transform: translateY(1.5%) scale(0.985);
 }
-.envelope-card__image--base.envelope-card__image--closed { opacity: 0.18; }
+.envelope-card__image--base.envelope-card__image--closed { opacity: 0.1; }
 .envelope-card__image--base.envelope-card__image--opened { opacity: 0; }
+.wall-drawer:hover .envelope-card__image--front.envelope-card__image--closed {
+  opacity: 0;
+  transform: translateY(-1.5%) scale(0.99);
+}
+.wall-drawer:hover .envelope-card__image--front.envelope-card__image--opened {
+  opacity: 1;
+  transform: translateY(0) scale(1.01);
+}
+.wall-drawer:hover .envelope-card__image--base.envelope-card__image--opened {
+  opacity: 0.16;
+  transform: translateY(-2%) scale(1.01);
+}
 .wall-drawer.is-opened .envelope-card__image--closed { opacity: 0; }
 .wall-drawer.is-opened .envelope-card__image--opened {
   opacity: 1;
@@ -872,7 +887,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-card__memory-layers {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 2;
   pointer-events: none;
 }
 .envelope-card__memory-layer {
@@ -885,9 +900,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-image: var(--paper-tex);
   background-size: 420px 420px;
   border: 1px solid rgba(61,54,40,0.2);
-  box-shadow: 0 7px 14px rgba(61,54,40,0.12);
-  opacity: 0.78;
+  box-shadow: none;
+  opacity: 0.62;
   transform-origin: center bottom;
+  transition: opacity 0.34s ease, transform 0.34s ease;
 }
 .envelope-card__memory-layer::before {
   content: "";
@@ -895,23 +911,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   right: 12%;
   left: 12%;
   top: 25%;
-  height: 1px;
-  background: rgba(61,54,40,0.2);
-  box-shadow:
-    0 16px rgba(61,54,40,0.14),
-    0 32px rgba(61,54,40,0.1);
+  height: 42%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(61,54,40,0.2) 0,
+    rgba(61,54,40,0.2) 1px,
+    transparent 1px,
+    transparent 15px
+  );
 }
 .envelope-card__memory-layer--text {
   width: 45%;
   height: 48%;
-  opacity: 0.9;
+  opacity: 0.72;
 }
 .envelope-card__memory-layer--photo {
   background-image:
     linear-gradient(rgba(250,246,238,0.08), rgba(250,246,238,0.08)),
     radial-gradient(circle at 50% 36%, rgba(61,54,40,0.28) 0 17%, transparent 18%),
     linear-gradient(145deg, rgba(172,137,105,0.24), rgba(250,246,238,0.75));
-  opacity: 0.82;
+  opacity: 0.66;
 }
 .envelope-card__memory-layer--photo::before {
   top: auto;
@@ -923,12 +942,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-card__memory-layer--memory {
   width: 40%;
   height: 42%;
-  opacity: 0.7;
+  opacity: 0.55;
 }
 .envelope-card__memory-layer--quiet {
   width: 38%;
   height: 34%;
-  opacity: 0.42;
+  opacity: 0.34;
 }
 .envelope-card__memory-layer[data-layer="1"] { transform: translate(-7%, -12%) rotate(-5deg); z-index: 1; }
 .envelope-card__memory-layer[data-layer="2"] { transform: translate(9%, -17%) rotate(4deg); z-index: 2; }
@@ -936,31 +955,52 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-card__memory-layer[data-layer="4"] { transform: translate(18%, -5%) rotate(7deg); z-index: 4; opacity: 0.62; }
 .envelope-card__memory-layer[data-layer="5"] { transform: translate(-1%, -23%) rotate(-7deg); z-index: 5; opacity: 0.58; }
 .envelope-card__memory-layer[data-layer="6"] { transform: translate(2%, -1%) rotate(2deg); z-index: 6; opacity: 0.5; }
+.wall-drawer:hover .envelope-card__memory-layer {
+  opacity: 0.88;
+}
+.wall-drawer:hover .envelope-card__memory-layer--quiet { opacity: 0.5; }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="1"] { transform: translate(-8%, -18%) rotate(-6deg); }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="2"] { transform: translate(10%, -23%) rotate(5deg); }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="3"] { transform: translate(-18%, -13%) rotate(-2deg); }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="4"] { transform: translate(19%, -11%) rotate(8deg); }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="5"] { transform: translate(-1%, -29%) rotate(-8deg); }
+.wall-drawer:hover .envelope-card__memory-layer[data-layer="6"] { transform: translate(2%, -7%) rotate(2deg); }
 .wall-plate {
   position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: 13%;
-  height: 20%;
-  transform: rotate(-0.6deg);
+  left: 20%;
+  right: 20%;
+  bottom: 15%;
+  min-height: 18%;
+  transform: rotate(-0.3deg);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   overflow: hidden;
-  z-index: 4;
-  padding: 0 10px;
+  z-index: 7;
+  padding: 4px 10px;
+  color: rgba(61,54,40,0.9);
 }
 
 .wall-plate-name {
   max-width: 100%;
   font-family: var(--font-main);
-  font-size: clamp(12px, 1.25vw, 17px);
+  font-size: clamp(12px, 1.18vw, 16px);
   font-weight: 600;
-  color: var(--ink);
+  color: rgba(61,54,40,0.92);
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.wall-plate-meta {
+  font-family: var(--font-main);
+  font-size: clamp(9px, 0.82vw, 12px);
+  font-weight: 400;
+  color: rgba(61,54,40,0.64);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* ============================================================
