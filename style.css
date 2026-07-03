@@ -2192,16 +2192,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   direction: rtl;
   text-align: right;
   color: rgba(61, 54, 40, 0.95);
-  filter: blur(10px);
+  filter: blur(6px);
   white-space: normal;
 }
 
-.question-memory-trace__item[data-trace="0"] { --trace-rot: -1deg; top: 48%; transform: translateY(-50%) scale(1.55) rotate(var(--trace-rot)); opacity: 0.22; }
-.question-memory-trace__item[data-trace="1"] { --trace-rot: 1.2deg; top: 53%; transform: translateY(-50%) scale(1.72) rotate(var(--trace-rot)); opacity: 0.25; }
-.question-memory-trace__item[data-trace="2"] { --trace-rot: -0.6deg; top: 45%; transform: translateY(-50%) scale(1.88) rotate(var(--trace-rot)); opacity: 0.2; }
-.question-memory-trace__item[data-trace="3"] { --trace-rot: 0.9deg; top: 57%; transform: translateY(-50%) scale(2.02) rotate(var(--trace-rot)); opacity: 0.24; }
-.question-memory-trace__item[data-trace="4"] { --trace-rot: -1.4deg; top: 50%; transform: translateY(-50%) scale(2.12) rotate(var(--trace-rot)); opacity: 0.21; }
-.question-memory-trace__item[data-trace="5"] { --trace-rot: 0.5deg; top: 42%; transform: translateY(-50%) scale(2.2) rotate(var(--trace-rot)); opacity: 0.19; }
+.question-memory-trace__item[data-trace="0"] { --trace-rot: -1deg; top: 20%; right: -6vw; left: 18vw; transform: translateY(-50%) scale(1.46) rotate(var(--trace-rot)); opacity: 0.22; }
+.question-memory-trace__item[data-trace="1"] { --trace-rot: 1.2deg; top: 76%; right: 18vw; left: -8vw; transform: translateY(-50%) scale(1.62) rotate(var(--trace-rot)); opacity: 0.24; }
+.question-memory-trace__item[data-trace="2"] { --trace-rot: -0.6deg; top: 42%; right: 44vw; left: -18vw; transform: translateY(-50%) scale(1.78) rotate(var(--trace-rot)); opacity: 0.2; }
+.question-memory-trace__item[data-trace="3"] { --trace-rot: 0.9deg; top: 60%; right: -16vw; left: 42vw; transform: translateY(-50%) scale(1.92) rotate(var(--trace-rot)); opacity: 0.23; }
+.question-memory-trace__item[data-trace="4"] { --trace-rot: -1.4deg; top: 9%; right: 30vw; left: -12vw; transform: translateY(-50%) scale(2.02) rotate(var(--trace-rot)); opacity: 0.2; }
+.question-memory-trace__item[data-trace="5"] { --trace-rot: 0.5deg; top: 92%; right: -10vw; left: 30vw; transform: translateY(-50%) scale(2.08) rotate(var(--trace-rot)); opacity: 0.19; }
 }
 
 /* ============================================================
