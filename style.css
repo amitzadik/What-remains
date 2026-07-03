@@ -1638,26 +1638,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   white-space: pre-line;
 }
 
-.cards-memory-copy p::after {
-  content: "";
-  display: inline-block;
-  width: 0.08em;
-  height: 0.92em;
-  margin-inline-start: 0.12em;
-  background: rgba(61, 54, 40, 0.62);
-  vertical-align: -0.12em;
-  opacity: 0;
-}
-
-.cards-scene.is-typing .cards-memory-copy p::after {
-  opacity: 1;
-  animation: cards-type-caret 0.8s steps(1, end) infinite;
-}
-
-.cards-scene.is-copy-done .cards-memory-copy p::after {
-  display: none;
-}
-
 .cards-memory-stamp {
   position: absolute;
   top: clamp(28px, 6vh, 68px);
@@ -1705,11 +1685,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .cards-blank-continue:disabled {
   cursor: default;
-}
-
-@keyframes cards-type-caret {
-  0%, 45% { opacity: 1; }
-  46%, 100% { opacity: 0; }
 }
 
 /* ============================================================
