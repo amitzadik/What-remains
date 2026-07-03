@@ -437,10 +437,9 @@
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
-    // The filled register card joins the pile; question 1 drops in on top
+    // The filled register card joins the pile; question 1 appears already sharp
     freezeRegisterCard();
     initQuestions();
-    dropInLiveForm();
   });
 
   // ============================================================
@@ -656,9 +655,13 @@
   // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
   const STACK_ANGLES = [-2.6, 2.1, -1.5, 2.8, -1.9, 1.2];
 
-  // Question transition. The live form stays the single interactive sheet;
-  // the previous prompt remains as a soft memory trace behind it.
+  // Question transition. A question does not leave the screen — it becomes a
+  // memory: the finishing question is cloned as a trace that starts sharp in
+  // the foreground, then fades, blurs, enlarges slightly and drifts back into
+  // the page, as if absorbed into an archive of remembrance. The next question
+  // is simply already there, sharp and stable — no entering card, no slide.
   let isQuestionTransitioning = false;
+  const Q_MEMORY_MS = 1200;
   function animateNextQuestion(finishingIndex, advanceCallback) {
     const stage = document.querySelector("#screen-questions .qform-stage");
     const liveSheet = stage && stage.querySelector(".qform-sheet--active");
@@ -669,9 +672,42 @@
     }
     isQuestionTransitioning = true;
 
-    // Swap the live form's content for the next question, then drop it in.
+    const angle = STACK_ANGLES[finishingIndex % STACK_ANGLES.length];
+
+    // Clone the finishing question as a memory trace, starting exactly where
+    // the live form is (sharp, foreground) via .is-fresh.
+    const memory = document.createElement("div");
+    memory.className = "qform-sheet qform-sheet--memory is-fresh";
+    memory.style.zIndex = "200";   // above the live sheet while dissolving
+    memory.style.setProperty("--mem-x", (Math.sign(angle) * (10 + finishingIndex * 5)) + "px");
+    memory.style.setProperty("--mem-y", ((finishingIndex * 7) - 18) + "px");
+
+    const formClone = liveForm.cloneNode(true);
+    formClone.removeAttribute("id");
+    formClone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    formClone.querySelectorAll("[contenteditable]").forEach(el => {
+      el.setAttribute("contenteditable", "false");
+    });
+    // Show "לא יודע/ת" on the trace when the question was skipped
+    if (state.dontKnow[finishingIndex]) {
+      const firstLine = formClone.querySelector(".qform-answer-row .line__text");
+      if (firstLine) firstLine.textContent = "לא יודע/ת";
+    }
+    memory.appendChild(formClone);
+    stage.appendChild(memory);
+
+    // The next question is already sharp beneath the dissolving trace.
     advanceCallback();
-    dropInLiveForm(() => { isQuestionTransitioning = false; });
+
+    // Kick off the dissolve: fresh (sharp, foreground) -> memory trace.
+    void memory.offsetWidth;
+    memory.classList.remove("is-fresh");
+
+    // Once absorbed, settle the trace into the background memory layer.
+    window.setTimeout(() => {
+      memory.style.zIndex = String(10 + finishingIndex);
+      isQuestionTransitioning = false;
+    }, Q_MEMORY_MS + 100);
   }
 
   // No JS scaling — the stage is sized responsively in CSS.

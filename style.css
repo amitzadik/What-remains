@@ -2429,6 +2429,38 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-sheet--stacked .register-head .img-btn { visibility: hidden; }
 .qform-sheet--stacked [contenteditable] { caret-color: transparent; }
 
+/* A finished question does not leave — it dissolves into the page: starts sharp
+   in the foreground (.is-fresh), then fades, blurs, enlarges slightly and drifts
+   back, as if absorbed into memory. --q-memory-dur must match Q_MEMORY_MS in JS. */
+.qform-sheet--memory {
+  --q-memory-dur: 1200ms;
+  pointer-events: none;
+  will-change: opacity, filter, transform;
+  /* memory (end) state */
+  opacity: 0.2;
+  filter: blur(15px);
+  transform: translate(var(--mem-x, 0), var(--mem-y, 0)) scale(1.15);
+}
+/* fresh (start) state — matches the live form exactly: sharp, foreground */
+.qform-sheet--memory.is-fresh {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate(0, 0) scale(1);
+}
+.qform-sheet--memory .qform-actions { visibility: hidden; }
+.qform-sheet--memory .register-head .img-btn { visibility: hidden; }
+.qform-sheet--memory [contenteditable] { caret-color: transparent; }
+
+/* Animate the dissolve only when motion is allowed; reduced motion snaps to the
+   faded memory state without the heavy blur animation. */
+@media (prefers-reduced-motion: no-preference) {
+  .qform-sheet--memory {
+    transition: opacity var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1),
+                filter var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1),
+                transform var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 #screen-questions .qform-sheet {
   box-shadow: none;
 }
