@@ -773,6 +773,7 @@
   const cardsStamp   = document.getElementById("cards-env-stamp");
   const btnCardsNext = document.getElementById("btn-cards-next");
   const cardsBlank   = document.getElementById("cards-blank");
+  const cardsBlankType = document.getElementById("cards-blank-typewriter");
   const btnBeginLeaving = document.getElementById("btn-begin-leaving");
 
   function esc(s) {
@@ -825,6 +826,7 @@
 
   let cardsSealed = false;
   let cardsHintRun = 0;
+  let cardsCopyRun = 0;
 
   function typeCardsHint() {
     if (!cardsHint) return;
@@ -857,10 +859,13 @@
 
   function initCards() {
     cardsStage.innerHTML = "";
-    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done", "is-bridged");
+    cardsScene.classList.remove("is-sealing", "is-stamped", "is-done", "is-bridged", "is-typing", "is-copy-done");
     cardsHint.classList.remove("is-hidden");
     typeCardsHint();
     btnCardsNext.disabled = true;
+    if (btnBeginLeaving) btnBeginLeaving.disabled = true;
+    if (cardsBlankType) cardsBlankType.textContent = "";
+    cardsCopyRun += 1;
     cardsSealed = false;
 
     // Build the pile: the last question sits crisp on top, the earlier
@@ -888,6 +893,51 @@
     cardsStamp.src = "images/stamp" + answeredCount + ".png";
   }
 
+  function cardsTypeSpeed() {
+    const raw = getComputedStyle(screens.cards).getPropertyValue("--blank-type-speed").trim();
+    const value = parseFloat(raw);
+    return Number.isFinite(value) ? value : 48;
+  }
+
+  function typeBlankCopy() {
+    if (!cardsBlankType) return;
+    cardsCopyRun += 1;
+    const run = cardsCopyRun;
+    const text = cardsBlankType.dataset.text || "";
+    cardsBlankType.textContent = "";
+    cardsScene.classList.remove("is-copy-done");
+    cardsScene.classList.add("is-typing");
+    if (btnBeginLeaving) btnBeginLeaving.disabled = true;
+
+    if (reduceMotion) {
+      cardsBlankType.textContent = text;
+      cardsScene.classList.remove("is-typing");
+      cardsScene.classList.add("is-copy-done");
+      if (btnBeginLeaving) btnBeginLeaving.disabled = false;
+      return;
+    }
+
+    const chars = Array.from(text);
+    let charIndex = 0;
+    const speed = cardsTypeSpeed();
+
+    function tick() {
+      if (run !== cardsCopyRun) return;
+      cardsBlankType.textContent += chars[charIndex] || "";
+      charIndex += 1;
+
+      if (charIndex < chars.length) {
+        window.setTimeout(tick, speed);
+      } else {
+        cardsScene.classList.remove("is-typing");
+        cardsScene.classList.add("is-copy-done");
+        if (btnBeginLeaving) btnBeginLeaving.disabled = false;
+      }
+    }
+
+    tick();
+  }
+
   // Scroll-triggered finish: pile shrinks, the open envelope rises from
   // below and closes, a red stamp lands, then the continue button lights up.
   function sealCards() {
@@ -902,10 +952,14 @@
     }, 2700);
     // Beat 2 — runs automatically after beat 1: the sealed "past" folder
     // recedes and the user's own empty folder rises on top (dark -> light).
-    setTimeout(() => cardsScene.classList.add("is-bridged"), 3100);
+    setTimeout(() => {
+      cardsScene.classList.add("is-bridged");
+      typeBlankCopy();
+    }, 3100);
   }
 
   function beginLeaving() {
+    if (!cardsScene.classList.contains("is-copy-done")) return;
     initLegacy();
     showScreen("legacy");
   }

@@ -1631,21 +1631,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
 
-/* Stamp image (stampN.png by answered count), placed on the folder */
+/* Stamp image (stampN.png by answered count), placed as a quiet archive mark */
 .cards-env-stamp {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40%;
+  top: 14%;
+  right: 15%;
+  width: 16%;
   height: auto;
-  transform: translate(-50%, -50%) rotate(-14deg) scale(1.5);
+  transform: rotate(-9deg) scale(1.12);
   opacity: 0;
   z-index: 4;
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
 }
 .cards-scene.is-stamped .cards-env-stamp {
-  opacity: 0.9;
-  transform: translate(-50%, -50%) rotate(-14deg) scale(1);
+  opacity: 0.48;
+  transform: rotate(-9deg) scale(1);
 }
 
 /* "גלול להמשך" — cream prompt, gently pulsing */
@@ -1668,6 +1668,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: calc(100% * 52 / 1500);    /* same bottom-left inset as the questions card */
   bottom: calc(100% * 85 / 1500);
+  display: none;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.45s ease;
@@ -1690,6 +1691,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --sealed-recede-opacity: 0.55;    /* how dim the sealed folder becomes */
   --blank-rise-from: 135%;          /* empty folder starts below the scene */
   --blank-offset-y: -7%;            /* empty folder settles slightly up, so the sealed peeks beneath */
+  --blank-type-speed: 48ms;          /* typewriter speed for the transition sentence */
 }
 
 /* Background dark -> light, tied to the rise (one continuous motion) */
@@ -1718,17 +1720,35 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: grid;
   place-items: center;
 }
+.cards-blank::before,
+.cards-blank::after {
+  content: "";
+  position: absolute;
+  inset: 8% 10% 10% 10%;
+  background: rgba(255, 254, 249, 0.38);
+  z-index: 0;
+  pointer-events: none;
+}
+.cards-blank::before {
+  transform: translate(-3%, -4%) rotate(-4deg);
+  opacity: 0.62;
+}
+.cards-blank::after {
+  transform: translate(4%, -2%) rotate(3deg);
+  opacity: 0.42;
+}
 .cards-blank-folder {
   position: absolute;
   inset: 0;
   background: url("images/brown-folder.png") center / contain no-repeat;
-  filter: brightness(1.25) saturate(0.7) blur(1.2px);
-  opacity: 0.18;
+  filter: brightness(1.18) saturate(0.72);
+  opacity: 0.82;
   pointer-events: none;
+  z-index: 1;
 }
 .cards-blank-copy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 650px;
   width: min(650px, 86%);
   text-align: center;
@@ -1744,6 +1764,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-size: clamp(1.65rem, 2.55vw, 2.55rem);
   line-height: 1.72;
   font-weight: 500;
+  min-height: 3.45em;
+  white-space: pre-line;
+}
+.cards-blank-copy p::after {
+  content: "";
+  display: inline-block;
+  width: 0.08em;
+  height: 0.92em;
+  margin-inline-start: 0.12em;
+  background: rgba(61, 54, 40, 0.62);
+  vertical-align: -0.12em;
+  opacity: 0;
+}
+.cards-scene.is-typing .cards-blank-copy p::after {
+  opacity: 1;
+  animation: cards-type-caret 0.8s steps(1, end) infinite;
+}
+.cards-scene.is-copy-done .cards-blank-copy p::after {
+  display: none;
 }
 .cards-blank-continue {
   position: relative;
@@ -1758,7 +1797,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   cursor: pointer;
   color: #FAF6EE;
   box-shadow: none;
-  transition: background-color 0.25s ease, transform 0.25s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: background-color 0.25s ease, transform 0.35s ease, opacity 0.35s ease;
+}
+.cards-scene.is-copy-done .cards-blank-continue {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 .cards-blank-continue:hover,
 .cards-blank-continue:focus-visible {
@@ -1766,9 +1813,17 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   outline: none;
   transform: translateY(-2px);
 }
+.cards-blank-continue:disabled {
+  cursor: default;
+}
 .cards-scene.is-bridged .cards-blank {
   transform: translate(-50%, calc(-50% + var(--blank-offset-y)));
   opacity: 1;
+}
+
+@keyframes cards-type-caret {
+  0%, 45% { opacity: 1; }
+  46%, 100% { opacity: 0; }
 }
 
 /* Animate only when motion is allowed; reduced motion snaps to the end state
