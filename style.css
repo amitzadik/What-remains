@@ -1655,7 +1655,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-scene.is-sealing .cards-env { transform: translate(-50%, -50%); }
 
-/* Stamp image (stampN.png by answered count), placed as a fresh archive mark */
+/* Stamp image (stampN.png by answered count), placed as a quiet archive mark */
 .cards-env-stamp {
   position: absolute;
   top: 14%;
@@ -1668,7 +1668,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
 }
 .cards-scene.is-stamped .cards-env-stamp {
-  opacity: 1;
+  opacity: 0.42;
   transform: rotate(-4deg) scale(1);
 }
 
@@ -1710,7 +1710,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-cards {
   --bridge-dur: 2s;                 /* beat 2 total duration (~1.5–2.5s) */
-  --bridge-light: #FAF6EE;          /* blank-page background (past = dark) */
+  --bridge-light: #0E0E0E;          /* keep the transition on the dark archive background */
   --blank-rise-from: 135%;          /* copy layer starts below with the folder */
   --blank-offset-y: 0%;             /* copy settles directly on the single folder */
   --blank-type-speed: 48ms;          /* typewriter speed for the transition sentence */
@@ -1759,28 +1759,30 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   place-items: center;
 }
 .cards-blank-copy {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  max-width: 550px;
-  width: min(550px, 62%);
+  max-width: none;
+  width: 100%;
   text-align: right;
   direction: rtl;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(26px, 4.5vh, 48px);
+  display: block;
   color: var(--ink);
-  margin-inline-start: clamp(36px, 8vw, 126px);
-  margin-inline-end: auto;
-  transform: translateX(7%);
+  margin: 0;
+  pointer-events: none;
 }
 .cards-blank-copy p {
+  position: absolute;
+  top: 33%;
+  right: 20%;
+  max-width: 550px;
+  width: min(550px, 50%);
   margin: 0;
   font-family: var(--font-main);
-  font-size: clamp(1.22rem, 1.72vw, 1.78rem);
-  line-height: 1.9;
+  font-size: clamp(1.08rem, 1.48vw, 1.52rem);
+  line-height: 2;
   font-weight: 500;
-  min-height: 3.8em;
+  min-height: 4em;
   white-space: pre-line;
   opacity: 1;
 }
@@ -1802,7 +1804,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: none;
 }
 .cards-blank-continue {
-  position: relative;
+  position: absolute;
+  left: 15%;
+  bottom: 15%;
   z-index: 4;
   border: none;
   background: none;
@@ -1815,11 +1819,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .cards-blank-continue img {
   display: block;
-  width: clamp(72px, 8vw, 105px);
+  width: clamp(54px, 5.6vw, 78px);
   height: auto;
 }
 .cards-scene.is-copy-done .cards-blank-continue {
-  opacity: 0.94;
+  opacity: 0.9;
   pointer-events: auto;
   transform: translateY(0);
 }
