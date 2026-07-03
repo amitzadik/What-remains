@@ -497,7 +497,7 @@
     if (!qMemoryTrace) return;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
     qMemoryTrace.innerHTML = traces.map((text, i) => (
-      '<span class="question-memory-trace__item" data-trace="' + i + '">' + esc(text) + '</span>'
+      '<span class="question-memory-trace__item" data-slot="' + (i % 6) + '" data-age="' + (traces.length - i - 1) + '">' + esc(text) + '</span>'
     )).join("");
     qMemoryTrace.classList.toggle("is-visible", traces.length > 0);
   }
