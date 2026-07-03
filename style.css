@@ -1641,7 +1641,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   content: "";
   position: absolute;
   inset: 9% 11% 10% 11%;
-  background: rgba(255, 254, 249, 0.34);
+  background: rgba(255, 254, 249, 1);
   pointer-events: none;
   z-index: -1;
 }
@@ -1724,8 +1724,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(-50%, -50%);
   opacity: 0.8;
 }
-.cards-scene.is-bridged .cards-env::before { opacity: 0.5; }
-.cards-scene.is-bridged .cards-env::after { opacity: 0.34; }
+.cards-scene.is-bridged .cards-env::before { opacity: 0.12; }
+.cards-scene.is-bridged .cards-env::after { opacity: 0.24; }
+.cards-scene.is-bridged #cards-stage .qform-sheet {
+  opacity: 0.2;
+}
+.cards-scene.is-bridged #cards-stage .qform-grid,
+.cards-scene.is-bridged #cards-stage .qform-row,
+.cards-scene.is-bridged #cards-stage .answer-line {
+  border-color: rgba(61, 54, 40, 0.15);
+}
+.cards-scene.is-bridged #cards-stage .line__text,
+.cards-scene.is-bridged #cards-stage .qform-label,
+.cards-scene.is-bridged #cards-stage .qform-value,
+.cards-scene.is-bridged #cards-stage .qform-question-text {
+  opacity: 0.25;
+}
 /* The old continue button belongs to beat 1; hide it once the bridge runs */
 .cards-scene.is-bridged .cards-env-next { opacity: 0; pointer-events: none; }
 
@@ -1747,23 +1761,28 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-blank-copy {
   position: relative;
   z-index: 1;
-  max-width: 650px;
-  width: min(650px, 86%);
-  text-align: center;
+  max-width: 550px;
+  width: min(550px, 62%);
+  text-align: right;
+  direction: rtl;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: clamp(22px, 4vh, 42px);
+  align-items: flex-start;
+  gap: clamp(26px, 4.5vh, 48px);
   color: var(--ink);
+  margin-inline-start: clamp(36px, 8vw, 126px);
+  margin-inline-end: auto;
+  transform: translateX(7%);
 }
 .cards-blank-copy p {
   margin: 0;
   font-family: var(--font-main);
-  font-size: clamp(1.65rem, 2.55vw, 2.55rem);
-  line-height: 1.72;
+  font-size: clamp(1.22rem, 1.72vw, 1.78rem);
+  line-height: 1.9;
   font-weight: 500;
-  min-height: 3.45em;
+  min-height: 3.8em;
   white-space: pre-line;
+  opacity: 1;
 }
 .cards-blank-copy p::after {
   content: "";
@@ -1800,7 +1819,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: auto;
 }
 .cards-scene.is-copy-done .cards-blank-continue {
-  opacity: 1;
+  opacity: 0.94;
   pointer-events: auto;
   transform: translateY(0);
 }
