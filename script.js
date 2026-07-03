@@ -496,9 +496,23 @@
   function setQuestionMemoryTrace(items) {
     if (!qMemoryTrace) return;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
-    qMemoryTrace.innerHTML = traces.map((text, i) => (
-      '<span class="question-memory-trace__item" data-slot="' + (i % 6) + '" data-age="' + (traces.length - i - 1) + '">' + esc(text) + '</span>'
-    )).join("");
+    if (!traces.length) {
+      qMemoryTrace.innerHTML = "";
+      qMemoryTrace.classList.remove("is-visible");
+      return;
+    }
+    traces.forEach((text, i) => {
+      let trace = qMemoryTrace.querySelector('[data-question-index="' + i + '"]');
+      if (!trace) {
+        trace = document.createElement("span");
+        trace.className = "question-memory-trace__item";
+        trace.dataset.questionIndex = String(i);
+        trace.dataset.slot = String(i % 6);
+        trace.textContent = text;
+        qMemoryTrace.appendChild(trace);
+      }
+      trace.dataset.age = String(traces.length - i - 1);
+    });
     qMemoryTrace.classList.toggle("is-visible", traces.length > 0);
   }
 
