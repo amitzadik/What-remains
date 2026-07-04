@@ -1673,9 +1673,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-scene.is-ack-receding .cards-memory-ack {
-  opacity: 0.12;
-  filter: blur(4px);
-  transform: translate(-94%, -66%) scale(0.95);
+  opacity: 0.07;
+  filter: blur(5px);
+  transform: translate(-50%, -50%) scale(0.96);
 }
 
 .cards-scene.is-copy-visible.is-ack-receding .cards-memory-ack {
@@ -1683,7 +1683,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-memory-copy p {
-  margin: 0;
+  width: max-content;
+  max-width: min(900px, 84vw);
+  margin: 0 auto;
   min-height: 3.7em;
   font-family: var(--font-main);
   font-size: clamp(1.34rem, 2vw, 2.12rem);
@@ -2392,6 +2394,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-memory-trace .question-memory-trace__item[data-age="5"] { --trace-x: 34vw; --trace-y: 24vh; }
 #screen-questions .question-memory-trace__item[data-age="7"],
 .cards-memory-trace .question-memory-trace__item[data-age="6"] { --trace-x: 0vw; --trace-y: -29vh; }
+
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="6"] { --trace-x: -8vw; --trace-y: -30vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="5"] { --trace-x: 36vw; --trace-y: -18vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="4"] { --trace-x: -42vw; --trace-y: -10vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="3"] { --trace-x: 35vw; --trace-y: 16vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="4"][data-slot="2"] { --trace-x: -38vw; --trace-y: 28vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="5"][data-slot="1"] { --trace-x: 22vw; --trace-y: 34vh; }
+.cards-memory-trace .question-memory-trace__item[data-age="6"][data-slot="0"] { --trace-x: -10vw; --trace-y: 40vh; }
 
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
