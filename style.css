@@ -2022,6 +2022,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   white-space: normal;
 }
 
+.question-memory-trace__item--dissolving {
+  pointer-events: none;
+}
+
 .question-memory-trace__item[data-age="0"] { --trace-scale: 1.8; opacity: 0.3; filter: blur(9px); --drift-x: 7px; --drift-y: -6px; --wobble: 0.8deg; }
 .question-memory-trace__item[data-age="1"] { --trace-scale: 2; opacity: 0.24; filter: blur(13px); --drift-x: -8px; --drift-y: 7px; --wobble: 1deg; }
 .question-memory-trace__item[data-age="2"] { --trace-scale: 2.2; opacity: 0.19; filter: blur(17px); --drift-x: 9px; --drift-y: 8px; --wobble: 1.1deg; }
@@ -2038,80 +2042,119 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .question-memory-trace__item[data-slot="5"] { top: 38%; right: 48vw; left: -44vw; }
 .question-memory-trace__item[data-slot="6"] { top: 66%; right: -44vw; left: 52vw; }
 
-/* ============================================================
-   Questions-screen memory traces — ordered vertical stack, ID-scoped so
-   the cards screen's memory trace (shares .question-memory-trace__item)
-   keeps its original scattered layout and values untouched.
-============================================================ */
+#screen-questions .question-memory-trace {
+  --trace-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-/* Container: centered on the same horizontal axis as .qform-stage, at its
-   own width, instead of the cards screen's full-bleed scatter area. */
-#question-memory-trace {
+#screen-questions .question-memory-trace__item {
+  --trace-font-size: 1.11rem;
+  --trace-x: 0vw;
+  --trace-y: 0vh;
+  --trace-rotate: 0deg;
   left: 50%;
   right: auto;
-  width: min(90vw, calc(85vh * 1.5), 1500px);
-  transform: translateX(-50%);
+  top: 50%;
+  width: min(68vw, 760px);
+  font-size: var(--trace-font-size);
+  line-height: 1.16;
+  opacity: 0;
+  filter: blur(30px);
+  transform:
+    translate(calc(-50% + var(--trace-x)), calc(-50% + var(--trace-y)))
+    rotate(var(--trace-rotate));
+  transition:
+    opacity 1500ms var(--trace-ease),
+    filter 1500ms var(--trace-ease),
+    transform 1500ms var(--trace-ease),
+    top 1500ms var(--trace-ease),
+    left 1500ms var(--trace-ease),
+    width 1500ms var(--trace-ease),
+    font-size 1500ms var(--trace-ease);
 }
 
-/* Each trace is one full-width line, right-aligned like the active
-   question text, centered as a block, never cropped/rotated/scattered.
-   Position/scale/opacity/blur are transitioned (~1.5s) so aging one step
-   reads as slow recession, not a snap. Rotation is always 0deg; any
-   floating drift lives on the inner span (below, vertical-only) so it
-   composes with this outer transform instead of fighting over it. */
-#question-memory-trace .question-memory-trace__item {
-  left: 0;
-  right: 0;
-  font-size: clamp(1.05rem, 2.6vw, 1.9rem);
-  font-weight: 600;
-  white-space: nowrap;
-  transform: translateY(-50%) scale(var(--trace-scale));
-  rotate: 0deg;
-  transition: opacity 1.5s ease, filter 1.5s ease, transform 1.5s ease, top 1.5s ease;
-}
-#question-memory-trace .question-memory-trace__item-inner {
-  display: inline-block;
+#screen-questions .question-memory-trace__item[data-age="1"] {
+  --trace-font-size: 3.52rem;
+  opacity: 0.42;
+  filter: blur(4px);
 }
 
-/* Recency stack: most recent previous question closest to the active
-   form's top edge (largest, clearest); each older one a step higher,
-   smaller and further back — never bigger with age. */
-#question-memory-trace .question-memory-trace__item[data-age="0"] { top: 34%; opacity: 0.42; filter: blur(4px);  --trace-scale: 1.0; }
-#question-memory-trace .question-memory-trace__item[data-age="1"] { top: 25%; opacity: 0.34; filter: blur(8px);  --trace-scale: 0.92; }
-#question-memory-trace .question-memory-trace__item[data-age="2"] { top: 17%; opacity: 0.24; filter: blur(14px); --trace-scale: 0.84; }
-#question-memory-trace .question-memory-trace__item[data-age="3"] { top: 10%; opacity: 0.14; filter: blur(22px); --trace-scale: 0.76; }
-#question-memory-trace .question-memory-trace__item[data-age="4"] { top: 4%;  opacity: 0.06; filter: blur(30px); --trace-scale: 0.68; }
-#question-memory-trace .question-memory-trace__item[data-age="5"],
-#question-memory-trace .question-memory-trace__item[data-age="6"] { top: 0%; opacity: 0; filter: blur(30px); --trace-scale: 0.68; pointer-events: none; }
-
-/* Floating-drift timing stagger only — no rotation, no horizontal offset. */
-#question-memory-trace .question-memory-trace__item[data-slot="0"] { --drift-dur: 14s; --drift-delay: -2s; }
-#question-memory-trace .question-memory-trace__item[data-slot="1"] { --drift-dur: 18s; --drift-delay: -6s; }
-#question-memory-trace .question-memory-trace__item[data-slot="2"] { --drift-dur: 21s; --drift-delay: -9s; }
-#question-memory-trace .question-memory-trace__item[data-slot="3"] { --drift-dur: 16s; --drift-delay: -13s; }
-#question-memory-trace .question-memory-trace__item[data-slot="4"] { --drift-dur: 23s; --drift-delay: -4s; }
-#question-memory-trace .question-memory-trace__item[data-slot="5"] { --drift-dur: 19s; --drift-delay: -17s; }
-#question-memory-trace .question-memory-trace__item[data-slot="6"] { --drift-dur: 24s; --drift-delay: -11s; }
-
-/* Slow, subtle "memory breathing" — vertical translate ONLY, never
-   rotate and never a horizontal (X) offset, applied to the inner span so
-   it composes with the outer element's age-driven position/scale instead
-   of overwriting it. Active question form is untouched and never animates. */
-@keyframes questionTraceDrift {
-  from { translate: 0 0; }
-  to   { translate: 0 var(--drift-y, -8px); }
+#screen-questions .question-memory-trace__item[data-age="2"] {
+  --trace-font-size: 2.78rem;
+  opacity: 0.34;
+  filter: blur(8px);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  #question-memory-trace .question-memory-trace__item-inner {
-    animation: questionTraceDrift var(--drift-dur, 18s) ease-in-out infinite alternate;
-    animation-delay: var(--drift-delay, 0s);
-  }
+#screen-questions .question-memory-trace__item[data-age="3"] {
+  --trace-font-size: 2.22rem;
+  opacity: 0.24;
+  filter: blur(13px);
 }
 
-@media (max-width: 600px) {
-  #question-memory-trace .question-memory-trace__item { font-size: 0.8rem; }
+#screen-questions .question-memory-trace__item[data-age="4"] {
+  --trace-font-size: 1.76rem;
+  opacity: 0.15;
+  filter: blur(20px);
 }
+
+#screen-questions .question-memory-trace__item[data-age="5"] {
+  --trace-font-size: 1.39rem;
+  opacity: 0.07;
+  filter: blur(28px);
+}
+
+#screen-questions .question-memory-trace__item[data-age="6"],
+#screen-questions .question-memory-trace__item[data-dissolving="1"] {
+  --trace-font-size: 1.11rem;
+  opacity: 0;
+  filter: blur(30px);
+}
+
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"] { --trace-x: -4vw; --trace-y: -5vh; --trace-rotate: -0.4deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="1"] { --trace-x: 4vw; --trace-y: -4vh; --trace-rotate: 0.5deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="2"] { --trace-x: -5vw; --trace-y: 4vh; --trace-rotate: 0.3deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="3"] { --trace-x: 5vw; --trace-y: 5vh; --trace-rotate: -0.5deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="4"] { --trace-x: 0vw; --trace-y: -7vh; --trace-rotate: 0.2deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="5"] { --trace-x: -6vw; --trace-y: 0vh; --trace-rotate: -0.3deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="6"] { --trace-x: 6vw; --trace-y: 0vh; --trace-rotate: 0.4deg; }
+
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="0"] { --trace-x: -11vw; --trace-y: -11vh; --trace-rotate: -0.7deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="1"] { --trace-x: 11vw; --trace-y: -10vh; --trace-rotate: 0.8deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="2"] { --trace-x: -13vw; --trace-y: 9vh; --trace-rotate: 0.6deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="3"] { --trace-x: 13vw; --trace-y: 10vh; --trace-rotate: -0.8deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="4"] { --trace-x: 1vw; --trace-y: -16vh; --trace-rotate: 0.5deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="5"] { --trace-x: -16vw; --trace-y: -1vh; --trace-rotate: -0.6deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="6"] { --trace-x: 16vw; --trace-y: 1vh; --trace-rotate: 0.7deg; }
+
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="0"] { --trace-x: -18vw; --trace-y: -17vh; --trace-rotate: -1deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="1"] { --trace-x: 18vw; --trace-y: -15vh; --trace-rotate: 1.1deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="2"] { --trace-x: -22vw; --trace-y: 14vh; --trace-rotate: 0.9deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="3"] { --trace-x: 22vw; --trace-y: 16vh; --trace-rotate: -1.1deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="4"] { --trace-x: 2vw; --trace-y: -25vh; --trace-rotate: 0.7deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="5"] { --trace-x: -25vw; --trace-y: -2vh; --trace-rotate: -0.9deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="6"] { --trace-x: 25vw; --trace-y: 2vh; --trace-rotate: 1deg; }
+
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="0"] { --trace-x: -25vw; --trace-y: -23vh; --trace-rotate: -1.3deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="1"] { --trace-x: 25vw; --trace-y: -21vh; --trace-rotate: 1.4deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="2"] { --trace-x: -31vw; --trace-y: 19vh; --trace-rotate: 1.2deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="3"] { --trace-x: 31vw; --trace-y: 22vh; --trace-rotate: -1.4deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="4"] { --trace-x: 3vw; --trace-y: -33vh; --trace-rotate: 1deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="5"] { --trace-x: -34vw; --trace-y: -3vh; --trace-rotate: -1.2deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="6"] { --trace-x: 34vw; --trace-y: 3vh; --trace-rotate: 1.3deg; }
+
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="0"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="0"] { --trace-x: -32vw; --trace-y: -29vh; --trace-rotate: -1.7deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="1"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="1"] { --trace-x: 32vw; --trace-y: -27vh; --trace-rotate: 1.8deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="2"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="2"] { --trace-x: -39vw; --trace-y: 24vh; --trace-rotate: 1.5deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="3"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="3"] { --trace-x: 39vw; --trace-y: 28vh; --trace-rotate: -1.8deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="4"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="4"] { --trace-x: 4vw; --trace-y: -39vh; --trace-rotate: 1.4deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="5"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="5"] { --trace-x: -42vw; --trace-y: -4vh; --trace-rotate: -1.5deg; }
+#screen-questions .question-memory-trace__item[data-age="5"][data-slot="6"],
+#screen-questions .question-memory-trace__item[data-age="6"][data-slot="6"] { --trace-x: 42vw; --trace-y: 4vh; --trace-rotate: 1.6deg; }
 
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
@@ -2504,38 +2547,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-sheet--stacked .qform-actions { visibility: hidden; }
 .qform-sheet--stacked .register-head .img-btn { visibility: hidden; }
 .qform-sheet--stacked [contenteditable] { caret-color: transparent; }
-
-/* A finished question does not leave — it dissolves into the page: starts sharp
-   in the foreground (.is-fresh), then fades, blurs, enlarges slightly and drifts
-   back, as if absorbed into memory. --q-memory-dur must match Q_MEMORY_MS in JS. */
-.qform-sheet--memory {
-  --q-memory-dur: 1200ms;
-  pointer-events: none;
-  will-change: opacity, filter, transform;
-  /* memory (end) state */
-  opacity: 0.2;
-  filter: blur(15px);
-  transform: translate(var(--mem-x, 0), var(--mem-y, 0)) scale(1.15);
-}
-/* fresh (start) state — matches the live form exactly: sharp, foreground */
-.qform-sheet--memory.is-fresh {
-  opacity: 1;
-  filter: blur(0);
-  transform: translate(0, 0) scale(1);
-}
-.qform-sheet--memory .qform-actions { visibility: hidden; }
-.qform-sheet--memory .register-head .img-btn { visibility: hidden; }
-.qform-sheet--memory [contenteditable] { caret-color: transparent; }
-
-/* Animate the dissolve only when motion is allowed; reduced motion snaps to the
-   faded memory state without the heavy blur animation. */
-@media (prefers-reduced-motion: no-preference) {
-  .qform-sheet--memory {
-    transition: opacity var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1),
-                filter var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1),
-                transform var(--q-memory-dur) cubic-bezier(0.22, 1, 0.36, 1);
-  }
-}
 
 #screen-questions .qform-sheet {
   box-shadow: none;

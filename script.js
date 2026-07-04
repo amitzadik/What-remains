@@ -437,7 +437,7 @@
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
-    // The filled register card joins the pile; question 1 appears already sharp
+    // The filled register card joins the flow; question 1 appears stable.
     freezeRegisterCard();
     initQuestions();
   });
@@ -479,10 +479,10 @@
     btnNext.disabled = getAnswerText() === "";
   }
 
-  function renderQuestion() {
+  function renderQuestion(instantQuestionText) {
     const idx = state.currentQuestion;
     qNum.textContent  = (idx + 1) + "/" + questions.length;
-    typeQuestionText(questions[idx]);
+    typeQuestionText(questions[idx], instantQuestionText);
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
     btnNext.disabled = true;
@@ -493,20 +493,25 @@
   }
 
   function setQuestionMemoryTrace(items) {
-    // Fully-dissolved traces (age 5+) are removed from the DOM once their
+    // Fully-dissolved traces (age 6+) are removed from the DOM once their
     // 1.5s fade-out transition ends — questions screen only.
-    setMemoryTraceItems(qMemoryTrace, items, { dissolveAtAge: 5 });
+    setMemoryTraceItems(qMemoryTrace, items, { dissolveAtAge: 6 });
   }
 
   function setMemoryTraceItems(container, items, options) {
     if (!container) return;
     const dissolveAtAge = options && options.dissolveAtAge;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
+    const isQuestionTrace = container === qMemoryTrace;
     if (!traces.length) {
       container.innerHTML = "";
       container.classList.remove("is-visible");
       return;
     }
+    container.querySelectorAll(".question-memory-trace__item").forEach(trace => {
+      const i = Number(trace.dataset.questionIndex);
+      if (!Number.isFinite(i) || i >= traces.length) trace.remove();
+    });
     traces.forEach((text, i) => {
       let trace = container.querySelector('[data-question-index="' + i + '"]');
       if (!trace) {
@@ -521,9 +526,9 @@
       }
       const inner = trace.querySelector(".question-memory-trace__item-inner");
       if (inner) inner.textContent = text;
-      const age = traces.length - i - 1;
+      const age = isQuestionTrace ? traces.length - i : traces.length - i - 1;
       trace.dataset.age = String(age);
-      if (dissolveAtAge != null && age >= dissolveAtAge && !trace.dataset.dissolving) {
+      if (isQuestionTrace && dissolveAtAge != null && age >= dissolveAtAge && !trace.dataset.dissolving) {
         trace.dataset.dissolving = "1";
         trace.addEventListener("transitionend", function onDissolved(e) {
           if (e.propertyName === "opacity") {
@@ -531,6 +536,8 @@
             trace.remove();
           }
         });
+      } else {
+        trace.removeAttribute("data-dissolving");
       }
     });
     container.classList.toggle("is-visible", traces.length > 0);
@@ -539,7 +546,7 @@
   let questionTypewriterRun = 0;
   let activeQuestionText = "";
 
-  function typeQuestionText(text) {
+  function typeQuestionText(text, instant) {
     activeQuestionText = text || "";
     questionTypewriterRun += 1;
     const run = questionTypewriterRun;
@@ -547,8 +554,9 @@
     if (!qText) return;
     qText.textContent = "";
 
-    if (reduceMotion) {
+    if (reduceMotion || instant) {
       qText.textContent = activeQuestionText;
+      qText.classList.remove("is-typing");
       return;
     }
 
@@ -626,27 +634,6 @@
     if (stage) stage.classList.remove("qform-stage--register");
   }
 
-  // Drop the live question form in from above, landing on the pile
-  function dropInLiveForm(onDone) {
-    const stage = questionStage();
-    const liveSheet = stage && stage.querySelector(".qform-sheet--active");
-    const liveForm = liveSheet && liveSheet.querySelector(".qform");
-    if (!liveForm) {
-      if (onDone) onDone();
-      return;
-    }
-    liveForm.style.transition = "none";
-    liveForm.style.transform = "translateY(-100%)";
-    void liveForm.offsetWidth; // commit the jump
-    liveForm.style.transition = "transform 300ms ease-in";
-    liveForm.style.transform = "translateY(0)";
-    setTimeout(() => {
-      liveForm.style.transition = "";
-      liveForm.style.transform = "";
-      if (onDone) onDone();
-    }, 320);
-  }
-
   function initQuestions() {
     qDate.textContent = state.date;
     qName.textContent = state.name;
@@ -654,76 +641,94 @@
   }
 
   function handleAnswer(isDontKnow) {
+    if (isQuestionTransitioning) return;
     const finishingIndex = state.currentQuestion;
     finishQuestionTypewriter();
     state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
+    const memoryItems = questions.slice(0, state.currentQuestion);
     if (state.currentQuestion >= questions.length) {
-      initCards();
-      showScreen("cards");
+      animateNextQuestion(finishingIndex, memoryItems, () => {
+        initCards();
+        showScreen("cards");
+      });
       return;
     }
-    setQuestionMemoryTrace(questions.slice(0, state.currentQuestion));
-    animateNextQuestion(finishingIndex, () => renderQuestion());
+    animateNextQuestion(finishingIndex, memoryItems, () => renderQuestion(true));
   }
 
   // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
   const STACK_ANGLES = [-2.6, 2.1, -1.5, 2.8, -1.9, 1.2];
 
-  // Question transition. A question does not leave the screen — it becomes a
-  // memory: the finishing question is cloned as a trace that starts sharp in
-  // the foreground, then fades, blurs, enlarges slightly and drifts back into
-  // the page, as if absorbed into an archive of remembrance. The next question
-  // is simply already there, sharp and stable — no entering card, no slide.
+  // Question transition. The finished prompt dissolves into the memory field;
+  // the live form stays still and the next prompt appears sharp.
   let isQuestionTransitioning = false;
-  const Q_MEMORY_MS = 1200;
-  function animateNextQuestion(finishingIndex, advanceCallback) {
-    const stage = document.querySelector("#screen-questions .qform-stage");
-    const liveSheet = stage && stage.querySelector(".qform-sheet--active");
-    const liveForm = liveSheet && liveSheet.querySelector(".qform");
-    if (!stage || !liveSheet || !liveForm || isQuestionTransitioning) {
+  function animateNextQuestion(finishingIndex, memoryItems, advanceCallback) {
+    if (!qMemoryTrace || !qText || isQuestionTransitioning) {
       advanceCallback();
       return;
     }
     isQuestionTransitioning = true;
 
-    const angle = STACK_ANGLES[finishingIndex % STACK_ANGLES.length];
-
-    // Clone the finishing question as a memory trace, starting exactly where
-    // the live form is (sharp, foreground) via .is-fresh.
-    const memory = document.createElement("div");
-    memory.className = "qform-sheet qform-sheet--memory is-fresh";
-    memory.style.zIndex = "200";   // above the live sheet while dissolving
-    memory.style.setProperty("--mem-x", (Math.sign(angle) * (10 + finishingIndex * 5)) + "px");
-    memory.style.setProperty("--mem-y", ((finishingIndex * 7) - 18) + "px");
-
-    const formClone = liveForm.cloneNode(true);
-    formClone.removeAttribute("id");
-    formClone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    formClone.querySelectorAll("[contenteditable]").forEach(el => {
-      el.setAttribute("contenteditable", "false");
-    });
-    // Show "לא יודע/ת" on the trace when the question was skipped
-    if (state.dontKnow[finishingIndex]) {
-      const firstLine = formClone.querySelector(".qform-answer-row .line__text");
-      if (firstLine) firstLine.textContent = "לא יודע/ת";
-    }
-    memory.appendChild(formClone);
-    stage.appendChild(memory);
-
-    // The next question is already sharp beneath the dissolving trace.
-    advanceCallback();
-
-    // Kick off the dissolve: fresh (sharp, foreground) -> memory trace.
-    void memory.offsetWidth;
-    memory.classList.remove("is-fresh");
-
-    // Once absorbed, settle the trace into the background memory layer.
-    window.setTimeout(() => {
-      memory.style.zIndex = String(10 + finishingIndex);
+    if (reduceMotion) {
+      setQuestionMemoryTrace(memoryItems);
+      advanceCallback();
       isQuestionTransitioning = false;
-    }, Q_MEMORY_MS + 100);
+      return;
+    }
+
+    qMemoryTrace.classList.add("is-visible");
+    qMemoryTrace.querySelectorAll(".question-memory-trace__item").forEach(trace => {
+      const i = Number(trace.dataset.questionIndex);
+      if (Number.isFinite(i) && i < memoryItems.length) trace.dataset.age = String(memoryItems.length - i);
+    });
+
+    const screenRect = screens.questions.getBoundingClientRect();
+    const sourceRect = qText.getBoundingClientRect();
+    const sourceStyle = getComputedStyle(qText);
+    const dissolvingTrace = document.createElement("span");
+    dissolvingTrace.className = "question-memory-trace__item question-memory-trace__item--dissolving";
+    dissolvingTrace.dataset.questionIndex = String(finishingIndex);
+    dissolvingTrace.dataset.slot = String(finishingIndex % 7);
+    dissolvingTrace.dataset.age = "1";
+    dissolvingTrace.textContent = questions[finishingIndex] || "";
+    dissolvingTrace.style.left = (sourceRect.left - screenRect.left) + "px";
+    dissolvingTrace.style.right = "auto";
+    dissolvingTrace.style.top = (sourceRect.top - screenRect.top) + "px";
+    dissolvingTrace.style.width = sourceRect.width + "px";
+    dissolvingTrace.style.transform = "translateY(0) scale(1)";
+    dissolvingTrace.style.fontSize = sourceStyle.fontSize;
+    dissolvingTrace.style.lineHeight = sourceStyle.lineHeight;
+    dissolvingTrace.style.fontWeight = sourceStyle.fontWeight;
+    dissolvingTrace.style.filter = "blur(0)";
+    dissolvingTrace.style.opacity = "1";
+    dissolvingTrace.style.zIndex = "6";
+    screens.questions.appendChild(dissolvingTrace);
+
+    requestAnimationFrame(() => {
+      dissolvingTrace.style.left = "";
+      dissolvingTrace.style.right = "";
+      dissolvingTrace.style.top = "";
+      dissolvingTrace.style.width = "";
+      dissolvingTrace.style.transform = "";
+      dissolvingTrace.style.fontSize = "";
+      dissolvingTrace.style.lineHeight = "";
+      dissolvingTrace.style.fontWeight = "";
+      dissolvingTrace.style.filter = "";
+      dissolvingTrace.style.opacity = "";
+    });
+
+    window.setTimeout(() => {
+      advanceCallback();
+      dissolvingTrace.style.zIndex = "0";
+    }, 260);
+
+    window.setTimeout(() => {
+      dissolvingTrace.remove();
+      setQuestionMemoryTrace(memoryItems);
+      isQuestionTransitioning = false;
+    }, 1180);
   }
 
   // No JS scaling — the stage is sized responsively in CSS.
