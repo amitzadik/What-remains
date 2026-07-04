@@ -2038,47 +2038,79 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .question-memory-trace__item[data-slot="5"] { top: 38%; right: 48vw; left: -44vw; }
 .question-memory-trace__item[data-slot="6"] { top: 66%; right: -44vw; left: 52vw; }
 
-/* Rotation + drift stagger — scoped to the questions screen only, so the
-   cards screen's memory trace (shares .question-memory-trace__item) is
-   unaffected: it keeps the default --trace-rot: 0deg with no drift vars. */
-#question-memory-trace .question-memory-trace__item[data-slot="0"] { --trace-rot: -4deg; --drift-dur: 14s; --drift-delay: -2s; --recede-ydir: 1;  --recede-xdir: -1; }
-#question-memory-trace .question-memory-trace__item[data-slot="1"] { --trace-rot: 5deg;  --drift-dur: 18s; --drift-delay: -6s; --recede-ydir: 1;  --recede-xdir: 1; }
-#question-memory-trace .question-memory-trace__item[data-slot="2"] { --trace-rot: -3deg; --drift-dur: 21s; --drift-delay: -9s; --recede-ydir: 0;  --recede-xdir: -1; }
-#question-memory-trace .question-memory-trace__item[data-slot="3"] { --trace-rot: 6deg;  --drift-dur: 16s; --drift-delay: -13s; --recede-ydir: -1; --recede-xdir: 1; }
-#question-memory-trace .question-memory-trace__item[data-slot="4"] { --trace-rot: -5deg; --drift-dur: 23s; --drift-delay: -4s; --recede-ydir: -1; --recede-xdir: -1; }
-#question-memory-trace .question-memory-trace__item[data-slot="5"] { --trace-rot: 2deg;  --drift-dur: 19s; --drift-delay: -17s; --recede-ydir: 1;  --recede-xdir: 1; }
-#question-memory-trace .question-memory-trace__item[data-slot="6"] { --trace-rot: -6deg; --drift-dur: 24s; --drift-delay: -11s; --recede-ydir: -1; --recede-xdir: -1; }
-
-/* Recession by age — smaller, blurrier, fainter and pulled slightly toward
-   the vertical center / screen edges the longer a trace has been in the
-   background. Gentle steps so traces stay legible for longer. ID-scoped so
+/* ============================================================
+   Questions-screen memory traces — ordered vertical stack, ID-scoped so
    the cards screen's memory trace (shares .question-memory-trace__item)
-   keeps its original untouched values. */
-#question-memory-trace .question-memory-trace__item {
-  transform: translateY(calc(-50% + (var(--recede-y-mag, 0px) * var(--recede-ydir, 0))))
-             translateX(calc(var(--recede-x-mag, 0px) * var(--recede-xdir, 0)))
-             scale(var(--trace-scale));
+   keeps its original scattered layout and values untouched.
+============================================================ */
+
+/* Container: centered on the same horizontal axis as .qform-stage, at its
+   own width, instead of the cards screen's full-bleed scatter area. */
+#question-memory-trace {
+  left: 50%;
+  right: auto;
+  width: min(90vw, calc(85vh * 1.5), 1500px);
+  transform: translateX(-50%);
 }
-#question-memory-trace .question-memory-trace__item[data-age="0"] { opacity: 0.42; filter: blur(4px);  --trace-scale: 1.0;  --recede-y-mag: 0px;  --recede-x-mag: 0px; }
-#question-memory-trace .question-memory-trace__item[data-age="1"] { opacity: 0.36; filter: blur(7px);  --trace-scale: 0.94; --recede-y-mag: 5px;  --recede-x-mag: 8px; }
-#question-memory-trace .question-memory-trace__item[data-age="2"] { opacity: 0.30; filter: blur(11px); --trace-scale: 0.88; --recede-y-mag: 10px; --recede-x-mag: 16px; }
-#question-memory-trace .question-memory-trace__item[data-age="3"] { opacity: 0.24; filter: blur(15px); --trace-scale: 0.82; --recede-y-mag: 15px; --recede-x-mag: 24px; }
-#question-memory-trace .question-memory-trace__item[data-age="4"] { opacity: 0.18; filter: blur(20px); --trace-scale: 0.76; --recede-y-mag: 20px; --recede-x-mag: 32px; }
+
+/* Each trace is one full-width line, right-aligned like the active
+   question text, centered as a block, never cropped/rotated at random.
+   Position/scale/opacity/blur are transitioned (~1.5s) so aging one step
+   reads as slow recession, not a snap. The tiny base rotation (<=1deg) and
+   any floating drift live on the inner span (below) so they compose with
+   this outer transform instead of fighting over the same property. */
+#question-memory-trace .question-memory-trace__item {
+  left: 0;
+  right: 0;
+  font-size: clamp(1.05rem, 2.6vw, 1.9rem);
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translateY(-50%) scale(var(--trace-scale));
+  rotate: 0deg;
+  transition: opacity 1.5s ease, filter 1.5s ease, transform 1.5s ease, top 1.5s ease;
+}
+#question-memory-trace .question-memory-trace__item-inner {
+  display: inline-block;
+}
+
+/* Recency stack: most recent previous question closest to the active
+   form's top edge (largest, clearest); each older one a step higher,
+   smaller and further back — never bigger with age. */
+#question-memory-trace .question-memory-trace__item[data-age="0"] { top: 34%; opacity: 0.42; filter: blur(4px);  --trace-scale: 1.0; }
+#question-memory-trace .question-memory-trace__item[data-age="1"] { top: 25%; opacity: 0.34; filter: blur(8px);  --trace-scale: 0.92; }
+#question-memory-trace .question-memory-trace__item[data-age="2"] { top: 17%; opacity: 0.24; filter: blur(14px); --trace-scale: 0.84; }
+#question-memory-trace .question-memory-trace__item[data-age="3"] { top: 10%; opacity: 0.14; filter: blur(22px); --trace-scale: 0.76; }
+#question-memory-trace .question-memory-trace__item[data-age="4"] { top: 4%;  opacity: 0.06; filter: blur(30px); --trace-scale: 0.68; }
 #question-memory-trace .question-memory-trace__item[data-age="5"],
-#question-memory-trace .question-memory-trace__item[data-age="6"] { opacity: 0.13; filter: blur(26px); --trace-scale: 0.70; --recede-y-mag: 26px; --recede-x-mag: 40px; }
+#question-memory-trace .question-memory-trace__item[data-age="6"] { top: 0%; opacity: 0; filter: blur(30px); --trace-scale: 0.68; pointer-events: none; }
+
+/* Barely-there per-trace rotation (<=1deg) and floating-drift stagger. */
+#question-memory-trace .question-memory-trace__item[data-slot="0"] { --trace-rot: -0.6deg; --drift-dur: 14s; --drift-delay: -2s; }
+#question-memory-trace .question-memory-trace__item[data-slot="1"] { --trace-rot: 0.8deg;  --drift-dur: 18s; --drift-delay: -6s; }
+#question-memory-trace .question-memory-trace__item[data-slot="2"] { --trace-rot: -0.5deg; --drift-dur: 21s; --drift-delay: -9s; }
+#question-memory-trace .question-memory-trace__item[data-slot="3"] { --trace-rot: 1deg;    --drift-dur: 16s; --drift-delay: -13s; }
+#question-memory-trace .question-memory-trace__item[data-slot="4"] { --trace-rot: -0.8deg; --drift-dur: 23s; --drift-delay: -4s; }
+#question-memory-trace .question-memory-trace__item[data-slot="5"] { --trace-rot: 0.4deg;  --drift-dur: 19s; --drift-delay: -17s; }
+#question-memory-trace .question-memory-trace__item[data-slot="6"] { --trace-rot: -1deg;   --drift-dur: 24s; --drift-delay: -11s; }
 
 /* Slow, subtle "memory breathing" drift — transform only (translate/rotate),
-   never blur/opacity. Active question form is untouched and never animates. */
+   never blur/opacity — applied to the inner span so it composes with the
+   outer element's age-driven position/scale instead of overwriting it.
+   Active question form is untouched and never animates. */
 @keyframes questionTraceDrift {
   from { translate: 0 0; rotate: var(--trace-rot, 0deg); }
   to   { translate: var(--drift-x, 8px) var(--drift-y, -8px); rotate: calc(var(--trace-rot, 0deg) + var(--wobble, 1deg)); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  #question-memory-trace .question-memory-trace__item {
+  #question-memory-trace .question-memory-trace__item-inner {
     animation: questionTraceDrift var(--drift-dur, 18s) ease-in-out infinite alternate;
     animation-delay: var(--drift-delay, 0s);
   }
+}
+
+@media (max-width: 600px) {
+  #question-memory-trace .question-memory-trace__item { font-size: 0.8rem; }
 }
 
 /* ============================================================

@@ -493,11 +493,14 @@
   }
 
   function setQuestionMemoryTrace(items) {
-    setMemoryTraceItems(qMemoryTrace, items);
+    // Fully-dissolved traces (age 5+) are removed from the DOM once their
+    // 1.5s fade-out transition ends — questions screen only.
+    setMemoryTraceItems(qMemoryTrace, items, { dissolveAtAge: 5 });
   }
 
-  function setMemoryTraceItems(container, items) {
+  function setMemoryTraceItems(container, items, options) {
     if (!container) return;
+    const dissolveAtAge = options && options.dissolveAtAge;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
     if (!traces.length) {
       container.innerHTML = "";
@@ -511,11 +514,24 @@
         trace.className = "question-memory-trace__item";
         trace.dataset.questionIndex = String(i);
         trace.dataset.slot = String(i % 7);
-        trace.textContent = text;
+        const inner = document.createElement("span");
+        inner.className = "question-memory-trace__item-inner";
+        trace.appendChild(inner);
         container.appendChild(trace);
       }
-      trace.textContent = text;
-      trace.dataset.age = String(traces.length - i - 1);
+      const inner = trace.querySelector(".question-memory-trace__item-inner");
+      if (inner) inner.textContent = text;
+      const age = traces.length - i - 1;
+      trace.dataset.age = String(age);
+      if (dissolveAtAge != null && age >= dissolveAtAge && !trace.dataset.dissolving) {
+        trace.dataset.dissolving = "1";
+        trace.addEventListener("transitionend", function onDissolved(e) {
+          if (e.propertyName === "opacity") {
+            trace.removeEventListener("transitionend", onDissolved);
+            trace.remove();
+          }
+        });
+      }
     });
     container.classList.toggle("is-visible", traces.length > 0);
   }
