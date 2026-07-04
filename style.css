@@ -2060,11 +2060,30 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-legacy .qform {
+  position: relative;
   opacity: 1;
-  background-color: rgba(244, 239, 229, 0.7);
+  background: transparent;
+}
+
+#screen-legacy .qform::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #F4EFE5;
   background-image:
-    linear-gradient(rgba(244, 239, 229, 0.24), rgba(244, 239, 229, 0.24)),
+    linear-gradient(rgba(244, 239, 229, 0.18), rgba(244, 239, 229, 0.18)),
     var(--paper-tex);
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+#screen-legacy .qform-grid,
+#screen-legacy .qform-actions {
+  position: relative;
+  z-index: 1;
 }
 
 #screen-legacy .qform-grid {
