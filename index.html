@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body dir="rtl">
 
@@ -254,22 +254,28 @@
 
   <!-- ============== SCREEN: CAMERA (depositor photo) ============== -->
   <section id="screen-camera" class="screen">
+    <div class="question-memory-trace camera-memory-trace" id="camera-memory-trace" aria-hidden="true"></div>
     <div class="camera-memory">
-      <div class="camera-memory-title">תמונה לאלבום הזיכרון</div>
       <div class="camera-center">
-        <div class="camera-print">
-          <div class="camera-area">
-            <video id="camera-video" autoplay playsinline muted></video>
-            <canvas id="camera-canvas" hidden></canvas>
-            <img id="camera-photo" hidden alt="">
-            <div id="camera-msg" class="camera-msg" hidden></div>
+        <div class="camera-stack">
+          <span class="camera-layer camera-layer--back" aria-hidden="true"></span>
+          <span class="camera-layer camera-layer--mid" aria-hidden="true"></span>
+          <div class="camera-print">
+            <div class="camera-area">
+              <video id="camera-video" autoplay playsinline muted></video>
+              <canvas id="camera-canvas" hidden></canvas>
+              <img id="camera-photo" hidden alt="">
+              <div id="camera-msg" class="camera-msg" hidden></div>
+            </div>
           </div>
         </div>
         <div class="camera-actions">
-          <button id="camera-shutter" type="button" class="camera-action">לצלם</button>
-          <button id="btn-camera-next" type="button" class="camera-action camera-action--primary">להמשיך</button>
+          <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
         </div>
       </div>
+      <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+        <img src="images/next-default.png" width="105" height="105" alt="">
+      </button>
     </div>
   </section>
 
