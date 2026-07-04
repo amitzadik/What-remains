@@ -2717,6 +2717,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .qform {
+  --qform-label-inset-y: 0.5rem;
+  --qform-label-inset-x: 12px;
   width: 100%;
   height: 100%;
   background-color: var(--cream);
@@ -2762,15 +2764,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* === Row 1: header === */
 .qform-header { padding: 0; }
 .qform-header .qform-cell {
+  position: relative;
   flex: 1;
   height: 100%;
   border-left: 1px solid var(--ink);
   /* 12px reading-side inset — text never touches the dividing line */
-  padding: 0.5rem 12px 0.5rem 0;
+  padding: 1.45rem var(--qform-label-inset-x) 0.5rem 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.2rem;
   text-align: right;
   min-width: 0;
 }
@@ -2785,6 +2787,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-weight: 400;
   color: var(--metal);
   letter-spacing: 0.02em;
+}
+.qform-header .qform-label {
+  position: absolute;
+  top: var(--qform-label-inset-y);
+  right: var(--qform-label-inset-x);
+  margin: 0;
 }
 .qform-value {
   display: block;
@@ -2813,8 +2821,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* "שאלה" label pinned to the top of its row — adds no height */
 .qform-question-row .qform-label {
   position: absolute;
-  top: 0.5rem;
-  right: 12px;
+  top: var(--qform-label-inset-y);
+  right: var(--qform-label-inset-x);
   text-align: right;
 }
 .qform-question-text {
@@ -2839,8 +2847,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* "תשובה" label pinned to the top of the first line — adds no height */
 .answer-line .qform-label {
   position: absolute;
-  top: 0.5rem;
-  right: 12px;
+  top: var(--qform-label-inset-y);
+  right: var(--qform-label-inset-x);
   margin: 0;
 }
 
