@@ -1628,7 +1628,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-memory-copy {
   position: relative;
   z-index: 2;
-  width: min(760px, 82vw);
+  width: min(1080px, 88vw);
   text-align: right;
   direction: rtl;
   color: var(--ink);
@@ -1682,10 +1682,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .cards-memory-copy p {
   margin: 0;
-  min-height: 5.2em;
+  min-height: 3.7em;
   font-family: var(--font-main);
-  font-size: clamp(1.36rem, 2.25vw, 2.28rem);
-  line-height: 1.72;
+  font-size: clamp(1.34rem, 2vw, 2.12rem);
+  line-height: 1.62;
   font-weight: 500;
   opacity: 1;
   white-space: pre-line;
@@ -1704,8 +1704,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .cards-blank-continue {
   position: absolute;
-  left: 0;
-  bottom: clamp(-86px, -8vh, -58px);
+  left: clamp(-88px, -7vw, -42px);
+  bottom: clamp(-148px, -13vh, -104px);
   z-index: 3;
   border: none;
   background: none;
@@ -2340,6 +2340,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-questions .question-memory-trace__item,
 .cards-memory-trace .question-memory-trace__item {
   width: min(66vw, 820px);
+  white-space: nowrap;
+}
+
+#screen-questions .question-memory-trace__item-inner,
+.cards-memory-trace .question-memory-trace__item-inner {
+  white-space: nowrap;
 }
 
 #screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"],
