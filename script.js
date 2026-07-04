@@ -493,14 +493,11 @@
   }
 
   function setQuestionMemoryTrace(items) {
-    // Fully-dissolved traces (age 6+) are removed from the DOM once their
-    // 1.5s fade-out transition ends — questions screen only.
-    setMemoryTraceItems(qMemoryTrace, items, { dissolveAtAge: 6 });
+    setMemoryTraceItems(qMemoryTrace, items);
   }
 
   function setMemoryTraceItems(container, items, options) {
     if (!container) return;
-    const dissolveAtAge = options && options.dissolveAtAge;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
     const isQuestionTrace = container === qMemoryTrace;
     if (!traces.length) {
@@ -528,17 +525,7 @@
       if (inner) inner.textContent = text;
       const age = isQuestionTrace ? traces.length - i : traces.length - i - 1;
       trace.dataset.age = String(age);
-      if (isQuestionTrace && dissolveAtAge != null && age >= dissolveAtAge && !trace.dataset.dissolving) {
-        trace.dataset.dissolving = "1";
-        trace.addEventListener("transitionend", function onDissolved(e) {
-          if (e.propertyName === "opacity") {
-            trace.removeEventListener("transitionend", onDissolved);
-            trace.remove();
-          }
-        });
-      } else {
-        trace.removeAttribute("data-dissolving");
-      }
+      trace.removeAttribute("data-dissolving");
     });
     container.classList.toggle("is-visible", traces.length > 0);
   }
@@ -937,13 +924,13 @@
     window.setTimeout(() => {
       if (run !== cardsCopyRun) return;
       cardsScene.classList.add("is-ack-receding");
-    }, 1500);
+    }, 2200);
 
     window.setTimeout(() => {
       if (run !== cardsCopyRun) return;
       cardsScene.classList.add("is-copy-visible");
       typeBlankCopy();
-    }, 2250);
+    }, 3100);
   }
 
   function cardsTypeSpeed() {

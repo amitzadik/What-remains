@@ -67,6 +67,14 @@
 
 * { box-sizing: border-box; }
 
+p,
+.qform-question-text,
+.question-memory-trace__item,
+.cards-memory-ack,
+.cards-memory-copy p {
+  text-wrap: balance;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -1664,8 +1672,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .cards-scene.is-ack-receding .cards-memory-ack {
   opacity: 0.16;
-  filter: blur(8px);
-  transform: translate(-50%, -54%) scale(0.92);
+  filter: blur(4px);
+  transform: translate(-50%, -53%) scale(0.96);
+}
+
+.cards-scene.is-copy-visible.is-ack-receding .cards-memory-ack {
+  z-index: 1;
 }
 
 .cards-memory-copy p {
@@ -2153,40 +2165,40 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-questions .question-memory-trace__item[data-age="1"] {
-  --trace-font-size: 3.52rem;
-  opacity: 0.42;
-  filter: blur(4px);
+  --trace-font-size: 2.85rem;
+  opacity: 0.22;
+  filter: blur(2px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="2"] {
-  --trace-font-size: 2.78rem;
-  opacity: 0.34;
-  filter: blur(8px);
+  --trace-font-size: 2.52rem;
+  opacity: 0.2;
+  filter: blur(2.4px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="3"] {
-  --trace-font-size: 2.22rem;
-  opacity: 0.24;
-  filter: blur(13px);
+  --trace-font-size: 2.2rem;
+  opacity: 0.18;
+  filter: blur(2.8px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="4"] {
-  --trace-font-size: 1.76rem;
+  --trace-font-size: 1.92rem;
   opacity: 0.15;
-  filter: blur(20px);
+  filter: blur(3.2px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="5"] {
-  --trace-font-size: 1.39rem;
-  opacity: 0.07;
-  filter: blur(28px);
+  --trace-font-size: 1.68rem;
+  opacity: 0.12;
+  filter: blur(3.6px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="6"],
-#screen-questions .question-memory-trace__item[data-dissolving="1"] {
-  --trace-font-size: 1.11rem;
-  opacity: 0;
-  filter: blur(30px);
+#screen-questions .question-memory-trace__item[data-age="7"] {
+  --trace-font-size: 1.5rem;
+  opacity: 0.08;
+  filter: blur(4px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"] { --trace-x: -4vw; --trace-y: -5vh; --trace-rotate: -0.4deg; }
@@ -2235,6 +2247,82 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-questions .question-memory-trace__item[data-age="6"][data-slot="5"] { --trace-x: -42vw; --trace-y: -4vh; --trace-rotate: -1.5deg; }
 #screen-questions .question-memory-trace__item[data-age="5"][data-slot="6"],
 #screen-questions .question-memory-trace__item[data-age="6"][data-slot="6"] { --trace-x: 42vw; --trace-y: 4vh; --trace-rotate: 1.6deg; }
+
+#screen-questions .question-memory-trace__item,
+.cards-memory-trace .question-memory-trace__item {
+  width: min(58vw, 720px);
+  padding: clamp(10px, 1.5vw, 18px) clamp(14px, 2vw, 24px);
+  background:
+    linear-gradient(rgba(250, 246, 238, 0.18), rgba(250, 246, 238, 0.18)),
+    var(--paper-tex);
+  background-size: cover;
+  border: 1px solid rgba(61, 54, 40, 0.12);
+  border-radius: 3px;
+}
+
+.cards-memory-trace .question-memory-trace__item {
+  left: 50%;
+  right: auto;
+  top: 50%;
+  font-size: clamp(1.22rem, 2.2vw, 2.05rem);
+  line-height: 1.18;
+  filter: blur(3px);
+  opacity: 0.14;
+  transform:
+    translate(calc(-50% + var(--trace-x, 0vw)), calc(-50% + var(--trace-y, 0vh)))
+    rotate(var(--trace-rotate, 0deg));
+}
+
+.cards-memory-trace .question-memory-trace__item[data-age="0"] { opacity: 0.22; filter: blur(2px); }
+.cards-memory-trace .question-memory-trace__item[data-age="1"] { opacity: 0.2; filter: blur(2.2px); }
+.cards-memory-trace .question-memory-trace__item[data-age="2"] { opacity: 0.18; filter: blur(2.5px); }
+.cards-memory-trace .question-memory-trace__item[data-age="3"] { opacity: 0.15; filter: blur(3px); }
+.cards-memory-trace .question-memory-trace__item[data-age="4"] { opacity: 0.12; filter: blur(3.5px); }
+.cards-memory-trace .question-memory-trace__item[data-age="5"],
+.cards-memory-trace .question-memory-trace__item[data-age="6"] { opacity: 0.08; filter: blur(4px); }
+
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="6"] { --trace-x: -3vw; --trace-y: -4vh; --trace-rotate: -0.6deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="0"] { --trace-x: 3vw; --trace-y: -3vh; --trace-rotate: 0.5deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="1"] { --trace-x: -3vw; --trace-y: 3vh; --trace-rotate: 0.4deg; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="2"] { --trace-x: 3vw; --trace-y: 4vh; --trace-rotate: -0.5deg; }
+
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="0"] { --trace-x: -7vw; --trace-y: -7vh; --trace-rotate: -0.9deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="1"] { --trace-x: 7vw; --trace-y: -6vh; --trace-rotate: 0.8deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="2"] { --trace-x: -8vw; --trace-y: 6vh; --trace-rotate: 0.7deg; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="3"] { --trace-x: 8vw; --trace-y: 7vh; --trace-rotate: -0.8deg; }
+
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="0"] { --trace-x: -11vw; --trace-y: -10vh; --trace-rotate: -1.1deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="1"] { --trace-x: 11vw; --trace-y: -9vh; --trace-rotate: 1deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="2"] { --trace-x: -13vw; --trace-y: 9vh; --trace-rotate: 0.9deg; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="3"] { --trace-x: 13vw; --trace-y: 10vh; --trace-rotate: -1deg; }
+
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="0"] { --trace-x: -15vw; --trace-y: -13vh; --trace-rotate: -1.3deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="1"] { --trace-x: 15vw; --trace-y: -12vh; --trace-rotate: 1.2deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="2"] { --trace-x: -17vw; --trace-y: 12vh; --trace-rotate: 1.1deg; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="3"] { --trace-x: 17vw; --trace-y: 13vh; --trace-rotate: -1.2deg; }
+
+#screen-questions .question-memory-trace__item[data-age="5"],
+.cards-memory-trace .question-memory-trace__item[data-age="4"] { --trace-x: -19vw; --trace-y: -15vh; --trace-rotate: 1.5deg; }
+#screen-questions .question-memory-trace__item[data-age="6"],
+.cards-memory-trace .question-memory-trace__item[data-age="5"] { --trace-x: 19vw; --trace-y: 15vh; --trace-rotate: -1.6deg; }
+#screen-questions .question-memory-trace__item[data-age="7"],
+.cards-memory-trace .question-memory-trace__item[data-age="6"] { --trace-x: 0vw; --trace-y: -18vh; --trace-rotate: 1.8deg; }
 
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
