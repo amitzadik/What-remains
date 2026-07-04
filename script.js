@@ -909,7 +909,9 @@
   let cardsCopyRun = 0;
 
   function initCards() {
-    if (cardsScene) cardsScene.classList.remove("is-typing", "is-copy-done");
+    if (cardsScene) {
+      cardsScene.classList.remove("is-typing", "is-copy-done", "is-ack-visible", "is-ack-receding", "is-copy-visible");
+    }
     if (btnBeginLeaving) btnBeginLeaving.disabled = true;
     if (cardsBlankType) cardsBlankType.textContent = "";
     cardsCopyRun += 1;
@@ -917,7 +919,31 @@
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
     if (cardsStamp) cardsStamp.src = "images/stamp" + answeredCount + ".png";
-    window.setTimeout(typeBlankCopy, reduceMotion ? 0 : 250);
+    window.setTimeout(runCardsAcknowledgement, reduceMotion ? 0 : 180);
+  }
+
+  function runCardsAcknowledgement() {
+    if (!cardsScene) return;
+    cardsCopyRun += 1;
+    const run = cardsCopyRun;
+    cardsScene.classList.add("is-ack-visible");
+
+    if (reduceMotion) {
+      cardsScene.classList.add("is-ack-receding", "is-copy-visible");
+      typeBlankCopy();
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (run !== cardsCopyRun) return;
+      cardsScene.classList.add("is-ack-receding");
+    }, 1500);
+
+    window.setTimeout(() => {
+      if (run !== cardsCopyRun) return;
+      cardsScene.classList.add("is-copy-visible");
+      typeBlankCopy();
+    }, 2250);
   }
 
   function cardsTypeSpeed() {
