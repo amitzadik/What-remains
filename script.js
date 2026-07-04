@@ -687,6 +687,27 @@
     const screenRect = screens.questions.getBoundingClientRect();
     const sourceRect = qText.getBoundingClientRect();
     const sourceStyle = getComputedStyle(qText);
+    const liveSheet = document.querySelector("#screen-questions .qform-sheet--active");
+    const sheetRect = liveSheet ? liveSheet.getBoundingClientRect() : sourceRect;
+    const formGhost = document.createElement("div");
+    formGhost.className = "question-memory-form-ghost";
+    formGhost.dataset.slot = String(finishingIndex % 7);
+    formGhost.style.left = (sheetRect.left - screenRect.left) + "px";
+    formGhost.style.top = (sheetRect.top - screenRect.top) + "px";
+    formGhost.style.width = sheetRect.width + "px";
+    formGhost.style.height = sheetRect.height + "px";
+    const ghostQuestion = document.createElement("span");
+    ghostQuestion.className = "question-memory-form-ghost__question";
+    ghostQuestion.textContent = questions[finishingIndex] || "";
+    ghostQuestion.style.top = (sourceRect.top - sheetRect.top) + "px";
+    ghostQuestion.style.right = (sheetRect.right - sourceRect.right) + "px";
+    ghostQuestion.style.width = sourceRect.width + "px";
+    ghostQuestion.style.fontSize = sourceStyle.fontSize;
+    ghostQuestion.style.lineHeight = sourceStyle.lineHeight;
+    ghostQuestion.style.fontWeight = sourceStyle.fontWeight;
+    formGhost.appendChild(ghostQuestion);
+    screens.questions.appendChild(formGhost);
+
     const dissolvingTrace = document.createElement("span");
     dissolvingTrace.className = "question-memory-trace__item question-memory-trace__item--dissolving";
     dissolvingTrace.dataset.questionIndex = String(finishingIndex);
@@ -707,6 +728,7 @@
     screens.questions.appendChild(dissolvingTrace);
 
     requestAnimationFrame(() => {
+      formGhost.classList.add("is-receding");
       dissolvingTrace.style.left = "";
       dissolvingTrace.style.right = "";
       dissolvingTrace.style.top = "";
@@ -723,6 +745,10 @@
       advanceCallback();
       dissolvingTrace.style.zIndex = "0";
     }, 260);
+
+    window.setTimeout(() => {
+      formGhost.remove();
+    }, 980);
 
     window.setTimeout(() => {
       dissolvingTrace.remove();
