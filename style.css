@@ -2054,11 +2054,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* Each trace is one full-width line, right-aligned like the active
-   question text, centered as a block, never cropped/rotated at random.
+   question text, centered as a block, never cropped/rotated/scattered.
    Position/scale/opacity/blur are transitioned (~1.5s) so aging one step
-   reads as slow recession, not a snap. The tiny base rotation (<=1deg) and
-   any floating drift live on the inner span (below) so they compose with
-   this outer transform instead of fighting over the same property. */
+   reads as slow recession, not a snap. Rotation is always 0deg; any
+   floating drift lives on the inner span (below, vertical-only) so it
+   composes with this outer transform instead of fighting over it. */
 #question-memory-trace .question-memory-trace__item {
   left: 0;
   right: 0;
@@ -2084,22 +2084,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #question-memory-trace .question-memory-trace__item[data-age="5"],
 #question-memory-trace .question-memory-trace__item[data-age="6"] { top: 0%; opacity: 0; filter: blur(30px); --trace-scale: 0.68; pointer-events: none; }
 
-/* Barely-there per-trace rotation (<=1deg) and floating-drift stagger. */
-#question-memory-trace .question-memory-trace__item[data-slot="0"] { --trace-rot: -0.6deg; --drift-dur: 14s; --drift-delay: -2s; }
-#question-memory-trace .question-memory-trace__item[data-slot="1"] { --trace-rot: 0.8deg;  --drift-dur: 18s; --drift-delay: -6s; }
-#question-memory-trace .question-memory-trace__item[data-slot="2"] { --trace-rot: -0.5deg; --drift-dur: 21s; --drift-delay: -9s; }
-#question-memory-trace .question-memory-trace__item[data-slot="3"] { --trace-rot: 1deg;    --drift-dur: 16s; --drift-delay: -13s; }
-#question-memory-trace .question-memory-trace__item[data-slot="4"] { --trace-rot: -0.8deg; --drift-dur: 23s; --drift-delay: -4s; }
-#question-memory-trace .question-memory-trace__item[data-slot="5"] { --trace-rot: 0.4deg;  --drift-dur: 19s; --drift-delay: -17s; }
-#question-memory-trace .question-memory-trace__item[data-slot="6"] { --trace-rot: -1deg;   --drift-dur: 24s; --drift-delay: -11s; }
+/* Floating-drift timing stagger only — no rotation, no horizontal offset. */
+#question-memory-trace .question-memory-trace__item[data-slot="0"] { --drift-dur: 14s; --drift-delay: -2s; }
+#question-memory-trace .question-memory-trace__item[data-slot="1"] { --drift-dur: 18s; --drift-delay: -6s; }
+#question-memory-trace .question-memory-trace__item[data-slot="2"] { --drift-dur: 21s; --drift-delay: -9s; }
+#question-memory-trace .question-memory-trace__item[data-slot="3"] { --drift-dur: 16s; --drift-delay: -13s; }
+#question-memory-trace .question-memory-trace__item[data-slot="4"] { --drift-dur: 23s; --drift-delay: -4s; }
+#question-memory-trace .question-memory-trace__item[data-slot="5"] { --drift-dur: 19s; --drift-delay: -17s; }
+#question-memory-trace .question-memory-trace__item[data-slot="6"] { --drift-dur: 24s; --drift-delay: -11s; }
 
-/* Slow, subtle "memory breathing" drift — transform only (translate/rotate),
-   never blur/opacity — applied to the inner span so it composes with the
-   outer element's age-driven position/scale instead of overwriting it.
-   Active question form is untouched and never animates. */
+/* Slow, subtle "memory breathing" — vertical translate ONLY, never
+   rotate and never a horizontal (X) offset, applied to the inner span so
+   it composes with the outer element's age-driven position/scale instead
+   of overwriting it. Active question form is untouched and never animates. */
 @keyframes questionTraceDrift {
-  from { translate: 0 0; rotate: var(--trace-rot, 0deg); }
-  to   { translate: var(--drift-x, 8px) var(--drift-y, -8px); rotate: calc(var(--trace-rot, 0deg) + var(--wobble, 1deg)); }
+  from { translate: 0 0; }
+  to   { translate: 0 var(--drift-y, -8px); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
