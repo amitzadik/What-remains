@@ -1023,6 +1023,7 @@
   const cameraCanvas  = document.getElementById("camera-canvas");
   const cameraPhoto   = document.getElementById("camera-photo");
   const cameraMsg     = document.getElementById("camera-msg");
+  const cameraMemoryTrace = document.getElementById("camera-memory-trace");
   const cameraShutter = document.getElementById("camera-shutter");
   const cameraRetake  = document.getElementById("camera-retake");
   const btnCameraNext = document.getElementById("btn-camera-next");
@@ -1041,6 +1042,9 @@
   }
 
   async function initCameraScreen() {
+    // Accumulated family-memory background: the previous question traces sit
+    // faintly underneath, with the photograph placed on top as the newest layer.
+    setMemoryTraceItems(cameraMemoryTrace, questions);
     // reset to live-preview state
     cameraPhoto.hidden = true;
     cameraPhoto.removeAttribute("src");
