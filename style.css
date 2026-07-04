@@ -2006,7 +2006,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   left: -4vw;
   top: 50%;
   --trace-scale: 2;
+  --trace-rot: 0deg;
   transform: translateY(-50%) scale(var(--trace-scale));
+  rotate: var(--trace-rot);
   transform-origin: center;
   font-family: var(--font-main);
   font-size: clamp(3.1rem, 8vw, 8.6rem);
@@ -2020,13 +2022,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   white-space: normal;
 }
 
-.question-memory-trace__item[data-age="0"] { --trace-scale: 1.8; opacity: 0.3; filter: blur(9px); }
-.question-memory-trace__item[data-age="1"] { --trace-scale: 2; opacity: 0.24; filter: blur(13px); }
-.question-memory-trace__item[data-age="2"] { --trace-scale: 2.2; opacity: 0.19; filter: blur(17px); }
-.question-memory-trace__item[data-age="3"] { --trace-scale: 2.45; opacity: 0.15; filter: blur(21px); }
-.question-memory-trace__item[data-age="4"] { --trace-scale: 2.65; opacity: 0.11; filter: blur(25px); }
+.question-memory-trace__item[data-age="0"] { --trace-scale: 1.8; opacity: 0.3; filter: blur(9px); --drift-x: 7px; --drift-y: -6px; --wobble: 0.8deg; }
+.question-memory-trace__item[data-age="1"] { --trace-scale: 2; opacity: 0.24; filter: blur(13px); --drift-x: -8px; --drift-y: 7px; --wobble: 1deg; }
+.question-memory-trace__item[data-age="2"] { --trace-scale: 2.2; opacity: 0.19; filter: blur(17px); --drift-x: 9px; --drift-y: 8px; --wobble: 1.1deg; }
+.question-memory-trace__item[data-age="3"] { --trace-scale: 2.45; opacity: 0.15; filter: blur(21px); --drift-x: -10px; --drift-y: -9px; --wobble: 1.2deg; }
+.question-memory-trace__item[data-age="4"] { --trace-scale: 2.65; opacity: 0.11; filter: blur(25px); --drift-x: 12px; --drift-y: -10px; --wobble: 1.35deg; }
 .question-memory-trace__item[data-age="5"],
-.question-memory-trace__item[data-age="6"] { --trace-scale: 2.9; opacity: 0.08; filter: blur(30px); }
+.question-memory-trace__item[data-age="6"] { --trace-scale: 2.9; opacity: 0.08; filter: blur(30px); --drift-x: -14px; --drift-y: 11px; --wobble: 1.5deg; }
 
 .question-memory-trace__item[data-slot="0"] { top: 4%; right: -24vw; left: 34vw; }
 .question-memory-trace__item[data-slot="1"] { top: 22%; right: 30vw; left: -30vw; }
@@ -2035,6 +2037,48 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .question-memory-trace__item[data-slot="4"] { top: 96%; right: -14vw; left: 16vw; }
 .question-memory-trace__item[data-slot="5"] { top: 38%; right: 48vw; left: -44vw; }
 .question-memory-trace__item[data-slot="6"] { top: 66%; right: -44vw; left: 52vw; }
+
+/* Rotation + drift stagger — scoped to the questions screen only, so the
+   cards screen's memory trace (shares .question-memory-trace__item) is
+   unaffected: it keeps the default --trace-rot: 0deg with no drift vars. */
+#question-memory-trace .question-memory-trace__item[data-slot="0"] { --trace-rot: -4deg; --drift-dur: 14s; --drift-delay: -2s; --recede-ydir: 1;  --recede-xdir: -1; }
+#question-memory-trace .question-memory-trace__item[data-slot="1"] { --trace-rot: 5deg;  --drift-dur: 18s; --drift-delay: -6s; --recede-ydir: 1;  --recede-xdir: 1; }
+#question-memory-trace .question-memory-trace__item[data-slot="2"] { --trace-rot: -3deg; --drift-dur: 21s; --drift-delay: -9s; --recede-ydir: 0;  --recede-xdir: -1; }
+#question-memory-trace .question-memory-trace__item[data-slot="3"] { --trace-rot: 6deg;  --drift-dur: 16s; --drift-delay: -13s; --recede-ydir: -1; --recede-xdir: 1; }
+#question-memory-trace .question-memory-trace__item[data-slot="4"] { --trace-rot: -5deg; --drift-dur: 23s; --drift-delay: -4s; --recede-ydir: -1; --recede-xdir: -1; }
+#question-memory-trace .question-memory-trace__item[data-slot="5"] { --trace-rot: 2deg;  --drift-dur: 19s; --drift-delay: -17s; --recede-ydir: 1;  --recede-xdir: 1; }
+#question-memory-trace .question-memory-trace__item[data-slot="6"] { --trace-rot: -6deg; --drift-dur: 24s; --drift-delay: -11s; --recede-ydir: -1; --recede-xdir: -1; }
+
+/* Recession by age — smaller, blurrier, fainter and pulled slightly toward
+   the vertical center / screen edges the longer a trace has been in the
+   background. Gentle steps so traces stay legible for longer. ID-scoped so
+   the cards screen's memory trace (shares .question-memory-trace__item)
+   keeps its original untouched values. */
+#question-memory-trace .question-memory-trace__item {
+  transform: translateY(calc(-50% + (var(--recede-y-mag, 0px) * var(--recede-ydir, 0))))
+             translateX(calc(var(--recede-x-mag, 0px) * var(--recede-xdir, 0)))
+             scale(var(--trace-scale));
+}
+#question-memory-trace .question-memory-trace__item[data-age="0"] { opacity: 0.42; filter: blur(4px);  --trace-scale: 1.0;  --recede-y-mag: 0px;  --recede-x-mag: 0px; }
+#question-memory-trace .question-memory-trace__item[data-age="1"] { opacity: 0.36; filter: blur(7px);  --trace-scale: 0.94; --recede-y-mag: 5px;  --recede-x-mag: 8px; }
+#question-memory-trace .question-memory-trace__item[data-age="2"] { opacity: 0.30; filter: blur(11px); --trace-scale: 0.88; --recede-y-mag: 10px; --recede-x-mag: 16px; }
+#question-memory-trace .question-memory-trace__item[data-age="3"] { opacity: 0.24; filter: blur(15px); --trace-scale: 0.82; --recede-y-mag: 15px; --recede-x-mag: 24px; }
+#question-memory-trace .question-memory-trace__item[data-age="4"] { opacity: 0.18; filter: blur(20px); --trace-scale: 0.76; --recede-y-mag: 20px; --recede-x-mag: 32px; }
+#question-memory-trace .question-memory-trace__item[data-age="5"],
+#question-memory-trace .question-memory-trace__item[data-age="6"] { opacity: 0.13; filter: blur(26px); --trace-scale: 0.70; --recede-y-mag: 26px; --recede-x-mag: 40px; }
+
+/* Slow, subtle "memory breathing" drift — transform only (translate/rotate),
+   never blur/opacity. Active question form is untouched and never animates. */
+@keyframes questionTraceDrift {
+  from { translate: 0 0; rotate: var(--trace-rot, 0deg); }
+  to   { translate: var(--drift-x, 8px) var(--drift-y, -8px); rotate: calc(var(--trace-rot, 0deg) + var(--wobble, 1deg)); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #question-memory-trace .question-memory-trace__item {
+    animation: questionTraceDrift var(--drift-dur, 18s) ease-in-out infinite alternate;
+    animation-delay: var(--drift-delay, 0s);
+  }
 }
 
 /* ============================================================
