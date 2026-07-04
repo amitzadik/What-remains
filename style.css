@@ -1765,56 +1765,47 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-memory {
   position: relative;
   z-index: 1;
-  width: min(760px, 88vw);
-  min-height: min(760px, 86vh);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: clamp(22px, 4vh, 40px);
+  gap: clamp(20px, 3.5vh, 36px);
 }
 
-.camera-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(24px, 4.5vh, 44px);
-  width: 100%;
-}
-
-/* Stacked archival document layers with the photograph as the newest layer
-   sitting on top of them. Clearly smaller than the heritage form/document
-   screen — a photo placed over the archive, not a full document. */
-.camera-stack {
+/* The composition: the heritage document with the portrait laid on top.
+   Sized to the document; the photo is centred and noticeably smaller so
+   the document's edges stay visible all the way around. */
+.camera-compose {
   position: relative;
-  width: min(560px, 80vw);
-  aspect-ratio: 4 / 3;
+  width: min(84vw, 58vh * 1.5, 1120px);
+  aspect-ratio: 3 / 2;
 }
 
-.camera-layer {
+/* Heritage document underneath — the existing qform, kept fully visible as
+   the page the photograph is being added onto (the present layer). */
+.camera-document {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-color: rgba(255, 254, 249, 0.9);
-  background-image: var(--paper-tex);
-  background-size: cover;
-  border: 1px solid rgba(61, 54, 40, 0.12);
-  box-shadow: 0 6px 18px rgba(61, 54, 40, 0.08);
+  box-shadow: 0 10px 30px rgba(61, 54, 40, 0.14);
 }
-.camera-layer--back { transform: translate(-15px, 17px) rotate(-2.3deg); opacity: 0.5; }
-.camera-layer--mid  { transform: translate(11px, 9px) rotate(1.7deg); opacity: 0.72; }
+.camera-document .qform-question-text { text-wrap: balance; }
 
-/* The printed photograph — thin EQUAL matte border on all four sides
-   (no Polaroid bottom), no rotation, and a stronger shadow so it reads as
-   the topmost, most recent layer. */
+/* The portrait photograph — centred, clearly smaller than the document
+   (~17% of it stays visible on every side), a thin EQUAL matte border on
+   all four sides, a small offset and a subtle shadow so it reads as a
+   physical print set onto the page. No polaroid, rotation or scrapbook. */
 .camera-print {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  padding: clamp(7px, 1vw, 12px);
+  top: 50%;
+  left: 50%;
+  width: 66%;
+  aspect-ratio: 3 / 2;
+  z-index: 2;
+  transform: translate(-50%, -50%) translate(9px, 7px);
+  padding: clamp(6px, 0.8vw, 11px);
   background: #FFFEF9;
-  border: 1px solid rgba(61, 54, 40, 0.26);
-  box-shadow: 0 14px 34px rgba(61, 54, 40, 0.18);
+  border: 1px solid rgba(61, 54, 40, 0.24);
+  box-shadow: 0 16px 38px rgba(61, 54, 40, 0.2);
 }
 
 .camera-area {
