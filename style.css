@@ -2324,6 +2324,67 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-questions .question-memory-trace__item[data-age="7"],
 .cards-memory-trace .question-memory-trace__item[data-age="6"] { --trace-x: 0vw; --trace-y: -18vh; --trace-rotate: 1.8deg; }
 
+#screen-questions .question-memory-trace__item[data-age="1"] { --trace-font-size: 3.42rem; }
+#screen-questions .question-memory-trace__item[data-age="2"] { --trace-font-size: 3.02rem; }
+#screen-questions .question-memory-trace__item[data-age="3"] { --trace-font-size: 2.64rem; }
+#screen-questions .question-memory-trace__item[data-age="4"] { --trace-font-size: 2.3rem; }
+#screen-questions .question-memory-trace__item[data-age="5"] { --trace-font-size: 2.02rem; }
+#screen-questions .question-memory-trace__item[data-age="6"],
+#screen-questions .question-memory-trace__item[data-age="7"] { --trace-font-size: 1.8rem; }
+
+.cards-memory-trace .question-memory-trace__item {
+  font-size: clamp(1.46rem, 2.64vw, 2.46rem);
+  width: min(66vw, 820px);
+}
+
+#screen-questions .question-memory-trace__item,
+.cards-memory-trace .question-memory-trace__item {
+  width: min(66vw, 820px);
+}
+
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="6"] { --trace-x: -6vw; --trace-y: -7vh; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="0"] { --trace-x: 6vw; --trace-y: -6vh; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="1"] { --trace-x: -7vw; --trace-y: 6vh; }
+#screen-questions .question-memory-trace__item[data-age="1"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="0"][data-slot="2"] { --trace-x: 7vw; --trace-y: 7vh; }
+
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="0"] { --trace-x: -13vw; --trace-y: -12vh; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="1"] { --trace-x: 13vw; --trace-y: -11vh; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="2"] { --trace-x: -15vw; --trace-y: 11vh; }
+#screen-questions .question-memory-trace__item[data-age="2"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="1"][data-slot="3"] { --trace-x: 15vw; --trace-y: 12vh; }
+
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="0"] { --trace-x: -20vw; --trace-y: -17vh; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="1"] { --trace-x: 20vw; --trace-y: -16vh; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="2"] { --trace-x: -23vw; --trace-y: 16vh; }
+#screen-questions .question-memory-trace__item[data-age="3"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="2"][data-slot="3"] { --trace-x: 23vw; --trace-y: 17vh; }
+
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="0"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="0"] { --trace-x: -27vw; --trace-y: -21vh; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="1"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="1"] { --trace-x: 27vw; --trace-y: -20vh; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="2"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="2"] { --trace-x: -30vw; --trace-y: 20vh; }
+#screen-questions .question-memory-trace__item[data-age="4"][data-slot="3"],
+.cards-memory-trace .question-memory-trace__item[data-age="3"][data-slot="3"] { --trace-x: 30vw; --trace-y: 21vh; }
+
+#screen-questions .question-memory-trace__item[data-age="5"],
+.cards-memory-trace .question-memory-trace__item[data-age="4"] { --trace-x: -34vw; --trace-y: -24vh; }
+#screen-questions .question-memory-trace__item[data-age="6"],
+.cards-memory-trace .question-memory-trace__item[data-age="5"] { --trace-x: 34vw; --trace-y: 24vh; }
+#screen-questions .question-memory-trace__item[data-age="7"],
+.cards-memory-trace .question-memory-trace__item[data-age="6"] { --trace-x: 0vw; --trace-y: -29vh; }
+
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
 ============================================================ */
