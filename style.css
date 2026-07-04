@@ -2076,7 +2076,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     var(--paper-tex);
   background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.7;
+  opacity: 0.3;
   pointer-events: none;
 }
 
@@ -2087,13 +2087,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-legacy .qform-grid {
-  border-color: rgba(61, 54, 40, 0.58);
+  border-color: var(--ink);
 }
 
 #screen-legacy .qform-row,
 #screen-legacy .answer-line,
 #screen-legacy .qform-header .qform-cell {
-  border-color: rgba(61, 54, 40, 0.5);
+  border-color: var(--ink);
 }
 
 #screen-legacy .qform-question-text,
