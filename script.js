@@ -1024,6 +1024,8 @@
   const cameraPhoto   = document.getElementById("camera-photo");
   const cameraMsg     = document.getElementById("camera-msg");
   const cameraMemoryTrace = document.getElementById("camera-memory-trace");
+  const cameraDocName = document.getElementById("camera-doc-name");
+  const cameraDocDate = document.getElementById("camera-doc-date");
   const cameraShutter = document.getElementById("camera-shutter");
   const cameraRetake  = document.getElementById("camera-retake");
   const btnCameraNext = document.getElementById("btn-camera-next");
@@ -1045,6 +1047,9 @@
     // Accumulated family-memory background: the previous question traces sit
     // faintly underneath, with the photograph placed on top as the newest layer.
     setMemoryTraceItems(cameraMemoryTrace, questions);
+    // Reflect the real deposit on the heritage document shown under the photo.
+    if (cameraDocName) cameraDocName.textContent = state.name || "";
+    if (cameraDocDate) cameraDocDate.textContent = state.date || "";
     // reset to live-preview state
     cameraPhoto.hidden = true;
     cameraPhoto.removeAttribute("src");

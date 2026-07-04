@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body dir="rtl">
 
@@ -256,22 +256,55 @@
   <section id="screen-camera" class="screen">
     <div class="question-memory-trace camera-memory-trace" id="camera-memory-trace" aria-hidden="true"></div>
     <div class="camera-memory">
-      <div class="camera-center">
-        <div class="camera-stack">
-          <span class="camera-layer camera-layer--back" aria-hidden="true"></span>
-          <span class="camera-layer camera-layer--mid" aria-hidden="true"></span>
-          <div class="camera-print">
-            <div class="camera-area">
-              <video id="camera-video" autoplay playsinline muted></video>
-              <canvas id="camera-canvas" hidden></canvas>
-              <img id="camera-photo" hidden alt="">
-              <div id="camera-msg" class="camera-msg" hidden></div>
+      <div class="camera-compose">
+        <!-- Heritage document underneath — stays visible around the photo -->
+        <div class="camera-document" aria-hidden="true">
+          <article class="qform">
+            <div class="qform-grid">
+              <div class="qform-row qform-header">
+                <div class="qform-cell">
+                  <span class="qform-label">שם העונה</span>
+                  <span class="qform-value" id="camera-doc-name"></span>
+                </div>
+                <div class="qform-cell">
+                  <span class="qform-label">על</span>
+                  <span class="qform-value">עליי</span>
+                </div>
+                <div class="qform-cell">
+                  <span class="qform-label">תאריך</span>
+                  <span class="qform-value" id="camera-doc-date"></span>
+                </div>
+                <div class="qform-cell qform-cell-num">
+                  <span class="qform-label">סוג</span>
+                  <span class="qform-value qform-num">מורשת</span>
+                </div>
+              </div>
+              <div class="qform-row qform-question-row">
+                <span class="qform-label">שאלה</span>
+                <div class="qform-question-text">מה היית רוצה שהנכדים שלך ידעו עליך?</div>
+              </div>
+              <div class="qform-row qform-answer-row">
+                <div class="answer-line"><span class="qform-label">תשובה</span><span class="line__text"></span></div>
+                <div class="answer-line"><span class="line__text"></span></div>
+                <div class="answer-line"><span class="line__text"></span></div>
+                <div class="answer-line"><span class="line__text"></span></div>
+                <div class="answer-line"><span class="line__text"></span></div>
+              </div>
             </div>
+          </article>
+        </div>
+        <!-- Portrait photograph placed on top of the heritage document -->
+        <div class="camera-print">
+          <div class="camera-area">
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas" hidden></canvas>
+            <img id="camera-photo" hidden alt="">
+            <div id="camera-msg" class="camera-msg" hidden></div>
           </div>
         </div>
-        <div class="camera-actions">
-          <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
-        </div>
+      </div>
+      <div class="camera-actions">
+        <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
       </div>
       <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
         <img src="images/next-default.png" width="105" height="105" alt="">
