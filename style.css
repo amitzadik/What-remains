@@ -1629,6 +1629,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   z-index: 2;
   width: min(1080px, 88vw);
+  justify-self: center;
+  align-self: center;
   text-align: right;
   direction: rtl;
   color: var(--ink);
@@ -1671,9 +1673,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-scene.is-ack-receding .cards-memory-ack {
-  opacity: 0.16;
+  opacity: 0.12;
   filter: blur(4px);
-  transform: translate(-50%, -53%) scale(0.96);
+  transform: translate(-94%, -66%) scale(0.95);
 }
 
 .cards-scene.is-copy-visible.is-ack-receding .cards-memory-ack {
