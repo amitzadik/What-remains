@@ -496,6 +496,17 @@
     setMemoryTraceItems(qMemoryTrace, items);
   }
 
+  function buildQuestionMemoryItems(count) {
+    const items = [];
+    const limit = Math.min(count, questions.length);
+    for (let i = 0; i < limit; i++) {
+      items.push(questions[i]);
+      const answer = String(state.answers[i] || "").replace(/\s+/g, " ").trim();
+      if (answer && !state.dontKnow[i]) items.push(answer);
+    }
+    return items;
+  }
+
   function setMemoryTraceItems(container, items, options) {
     if (!container) return;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
@@ -634,7 +645,7 @@
     state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
-    const memoryItems = questions.slice(0, state.currentQuestion);
+    const memoryItems = buildQuestionMemoryItems(state.currentQuestion);
     if (state.currentQuestion >= questions.length) {
       animateNextQuestion(finishingIndex, memoryItems, () => {
         initCards();
@@ -695,42 +706,55 @@
     formGhost.appendChild(ghostQuestion);
     screens.questions.appendChild(formGhost);
 
-    const dissolvingTrace = document.createElement("span");
-    dissolvingTrace.className = "question-memory-trace__item question-memory-trace__item--dissolving";
-    dissolvingTrace.dataset.questionIndex = String(finishingIndex);
-    dissolvingTrace.dataset.slot = String(finishingIndex % 7);
-    dissolvingTrace.dataset.age = "1";
-    dissolvingTrace.textContent = questions[finishingIndex] || "";
-    dissolvingTrace.style.left = (sourceRect.left - screenRect.left) + "px";
-    dissolvingTrace.style.right = "auto";
-    dissolvingTrace.style.top = (sourceRect.top - screenRect.top) + "px";
-    dissolvingTrace.style.width = sourceRect.width + "px";
-    dissolvingTrace.style.transform = "translateY(0) scale(1)";
-    dissolvingTrace.style.fontSize = sourceStyle.fontSize;
-    dissolvingTrace.style.lineHeight = sourceStyle.lineHeight;
-    dissolvingTrace.style.fontWeight = sourceStyle.fontWeight;
-    dissolvingTrace.style.filter = "blur(0)";
-    dissolvingTrace.style.opacity = "1";
-    dissolvingTrace.style.zIndex = "6";
-    screens.questions.appendChild(dissolvingTrace);
+    const dissolvingTraces = [];
+    function addDissolvingTrace(text, rect, style, slotOffset) {
+      if (!text || !rect) return;
+      const trace = document.createElement("span");
+      trace.className = "question-memory-trace__item question-memory-trace__item--dissolving";
+      trace.dataset.questionIndex = String(finishingIndex) + "-" + String(slotOffset);
+      trace.dataset.slot = String((finishingIndex + slotOffset) % 7);
+      trace.dataset.age = "1";
+      trace.textContent = text;
+      trace.style.left = (rect.left - screenRect.left) + "px";
+      trace.style.right = "auto";
+      trace.style.top = (rect.top - screenRect.top) + "px";
+      trace.style.width = rect.width + "px";
+      trace.style.transform = "translateY(0) scale(1)";
+      trace.style.fontSize = style.fontSize;
+      trace.style.lineHeight = style.lineHeight;
+      trace.style.fontWeight = style.fontWeight;
+      trace.style.filter = "blur(0)";
+      trace.style.opacity = "1";
+      trace.style.zIndex = "6";
+      screens.questions.appendChild(trace);
+      dissolvingTraces.push(trace);
+    }
+    addDissolvingTrace(questions[finishingIndex] || "", sourceRect, sourceStyle, 0);
+    const answerText = String(state.answers[finishingIndex] || "").replace(/\s+/g, " ").trim();
+    const firstAnswerLine = lines.find(line => line.textContent.trim());
+    if (answerText && firstAnswerLine) {
+      addDissolvingTrace(answerText, firstAnswerLine.getBoundingClientRect(), getComputedStyle(firstAnswerLine), 3);
+    }
 
     requestAnimationFrame(() => {
       formGhost.classList.add("is-receding");
-      dissolvingTrace.style.left = "";
-      dissolvingTrace.style.right = "";
-      dissolvingTrace.style.top = "";
-      dissolvingTrace.style.width = "";
-      dissolvingTrace.style.transform = "";
-      dissolvingTrace.style.fontSize = "";
-      dissolvingTrace.style.lineHeight = "";
-      dissolvingTrace.style.fontWeight = "";
-      dissolvingTrace.style.filter = "";
-      dissolvingTrace.style.opacity = "";
+      dissolvingTraces.forEach(trace => {
+        trace.style.left = "";
+        trace.style.right = "";
+        trace.style.top = "";
+        trace.style.width = "";
+        trace.style.transform = "";
+        trace.style.fontSize = "";
+        trace.style.lineHeight = "";
+        trace.style.fontWeight = "";
+        trace.style.filter = "";
+        trace.style.opacity = "";
+      });
     });
 
     window.setTimeout(() => {
       advanceCallback();
-      dissolvingTrace.style.zIndex = "0";
+      dissolvingTraces.forEach(trace => { trace.style.zIndex = "0"; });
     }, 260);
 
     window.setTimeout(() => {
@@ -738,7 +762,7 @@
     }, 980);
 
     window.setTimeout(() => {
-      dissolvingTrace.remove();
+      dissolvingTraces.forEach(trace => trace.remove());
       setQuestionMemoryTrace(memoryItems);
       isQuestionTransitioning = false;
     }, 1180);
@@ -797,7 +821,7 @@
   function initLegacy() {
     legacyName.textContent = state.name;
     legacyDate.textContent = state.date;
-    setMemoryTraceItems(legacyMemoryTrace, questions);
+    setMemoryTraceItems(legacyMemoryTrace, buildQuestionMemoryItems(questions.length));
     clearLegacyLines();
     btnLegacyNext.disabled = true;
     if (legacyLines[0]) {
@@ -904,7 +928,7 @@
     if (btnBeginLeaving) btnBeginLeaving.disabled = true;
     if (cardsBlankType) cardsBlankType.textContent = "";
     cardsCopyRun += 1;
-    setMemoryTraceItems(cardsMemoryTrace, questions);
+    setMemoryTraceItems(cardsMemoryTrace, buildQuestionMemoryItems(questions.length));
 
     const answeredCount = state.dontKnow.filter(x => !x).length;
     if (cardsStamp) cardsStamp.src = "images/stamp" + answeredCount + ".png";

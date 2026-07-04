@@ -2847,7 +2847,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* "תשובה" label pinned to the top of the first line — adds no height */
 .answer-line .qform-label {
   position: absolute;
-  top: var(--qform-label-inset-y);
+  top: calc(var(--qform-label-inset-y) - 0.16rem);
   right: var(--qform-label-inset-x);
   margin: 0;
 }
@@ -2864,8 +2864,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: flex-end;
   font-family: var(--font-main);
-  font-size: 1.15rem;
-  line-height: 2em;
+  font-size: 1.4rem;
+  line-height: 1.2;
   color: var(--ink);
 }
 .answer-line .line__text {
