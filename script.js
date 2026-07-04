@@ -782,6 +782,7 @@
   const legacyDate    = document.getElementById("legacy-date");
   const legacyLines   = Array.from(document.querySelectorAll("#legacy-lines .line__text"));
   const btnLegacyNext = document.getElementById("btn-legacy-next");
+  const legacyMemoryTrace = document.getElementById("legacy-memory-trace");
 
   function getLegacyText() {
     return legacyLines.map(l => l.textContent.trim()).filter(Boolean).join("\n");
@@ -796,6 +797,7 @@
   function initLegacy() {
     legacyName.textContent = state.name;
     legacyDate.textContent = state.date;
+    setMemoryTraceItems(legacyMemoryTrace, questions);
     clearLegacyLines();
     btnLegacyNext.disabled = true;
     if (legacyLines[0]) {

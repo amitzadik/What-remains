@@ -2044,6 +2044,123 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow: hidden;
 }
 
+#screen-legacy {
+  background-color: #F4EFE5;
+  background-image: var(--paper-tex);
+  overflow: hidden;
+}
+
+#screen-legacy .qform-stage {
+  z-index: 2;
+  width: min(86vw, calc(78vh * 1.5), 1280px);
+}
+
+#screen-legacy .qform-sheet {
+  box-shadow: 0 12px 30px rgba(61, 54, 40, 0.14), 0 2px 8px rgba(61, 54, 40, 0.08);
+}
+
+#screen-legacy .qform {
+  opacity: 1;
+  background-color: rgba(244, 239, 229, 0.7);
+  background-image:
+    linear-gradient(rgba(244, 239, 229, 0.24), rgba(244, 239, 229, 0.24)),
+    var(--paper-tex);
+}
+
+#screen-legacy .qform-grid {
+  border-color: rgba(61, 54, 40, 0.58);
+}
+
+#screen-legacy .qform-row,
+#screen-legacy .answer-line,
+#screen-legacy .qform-header .qform-cell {
+  border-color: rgba(61, 54, 40, 0.5);
+}
+
+#screen-legacy .qform-question-text,
+#screen-legacy .line__text,
+#screen-legacy .qform-value,
+#screen-legacy .qform-label,
+#screen-legacy .qform-num {
+  opacity: 1;
+}
+
+#screen-legacy .qform-question-text {
+  max-width: 760px;
+  text-wrap: balance;
+}
+
+#screen-legacy .line__text {
+  background: transparent;
+}
+
+.legacy-memory-ack {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(680px, 82vw);
+  transform: translate(-50%, -50%) scale(0.96);
+  direction: rtl;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: clamp(1.48rem, 2.8vw, 2.65rem);
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.06;
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.legacy-memory-trace {
+  z-index: 0;
+}
+
+.legacy-memory-trace.question-memory-trace {
+  opacity: 1;
+}
+
+.legacy-memory-trace .question-memory-trace__item {
+  left: 50%;
+  right: auto;
+  top: 50%;
+  width: min(66vw, 900px);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: clamp(1.4rem, 2.6vw, 2.5rem);
+  line-height: 1.16;
+  opacity: 0.11;
+  filter: blur(4px);
+  transform:
+    translate(calc(-50% + var(--trace-x, 0vw)), calc(-50% + var(--trace-y, 0vh)))
+    rotate(var(--trace-rotate, 0deg));
+  white-space: nowrap;
+}
+
+.legacy-memory-trace .question-memory-trace__item-inner {
+  white-space: nowrap;
+}
+
+.legacy-memory-trace .question-memory-trace__item[data-age="0"] { opacity: 0.16; filter: blur(2.5px); }
+.legacy-memory-trace .question-memory-trace__item[data-age="1"] { opacity: 0.14; filter: blur(3px); }
+.legacy-memory-trace .question-memory-trace__item[data-age="2"] { opacity: 0.12; filter: blur(3.5px); }
+.legacy-memory-trace .question-memory-trace__item[data-age="3"] { opacity: 0.1; filter: blur(4px); }
+.legacy-memory-trace .question-memory-trace__item[data-age="4"] { opacity: 0.08; filter: blur(4.5px); }
+.legacy-memory-trace .question-memory-trace__item[data-age="5"],
+.legacy-memory-trace .question-memory-trace__item[data-age="6"] { opacity: 0.06; filter: blur(5px); }
+
+.legacy-memory-trace .question-memory-trace__item[data-age="0"][data-slot="6"] { --trace-x: -8vw; --trace-y: -30vh; --trace-rotate: -0.6deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="1"][data-slot="5"] { --trace-x: 36vw; --trace-y: -18vh; --trace-rotate: 0.8deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="2"][data-slot="4"] { --trace-x: -42vw; --trace-y: -10vh; --trace-rotate: -0.9deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="3"][data-slot="3"] { --trace-x: 35vw; --trace-y: 16vh; --trace-rotate: 1deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="4"][data-slot="2"] { --trace-x: -38vw; --trace-y: 28vh; --trace-rotate: -1.1deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="5"][data-slot="1"] { --trace-x: 22vw; --trace-y: 34vh; --trace-rotate: 1.2deg; }
+.legacy-memory-trace .question-memory-trace__item[data-age="6"][data-slot="0"] { --trace-x: -10vw; --trace-y: 40vh; --trace-rotate: -1.1deg; }
+
 .question-memory-trace {
   position: absolute;
   z-index: 0;
