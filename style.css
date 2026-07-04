@@ -1749,10 +1749,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 /* Camera memory print — album-like capture area */
 #screen-camera {
-  background-color: #FAF6EE;
+  padding: 0;
+  background-color: #F4EFE5;
   background-image: var(--paper-tex);
   overflow: hidden;
-  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -1761,6 +1761,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    traces, same mechanism as the cards screen (uses the base scattered
    .question-memory-trace rules, not the questions-screen vertical list). */
 .camera-memory-trace { z-index: 0; }
+.camera-memory-ack { z-index: 1; }
 
 .camera-memory {
   position: relative;
@@ -2563,6 +2564,72 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-memory-trace .question-memory-trace__item[data-age="4"][data-slot="2"] { --trace-x: -38vw; --trace-y: 28vh; }
 .cards-memory-trace .question-memory-trace__item[data-age="5"][data-slot="1"] { --trace-x: 22vw; --trace-y: 34vh; }
 .cards-memory-trace .question-memory-trace__item[data-age="6"][data-slot="0"] { --trace-x: -10vw; --trace-y: 40vh; }
+
+.cards-memory-trace .question-memory-trace__item[data-age="7"],
+.cards-memory-trace .question-memory-trace__item[data-age="8"],
+.cards-memory-trace .question-memory-trace__item[data-age="9"],
+.cards-memory-trace .question-memory-trace__item[data-age="10"],
+.cards-memory-trace .question-memory-trace__item[data-age="11"],
+.cards-memory-trace .question-memory-trace__item[data-age="12"],
+.cards-memory-trace .question-memory-trace__item[data-age="13"],
+.legacy-memory-trace .question-memory-trace__item[data-age="7"],
+.legacy-memory-trace .question-memory-trace__item[data-age="8"],
+.legacy-memory-trace .question-memory-trace__item[data-age="9"],
+.legacy-memory-trace .question-memory-trace__item[data-age="10"],
+.legacy-memory-trace .question-memory-trace__item[data-age="11"],
+.legacy-memory-trace .question-memory-trace__item[data-age="12"],
+.legacy-memory-trace .question-memory-trace__item[data-age="13"],
+.camera-memory-trace .question-memory-trace__item[data-age="7"],
+.camera-memory-trace .question-memory-trace__item[data-age="8"],
+.camera-memory-trace .question-memory-trace__item[data-age="9"],
+.camera-memory-trace .question-memory-trace__item[data-age="10"],
+.camera-memory-trace .question-memory-trace__item[data-age="11"],
+.camera-memory-trace .question-memory-trace__item[data-age="12"],
+.camera-memory-trace .question-memory-trace__item[data-age="13"] {
+  opacity: 0.05;
+  filter: blur(5px);
+}
+
+.legacy-memory-trace .question-memory-trace__item,
+.camera-memory-trace .question-memory-trace__item {
+  left: 50%;
+  right: auto;
+  top: 50%;
+  width: min(66vw, 900px);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: clamp(1.4rem, 2.6vw, 2.5rem);
+  line-height: 1.16;
+  transform:
+    translate(calc(-50% + var(--trace-x, 0vw)), calc(-50% + var(--trace-y, 0vh)))
+    rotate(var(--trace-rotate, 0deg));
+  white-space: nowrap;
+}
+
+.cards-memory-trace .question-memory-trace__item[data-slot="0"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="0"],
+.camera-memory-trace .question-memory-trace__item[data-slot="0"] { --trace-x: -10vw; --trace-y: 40vh; --trace-rotate: -1.1deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="1"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="1"],
+.camera-memory-trace .question-memory-trace__item[data-slot="1"] { --trace-x: 22vw; --trace-y: 34vh; --trace-rotate: 1.2deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="2"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="2"],
+.camera-memory-trace .question-memory-trace__item[data-slot="2"] { --trace-x: -38vw; --trace-y: 28vh; --trace-rotate: -1.1deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="3"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="3"],
+.camera-memory-trace .question-memory-trace__item[data-slot="3"] { --trace-x: 35vw; --trace-y: 16vh; --trace-rotate: 1deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="4"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="4"],
+.camera-memory-trace .question-memory-trace__item[data-slot="4"] { --trace-x: -42vw; --trace-y: -10vh; --trace-rotate: -0.9deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="5"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="5"],
+.camera-memory-trace .question-memory-trace__item[data-slot="5"] { --trace-x: 36vw; --trace-y: -18vh; --trace-rotate: 0.8deg; }
+.cards-memory-trace .question-memory-trace__item[data-slot="6"],
+.legacy-memory-trace .question-memory-trace__item[data-slot="6"],
+.camera-memory-trace .question-memory-trace__item[data-slot="6"] { --trace-x: -8vw; --trace-y: -30vh; --trace-rotate: -0.6deg; }
 
 /* ============================================================
    PHASE.ENVELOPE — closing the memory layers into an envelope
