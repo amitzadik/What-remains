@@ -2816,7 +2816,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   flex-direction: column;
   /* 12px reading-side inset (the row's bottom border stays full width) */
-  padding: 0.5rem 12px 0.5rem 0;
+  padding: 1.5rem var(--qform-label-inset-x) 0.45rem 0;
 }
 /* "שאלה" label pinned to the top of its row — adds no height */
 .qform-question-row .qform-label {
@@ -2828,7 +2828,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-question-text {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   text-align: right;
   font-family: var(--font-main);
