@@ -1559,6 +1559,18 @@
     ).join("");
   }
 
+  function openArchiveStack(drawerEl, afterOpen) {
+    if (!drawerEl) {
+      afterOpen();
+      return;
+    }
+    drawerEl.classList.add("is-opening");
+    window.setTimeout(() => {
+      afterOpen();
+      drawerEl.classList.remove("is-opening");
+    }, 430);
+  }
+
   // Build one archive envelope element for the landing archive wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
@@ -1590,9 +1602,9 @@
       if (sess && sess.code && sess.code === v.code) {
         activeViewer = v;
         activeDrawerEl = d;
-        openDrawerInterior(v);
+        openArchiveStack(d, () => openDrawerInterior(v));
       } else {
-        openCodeModal(v, d);
+        openArchiveStack(d, () => openCodeModal(v, d));
       }
     });
     return d;
@@ -1612,7 +1624,7 @@
   function openCodeModal(viewer, drawerEl) {
     activeViewer = viewer || null;
     activeDrawerEl = drawerEl || null;
-    codeTarget.textContent = viewer ? ("המגירה של " + viewer.name) : "הזינ/י את קוד המגירה";
+    codeTarget.textContent = viewer ? ("הארכיון של " + viewer.name) : "הזינ/י את קוד הארכיון";
     clearCodeBoxes();
     errMsg.textContent = "";
     codeModal.classList.add("active");
@@ -1624,7 +1636,7 @@
     const input = getCodeValue().trim();
     if (input === activeViewer.code) {
       codeModal.classList.remove("active");
-      setTimeout(() => openDrawerInterior(activeViewer), 300);
+      setTimeout(() => openArchiveStack(activeDrawerEl, () => openDrawerInterior(activeViewer)), 120);
     } else {
       errMsg.textContent = "קוד שגוי";
       codeModalContent.classList.remove("shake");
@@ -1641,7 +1653,7 @@
   }
 
   function showContent(name, text) {
-    contentName.textContent = "מגירה של " + name;
+    contentName.textContent = "הארכיון של " + name;
     contentText.textContent = text || "(אין טקסט)";
     contentModal.classList.add("active");
   }
