@@ -1547,9 +1547,9 @@
 
     if (archiveText) layers.push("text");
     if (v.isUser && state.photoDataUrl) layers.push("photo");
-    memoryAnswers.slice(0, 4).forEach(() => layers.push("memory"));
+    memoryAnswers.forEach(() => layers.push("memory"));
     if (!layers.length) layers.push("quiet");
-    return layers.slice(0, 6);
+    return layers.slice(0, 10);
   }
 
   function envelopeLayerHTML(v) {
