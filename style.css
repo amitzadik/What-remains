@@ -1411,6 +1411,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    Landing screen (PHASE.LANDING) — drawer wall + intro card
 ============================================================ */
 #screen-landing {
+  --blank-type-speed: 48ms;
   padding: 0;
   background-color: var(--cream);
   background-image: var(--paper-tex);

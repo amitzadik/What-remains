@@ -207,6 +207,12 @@
     typeLandingPart(state.parts, 0);
   }
 
+  function typewriterSpeedFor(screenEl) {
+    const raw = getComputedStyle(screenEl).getPropertyValue("--blank-type-speed").trim();
+    const value = parseFloat(raw);
+    return Number.isFinite(value) ? value : 48;
+  }
+
   function typeLandingPart(parts, partIndex) {
     const part = parts[partIndex];
     if (!part) return;
@@ -214,6 +220,7 @@
     const chars = Array.from(part.text);
     let charIndex = 0;
     part.el.classList.add("is-typing");
+    const speed = typewriterSpeedFor(screens.landing);
 
     function tick() {
       const target = part.live || part.el;
@@ -221,14 +228,12 @@
       charIndex += 1;
 
       if (charIndex < chars.length) {
-        const prev = chars[charIndex - 1];
-        const delay = /[.,!?;:،.]/.test(prev) ? 165 : 45;
-        window.setTimeout(tick, delay);
+        window.setTimeout(tick, speed);
         return;
       }
 
       part.el.classList.remove("is-typing");
-      window.setTimeout(() => typeLandingPart(parts, partIndex + 1), 180);
+      window.setTimeout(() => typeLandingPart(parts, partIndex + 1), speed);
     }
 
     tick();
@@ -986,9 +991,7 @@
   }
 
   function cardsTypeSpeed() {
-    const raw = getComputedStyle(screens.cards).getPropertyValue("--blank-type-speed").trim();
-    const value = parseFloat(raw);
-    return Number.isFinite(value) ? value : 48;
+    return typewriterSpeedFor(screens.cards);
   }
 
   function typeBlankCopy() {
