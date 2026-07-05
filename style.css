@@ -1657,6 +1657,38 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   content: none !important;
 }
 
+.typewriter-stable {
+  position: relative;
+  direction: rtl;
+}
+
+.typewriter-reserve,
+.typewriter-live {
+  display: block;
+  width: 100%;
+  white-space: inherit;
+  text-wrap: inherit;
+  direction: inherit;
+  text-align: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.typewriter-reserve {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.typewriter-live {
+  position: absolute;
+  inset: 0;
+  color: inherit;
+}
+
+.qform-question-text .typewriter-live {
+  inset: auto 0 0 0;
+}
+
 .archive-entry-past,
 .archive-entry-future {
   position: absolute;

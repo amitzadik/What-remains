@@ -158,17 +158,37 @@
   const landingTypewriterState = new WeakMap();
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  function prepareTypewriterElement(el, text) {
+    if (!el) return null;
+    el.classList.add("typewriter-stable");
+    el.innerHTML =
+      '<span class="typewriter-reserve" aria-hidden="true"></span>' +
+      '<span class="typewriter-live"></span>';
+    const reserve = el.querySelector(".typewriter-reserve");
+    const live = el.querySelector(".typewriter-live");
+    if (reserve) reserve.textContent = text || "";
+    if (live) live.textContent = "";
+    return live;
+  }
+
+  function setTypewriterText(el, text) {
+    const live = el && el.querySelector ? el.querySelector(".typewriter-live") : null;
+    if (live) {
+      live.textContent = text || "";
+    } else if (el) {
+      el.textContent = text || "";
+    }
+  }
+
   function setupLandingTypewriter() {
     document.querySelectorAll(".landing-card-face").forEach(face => {
       const parts = [...face.querySelectorAll(".landing-label, .landing-body p")];
       landingTypewriterState.set(face, {
-        parts: parts.map(el => ({ el, text: el.textContent })),
+        parts: parts.map(el => {
+          const text = el.textContent;
+          return { el, live: prepareTypewriterElement(el, text), text };
+        }),
         started: false
-      });
-      parts.forEach(el => {
-        const box = el.getBoundingClientRect();
-        if (box.height) el.style.minHeight = box.height + "px";
-        el.textContent = "";
       });
     });
   }
@@ -180,7 +200,7 @@
     state.started = true;
 
     if (reduceMotion) {
-      state.parts.forEach(part => { part.el.textContent = part.text; });
+      state.parts.forEach(part => { setTypewriterText(part.el, part.text); });
       return;
     }
 
@@ -196,7 +216,8 @@
     part.el.classList.add("is-typing");
 
     function tick() {
-      part.el.textContent += chars[charIndex] || "";
+      const target = part.live || part.el;
+      target.textContent += chars[charIndex] || "";
       charIndex += 1;
 
       if (charIndex < chars.length) {
@@ -554,10 +575,10 @@
     const run = questionTypewriterRun;
 
     if (!qText) return;
-    qText.textContent = "";
+    const questionLive = prepareTypewriterElement(qText, activeQuestionText);
 
     if (reduceMotion || instant) {
-      qText.textContent = activeQuestionText;
+      setTypewriterText(qText, activeQuestionText);
       qText.classList.remove("is-typing");
       return;
     }
@@ -568,7 +589,8 @@
 
     function tick() {
       if (run !== questionTypewriterRun) return;
-      qText.textContent += chars[charIndex] || "";
+      const target = questionLive || qText;
+      target.textContent += chars[charIndex] || "";
       charIndex += 1;
 
       if (charIndex < chars.length) {
@@ -588,7 +610,7 @@
     questionTypewriterRun += 1;
     if (qText) {
       qText.classList.remove("is-typing");
-      qText.textContent = activeQuestionText;
+      setTypewriterText(qText, activeQuestionText);
     }
   }
 
@@ -974,20 +996,13 @@
     cardsCopyRun += 1;
     const run = cardsCopyRun;
     const text = cardsBlankType.dataset.text || "";
-    if (!cardsBlankType.style.minHeight) {
-      const originalText = cardsBlankType.textContent;
-      cardsBlankType.textContent = text;
-      const box = cardsBlankType.getBoundingClientRect();
-      if (box.height) cardsBlankType.style.minHeight = box.height + "px";
-      cardsBlankType.textContent = originalText;
-    }
-    cardsBlankType.textContent = "";
+    const cardsLive = prepareTypewriterElement(cardsBlankType, text);
     cardsScene.classList.remove("is-copy-done");
     cardsScene.classList.add("is-typing");
     if (btnBeginLeaving) btnBeginLeaving.disabled = true;
 
     if (reduceMotion) {
-      cardsBlankType.textContent = text;
+      setTypewriterText(cardsBlankType, text);
       cardsScene.classList.remove("is-typing");
       cardsScene.classList.add("is-copy-done");
       if (btnBeginLeaving) btnBeginLeaving.disabled = false;
@@ -1000,7 +1015,8 @@
 
     function tick() {
       if (run !== cardsCopyRun) return;
-      cardsBlankType.textContent += chars[charIndex] || "";
+      const target = cardsLive || cardsBlankType;
+      target.textContent += chars[charIndex] || "";
       charIndex += 1;
 
       if (charIndex < chars.length) {
