@@ -1347,7 +1347,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow-x: hidden;
   pointer-events: auto;
   z-index: 4;
-  opacity: 0.22;
+  opacity: 0.16;
+  -webkit-mask-image: radial-gradient(ellipse 36vw 34vh at 50% 50%, transparent 0 42%, rgba(0,0,0,0.55) 58%, black 100%);
+          mask-image: radial-gradient(ellipse 36vw 34vh at 50% 50%, transparent 0 42%, rgba(0,0,0,0.55) 58%, black 100%);
   scrollbar-width: none;
 }
 .landing-bg::-webkit-scrollbar { display: none; }
@@ -1553,10 +1555,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-entry-present {
   position: absolute;
   inset: auto;
-  right: clamp(28px, 12vw, 210px);
-  top: clamp(150px, 24vh, 240px);
+  left: 50%;
+  top: 50%;
+  right: auto;
+  transform: translate(-50%, -44%);
   z-index: 12;
-  width: min(640px, 68vw);
+  width: min(650px, 70vw);
   padding: 0;
   background: transparent;
   background-image: none;
@@ -1570,17 +1574,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .archive-entry-present .landing-body {
   font-family: var(--font-main);
-  font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+  font-size: clamp(0.95rem, 1.28vw, 1.18rem);
   font-weight: 500;
-  line-height: 1.9;
+  line-height: 1.95;
   color: var(--ink);
   opacity: 1;
+  direction: rtl;
+  text-align: right;
 }
 
 .archive-entry-present .landing-body p {
-  margin: 0 0 0.72em;
+  margin: 0 0 1.05em;
   text-indent: 0;
   text-wrap: balance;
+}
+
+.archive-entry-present .landing-body .archive-entry-title {
+  margin-bottom: 1.35em;
+  font-size: clamp(1.24rem, 1.85vw, 1.68rem);
+  line-height: 1.55;
+  font-weight: 600;
 }
 
 .archive-entry-present .landing-body .is-typing::after {
@@ -1604,21 +1617,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .past-trace {
-  opacity: 0.11;
-  filter: blur(3px);
+  opacity: 0.08;
+  filter: blur(3.6px);
 }
 
 .past-trace--q {
-  right: 8vw;
-  top: 19vh;
+  right: 4vw;
+  top: 12vh;
   font-size: clamp(1.8rem, 4vw, 4.8rem);
   white-space: nowrap;
 }
 
 .past-trace--lines {
-  right: -3vw;
-  top: 44vh;
-  width: 46vw;
+  right: -10vw;
+  top: 58vh;
+  width: 34vw;
   height: 1px;
   background: rgba(61, 54, 40, 0.9);
   box-shadow:
@@ -1629,15 +1642,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .past-trace--date {
-  left: 18vw;
-  top: 26vh;
+  left: 8vw;
+  top: 18vh;
   font-size: clamp(1rem, 2vw, 2rem);
   letter-spacing: 0.08em;
 }
 
 .past-trace--stamp {
-  left: 9vw;
-  bottom: 24vh;
+  left: 7vw;
+  bottom: 14vh;
   color: var(--stamp);
   font-size: clamp(1.4rem, 3vw, 3.2rem);
   opacity: 0.13;
@@ -1645,7 +1658,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .past-trace--edge {
-  left: 24vw;
+  left: 8vw;
   bottom: -8vh;
   width: 34vw;
   height: 28vh;
@@ -1661,7 +1674,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .future-fragment {
-  opacity: 0.24;
+  opacity: 0.2;
   background-image: var(--paper-tex);
   background-size: 620px 620px;
   background-color: rgba(250,246,238,0.82);
@@ -1679,14 +1692,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .future-fragment--sheet {
-  left: 74vw;
-  top: 34vh;
+  left: 78vw;
+  top: 24vh;
   width: clamp(220px, 30vw, 420px);
   aspect-ratio: 3 / 2;
 }
 
 .future-fragment--record {
-  right: 8vw;
+  right: -5vw;
   bottom: -9vh;
   width: clamp(260px, 36vw, 520px);
   aspect-ratio: 3 / 2;
@@ -1707,8 +1720,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .future-fragment--stamp {
-  left: 28vw;
-  bottom: 13vh;
+  left: 18vw;
+  bottom: 9vh;
   width: clamp(80px, 10vw, 130px);
   aspect-ratio: 1;
   background: none;
@@ -1733,7 +1746,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .archive-entry-present {
     right: 24px;
     left: 24px;
-    top: 160px;
+    top: 50%;
+    transform: translateY(-42%);
     width: auto;
   }
   .archive-entry-present .landing-body {
