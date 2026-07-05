@@ -1641,6 +1641,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   content: "";
 }
 
+.is-typing::after {
+  content: none !important;
+}
+
 .archive-entry-past,
 .archive-entry-future {
   position: absolute;

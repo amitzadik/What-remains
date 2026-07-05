@@ -165,7 +165,11 @@
         parts: parts.map(el => ({ el, text: el.textContent })),
         started: false
       });
-      parts.forEach(el => { el.textContent = ""; });
+      parts.forEach(el => {
+        const box = el.getBoundingClientRect();
+        if (box.height) el.style.minHeight = box.height + "px";
+        el.textContent = "";
+      });
     });
   }
 
@@ -970,6 +974,13 @@
     cardsCopyRun += 1;
     const run = cardsCopyRun;
     const text = cardsBlankType.dataset.text || "";
+    if (!cardsBlankType.style.minHeight) {
+      const originalText = cardsBlankType.textContent;
+      cardsBlankType.textContent = text;
+      const box = cardsBlankType.getBoundingClientRect();
+      if (box.height) cardsBlankType.style.minHeight = box.height + "px";
+      cardsBlankType.textContent = originalText;
+    }
     cardsBlankType.textContent = "";
     cardsScene.classList.remove("is-copy-done");
     cardsScene.classList.add("is-typing");
