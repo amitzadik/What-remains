@@ -1397,10 +1397,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translateY(-2%) scale(1.015);
 }
 #screen-landing .landing-bg .wall-plate-meta {
-  display: block;
-  font-size: clamp(8px, 0.7vw, 10px);
-  color: rgba(177,67,58,0.62);
-  line-height: 1.1;
+  display: none;
 }
 #screen-landing .landing-bg .wall-plate-name {
   font-size: clamp(10px, 0.92vw, 14px);
@@ -1419,20 +1416,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: rgba(250,246,238,0.52);
   transform: rotate(-2deg);
   z-index: 8;
-}
-#screen-landing .landing-bg .wall-drawer::after {
-  content: "ARCHIVE_" attr(data-archive-id) " · 05/07";
-  position: absolute;
-  right: 20%;
-  bottom: 53%;
-  z-index: 9;
-  max-width: 58%;
-  font-family: var(--font-main);
-  font-size: clamp(7px, 0.64vw, 10px);
-  color: rgba(177,67,58,0.58);
-  letter-spacing: 0;
-  transform: rotate(3deg);
-  pointer-events: none;
 }
 #screen-landing .landing-bg .wall-drawer:nth-child(n + 13) { display: none; }
 #screen-landing .landing-bg .wall-drawer:nth-child(1) { --archive-entry-tilt: -2deg; left: -4vw; top: 16vh; }
@@ -1820,54 +1803,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   right: 18vw;
   top: 64vh;
   opacity: 0.12;
-}
-
-.past-trace--number {
-  left: 45vw;
-  top: 20vh;
-  color: var(--stamp);
-  font-size: clamp(1.1rem, 2.4vw, 2.8rem);
-  opacity: 0.12;
-  filter: blur(2.2px);
-}
-
-.past-trace--stamp {
-  left: 11vw;
-  bottom: 13vh;
-  color: var(--stamp);
-  font-size: clamp(1.4rem, 3vw, 3.2rem);
-  opacity: 0.13;
-  filter: blur(1.6px);
-  transform: rotate(-8deg) skewX(-3deg);
-  text-shadow:
-    -0.14em 0.04em 0 rgba(177,67,58,0.1),
-    0.12em -0.06em 0 rgba(177,67,58,0.08),
-    0.22em 0.16em 0 rgba(177,67,58,0.06),
-    -0.28em -0.18em 0 rgba(177,67,58,0.045);
-  mix-blend-mode: multiply;
-}
-
-.past-trace--stamp::before,
-.past-trace--stamp::after {
-  content: "3/7";
-  position: absolute;
-  inset: 0;
-  color: currentColor;
-  pointer-events: none;
-}
-
-.past-trace--stamp::before {
-  opacity: 0.48;
-  transform: translate(-0.32em, 0.18em) rotate(2deg);
-  clip-path: polygon(0 10%, 74% 0, 56% 42%, 100% 68%, 26% 100%, 0 74%);
-  filter: blur(1.2px);
-}
-
-.past-trace--stamp::after {
-  opacity: 0.28;
-  transform: translate(0.28em, -0.2em) rotate(-3deg);
-  clip-path: polygon(18% 0, 100% 14%, 78% 44%, 100% 100%, 34% 78%, 0 92%, 12% 36%);
-  filter: blur(2px);
 }
 
 .past-trace--edge {
