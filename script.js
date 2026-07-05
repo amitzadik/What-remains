@@ -1218,6 +1218,7 @@
   const qfolderStamp = document.getElementById("qfolder-stamp");
   const pPhotos  = document.getElementById("p-photos");
   const pVideos  = document.getElementById("p-videos");
+  const personalBg = document.getElementById("personal-bg");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalArchiveSearch = document.getElementById("btn-personal-archive-search");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
@@ -1343,6 +1344,15 @@
     }
   }
 
+  function renderPersonalBackdrop() {
+    if (!personalBg || !landingBg) return;
+    personalBg.innerHTML = landingBg.innerHTML;
+    personalBg.querySelectorAll(".wall-drawer").forEach(el => {
+      el.classList.remove("is-opening", "is-opened", "search-hit", "search-dim", "shake");
+      el.setAttribute("tabindex", "-1");
+    });
+  }
+
   // Size the "השאלות מההתחלה" cards so 3 per row fill the whole content width
   // (from the right edge to the red stamp on the left) — no wasted space.
   // Content width = 100% - 12% (right) - (10% + 8rem) (left, to the stamp).
@@ -1420,6 +1430,7 @@
       qfolderStamp.src = "images/stamp" + answeredCount + ".png";
     }
 
+    renderPersonalBackdrop();
     closeAllFolders(); // open the drawer showing the closed folder stack
     loadDrawerFiles(currentDrawerCode); // populate the photos/videos galleries
     showScreen("personal");
