@@ -52,6 +52,7 @@
   --font-main: 'SimplerPro', 'Courier New', Courier, monospace;
   --font-serif: 'Times New Roman', Times, serif;
   --paper-tex: url('images/paper-texture.jpg');
+  --paperboard-tex: url('paperboard-texture.jpg');
   --popup-card-w: min(668px, calc(90vw - 232px), calc(85vh * 1.5 - 232px));
   --popup-card-h: calc(var(--popup-card-w) / 1.5);
 }
@@ -957,8 +958,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   bottom: 37%;
   width: 42%;
   height: 44%;
-  background-color: rgba(250,246,238,0.92);
-  background-image: var(--paper-tex);
+  background-color: rgba(244,238,224,0.96);
+  background-image: var(--paperboard-tex);
   background-size: 420px 420px;
   border: none;
   box-shadow: none;
@@ -992,7 +993,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-image:
     linear-gradient(rgba(250,246,238,0.08), rgba(250,246,238,0.08)),
     radial-gradient(circle at 50% 36%, rgba(61,54,40,0.28) 0 17%, transparent 18%),
-    linear-gradient(145deg, rgba(172,137,105,0.24), rgba(250,246,238,0.75));
+    linear-gradient(145deg, rgba(172,137,105,0.24), rgba(250,246,238,0.75)),
+    var(--paperboard-tex);
   opacity: 0.66;
 }
 .envelope-card__memory-layer--photo::before {
@@ -1055,6 +1057,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   z-index: 7;
   padding: 4px 10px;
   color: rgba(61,54,40,0.9);
+  background-image: var(--paperboard-tex);
+  background-size: 360px 360px;
   pointer-events: none;
 }
 
@@ -1461,6 +1465,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 58%;
   opacity: 0.92;
   box-shadow: 0 8px 18px rgba(61,54,40,0.08);
+  background-color: rgba(242,235,219,0.98);
+  background-image: var(--paperboard-tex);
+  background-size: 360px 360px;
 }
 #screen-landing .landing-bg .envelope-card__memory-layer::before {
   opacity: 0.92;
@@ -1501,7 +1508,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: flex-start;
   justify-content: flex-start;
   padding: 6px 8px;
-  background: rgba(250,246,238,0.52);
+  background-color: rgba(242,235,219,0.72);
+  background-image: var(--paperboard-tex);
+  background-size: 320px 320px;
   transform: rotate(-2deg);
   z-index: 8;
 }
