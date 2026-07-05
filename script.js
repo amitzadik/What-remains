@@ -1548,7 +1548,6 @@
     const d = document.createElement("div");
     d.className = "wall-drawer envelope-card";
     d.setAttribute("data-name", v.name);
-    d.setAttribute("data-archive-id", String(v.code || "").padStart(4, "0"));
     d.setAttribute("data-layer-count", String(envelopeLayerTypes(v).length));
     d.innerHTML =
       '<img class="envelope-card__image envelope-card__image--base envelope-card__image--closed" src="images/closed-envelope.png" alt="">' +
