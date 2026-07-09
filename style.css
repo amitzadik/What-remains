@@ -4233,12 +4233,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-weight: 700;
   font-size: clamp(1.05rem, 1.7vw, 1.5rem);
   letter-spacing: 0.04em;
-  color: var(--stamp);
+  color: #c34237;
   background: #ece2cd;
-  border: 1px solid rgba(180, 74, 62, 0.3);
+  border: 1px solid rgba(195, 66, 55, 0.32);
   border-radius: 4px;
   padding: 0.5em 1.7em;
-  box-shadow: 0 5px 16px rgba(30, 22, 10, 0.28);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
   white-space: nowrap;
 }
 
@@ -4308,39 +4308,32 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   opacity: 0.72;
 }
 
-/* Thin-outline controls on the right */
-.pile-controls {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: clamp(14px, 2.4vw, 40px);
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: clamp(16px, 3vh, 34px) 0 clamp(30px, 9vh, 96px);
+/* Archival stamp controls (existing PNG stamps, per the Figma): close at the
+   top-right corner, add + archive stacked at the lower-right corner. */
+#screen-personal {
+  --ctrl-size: clamp(58px, 6vw, 90px);
+  --ctrl-inset: clamp(20px, 2vw, 40px);
+  --ctrl-gap: clamp(18px, 2.2vh, 32px);
 }
 .pile-ctrl {
-  width: clamp(40px, 3.4vw, 52px);
-  height: clamp(40px, 3.4vw, 52px);
+  position: absolute;
+  right: var(--ctrl-inset);
+  z-index: 50;
+  width: var(--ctrl-size);
+  height: var(--ctrl-size);
   padding: 0;
   border: none;
   background: none;
-  color: rgba(250, 246, 238, 0.9);
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease;
 }
-.pile-ctrl svg {
+.pile-ctrl img {
   display: block;
   width: 100%;
   height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  object-fit: contain;
 }
-.pile-ctrl:hover { transform: scale(1.08); opacity: 1; }
-/* X sits at the top; + and drawer group together in the lower area */
-.pile-ctrl:nth-child(2) { margin-top: auto; }
-.pile-ctrl:nth-child(3) { margin-top: clamp(14px, 2.4vh, 26px); }
+.pile-ctrl:hover:not(:disabled) { transform: scale(1.08); background: none; }
+.pile-ctrl--close   { top: var(--ctrl-inset); }
+.pile-ctrl--archive { bottom: var(--ctrl-inset); }
+.pile-ctrl--add     { bottom: calc(var(--ctrl-inset) + var(--ctrl-size) + var(--ctrl-gap)); }
