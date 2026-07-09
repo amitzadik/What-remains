@@ -1371,7 +1371,8 @@
     media.forEach(m => items.push({ type: "media", m: m }));
 
     // Document-sheet width in px so the qform can scale from its 1500px base.
-    const dw = Math.max(320, Math.min(700, window.innerWidth * 0.5));
+    // Large, like the Figma — the sheets crop against the screen edges.
+    const dw = Math.max(560, Math.min(1120, window.innerWidth * 0.64));
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
@@ -1386,12 +1387,13 @@
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
         el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
       }
-      // Stable scatter: centred, then offset within the pile band + tilt.
-      const rot = (pileRand(k + 1) - 0.5) * 15;          // ~ -7.5..7.5deg
-      const tx  = (pileRand(k + 7) - 0.5) * 48;           // % of pile, -24..24
-      const ty  = (pileRand(k + 13) - 0.5) * 38;          // % of pile, -19..19
+      // Stable scatter — bottom-weighted like the Figma: the pile begins in
+      // the lower half of the page and the large sheets crop past the bottom.
+      const rot = (pileRand(k + 1) - 0.5) * 16;          // ~ -8..8deg
+      const tx  = (pileRand(k + 7) - 0.5) * 50;           // % of pile, -25..25
+      const ty  = (pileRand(k + 13) - 0.5) * 42;          // % of pile, -21..21
       el.style.left = (50 + tx) + "%";
-      el.style.top  = (50 + ty) + "%";
+      el.style.top  = (64 + ty) + "%";                    // centred low, not mid-page
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
       el.style.zIndex = String(10 + k);
       archivePile.appendChild(el);

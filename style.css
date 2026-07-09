@@ -4258,9 +4258,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   will-change: transform;
 }
 
-/* Photograph — thin equal matte border, archival tone, drop shadow */
+/* Photograph — thin equal matte border, archival tone, drop shadow.
+   Large, like the Figma, so the pile fills the frame and crops at edges. */
 .pile-item--photo {
-  width: clamp(230px, calc(32vw * var(--w, 1)), 560px);
+  width: clamp(300px, calc(40vw * var(--w, 1)), 720px);
   padding: clamp(6px, 0.8vw, 12px);
   background: #fbf7ef;
   border: 1px solid rgba(61, 54, 40, 0.18);
