@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body dir="rtl">
 
@@ -363,53 +363,25 @@
 
   <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
   <section id="screen-personal" class="screen">
-    <div class="personal-bg" id="personal-bg" aria-hidden="true"></div>
-    <div class="folder-wrap">
-      <div class="drawer-header">
-        <div class="drawer-name" id="p-name"></div>
-      </div>
+    <div class="archive-box">
+      <!-- Depositor name plate, top-centre -->
+      <div class="drawer-header"><div class="drawer-name" id="p-name"></div></div>
 
-      <div class="folders">
-        <div class="folder-bodies">
-          <div class="folder-body" data-folder="0">
-            <button type="button" class="folder-tab" data-folder="0">תמונות</button>
-            <button type="button" class="img-btn folder-close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה"><img src="images/close-default.png" width="20" height="20"></button>
-            <input type="search" class="folder-search" placeholder="חיפוש" aria-label="חיפוש">
-            <div class="folder-content" id="p-photos"><div class="folder-empty">עדיין אין כאן תוכן</div></div>
-          </div>
-          <div class="folder-body" data-folder="1">
-            <button type="button" class="folder-tab" data-folder="1">סרטונים</button>
-            <button type="button" class="img-btn folder-close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה"><img src="images/close-default.png" width="20" height="20"></button>
-            <input type="search" class="folder-search" placeholder="חיפוש" aria-label="חיפוש">
-            <div class="folder-content" id="p-videos"><div class="folder-empty">עדיין אין כאן תוכן</div></div>
-          </div>
-          <div class="folder-body" data-folder="2">
-            <button type="button" class="folder-tab" data-folder="2">דברים שכתבתי</button>
-            <button type="button" class="img-btn folder-close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה"><img src="images/close-default.png" width="20" height="20"></button>
-            <input type="search" class="folder-search" placeholder="חיפוש" aria-label="חיפוש">
-            <div class="folder-content"><div class="legacy-text" id="p-legacy"></div></div>
-          </div>
-          <div class="folder-body" data-folder="3">
-            <button type="button" class="folder-tab" data-folder="3">השאלות מההתחלה</button>
-            <button type="button" class="img-btn folder-close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה"><img src="images/close-default.png" width="20" height="20"></button>
-            <input type="search" class="folder-search" placeholder="חיפוש" aria-label="חיפוש">
-            <img class="qfolder-stamp" id="qfolder-stamp" alt="">
-            <div class="folder-content"><div class="qfolder-cards" id="p-questions"></div></div>
-          </div>
-        </div>
-      </div>
+      <!-- The scattered pile of this depositor's own archive materials -->
+      <div class="archive-pile" id="archive-pile"></div>
 
-      <div class="personal-actions">
-        <button id="btn-personal-to-general" type="button" class="img-btn personal-add" data-default="images/add-new-default.png" data-hover="images/add-new-hover.png">
-          <img src="images/add-new-default.png" width="105" height="105">
+      <!-- Thin-outline controls, right side -->
+      <div class="pile-controls">
+        <button id="btn-personal-restart" type="button" class="pile-ctrl" aria-label="סגירה">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"></circle><line x1="15" y1="15" x2="29" y2="29"></line><line x1="29" y1="15" x2="15" y2="29"></line></svg>
         </button>
-        <button id="btn-personal-archive-search" type="button" class="img-btn personal-search" data-default="images/search-arcive-default.png" data-hover="images/search-archive-hover.png" aria-label="חיפוש בארכיון">
-          <img src="images/search-arcive-default.png" width="105" height="105">
+        <button id="btn-personal-to-general" type="button" class="pile-ctrl" aria-label="הוספת חומר">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"></circle><line x1="22" y1="13" x2="22" y2="31"></line><line x1="13" y1="22" x2="31" y2="22"></line></svg>
+        </button>
+        <button id="btn-personal-archive-search" type="button" class="pile-ctrl" aria-label="לארכיון">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="9" y="12" width="26" height="22" rx="2"></rect><line x1="9" y1="22" x2="35" y2="22"></line><line x1="18" y1="17" x2="26" y2="17"></line><line x1="18" y1="28" x2="26" y2="28"></line></svg>
         </button>
       </div>
-      <button id="btn-personal-restart" type="button" class="img-btn personal-back" data-default="images/back-default.png" data-hover="images/back-hover.png">
-        <img src="images/back-default.png" width="105" height="105">
-      </button>
     </div>
   </section>
 
