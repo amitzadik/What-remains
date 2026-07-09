@@ -400,7 +400,12 @@
 
   // Open the logged-in user's own drawer directly (auto-unlock, owner view)
   function openOwnDrawer(sess) {
-    let viewer = allDrawers().find(v => v.code === sess.code);
+    const drawers = allDrawers();
+    // Prefer the live (this-session) drawer so the owner's own materials —
+    // the portrait captured after the questions, plus the live date/answers —
+    // come from session state, even once the DB listing echoes the row back.
+    let viewer = drawers.find(v => v.isUser && v.code === sess.code)
+              || drawers.find(v => v.code === sess.code);
     if (!viewer) viewer = { name: sess.name || "", code: sess.code, archive: "", answers: null };
     activeViewer = viewer;
     activeDrawerEl = document.querySelector('.wall-drawer[data-name="' + CSS.escape(viewer.name || "") + '"]') || null;
@@ -1336,11 +1341,12 @@
       dontKnow: dontKnow || []
     };
 
-    // Seed the pile media with the depositor's own photo (own drawer only —
-    // session state, not persisted); Drive files are appended by loadDrawerFiles.
+    // Seed the pile media with the depositor's own portrait — the photo taken
+    // after the questions (session state, not persisted). Show it on the
+    // owner's own drawer, whether resolved as the live drawer or a DB echo.
     pileMedia = [];
     pileLocalMedia = [];
-    if (viewer.isUser && state.photoDataUrl) {
+    if ((viewer.isUser || ownerView) && state.photoDataUrl) {
       pileMedia.push({ src: state.photoDataUrl, kind: "image", own: true });
     }
 
