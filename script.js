@@ -1213,24 +1213,17 @@
   // Personal archive (the user's own drawer)
   // ============================================================
   const pName    = document.getElementById("p-name");
-  const pLegacy  = document.getElementById("p-legacy");
-  const pQuestions = document.getElementById("p-questions");
-  const qfolderStamp = document.getElementById("qfolder-stamp");
-  const pPhotos  = document.getElementById("p-photos");
-  const pVideos  = document.getElementById("p-videos");
-  const personalBg = document.getElementById("personal-bg");
+  const archivePile = document.getElementById("archive-pile");
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalArchiveSearch = document.getElementById("btn-personal-archive-search");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
 
-  // Drawer-upload state. Only photos (folder 0) and videos (folder 1) are
-  // uploadable for now; each maps to an accepted file type.
+  // Personal-archive state. The scattered pile is built from THIS depositor's
+  // own materials: their answered question cards plus their photos/videos.
   let currentDrawerCode = "";
-  let activeFolderIdx = 3;
-  const FOLDER_CATEGORY = { 0: "image", 1: "video" };
-
-  function openArchiveSearch() {
-  }
+  let pileCardData = null;   // the 7 question cards' data for the open drawer
+  let pileMedia = [];        // authoritative media {src, kind, own?} (drive + own photo)
+  let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1276,30 +1269,12 @@
     reader.readAsDataURL(file);
   }
 
-  // Render a just-picked file into its folder right away (before the Drive
-  // round-trip finishes), dimmed until the gallery reloads from Drive.
+  // Drop a just-picked file straight onto the pile (before the Drive
+  // round-trip finishes), dimmed until the pile reloads from Drive.
   function showLocalPreview(file, dataUrl) {
     const isVideo = (file.type || "").indexOf("video/") === 0;
-    const targetEl = isVideo ? pVideos : pPhotos;
-    if (!targetEl) return;
-    let grid = targetEl.querySelector(".drawer-files");
-    if (!grid) {
-      targetEl.innerHTML = '<div class="drawer-files"></div>';
-      grid = targetEl.querySelector(".drawer-files");
-    }
-    let el;
-    if (isVideo) {
-      el = document.createElement("video");
-      el.className = "drawer-file-video is-uploading";
-      el.controls = true;
-      el.src = dataUrl;
-    } else {
-      el = document.createElement("img");
-      el.className = "drawer-file is-uploading";
-      el.alt = "";
-      el.src = dataUrl;
-    }
-    grid.appendChild(el);
+    pileLocalMedia.push({ src: dataUrl, kind: isVideo ? "video" : "image", uploading: true });
+    renderArchivePile();
   }
 
   // Fetch the drawer's files via JSONP and render them into the folders.
@@ -1320,58 +1295,23 @@
   }
 
   function renderDrawerFiles(files) {
-    const images = files.filter(f => f.type === "image");
-    const videos = files.filter(f => f.type === "video");
-    if (pPhotos) {
-      let html = "";
-      images.forEach(f => {
-        html += '<img class="drawer-file" loading="lazy" alt="" ' +
-                'src="https://drive.google.com/thumbnail?id=' + f.id + '&sz=w1000">';
-      });
-      pPhotos.innerHTML = html
-        ? '<div class="drawer-files">' + html + '</div>'
-        : '<div class="folder-empty">עדיין אין כאן תוכן</div>';
-    }
-    if (pVideos) {
-      let vhtml = "";
-      videos.forEach(f => {
-        vhtml += '<iframe class="drawer-file-video" loading="lazy" allow="autoplay" ' +
-                 'src="https://drive.google.com/file/d/' + f.id + '/preview"></iframe>';
-      });
-      pVideos.innerHTML = vhtml
-        ? '<div class="drawer-files">' + vhtml + '</div>'
-        : '<div class="folder-empty">עדיין אין כאן תוכן</div>';
-    }
+    // Rebuild the pile media from Drive, keeping the session-only own photo
+    // (marked own) at the front. Drive thumbnails work for videos too.
+    const own = pileMedia.filter(m => m.own);
+    const driveMedia = (files || []).map(f => ({
+      src: "https://drive.google.com/thumbnail?id=" + f.id + "&sz=w1000",
+      kind: f.type
+    }));
+    pileMedia = own.concat(driveMedia);
+    pileLocalMedia = [];
+    renderArchivePile();
   }
 
-  function renderPersonalBackdrop() {
-    if (!personalBg || !landingBg) return;
-    personalBg.innerHTML = landingBg.innerHTML;
-    personalBg.querySelectorAll(".wall-drawer").forEach(el => {
-      el.classList.remove("is-opening", "is-opened", "search-hit", "search-dim", "shake");
-      el.setAttribute("tabindex", "-1");
-    });
-  }
-
-  // Size the "השאלות מההתחלה" cards so 3 per row fill the whole content width
-  // (from the right edge to the red stamp on the left) — no wasted space.
-  // Content width = 100% - 12% (right) - (10% + 8rem) (left, to the stamp).
-  function sizeQuestionCards() {
-    if (!pQuestions) return;
-    const gap = 10;
-    // .folder-body is inset 20px each side, and .folder-content is 4% left / 6%
-    // right of it, with a vertical scrollbar — so the real card band is:
-    const bandW = (window.innerWidth - 40) * 0.90 - 20;
-    let scale = (bandW - 2 * gap) / 3 / 1500;               // 3 columns fill the width
-    scale = Math.max(0.12, Math.min(1, scale));
-    pQuestions.style.setProperty("--qf-scale", String(scale));
-  }
-  window.addEventListener("resize", sizeQuestionCards);
-
-  // Open the drawer interior (folder dividers) for a given viewer and
-  // show the screen. "דברים שכתבתי" = legacy text; "השאלות מההתחלה" =
-  // the 7 answers (full data for the user's own drawer via state; for DB
-  // drawers only when the sheet returns q1..q7 via viewer.answers).
+  // Open a depositor's personal archive as a scattered pile of THEIR own
+  // materials — the 7 answered question cards plus their photos/videos.
+  // The card data is the drawer's own: own drawer uses live state, a DB
+  // drawer uses answers fetched from the sheet (empty when unanswered, so we
+  // never leak the logged-in user's answers into someone else's cards).
   function openDrawerInterior(viewer) {
     if (!viewer) return;
     if (activeDrawerEl) activeDrawerEl.classList.add("is-opened");
@@ -1379,19 +1319,7 @@
     const _sess = getSession();
     ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
     currentDrawerCode = viewer.code || "";
-    pName.textContent   = viewer.name || "(ללא שם)";
-    pLegacy.textContent = viewer.archive || "(אין טקסט מורשת)";
-
-    // "תמונות" — show the depositor photo for the user's own drawer
-    // (session only; not persisted to the DB)
-    if (pPhotos) {
-      if (viewer.isUser && state.photoDataUrl) {
-        pPhotos.innerHTML = '<img class="drawer-photo" alt="תמונת המפקיד">';
-        pPhotos.querySelector("img").src = state.photoDataUrl;
-      } else {
-        pPhotos.innerHTML = '<div class="folder-empty">עדיין אין כאן תוכן</div>';
-      }
-    }
+    pName.textContent = viewer.name || "(ללא שם)";
 
     let answers = null, dontKnow = null;
     if (viewer.isUser) {
@@ -1401,101 +1329,120 @@
       answers  = viewer.answers;
       dontKnow = viewer.answers.map(a => String(a).trim() === "לא יודע/ת");
     }
-
-    // "השאלות מההתחלה" shows the exact 7 opening question cards (reused
-    // verbatim via cardFormHTML), each scaled to 30% inside a footprint wrap.
-    // The card data for THIS drawer: own drawer uses live state, a DB drawer
-    // uses the answers fetched from the sheet (empty arrays when unanswered,
-    // so we never leak the logged-in user's answers into someone else's cards).
-    const cardData = {
+    pileCardData = {
       name: viewer.name || state.name,
       date: viewer.isUser ? state.date : "",
       answers: answers || [],
       dontKnow: dontKnow || []
     };
 
-    pQuestions.innerHTML = "";
-    questions.forEach((q, i) => {
-      const wrap = document.createElement("div");
-      wrap.className = "qfolder-card-wrap";
-      wrap.innerHTML =
-        '<div class="qfolder-card"><div class="qform-sheet">' + cardFormHTML(i, cardData) + '</div></div>';
-      pQuestions.appendChild(wrap);
-    });
-    sizeQuestionCards();
-
-    // Answered-count stamp — pick stampN.png by THIS drawer's answered count.
-    if (qfolderStamp) {
-      const answeredCount = cardData.dontKnow.filter(x => !x).length;
-      qfolderStamp.src = "images/stamp" + answeredCount + ".png";
+    // Seed the pile media with the depositor's own photo (own drawer only —
+    // session state, not persisted); Drive files are appended by loadDrawerFiles.
+    pileMedia = [];
+    pileLocalMedia = [];
+    if (viewer.isUser && state.photoDataUrl) {
+      pileMedia.push({ src: state.photoDataUrl, kind: "image", own: true });
     }
 
-    renderPersonalBackdrop();
-    closeAllFolders(); // open the drawer showing the closed folder stack
-    loadDrawerFiles(currentDrawerCode); // populate the photos/videos galleries
+    renderArchivePile();
+    loadDrawerFiles(currentDrawerCode); // append this drawer's Drive materials
     showScreen("personal");
   }
 
-  // Folder dividers: clicking a tab brings its divider to the front
-  const folderTabs   = Array.from(document.querySelectorAll("#screen-personal .folder-tab"));
-  const folderBodies = Array.from(document.querySelectorAll("#screen-personal .folder-body"));
-  // Fixed stack order is set in CSS by data-folder (brown "השאלות" at the back,
-  // the others zigzag right/left). The order never changes — not on click, not
-  // on hover; opening a folder just makes it dominate (is-open) over the rest.
-  function activateFolder(idx) {
-    activeFolderIdx = idx;
-    // The + (upload) button shows only for the owner, and only on the
-    // uploadable folders — תמונות (0) and סרטונים (1). Read-only otherwise.
-    if (btnPersonalToGeneral) {
-      btnPersonalToGeneral.style.display =
-        (ownerView && (idx === 0 || idx === 1)) ? "" : "none";
-    }
+  // Deterministic pseudo-random in [0,1) so each pile item keeps a stable
+  // scattered position/rotation across re-renders (no jitter on reload).
+  function pileRand(seed) {
+    const x = Math.sin(seed * 99.13 + seed * seed * 0.729) * 43758.5453;
+    return x - Math.floor(x);
   }
-  if (btnPersonalArchiveSearch) {
-    btnPersonalArchiveSearch.addEventListener("click", openArchiveSearch);
-  }
-  const folderBodiesEl = document.querySelector("#screen-personal .folder-bodies");
-  // Open one folder (bring it forward + reveal); opening one closes any other.
-  function openFolder(idx) {
-    activateFolder(idx);
-    folderBodies.forEach((b, i) => b.classList.toggle("is-open", i === idx));
-    if (folderBodiesEl) folderBodiesEl.classList.add("has-open"); // others recede to tabs
-  }
-  // Show the closed folder stack (no divider pre-opened); hide the upload +.
-  function closeAllFolders() {
-    folderBodies.forEach(b => b.classList.remove("is-open"));
-    if (folderBodiesEl) folderBodiesEl.classList.remove("has-open");
-    if (btnPersonalToGeneral) btnPersonalToGeneral.style.display = "none";
-  }
-  // Clicking a folder toggles it; clicking the open one closes it back in.
-  function toggleFolder(idx) {
-    const body = folderBodies[idx];
-    if (!body) return;
-    if (body.classList.contains("is-open")) {
-      body.classList.remove("is-open");
-      if (folderBodiesEl) folderBodiesEl.classList.remove("has-open"); // back to the large stack
-    } else {
-      openFolder(idx);
-    }
-  }
-  folderTabs.forEach((tab, i) => tab.addEventListener("click", () => toggleFolder(i)));
-  // Close stamp on the open tab → close the folder back into the stack
-  document.querySelectorAll("#screen-personal .folder-close").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const body = btn.closest(".folder-body");
-      if (body) body.classList.remove("is-open");
-      if (folderBodiesEl) folderBodiesEl.classList.remove("has-open");
-    });
-  });
-  closeAllFolders(); // default: closed folder stack until a tab is clicked
 
-  // Bottom-left +: pick a file for the active folder (photos/videos only)
+  // Build the scattered pile from the open drawer's own materials: the
+  // question document sheets behind the depositor's photos/videos, each laid
+  // at a stable pseudo-random position, rotation and size.
+  function renderArchivePile() {
+    if (!archivePile) return;
+    const media = pileMedia.concat(pileLocalMedia);
+    const docCount = pileCardData ? questions.length : 0;
+
+    // The document sheets form the back of the pile; the depositor's own
+    // photos/videos sit on top as the materials laid over the archive.
+    const items = [];
+    for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
+    media.forEach(m => items.push({ type: "media", m: m }));
+
+    // Document-sheet width in px so the qform can scale from its 1500px base.
+    const dw = Math.max(320, Math.min(700, window.innerWidth * 0.5));
+
+    archivePile.innerHTML = "";
+    items.forEach((it, k) => {
+      const el = document.createElement("div");
+      el.className = "pile-item pile-item--" + (it.type === "doc" ? "doc" : "photo");
+      if (it.type === "doc") {
+        el.style.setProperty("--dw", dw + "px");
+        el.innerHTML = '<div class="pile-doc">' + cardFormHTML(it.i, pileCardData) + "</div>";
+      } else {
+        if (it.m.uploading) el.classList.add("is-uploading");
+        const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
+        el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
+        el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
+      }
+      // Stable scatter: centred, then offset within the pile band + tilt.
+      const rot = (pileRand(k + 1) - 0.5) * 15;          // ~ -7.5..7.5deg
+      const tx  = (pileRand(k + 7) - 0.5) * 48;           // % of pile, -24..24
+      const ty  = (pileRand(k + 13) - 0.5) * 38;          // % of pile, -19..19
+      el.style.left = (50 + tx) + "%";
+      el.style.top  = (50 + ty) + "%";
+      el.style.setProperty("--rot", rot.toFixed(2) + "deg");
+      el.style.zIndex = String(10 + k);
+      archivePile.appendChild(el);
+    });
+
+    // The + (add material) control shows only for the drawer's owner.
+    if (btnPersonalToGeneral) {
+      btnPersonalToGeneral.style.display = ownerView ? "" : "none";
+    }
+  }
+
+  // Re-scatter/re-scale the pile on resize while the personal screen is open.
+  window.addEventListener("resize", () => {
+    if (screens.personal && screens.personal.classList.contains("active")) {
+      renderArchivePile();
+    }
+  });
+
+  // Gentle "slide a paper aside" interaction: clicking within ~12px of an
+  // item's edge nudges it ~18px out of the pile in that direction (toggle).
+  if (archivePile) {
+    archivePile.addEventListener("click", (e) => {
+      const item = e.target.closest(".pile-item");
+      if (!item) return;
+      const r = item.getBoundingClientRect();
+      const edge = 12;
+      const nl = e.clientX - r.left <= edge, nr = r.right - e.clientX <= edge;
+      const nt = e.clientY - r.top  <= edge, nb = r.bottom - e.clientY <= edge;
+      if (!(nl || nr || nt || nb)) return;   // interior clicks do nothing
+      const on = item.classList.toggle("is-nudged");
+      const d = 18;
+      let nx = 0, ny = 0;
+      if (nl) nx = -d; else if (nr) nx = d;
+      if (nt) ny = -d; else if (nb) ny = d;
+      item.style.setProperty("--nx", on ? nx + "px" : "0px");
+      item.style.setProperty("--ny", on ? ny + "px" : "0px");
+    });
+  }
+
+  // Drawer control → browse the full archive (the landing drawer wall).
+  if (btnPersonalArchiveSearch) {
+    btnPersonalArchiveSearch.addEventListener("click", () => {
+      renderLandingDrawers();
+      showScreen("landing");
+    });
+  }
+
+  // + control → the owner adds a new photo/video to their archive.
   btnPersonalToGeneral.addEventListener("click", () => {
     if (!ownerView || !currentDrawerCode) return;
-    const cat = FOLDER_CATEGORY[activeFolderIdx];
-    if (!cat) return; // only תמונות / סרטונים are uploadable for now
-    uploadInput.accept = cat === "image" ? "image/*" : "video/*";
+    uploadInput.accept = "image/*,video/*";
     uploadInput.click();
   });
 
