@@ -913,12 +913,13 @@
   }
 
   // The five ruled answer lines, filled with the user's answer (split by
-  // newline) — or "לא יודע/ת" when the question was skipped.
+  // newline). When the question was skipped ("לא יודע/ת"), the answer area
+  // stays blank — the empty ruled lines are the record that it went unanswered.
   function buildAnswerLines(i, src) {
     const ans = (src && src.answers) || state.answers;
     const dk  = (src && src.dontKnow) || state.dontKnow;
     const parts = dk[i]
-      ? ["לא יודע/ת"]
+      ? []
       : String(ans[i] || "").split("\n");
     let html = "";
     for (let k = 0; k < 5; k++) {
