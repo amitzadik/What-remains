@@ -2802,7 +2802,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-questions .question-memory-trace__item {
-  --trace-font-size: 1.11rem;
+  --trace-font-size: 350pt;
   --trace-x: 0vw;
   --trace-y: 0vh;
   --trace-rotate: 0deg;
@@ -2810,6 +2810,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   right: auto;
   top: 50%;
   width: min(68vw, 760px);
+  /* Mandatory Variable, "Bold 18" named instance (wght 816 / wdth 87) */
+  font-family: var(--font-mandatory);
+  font-weight: 700;
+  font-variation-settings: "wght" 816, "wdth" 87;
   font-size: var(--trace-font-size);
   line-height: 1.16;
   opacity: 0;
@@ -2827,41 +2831,37 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     font-size 1500ms var(--trace-ease);
 }
 
+/* Blur/opacity per age (size ladder lives in the block further below).
+   Blur scales with the giant type so the ghosts stay soft, not sharp. */
 #screen-questions .question-memory-trace__item[data-age="1"] {
-  --trace-font-size: 2.85rem;
-  opacity: 0.22;
-  filter: blur(2px);
+  opacity: 0.2;
+  filter: blur(22px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="2"] {
-  --trace-font-size: 2.52rem;
-  opacity: 0.2;
-  filter: blur(2.4px);
+  opacity: 0.18;
+  filter: blur(18px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="3"] {
-  --trace-font-size: 2.2rem;
-  opacity: 0.18;
-  filter: blur(2.8px);
+  opacity: 0.16;
+  filter: blur(15px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="4"] {
-  --trace-font-size: 1.92rem;
-  opacity: 0.15;
-  filter: blur(3.2px);
+  opacity: 0.13;
+  filter: blur(12px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="5"] {
-  --trace-font-size: 1.68rem;
-  opacity: 0.12;
-  filter: blur(3.6px);
+  opacity: 0.11;
+  filter: blur(10px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="6"],
 #screen-questions .question-memory-trace__item[data-age="7"] {
-  --trace-font-size: 1.5rem;
   opacity: 0.08;
-  filter: blur(4px);
+  filter: blur(8px);
 }
 
 #screen-questions .question-memory-trace__item[data-age="1"][data-slot="0"] { --trace-x: -4vw; --trace-y: -5vh; --trace-rotate: -0.4deg; }
@@ -2987,13 +2987,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-questions .question-memory-trace__item[data-age="7"],
 .cards-memory-trace .question-memory-trace__item[data-age="6"] { --trace-x: 0vw; --trace-y: -18vh; --trace-rotate: 1.8deg; }
 
-#screen-questions .question-memory-trace__item[data-age="1"] { --trace-font-size: 3.42rem; }
-#screen-questions .question-memory-trace__item[data-age="2"] { --trace-font-size: 3.02rem; }
-#screen-questions .question-memory-trace__item[data-age="3"] { --trace-font-size: 2.64rem; }
-#screen-questions .question-memory-trace__item[data-age="4"] { --trace-font-size: 2.3rem; }
-#screen-questions .question-memory-trace__item[data-age="5"] { --trace-font-size: 2.02rem; }
+/* Answer ghost size ladder: newest = 350pt, −20% (×0.8) per screen it survives. */
+#screen-questions .question-memory-trace__item[data-age="1"] { --trace-font-size: 350pt; }
+#screen-questions .question-memory-trace__item[data-age="2"] { --trace-font-size: 280pt; }
+#screen-questions .question-memory-trace__item[data-age="3"] { --trace-font-size: 224pt; }
+#screen-questions .question-memory-trace__item[data-age="4"] { --trace-font-size: 179.2pt; }
+#screen-questions .question-memory-trace__item[data-age="5"] { --trace-font-size: 143.36pt; }
 #screen-questions .question-memory-trace__item[data-age="6"],
-#screen-questions .question-memory-trace__item[data-age="7"] { --trace-font-size: 1.8rem; }
+#screen-questions .question-memory-trace__item[data-age="7"] { --trace-font-size: 114.69pt; }
 
 .cards-memory-trace .question-memory-trace__item {
   font-size: clamp(1.46rem, 2.64vw, 2.46rem);

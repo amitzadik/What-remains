@@ -542,6 +542,20 @@
     return items;
   }
 
+  // The ghost field behind the live questions accumulates only the answers
+  // given so far. Each answer enters at full size on the next question and
+  // shrinks one step (−20%) on every screen after that, so the newest answer
+  // is always the largest. Skipped ("לא יודע/ת") answers leave no trace.
+  function buildAnswerMemoryItems(count) {
+    const items = [];
+    const limit = Math.min(count, questions.length);
+    for (let i = 0; i < limit; i++) {
+      const answer = String(state.answers[i] || "").replace(/\s+/g, " ").trim();
+      if (answer && !state.dontKnow[i]) items.push(answer);
+    }
+    return items;
+  }
+
   function setMemoryTraceItems(container, items, options) {
     if (!container) return;
     const traces = Array.isArray(items) ? items : (items ? [items] : []);
@@ -681,7 +695,7 @@
     state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
-    const memoryItems = buildQuestionMemoryItems(state.currentQuestion);
+    const memoryItems = buildAnswerMemoryItems(state.currentQuestion);
     if (state.currentQuestion >= questions.length) {
       animateNextQuestion(finishingIndex, memoryItems, () => {
         initCards();
