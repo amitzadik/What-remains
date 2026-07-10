@@ -8,6 +8,17 @@
   font-display: swap;
 }
 
+/* === Mandatory (variable) @font-face ===
+   Variable font: wght 200–900, wdth 0–150.
+   Control width with `font-variation-settings: "wdth" <0–150>`. */
+@font-face {
+  font-family: "Mandatory Variable";
+  src: url("MandatoryVariable.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ============================================================
    Tokens (from old style.css)
 ============================================================ */
@@ -36,6 +47,7 @@
   --red:             var(--stamp);
 
   --font-main: "SundayMono", "Courier New", Courier, monospace;
+  --font-mandatory: "Mandatory Variable", "SundayMono", sans-serif;
   --font-serif: 'Times New Roman', Times, serif;
   --paper-tex: url('images/paper-texture.jpg');
   --paperboard-tex: url('paperboard-texture.jpg');
