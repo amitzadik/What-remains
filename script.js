@@ -648,40 +648,21 @@
   // previous run, un-freeze the register card and put it back on top.
   function resetQuestionStage() {
     const stage = questionStage();
-    if (stage) {
-      // Drop every frozen card clone from a previous run; keep the reusable
-      // register sheet element (its content is reset separately).
-      stage.querySelectorAll(".qform-sheet--stacked").forEach(s => {
-        if (s !== registerSheet) s.remove();
-      });
-      stage.classList.add("qform-stage--register");
+    if (stage) stage.classList.add("qform-stage--register");
+    if (qMemoryTrace) {
+      qMemoryTrace.querySelectorAll(".qmem-word").forEach(el => el.remove());
+      qMemoryTrace.classList.remove("is-visible");
     }
-    setQuestionMemoryTrace("");
-    if (registerSheet) {
-      registerSheet.classList.remove("qform-sheet--stacked", "qform-sheet--pile", "qform-sheet--entering");
-      registerSheet.removeAttribute("aria-hidden");
-      registerSheet.removeAttribute("data-history-index");
-      registerSheet.removeAttribute("data-depth");
-      registerSheet.style.zIndex = "";
-      registerSheet.style.removeProperty("--stack-rot");
-      registerSheet.style.removeProperty("--stack-x");
-      registerSheet.style.removeProperty("--stack-y");
-    }
-    state.frozenCount = 0;
+    if (registerSheet) registerSheet.removeAttribute("aria-hidden");
   }
 
-  // The filled register card becomes the first layer of the memory pile
-  // (history index 0), sitting behind the first question.
+  // Leaving the register card: the form stays put and question 1 appears; the
+  // depositor's name is the first word to recede into the memory background.
   function freezeRegisterCard() {
     const stage = questionStage();
-    if (registerSheet) {
-      registerSheet.classList.add("qform-sheet--stacked", "qform-sheet--pile");
-      registerSheet.dataset.historyIndex = String(state.frozenCount);
-      registerSheet.setAttribute("aria-hidden", "true");
-      state.frozenCount++;
-      restackPile();
-    }
     if (stage) stage.classList.remove("qform-stage--register");
+    if (registerSheet) registerSheet.setAttribute("aria-hidden", "true");
+    renderMemoryBackground();
   }
 
   function initQuestions() {
@@ -690,6 +671,70 @@
     renderQuestion();
   }
 
+  // ── Memory background ──────────────────────────────────────────────
+  // The form itself never recedes — only the answers do. The depositor's
+  // name and every answer (or "לא יודע/ת") drift behind the live form as
+  // soft blurred words. Per Figma: Mandatory Variable Bold, blur 20px,
+  // opacity 0.3, multiply. The newest word is the largest (350px at the
+  // 1920px base) and each older word steps down 20%; every chronological
+  // word keeps its own fixed scatter slot, so the blurred mass of past
+  // answers spreads and grows as the questionnaire advances.
+  const MEMORY_SLOTS = [
+    { right: -1.0, top: -3.4 },  // 0 — depositor name
+    { right: 27.8, top: 1.4 },   // 1
+    { right: 52.6, top: 22.1 },  // 2
+    { right: -4.3, top: 34.7 },  // 3
+    { right: 34.7, top: 50.5 },  // 4
+    { right: -5.9, top: 74.7 },  // 5
+    { right: 56.0, top: 77.4 }   // 6
+  ];
+  const MEMORY_BASE_VW = 18.23;  // 350px / 1920px
+  const MEMORY_STEP = 0.8;       // each older word is 20% smaller
+
+  function memoryWords() {
+    const words = [];
+    const firstName = (state.name || "").trim().split(/\s+/)[0];
+    if (firstName) words.push(firstName);
+    const answered = Math.min(state.currentQuestion, questions.length);
+    for (let i = 0; i < answered; i++) {
+      if (state.dontKnow[i]) { words.push("לא יודע/ת"); continue; }
+      const a = String(state.answers[i] || "").replace(/\s+/g, " ").trim();
+      words.push(a || "לא יודע/ת");
+    }
+    return words;
+  }
+
+  function renderMemoryBackground() {
+    if (!qMemoryTrace) return;
+    const words = memoryWords();
+    const total = words.length;
+    const existing = new Map();
+    qMemoryTrace.querySelectorAll(".qmem-word").forEach(el => existing.set(el.dataset.mem, el));
+    const keep = new Set();
+    words.forEach((text, i) => {
+      const key = String(i);
+      keep.add(key);
+      let el = existing.get(key);
+      if (!el) {
+        el = document.createElement("span");
+        el.className = "qmem-word";
+        el.dataset.mem = key;
+        qMemoryTrace.appendChild(el);
+      }
+      if (el.textContent !== text) el.textContent = text;
+      const slot = MEMORY_SLOTS[Math.min(i, MEMORY_SLOTS.length - 1)];
+      const age = total - 1 - i;                       // newest word (age 0) is largest
+      const vw = (MEMORY_BASE_VW * Math.pow(MEMORY_STEP, age)).toFixed(2);
+      const cap = Math.round(350 * Math.pow(MEMORY_STEP, age) * 1.2);
+      el.style.right = slot.right + "%";
+      el.style.top = slot.top + "%";
+      el.style.fontSize = "min(" + vw + "vw, " + cap + "px)";
+    });
+    existing.forEach((el, key) => { if (!keep.has(key)) el.remove(); });
+    qMemoryTrace.classList.toggle("is-visible", total > 0);
+  }
+
+  let isQuestionTransitioning = false;
   function handleAnswer(isDontKnow) {
     if (isQuestionTransitioning) return;
     const finishingIndex = state.currentQuestion;
@@ -697,85 +742,18 @@
     state.answers[finishingIndex]  = isDontKnow ? null : getAnswerText();
     state.dontKnow[finishingIndex] = isDontKnow;
     state.currentQuestion++;
-    const memoryItems = buildAnswerMemoryItems(state.currentQuestion);
-    if (state.currentQuestion >= questions.length) {
-      animateNextQuestion(finishingIndex, memoryItems, () => {
-        initCards();
-        showScreen("cards");
-      });
-      return;
-    }
-    animateNextQuestion(finishingIndex, memoryItems, () => renderQuestion(true));
-  }
 
-  // Recompute each pile layer's distance from the active card. The most
-  // recently frozen card is 1 back; older cards fall further back. Distance
-  // (data-depth) drives the fixed blur/opacity table in CSS; newer cards also
-  // sit above older ones so the pile reads front-to-back.
-  function restackPile() {
-    const stage = questionStage();
-    if (!stage) return;
-    const sheets = Array.from(stage.querySelectorAll(".qform-sheet--pile"));
-    let maxIdx = -1;
-    sheets.forEach(s => { maxIdx = Math.max(maxIdx, Number(s.dataset.historyIndex) || 0); });
-    sheets.forEach(s => {
-      const idx = Number(s.dataset.historyIndex) || 0;
-      const depth = maxIdx - idx + 1;            // newest frozen card = 1 back
-      s.dataset.depth = String(Math.min(Math.max(depth, 1), 7));
-      s.style.zIndex = String(idx + 1);          // newer cards above older ones
-    });
-  }
-
-  // Snapshot the live card into a permanent, frozen pile layer. The clone keeps
-  // the answered content (question + answer lines) and never leaves the DOM.
-  function freezeActiveCard(questionText) {
-    const stage = questionStage();
-    const activeSheet = stage ? stage.querySelector(".qform-sheet--active") : null;
-    if (!stage || !activeSheet) return null;
-    const clone = activeSheet.cloneNode(true);
-    clone.classList.remove("qform-sheet--active");
-    clone.classList.add("qform-sheet--stacked", "qform-sheet--pile");
-    clone.setAttribute("aria-hidden", "true");
-    clone.dataset.historyIndex = String(state.frozenCount);
-    // Strip ids so the clone never shadows the live card's getElementById targets.
-    clone.removeAttribute("id");
-    clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    // Bake the prompt as plain text (drop the typewriter spans / caret).
-    const qt = clone.querySelector(".qform-question-text");
-    if (qt) { qt.classList.remove("is-typing"); qt.textContent = questionText || ""; }
-    // Freeze every interactive control on the snapshot.
-    clone.querySelectorAll("[contenteditable]").forEach(el => el.setAttribute("contenteditable", "false"));
-    clone.querySelectorAll("button, input").forEach(el => { el.disabled = true; el.tabIndex = -1; });
-    stage.appendChild(clone);
-    state.frozenCount++;
-    restackPile();
-    return clone;
-  }
-
-  // Question transition. The finished card freezes in place, then recedes into
-  // its scattered, blurred resting spot in the pile while the next prompt
-  // appears sharp on top. No card is ever removed.
-  let isQuestionTransitioning = false;
-  function animateNextQuestion(finishingIndex, memoryItems, advanceCallback) {
-    if (isQuestionTransitioning) { advanceCallback(); return; }
     isQuestionTransitioning = true;
-
-    const clone = freezeActiveCard(questions[finishingIndex] || "");
-
-    if (reduceMotion || !clone) {
-      advanceCallback();
-      isQuestionTransitioning = false;
-      return;
+    // Only the answer recedes: push it into the memory background, leave the
+    // form in place and swap in the next prompt (or move on to the cards).
+    renderMemoryBackground();
+    if (state.currentQuestion >= questions.length) {
+      initCards();
+      showScreen("cards");
+    } else {
+      renderQuestion(true);
     }
-
-    // Start merged with the active card, then transition to the resting depth.
-    clone.classList.add("qform-sheet--entering");
-    // Swap the (separate) live card to the next prompt immediately; it stays sharp.
-    advanceCallback();
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      clone.classList.remove("qform-sheet--entering");
-    }));
-    window.setTimeout(() => { isQuestionTransitioning = false; }, 680);
+    window.setTimeout(() => { isQuestionTransitioning = false; }, reduceMotion ? 0 : 450);
   }
 
   // No JS scaling — the stage is sized responsively in CSS.
