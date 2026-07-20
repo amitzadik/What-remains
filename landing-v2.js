@@ -4,29 +4,48 @@
 
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const parts = [...screen.querySelectorAll('.landing-v2__copy p')].map((el) => {
-    const text = el.textContent || '';
+    const text = [...el.childNodes].map((node) => (
+      node.nodeName === 'BR' ? '\n' : (node.textContent || '')
+    )).join('');
     el.classList.add('typewriter-stable');
     el.innerHTML = '<span class="typewriter-reserve" aria-hidden="true"></span><span class="typewriter-live"></span>';
     el.querySelector('.typewriter-reserve').textContent = text;
     return { el, live: el.querySelector('.typewriter-live'), text };
   });
 
+  let typingFinished = false;
+  let cardFinished = false;
+
+  function beginIdleWhenReady() {
+    if (typingFinished && cardFinished) screen.classList.add('is-idle');
+  }
+
   function revealAll() {
     parts.forEach((part) => { part.live.textContent = part.text; });
+    typingFinished = true;
+    beginIdleWhenReady();
   }
 
   function typePart(index) {
     const part = parts[index];
-    if (!part) return;
+    if (!part) {
+      typingFinished = true;
+      beginIdleWhenReady();
+      return;
+    }
     const chars = Array.from(part.text);
     let i = 0;
+    part.live.classList.add('is-typing');
 
     function tick() {
       part.live.textContent += chars[i] || '';
       i += 1;
       if (i < chars.length) {
-        window.setTimeout(tick, index === 0 ? 42 : 24);
+        const char = chars[i - 1];
+        const pause = /[.,:;!?\u05C3]/.test(char) ? 105 : (char === ' ' ? 20 : 34);
+        window.setTimeout(tick, index === 0 ? pause + 7 : pause);
       } else {
+        part.live.classList.remove('is-typing');
         window.setTimeout(() => typePart(index + 1), 110);
       }
     }
@@ -35,8 +54,20 @@
 
   window.setTimeout(() => {
     screen.classList.add('is-revealed');
-    if (reduceMotion) revealAll();
-    else window.setTimeout(() => typePart(0), 260);
+    if (reduceMotion) {
+      screen.classList.add('is-card-entered');
+      cardFinished = true;
+      revealAll();
+    } else {
+      window.setTimeout(() => typePart(0), 260);
+      window.setTimeout(() => {
+        screen.classList.add('is-card-entered');
+        window.setTimeout(() => {
+          cardFinished = true;
+          beginIdleWhenReady();
+        }, 2450);
+      }, 820);
+    }
   }, 500);
 
   document.getElementById('landing-v2-add')?.addEventListener('click', () => {
