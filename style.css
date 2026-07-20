@@ -3525,7 +3525,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-dk-btn:hover:not(:disabled) { opacity: 0.75; }
 .qform-dk-btn:disabled { cursor: not-allowed; opacity: 0.4; }
 
-/* Frozen sheets are hidden in the live questionnaire; memory appears as text traces only. */
+/* Frozen sheets stay behind the live card as the accumulating memory pile. */
 .qform-sheet--stacked {
   transform: translate(var(--stack-x, 0), var(--stack-y, 0)) rotate(var(--stack-rot, 0deg));
 }
@@ -3533,13 +3533,86 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-sheet--stacked .register-head .img-btn { visibility: hidden; }
 .qform-sheet--stacked [contenteditable] { caret-color: transparent; }
 
+/* ============================================================
+   Memory pile — every answered / "don't know" card stays in the
+   DOM as a permanent layer behind the active card. Distance from
+   the active card drives blur + opacity (fixed table); a fixed,
+   index-seeded offset scatters the layers so the blurred mass of
+   past questions spreads and grows as the questionnaire advances.
+   Pure CSS filter/opacity/transform — no re-render.
+   ============================================================ */
+.qform-sheet--pile {
+  transform: translate(var(--pile-x, 0px), var(--pile-y, 0px)) rotate(var(--pile-rot, 0deg));
+  filter: blur(var(--pile-blur, 0px));
+  transform-origin: center center;
+  will-change: transform, filter, opacity;
+  transition:
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.65s ease;
+}
+/* On a pile layer the sheet-level opacity is the single source of fade. */
+.qform-sheet--pile .qform,
+.qform-sheet--pile .qform-question-text,
+.qform-sheet--pile .line__text,
+.qform-sheet--pile .qform-value,
+.qform-sheet--pile .qform-label,
+.qform-sheet--pile .qform-num { opacity: 1; }
+
+/* blur + opacity strictly by distance back from the active card */
+.qform-sheet--pile[data-depth="1"] { --pile-blur: 2px;   opacity: 0.45; }
+.qform-sheet--pile[data-depth="2"] { --pile-blur: 3.5px; opacity: 0.32; }
+.qform-sheet--pile[data-depth="3"] { --pile-blur: 5px;   opacity: 0.24; }
+.qform-sheet--pile[data-depth="4"] { --pile-blur: 6.5px; opacity: 0.18; }
+.qform-sheet--pile[data-depth="5"] { --pile-blur: 8px;   opacity: 0.13; }
+.qform-sheet--pile[data-depth="6"],
+.qform-sheet--pile[data-depth="7"] { --pile-blur: 9.5px; opacity: 0.10; }
+
+/* fixed per-index scatter (seed) — some up, some to the sides, some down.
+   Offsets clear the card's inner padding so each layer's blurred content
+   (not just its blank margin) peeks out; spread across all indices, the
+   union of positions widens as the pile grows. */
+.qform-sheet--pile[data-history-index="0"] { --pile-x: -140px; --pile-y: -120px; --pile-rot: -2.4deg; }
+.qform-sheet--pile[data-history-index="1"] { --pile-x:  150px; --pile-y:  130px; --pile-rot:  2.2deg; }
+.qform-sheet--pile[data-history-index="2"] { --pile-x: -190px; --pile-y:   60px; --pile-rot: -1.6deg; }
+.qform-sheet--pile[data-history-index="3"] { --pile-x:  120px; --pile-y: -150px; --pile-rot:  2.8deg; }
+.qform-sheet--pile[data-history-index="4"] { --pile-x: -100px; --pile-y:  150px; --pile-rot: -2.0deg; }
+.qform-sheet--pile[data-history-index="5"] { --pile-x:  200px; --pile-y:  -40px; --pile-rot:  1.4deg; }
+.qform-sheet--pile[data-history-index="6"] { --pile-x:   60px; --pile-y: -190px; --pile-rot:  2.9deg; }
+
+/* a just-finished card starts merged with the active card, then recedes */
+.qform-sheet--pile.qform-sheet--entering {
+  --pile-x: 0px; --pile-y: 0px; --pile-rot: 0deg; --pile-blur: 0px;
+  opacity: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qform-sheet--pile { transition: none; }
+}
+
 #screen-questions .qform-sheet {
   box-shadow: none;
 }
 
-#screen-questions .qform-sheet--stacked {
+/* Non-pile frozen sheets (none in the current flow) stay hidden. */
+#screen-questions .qform-sheet--stacked:not(.qform-sheet--pile) {
   transform: none;
   visibility: hidden;
+}
+
+/* Memory-pile layers stay visible and carry their scattered transform. */
+#screen-questions .qform-sheet--pile {
+  visibility: visible;
+  transform: translate(var(--pile-x, 0px), var(--pile-y, 0px)) rotate(var(--pile-rot, 0deg));
+}
+
+/* The active card is opaque paper so the pile reads only around its edges,
+   not bleeding through the sharp card the depositor is filling in. */
+#screen-questions .qform-sheet--active .qform {
+  background-color: var(--cream);
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 #screen-questions .qform {

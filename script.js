@@ -649,6 +649,8 @@
   function resetQuestionStage() {
     const stage = questionStage();
     if (stage) {
+      // Drop every frozen card clone from a previous run; keep the reusable
+      // register sheet element (its content is reset separately).
       stage.querySelectorAll(".qform-sheet--stacked").forEach(s => {
         if (s !== registerSheet) s.remove();
       });
@@ -656,7 +658,10 @@
     }
     setQuestionMemoryTrace("");
     if (registerSheet) {
-      registerSheet.classList.remove("qform-sheet--stacked");
+      registerSheet.classList.remove("qform-sheet--stacked", "qform-sheet--pile", "qform-sheet--entering");
+      registerSheet.removeAttribute("aria-hidden");
+      registerSheet.removeAttribute("data-history-index");
+      registerSheet.removeAttribute("data-depth");
       registerSheet.style.zIndex = "";
       registerSheet.style.removeProperty("--stack-rot");
       registerSheet.style.removeProperty("--stack-x");
@@ -665,19 +670,16 @@
     state.frozenCount = 0;
   }
 
-  // The filled register card becomes the first frozen sheet of the pile
-  // (same tilt/dim treatment as a finished question).
+  // The filled register card becomes the first layer of the memory pile
+  // (history index 0), sitting behind the first question.
   function freezeRegisterCard() {
     const stage = questionStage();
     if (registerSheet) {
-      const idx = state.frozenCount;
-      const angle = STACK_ANGLES[idx % STACK_ANGLES.length];
-      registerSheet.classList.add("qform-sheet--stacked");
-      registerSheet.style.zIndex = String(idx + 1);
-      registerSheet.style.setProperty("--stack-rot", angle + "deg");
-      registerSheet.style.setProperty("--stack-x", (Math.sign(angle) * (28 + idx * 18)) + "px");
-      registerSheet.style.setProperty("--stack-y", ((10 + idx * 16) - 50) + "px");
+      registerSheet.classList.add("qform-sheet--stacked", "qform-sheet--pile");
+      registerSheet.dataset.historyIndex = String(state.frozenCount);
+      registerSheet.setAttribute("aria-hidden", "true");
       state.frozenCount++;
+      restackPile();
     }
     if (stage) stage.classList.remove("qform-stage--register");
   }
@@ -706,116 +708,74 @@
     animateNextQuestion(finishingIndex, memoryItems, () => renderQuestion(true));
   }
 
-  // Gentle, deterministic tilt for each frozen sheet (±2°), alternating.
-  const STACK_ANGLES = [-2.6, 2.1, -1.5, 2.8, -1.9, 1.2];
+  // Recompute each pile layer's distance from the active card. The most
+  // recently frozen card is 1 back; older cards fall further back. Distance
+  // (data-depth) drives the fixed blur/opacity table in CSS; newer cards also
+  // sit above older ones so the pile reads front-to-back.
+  function restackPile() {
+    const stage = questionStage();
+    if (!stage) return;
+    const sheets = Array.from(stage.querySelectorAll(".qform-sheet--pile"));
+    let maxIdx = -1;
+    sheets.forEach(s => { maxIdx = Math.max(maxIdx, Number(s.dataset.historyIndex) || 0); });
+    sheets.forEach(s => {
+      const idx = Number(s.dataset.historyIndex) || 0;
+      const depth = maxIdx - idx + 1;            // newest frozen card = 1 back
+      s.dataset.depth = String(Math.min(Math.max(depth, 1), 7));
+      s.style.zIndex = String(idx + 1);          // newer cards above older ones
+    });
+  }
 
-  // Question transition. The finished prompt dissolves into the memory field;
-  // the live form stays still and the next prompt appears sharp.
+  // Snapshot the live card into a permanent, frozen pile layer. The clone keeps
+  // the answered content (question + answer lines) and never leaves the DOM.
+  function freezeActiveCard(questionText) {
+    const stage = questionStage();
+    const activeSheet = stage ? stage.querySelector(".qform-sheet--active") : null;
+    if (!stage || !activeSheet) return null;
+    const clone = activeSheet.cloneNode(true);
+    clone.classList.remove("qform-sheet--active");
+    clone.classList.add("qform-sheet--stacked", "qform-sheet--pile");
+    clone.setAttribute("aria-hidden", "true");
+    clone.dataset.historyIndex = String(state.frozenCount);
+    // Strip ids so the clone never shadows the live card's getElementById targets.
+    clone.removeAttribute("id");
+    clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    // Bake the prompt as plain text (drop the typewriter spans / caret).
+    const qt = clone.querySelector(".qform-question-text");
+    if (qt) { qt.classList.remove("is-typing"); qt.textContent = questionText || ""; }
+    // Freeze every interactive control on the snapshot.
+    clone.querySelectorAll("[contenteditable]").forEach(el => el.setAttribute("contenteditable", "false"));
+    clone.querySelectorAll("button, input").forEach(el => { el.disabled = true; el.tabIndex = -1; });
+    stage.appendChild(clone);
+    state.frozenCount++;
+    restackPile();
+    return clone;
+  }
+
+  // Question transition. The finished card freezes in place, then recedes into
+  // its scattered, blurred resting spot in the pile while the next prompt
+  // appears sharp on top. No card is ever removed.
   let isQuestionTransitioning = false;
   function animateNextQuestion(finishingIndex, memoryItems, advanceCallback) {
-    if (!qMemoryTrace || !qText || isQuestionTransitioning) {
-      advanceCallback();
-      return;
-    }
+    if (isQuestionTransitioning) { advanceCallback(); return; }
     isQuestionTransitioning = true;
 
-    if (reduceMotion) {
-      setQuestionMemoryTrace(memoryItems);
+    const clone = freezeActiveCard(questions[finishingIndex] || "");
+
+    if (reduceMotion || !clone) {
       advanceCallback();
       isQuestionTransitioning = false;
       return;
     }
 
-    qMemoryTrace.classList.add("is-visible");
-    qMemoryTrace.querySelectorAll(".question-memory-trace__item").forEach(trace => {
-      const i = Number(trace.dataset.questionIndex);
-      if (Number.isFinite(i) && i < memoryItems.length) trace.dataset.age = String(memoryItems.length - i);
-    });
-
-    const screenRect = screens.questions.getBoundingClientRect();
-    const sourceRect = qText.getBoundingClientRect();
-    const sourceStyle = getComputedStyle(qText);
-    const liveSheet = document.querySelector("#screen-questions .qform-sheet--active");
-    const sheetRect = liveSheet ? liveSheet.getBoundingClientRect() : sourceRect;
-    const formGhost = document.createElement("div");
-    formGhost.className = "question-memory-form-ghost";
-    formGhost.dataset.slot = String(finishingIndex % 7);
-    formGhost.style.left = (sheetRect.left - screenRect.left) + "px";
-    formGhost.style.top = (sheetRect.top - screenRect.top) + "px";
-    formGhost.style.width = sheetRect.width + "px";
-    formGhost.style.height = sheetRect.height + "px";
-    const ghostQuestion = document.createElement("span");
-    ghostQuestion.className = "question-memory-form-ghost__question";
-    ghostQuestion.textContent = questions[finishingIndex] || "";
-    ghostQuestion.style.top = (sourceRect.top - sheetRect.top) + "px";
-    ghostQuestion.style.right = (sheetRect.right - sourceRect.right) + "px";
-    ghostQuestion.style.width = sourceRect.width + "px";
-    ghostQuestion.style.fontSize = sourceStyle.fontSize;
-    ghostQuestion.style.lineHeight = sourceStyle.lineHeight;
-    ghostQuestion.style.fontWeight = sourceStyle.fontWeight;
-    formGhost.appendChild(ghostQuestion);
-    screens.questions.appendChild(formGhost);
-
-    const dissolvingTraces = [];
-    function addDissolvingTrace(text, rect, style, slotOffset) {
-      if (!text || !rect) return;
-      const trace = document.createElement("span");
-      trace.className = "question-memory-trace__item question-memory-trace__item--dissolving";
-      trace.dataset.questionIndex = String(finishingIndex) + "-" + String(slotOffset);
-      trace.dataset.slot = String((finishingIndex + slotOffset) % 7);
-      trace.dataset.age = "1";
-      trace.textContent = text;
-      trace.style.left = (rect.left - screenRect.left) + "px";
-      trace.style.right = "auto";
-      trace.style.top = (rect.top - screenRect.top) + "px";
-      trace.style.width = rect.width + "px";
-      trace.style.transform = "translateY(0) scale(1)";
-      trace.style.fontSize = style.fontSize;
-      trace.style.lineHeight = style.lineHeight;
-      trace.style.fontWeight = style.fontWeight;
-      trace.style.filter = "blur(0)";
-      trace.style.opacity = "1";
-      trace.style.zIndex = "6";
-      screens.questions.appendChild(trace);
-      dissolvingTraces.push(trace);
-    }
-    addDissolvingTrace(questions[finishingIndex] || "", sourceRect, sourceStyle, 0);
-    const answerText = String(state.answers[finishingIndex] || "").replace(/\s+/g, " ").trim();
-    const firstAnswerLine = lines.find(line => line.textContent.trim());
-    if (answerText && firstAnswerLine) {
-      addDissolvingTrace(answerText, firstAnswerLine.getBoundingClientRect(), getComputedStyle(firstAnswerLine), 3);
-    }
-
-    requestAnimationFrame(() => {
-      formGhost.classList.add("is-receding");
-      dissolvingTraces.forEach(trace => {
-        trace.style.left = "";
-        trace.style.right = "";
-        trace.style.top = "";
-        trace.style.width = "";
-        trace.style.transform = "";
-        trace.style.fontSize = "";
-        trace.style.lineHeight = "";
-        trace.style.fontWeight = "";
-        trace.style.filter = "";
-        trace.style.opacity = "";
-      });
-    });
-
-    window.setTimeout(() => {
-      advanceCallback();
-      dissolvingTraces.forEach(trace => { trace.style.zIndex = "0"; });
-    }, 260);
-
-    window.setTimeout(() => {
-      formGhost.remove();
-    }, 980);
-
-    window.setTimeout(() => {
-      dissolvingTraces.forEach(trace => trace.remove());
-      setQuestionMemoryTrace(memoryItems);
-      isQuestionTransitioning = false;
-    }, 1180);
+    // Start merged with the active card, then transition to the resting depth.
+    clone.classList.add("qform-sheet--entering");
+    // Swap the (separate) live card to the next prompt immediately; it stays sharp.
+    advanceCallback();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      clone.classList.remove("qform-sheet--entering");
+    }));
+    window.setTimeout(() => { isQuestionTransitioning = false; }, 680);
   }
 
   // No JS scaling — the stage is sized responsively in CSS.
