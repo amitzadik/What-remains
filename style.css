@@ -3435,6 +3435,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   letter-spacing: 0.02em;
 }
 
+/* The live questionnaire no longer displays the red progress stamp. */
+#screen-questions .qform-num {
+  display: none;
+}
+
 /* === Row 2: question === */
 .qform-question-row {
   position: relative;
