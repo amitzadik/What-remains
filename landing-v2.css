@@ -32,9 +32,10 @@ button{font:inherit;color:inherit}
 
 .landing-v2__wordmark{
   position:absolute;
-  inset:auto auto -8vh -3vw;
-  width:105vw;
-  height:94vh;
+  top:26px;
+  right:2vw;
+  width:112.8vw;
+  height:117.3vh;
   z-index:1;
   direction:rtl;
   text-align:right;
@@ -67,14 +68,21 @@ button{font:inherit;color:inherit}
 
 .landing-v2__copy{
   position:absolute;
-  top:50%;
-  right:10.5vw;
-  width:min(907px,58vw);
+  top:11.2vh;
+  right:17.4vw;
+  width:min(907px,47.24vw);
   z-index:6;
-  transform:translateY(-49%);
+  transform:none;
   text-align:right;
   opacity:0;
   transition:opacity .5s ease .35s;
+  height:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  background-image:none;
+  box-shadow:none;
 }
 .landing-v2__copy p{margin:0 0 18px;letter-spacing:-.01em}
 .landing-v2__title{font-size:clamp(40px,3.95vw,76px);font-weight:700;line-height:.95;margin-bottom:20px!important}
@@ -141,7 +149,7 @@ button{font:inherit;color:inherit}
 .pile-label{font-size:34px;line-height:1.1;white-space:nowrap}
 
 .landing-v2.is-revealed .landing-v2__copy{opacity:1}
-.landing-v2.is-revealed .landing-v2__wordmark{font-size:clamp(220px,26vw,500px);opacity:.08;filter:blur(18px);transform:scale(.91);mix-blend-mode:multiply}
+.landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
 .landing-v2.is-card-entered .landing-v2__pile{animation:place-card 2.45s both}
 @keyframes place-card{
   0%{left:-365px;bottom:-255px;transform:rotate(-10.1deg)}
@@ -153,7 +161,7 @@ button{font:inherit;color:inherit}
 
 @media (max-width:900px){
   .landing-v2__nav{top:18px;right:18px;gap:12px}.icon-btn{width:58px;height:58px}
-  .landing-v2__copy{right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:35px}
+  .landing-v2__copy{top:15vh;right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:35px}
   .landing-v2__pile{transform:scale(.72) rotate(-8.72deg);transform-origin:left bottom}
   .landing-v2.is-card-entered .landing-v2__pile{animation-name:place-card-mobile}
   @keyframes place-card-mobile{

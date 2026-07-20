@@ -8,6 +8,19 @@
   font-display: swap;
 }
 
+.figma-landing {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #faf6ee;
+  opacity: 1;
+  transition: opacity .45s ease;
+}
+.figma-landing.is-dismissed { opacity: 0; pointer-events: none; }
+
 /* === Mandatory (variable) @font-face ===
    Variable font: wght 200–900, wdth 0–150.
    Control width with `font-variation-settings: "wdth" <0–150>`. */

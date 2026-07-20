@@ -70,11 +70,14 @@
     }
   }, 500);
 
-  document.getElementById('landing-v2-add')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
+  function sendAction(action) {
+    if (window.parent !== window) {
+      window.parent.postMessage({ source: 'what-remains-landing', action }, window.location.origin);
+    }
+  }
 
-  screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
+  document.getElementById('landing-v2-add')?.addEventListener('click', () => sendAction('create'));
+  screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', () => sendAction('search'));
+  screen.querySelector('[aria-label="התחברות"]')?.addEventListener('click', () => sendAction('login'));
+  screen.querySelector('[aria-label="המגירה שלי"]')?.addEventListener('click', () => sendAction('drawer'));
 })();

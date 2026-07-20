@@ -8,6 +8,8 @@
 </head>
 <body dir="rtl">
 
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html" title="מה שישאר — עמוד הבית"></iframe>
+
   <!-- ============== SCREEN: LANDING (intro + fork) ============== -->
   <section id="screen-landing" class="screen active">
     <!-- Archive drawer wall (background) -->
@@ -472,5 +474,19 @@
   </div>
 
   <script src="script.js?v=9"></script>
+  <script>
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
+      const intro = document.getElementById('figma-landing');
+      if (event.data.action === 'create') {
+        intro.classList.add('is-dismissed');
+        window.setTimeout(() => intro.remove(), 500);
+        document.getElementById('stamp-add')?.click();
+      }
+      if (event.data.action === 'search') document.getElementById('stamp-search')?.click();
+      if (event.data.action === 'login') document.getElementById('stamp-login')?.click();
+      if (event.data.action === 'drawer') document.getElementById('stamp-mydrawer')?.click();
+    });
+  </script>
 </body>
 </html>
