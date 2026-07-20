@@ -50,7 +50,7 @@ button{font:inherit;color:inherit}
   transform:translate3d(0,0,0) scale(1);
   transform-origin:center;
   filter:blur(0);
-  transition:filter 3.2s cubic-bezier(.2,.75,.2,1),opacity 3.2s ease,transform 3.2s cubic-bezier(.2,.75,.2,1),font-size 3.2s cubic-bezier(.2,.75,.2,1),top 3.2s cubic-bezier(.2,.75,.2,1),right 3.2s cubic-bezier(.2,.75,.2,1),width 3.2s cubic-bezier(.2,.75,.2,1),height 3.2s cubic-bezier(.2,.75,.2,1);
+  transition:filter 10s cubic-bezier(.2,.75,.2,1),opacity 10s ease,transform 10s cubic-bezier(.2,.75,.2,1),font-size 10s cubic-bezier(.2,.75,.2,1),top 10s cubic-bezier(.2,.75,.2,1),right 10s cubic-bezier(.2,.75,.2,1),width 10s cubic-bezier(.2,.75,.2,1),height 10s cubic-bezier(.2,.75,.2,1);
 }
 
 .landing-v2__nav{
