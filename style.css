@@ -2576,8 +2576,31 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-questions {
   background-color: #F4EFE5;
-  background-image: var(--paper-tex);
+  background-image: url("images/figma-question-background.jpg");
+  background-size: cover;
   overflow: hidden;
+}
+
+.question-name-ghost {
+  position: absolute;
+  z-index: 0;
+  top: -58px;
+  right: 55px;
+  width: 733px;
+  height: 364px;
+  overflow: hidden;
+  direction: rtl;
+  text-align: right;
+  font-family: var(--font-mandatory);
+  font-size: clamp(180px, 18.23vw, 350px);
+  font-weight: 700;
+  font-variation-settings: "wght" 816, "wdth" 87;
+  line-height: 1.3;
+  color: var(--ink);
+  opacity: 0.3;
+  filter: blur(20px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
 #screen-legacy {
@@ -3283,8 +3306,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    breathing room; overflow stays visible so the tilted pile and the
    sheet shadows aren't clipped (the .screen clips at the viewport). */
 .qform-stage {
-  width: min(90vw, calc(85vh * 1.5), 1500px);
-  aspect-ratio: 3 / 2;
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  aspect-ratio: 1370 / 969;
   margin: auto;
   position: relative;
   flex-shrink: 0;
@@ -3315,14 +3338,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --qform-label-inset-x: 12px;
   width: 100%;
   height: 100%;
+  position: relative;
   background-color: var(--cream);
-  background-image: var(--paper-tex);
+  background-image: url("images/figma-question-paper.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   opacity: 0.8;
   /* Inner area: 52px sides / 85px top+bottom at the 1500×1000 base,
      kept proportional (both percentages resolve against width) */
-  padding: calc(100% * 85 / 1500) calc(100% * 52 / 1500);
+  padding: calc(100% * 55 / 1370) calc(100% * 52 / 1370);
   display: flex;
   flex-direction: column;
   font-family: var(--font-main);
@@ -3339,7 +3363,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   min-height: 0;
   border: 1.5px solid var(--ink);
   display: grid;
-  grid-template-rows: repeat(7, 1fr);
+  grid-template-rows: 102fr 101fr repeat(4, 101fr) 253fr;
 }
 
 /* every row has its bottom dividing line except the last one */
@@ -3359,7 +3383,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-header { padding: 0; }
 .qform-header .qform-cell {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
   height: 100%;
   border-left: 1.5px solid var(--ink);
   /* 12px reading-side inset — text never touches the dividing line */
@@ -3370,6 +3394,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-align: right;
   min-width: 0;
 }
+.qform-header .qform-cell:nth-child(1) { width: 35.2%; }
+.qform-header .qform-cell:nth-child(2) { width: 27.7%; }
+.qform-header .qform-cell:nth-child(3) { width: 21.2%; }
+.qform-header .qform-cell:nth-child(4) { width: 15.9%; }
 .qform-header .qform-cell:last-child { border-left: none; }
 .qform-cell-num { text-align: right; }
 
@@ -3377,7 +3405,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-label {
   display: block;
   font-family: var(--font-main);
-  font-size: 0.72rem;
+  font-size: clamp(0.72rem, 0.94vw, 18px);
   font-weight: 400;
   color: var(--metal);
   letter-spacing: 0.02em;
@@ -3392,8 +3420,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: block;
   font-family: var(--font-main);
   font-weight: 500;
-  /* Figma: values share the question's 60px size */
-  font-size: 1.85rem;
+  /* Keep long dates intact inside the narrower Figma header column. */
+  font-size: clamp(1.75rem, 2.9167vw, 56px);
   line-height: 1.3;
   color: var(--ink);
   white-space: nowrap;
@@ -3403,7 +3431,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-num {
   color: var(--stamp);
   font-weight: 600;
-  font-size: 1.85rem;
+  font-size: clamp(1.9rem, 3.125vw, 60px);
   letter-spacing: 0.02em;
 }
 
@@ -3428,8 +3456,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: flex-start;
   text-align: right;
   font-family: var(--font-main);
-  font-size: 1.85rem;
-  font-weight: 600;
+  font-size: clamp(1.75rem, 3.125vw, 60px);
+  font-weight: 500;
   color: var(--ink);
   line-height: 1.3;
   padding: 0.3rem 0;
@@ -3460,7 +3488,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: flex-end;
   font-family: var(--font-main);
-  font-size: 1.4rem;
+  font-size: clamp(1.35rem, 2.3vw, 44px);
   line-height: 1.2;
   color: var(--ink);
 }
@@ -3484,10 +3512,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 /* === Floating action buttons — bottom corners of the inner area === */
 .qform-actions {
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 3;
+  left: calc(100% * 70 / 1370);
+  right: calc(100% * 70 / 1370);
+  bottom: calc(100% * 72 / 1370);
   display: flex;
   align-items: center;
-  margin-top: 3.5%;
+  margin: 0;
 }
 /* Continue / submit button always sits in the bottom-LEFT corner; the
    auto inline-start margin pushes it to the inline-end (left in RTL),
@@ -3504,9 +3536,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   justify-content: center;
 }
+.qform-img-btn img { width: clamp(90px, 8.333vw, 160px); height: clamp(90px, 8.333vw, 160px); }
 .qform-img-btn:hover { background: none; }
 .qform-img-btn:disabled { cursor: not-allowed; }
 .qform-img-btn:disabled img { opacity: 0.35; }
+#screen-questions .qform-img-btn:disabled img { opacity: 1; }
 
 /* "לא יודע/ת" — plain red bold text (Figma: 70px Bold, no box) */
 .qform-dk-btn {
@@ -3517,7 +3551,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   cursor: pointer;
   font-family: var(--font-main);
   font-weight: 700;
-  font-size: 2.15rem;
+  font-size: clamp(2.15rem, 3.646vw, 70px);
   line-height: 1;
   color: var(--stamp);
   white-space: nowrap;

@@ -485,6 +485,7 @@
   const qName  = document.getElementById("q-name");
   const qAbout = document.getElementById("q-about");
   const qText  = document.getElementById("q-text");
+  const qNameGhost = document.getElementById("question-name-ghost");
   const qMemoryTrace = document.getElementById("question-memory-trace");
   const btnNext = document.getElementById("btn-next-q");
   const btnDk   = document.getElementById("btn-dk-q");
@@ -668,6 +669,9 @@
   function initQuestions() {
     qDate.textContent = state.date;
     qName.textContent = state.name;
+    if (qNameGhost) {
+      qNameGhost.textContent = (state.name || "").trim().split(/\s+/)[0] || "";
+    }
     renderQuestion();
   }
 
