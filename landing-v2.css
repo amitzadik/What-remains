@@ -78,6 +78,8 @@ button{font:inherit;color:inherit}
   position:absolute;
   top:calc(50% - 339px);
   right:calc(50% - 497px);
+  left:auto;
+  bottom:auto;
   width:907px;
   z-index:6;
   transform:none;
@@ -92,8 +94,8 @@ button{font:inherit;color:inherit}
   background-image:none;
   box-shadow:none;
 }
-.landing-v2__copy p{margin:0 0 18px;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(40px,3.95vw,76px);font-weight:700;line-height:.95;margin-bottom:20px!important}
+.landing-v2__copy p{margin:0 0 20px;letter-spacing:-.01em}
+.landing-v2__title{font-size:clamp(40px,3.95vw,76px);font-weight:700;line-height:.95;margin-bottom:16px!important}
 .landing-v2__copy p:not(.landing-v2__title){font-size:clamp(25px,2.3vw,44px);line-height:1.1;font-weight:400;text-indent:80px}
 
 .typewriter-stable{position:relative}
