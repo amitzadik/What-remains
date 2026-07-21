@@ -1499,7 +1499,7 @@
         x = isAdd ? 48.04 : 49.09;
         y = isAdd ? 97.08 : 115.00;
         rot = isAdd ? 12.8 : -13.9;
-        z = isAdd ? 220 : 210;
+        z = isAdd ? 210 : 220;
       } else {
         const mediaIndex = k - docCount;
         x = mediaIndex === 0 ? 66 : 50 + (pileRand(seed + 7) - 0.5) * 52;

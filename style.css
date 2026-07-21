@@ -4987,6 +4987,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .pile-item--doc .stack-sheet-dk {
   display: none !important;
 }
+.pile-item--doc .qform-label {
+  font-size: clamp(8.2px, 1.077cqw, 14.76px);
+}
+.pile-item--doc .qform-value,
+.pile-item--doc .qform-num,
+.pile-item--doc .qform-question-text,
+.pile-item--doc .answer-line {
+  font-size: clamp(16.4px, 3.592cqw, 49.2px);
+}
 
 /* Decorative "next" arrow tucked into a corner of some question sheets, like
    the Figma. Purely visual — it inherits the sheet's own scatter rotation and
@@ -5041,11 +5050,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   top: 30.62%;
   bottom: auto;
   transform: translate(-50%, -50%);
-  font-family: var(--font-main);
+  font-family: var(--font-mandatory);
   font-weight: 700;
+  font-variation-settings: "wght" 700, "wdth" 36;
   font-size: clamp(3rem, 5.208vw, 6.25rem);
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   color: rgba(62, 54, 38, 0.8);   /* --ink at ~80% */
   white-space: nowrap;
   pointer-events: none;
