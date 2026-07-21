@@ -72,6 +72,14 @@
   --font-mandatory: "Mandatory Variable", "SundayMono", sans-serif;
   --font-serif: 'Times New Roman', Times, serif;
 
+  /* === Motion — shared "handled paper" easings ===
+     --ease-arrive: a sheet picked up and laid down — brief attack, long
+       settle (paper has mass; it never starts at full speed).
+     --ease-settle: the project's existing drift/recede curve, named so
+       new rules stop re-declaring the literal. */
+  --ease-arrive: cubic-bezier(0.3, 0.06, 0.22, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+
   /* ============================================================
      Figma Text Styles → reusable typography tokens.
      Weights map to real SundayMono files (Medium 500 / Bold 700).
@@ -2943,6 +2951,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --stack-from-y: 0vh;
   --stack-from-rot: 0deg;
   --stack-delay: 0ms;
+  --stack-dur: 1120ms;
+  --stack-over: 0deg;
   --stack-opacity: 0.68;
   position: absolute;
   inset: 0;
@@ -2953,21 +2963,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   pointer-events: none;
 }
 .stack-transition-stage.is-forming .stack-transition-sheet {
-  animation: stack-sheet-arrive 1120ms cubic-bezier(0.22, 1, 0.36, 1) var(--stack-delay) both;
+  animation: stack-sheet-arrive var(--stack-dur) var(--ease-arrive) var(--stack-delay) both;
 }
 
-.stack-transition-sheet[data-sheet="0"] { --stack-x: -7%; --stack-y: -10%; --stack-rot: -5.8deg; --stack-from-x: -72vw; --stack-from-y: -24vh; --stack-from-rot: -12deg; --stack-delay: 0ms; --stack-opacity: 0.48; }
-.stack-transition-sheet[data-sheet="1"] { --stack-x: 10%; --stack-y: -8%; --stack-rot: 2.71deg; --stack-from-x: 70vw; --stack-from-y: -20vh; --stack-from-rot: 9deg; --stack-delay: 210ms; --stack-opacity: 0.52; }
-.stack-transition-sheet[data-sheet="2"] { --stack-x: -13%; --stack-y: -2%; --stack-rot: -3.5deg; --stack-from-x: -68vw; --stack-from-y: 8vh; --stack-from-rot: -10deg; --stack-delay: 420ms; --stack-opacity: 0.56; }
-.stack-transition-sheet[data-sheet="3"] { --stack-x: 12%; --stack-y: 3%; --stack-rot: 4.3deg; --stack-from-x: 72vw; --stack-from-y: 14vh; --stack-from-rot: 11deg; --stack-delay: 630ms; --stack-opacity: 0.58; }
-.stack-transition-sheet[data-sheet="4"] { --stack-x: -8%; --stack-y: 6%; --stack-rot: -2deg; --stack-from-x: -62vw; --stack-from-y: 28vh; --stack-from-rot: -8deg; --stack-delay: 840ms; --stack-opacity: 0.62; }
-.stack-transition-sheet[data-sheet="5"] { --stack-x: 6%; --stack-y: -4%; --stack-rot: 1.5deg; --stack-from-x: 64vw; --stack-from-y: -30vh; --stack-from-rot: 8deg; --stack-delay: 1050ms; --stack-opacity: 0.66; }
-.stack-transition-sheet[data-sheet="6"] { --stack-x: -3%; --stack-y: -7%; --stack-rot: 2.7deg; --stack-from-x: -54vw; --stack-from-y: -38vh; --stack-from-rot: -6deg; --stack-delay: 1260ms; --stack-opacity: 0.72; }
-.stack-transition-sheet[data-sheet="legacy"] { --stack-x: 0%; --stack-y: 4%; --stack-rot: 0.73deg; --stack-from-x: 58vw; --stack-from-y: 34vh; --stack-from-rot: 7deg; --stack-delay: 1470ms; --stack-opacity: 0.9; }
+/* Hand-laid rhythm: the gaps between sheets are deliberately uneven
+   (140–310ms) and each sheet takes its own time — a person dealing
+   papers, not a timer. --stack-over lets each sheet land a fraction
+   past its resting angle and relax back. Fixed values, same every run. */
+.stack-transition-sheet[data-sheet="0"] { --stack-x: -7%; --stack-y: -10%; --stack-rot: -5.8deg; --stack-from-x: -72vw; --stack-from-y: -24vh; --stack-from-rot: -12deg; --stack-delay: 0ms; --stack-dur: 1210ms; --stack-over: -0.6deg; --stack-opacity: 0.48; }
+.stack-transition-sheet[data-sheet="1"] { --stack-x: 10%; --stack-y: -8%; --stack-rot: 2.71deg; --stack-from-x: 70vw; --stack-from-y: -20vh; --stack-from-rot: 9deg; --stack-delay: 170ms; --stack-dur: 1090ms; --stack-over: 0.5deg; --stack-opacity: 0.52; }
+.stack-transition-sheet[data-sheet="2"] { --stack-x: -13%; --stack-y: -2%; --stack-rot: -3.5deg; --stack-from-x: -68vw; --stack-from-y: 8vh; --stack-from-rot: -10deg; --stack-delay: 430ms; --stack-dur: 1230ms; --stack-over: -0.45deg; --stack-opacity: 0.56; }
+.stack-transition-sheet[data-sheet="3"] { --stack-x: 12%; --stack-y: 3%; --stack-rot: 4.3deg; --stack-from-x: 72vw; --stack-from-y: 14vh; --stack-from-rot: 11deg; --stack-delay: 560ms; --stack-dur: 1100ms; --stack-over: 0.55deg; --stack-opacity: 0.58; }
+.stack-transition-sheet[data-sheet="4"] { --stack-x: -8%; --stack-y: 6%; --stack-rot: -2deg; --stack-from-x: -62vw; --stack-from-y: 28vh; --stack-from-rot: -8deg; --stack-delay: 850ms; --stack-dur: 1180ms; --stack-over: -0.4deg; --stack-opacity: 0.62; }
+.stack-transition-sheet[data-sheet="5"] { --stack-x: 6%; --stack-y: -4%; --stack-rot: 1.5deg; --stack-from-x: 64vw; --stack-from-y: -30vh; --stack-from-rot: 8deg; --stack-delay: 1000ms; --stack-dur: 1080ms; --stack-over: 0.35deg; --stack-opacity: 0.66; }
+.stack-transition-sheet[data-sheet="6"] { --stack-x: -3%; --stack-y: -7%; --stack-rot: 2.7deg; --stack-from-x: -54vw; --stack-from-y: -38vh; --stack-from-rot: -6deg; --stack-delay: 1310ms; --stack-dur: 1150ms; --stack-over: -0.3deg; --stack-opacity: 0.72; }
+.stack-transition-sheet[data-sheet="legacy"] { --stack-x: 0%; --stack-y: 4%; --stack-rot: 0.73deg; --stack-from-x: 58vw; --stack-from-y: 34vh; --stack-from-rot: 7deg; --stack-delay: 1450ms; --stack-dur: 1250ms; --stack-over: 0.2deg; --stack-opacity: 0.9; }
 
 @keyframes stack-sheet-arrive {
   0% { opacity: 0; transform: translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(0.93); }
-  72% { opacity: var(--stack-opacity); transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(1.006); }
+  72% { opacity: var(--stack-opacity); transform: translate(var(--stack-x), var(--stack-y)) rotate(calc(var(--stack-rot) + var(--stack-over))) scale(1.006); }
   100% { opacity: var(--stack-opacity); transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(1); }
 }
 
