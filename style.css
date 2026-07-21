@@ -4960,12 +4960,78 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   opacity: 0.72;
 }
 
-/* Archival stamp controls (existing PNG stamps, per the Figma): close at the
-   top-right corner, add + archive stacked at the lower-right corner. */
+/* Decorative "next" arrow tucked into a corner of some question sheets, like
+   the Figma. Purely visual — it inherits the sheet's own scatter rotation and
+   sits into the paper (multiply) with a slight natural tilt. */
+.pile-doc-next {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: clamp(40px, 7vw, 74px);
+  height: auto;
+  opacity: 0.8;
+  mix-blend-mode: multiply;
+  transform: rotate(-7deg);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Kraft "envelope" cards — the add + archive controls, now part of the
+   scattered pile (Figma). Same kraft paperboard as the screen, a large faint
+   drawer-code number printed diagonally across, and the existing icon centred
+   on top. Placement/rotation come from renderArchivePile()'s pileRand scatter. */
+.pile-item--envelope {
+  width: clamp(300px, 40vw, 600px);
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8a6d46;
+  background-image: url("paperboard-texture.jpg");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  border: 1px solid rgba(61, 54, 40, 0.28);
+  box-shadow: 0 18px 36px rgba(24, 16, 6, 0.42);
+  overflow: hidden;
+}
+.envelope-code {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  transform: translateX(-50%) rotate(-20deg);
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 8rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: rgba(62, 54, 38, 0.8);   /* --ink at ~80% */
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+.envelope-icon-btn {
+  position: relative;
+  z-index: 2;
+  width: clamp(72px, 9vw, 128px);
+  height: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.envelope-icon-btn img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.envelope-icon-btn:hover:not(:disabled) { background: none; }
+
+/* Close control — small fixed top-right chrome (kept as-is, per the Figma). */
 #screen-personal {
   --ctrl-size: clamp(58px, 6vw, 90px);
   --ctrl-inset: clamp(20px, 2vw, 40px);
-  --ctrl-gap: clamp(18px, 2.2vh, 32px);
 }
 .pile-ctrl {
   position: absolute;
@@ -4986,5 +5052,3 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .pile-ctrl:hover:not(:disabled) { background: none; }
 .pile-ctrl--close   { top: var(--ctrl-inset); }
-.pile-ctrl--archive { bottom: var(--ctrl-inset); }
-.pile-ctrl--add     { bottom: calc(var(--ctrl-inset) + var(--ctrl-size) + var(--ctrl-gap)); }
