@@ -2340,66 +2340,107 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ============================================================
    PHASE.RECORD — text or audio choice
 ============================================================ */
-/* Camera memory print — album-like capture area */
+/* Camera composition — Figma 480:7885. The completed questionnaire pile is
+   carried forward from the transition and the photograph becomes its newest
+   physical layer. */
 #screen-camera {
   padding: 0;
   background-color: #F4EFE5;
-  background-image: var(--paper-tex);
+  background-image: url("images/figma-question-background.jpg");
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
-  align-items: center;
-  justify-content: center;
 }
 
-/* Deep accumulated-memory background — faint scattered previous-question
-   traces, same mechanism as the cards screen (uses the base scattered
-   .question-memory-trace rules, not the questions-screen vertical list). */
-.camera-memory-trace { z-index: 0; }
-.camera-memory-ack { z-index: 1; }
-
-.camera-memory {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(20px, 3.5vh, 36px);
-}
-
-/* The composition: the heritage document with the portrait laid on top.
-   Sized to the document; the photo is centred and noticeably smaller so
-   the document's edges stay visible all the way around. */
-.camera-compose {
-  position: relative;
-  width: min(84vw, 58vh * 1.5, 1120px);
-  aspect-ratio: 3 / 2;
-}
-
-/* Heritage document underneath — the existing qform, kept fully visible as
-   the page the photograph is being added onto (the present layer). */
-.camera-document {
+.camera-screen-shade {
   position: absolute;
   inset: 0;
   z-index: 0;
-  box-shadow: 0 10px 30px rgba(61, 54, 40, 0.14);
+  background: rgba(19, 13, 0, 0.2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms ease;
 }
-.camera-document .qform-question-text { text-wrap: balance; }
+#screen-camera.is-entering .camera-screen-shade { opacity: 1; }
 
-/* The portrait photograph — centred, clearly smaller than the document
-   (~17% of it stays visible on every side), a thin EQUAL matte border on
-   all four sides, a small offset and a subtle shadow so it reads as a
-   physical print set onto the page. No polaroid, rotation or scrapbook. */
+.camera-memory-trace { z-index: 1; opacity: 1; }
+.camera-memory-ack { z-index: 1; top: 8.42vh; opacity: 0.05; }
+.camera-memory-trace .question-memory-trace__item {
+  right: auto;
+  direction: rtl;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-mandatory);
+  font-weight: 816;
+  font-variation-settings: "wght" 816, "wdth" 87;
+  line-height: 1.3;
+  color: var(--ink);
+  opacity: 0.05;
+  transform: translateX(-100%);
+  transform-origin: right top;
+}
+.camera-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(18px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="1"] { left: 98.802vw; top: 0; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(20px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="2"] { left: 35.521vw; top: 50.556vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(22px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(24px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 41.852vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(26px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="5"] { left: 98.802vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(28px); }
+.camera-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
+
+/* Identical dimensions to the final transition pile prevent any cut at the
+   screen boundary. It then drifts by the few pixels present in the camera
+   frame while the photograph settles over it. */
+.camera-stack-stage {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  aspect-ratio: 1370 / 969;
+  container-type: inline-size;
+  transform: translate(-50%, -50%);
+  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+#screen-camera.is-entering .camera-stack-stage {
+  transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh));
+}
+.camera-stack-pile { position: absolute; inset: 0; }
+.camera-stack-pile .stack-transition-sheet {
+  opacity: var(--stack-opacity);
+  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
+  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.camera-stack-pile .stack-transition-sheet[data-sheet="0"] { --stack-x: -8%; --stack-y: -9%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="1"] { --stack-x: 11%; --stack-y: -6%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="2"] { --stack-x: -14%; --stack-y: 0%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="3"] { --stack-x: 13%; --stack-y: 5%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="4"] { --stack-x: -7%; --stack-y: 8%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="5"] { --stack-x: 7%; --stack-y: -2%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="6"] { --stack-x: -2%; --stack-y: -5%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] { --stack-x: 1%; --stack-y: 6%; }
+
 .camera-print {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 66%;
-  aspect-ratio: 3 / 2;
-  z-index: 2;
-  transform: translate(-50%, -50%) translate(9px, 7px);
-  padding: clamp(6px, 0.8vw, 11px);
-  background: #FFFEF9;
+  z-index: 4;
+  left: 48.88%;
+  top: 56.71%;
+  width: min(59.348vw, calc(68.27vh * 1.5455), 1139.5px);
+  aspect-ratio: 1139.487 / 737.315;
+  box-sizing: border-box;
+  padding: clamp(8px, 0.9375vw, 18px);
+  background: #fff;
   border: none;
-  box-shadow: 0 12px 30px rgba(61, 54, 40, 0.14);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translate(18vw, 18vh) rotate(4deg) scale(0.83);
+  transform-origin: center;
+  transition:
+    transform 1750ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 520ms ease;
+}
+#screen-camera.is-entering .camera-print {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(-10.94deg) scale(1);
 }
 
 .camera-area {
@@ -2407,7 +2448,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: rgba(61, 54, 40, 0.06);
+  background: #000;
 }
 .camera-area video,
 .camera-area img {
@@ -2415,8 +2456,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   object-fit: cover;
   display: block;
-  opacity: 0.88;
-  filter: saturate(0.86) contrast(0.94);
+  opacity: 1;
+  filter: none;
 }
 .camera-area video[hidden],
 .camera-area img[hidden] { display: none; }
@@ -2430,50 +2471,56 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   padding: 1rem;
   font-family: var(--font-main);
   font-size: 1.1rem;
-  color: var(--metal);
+  color: #fff;
 }
 .camera-msg[hidden] { display: none; }
 
-.camera-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Minimal camera shutter — a single hollow circle in the active text
-   colour, no fill, no rectangle, no label. */
 .camera-shutter {
-  width: clamp(54px, 5vw, 68px);
-  height: clamp(54px, 5vw, 68px);
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 5.1%;
+  width: clamp(42px, 3.646vw, 70px);
+  height: clamp(42px, 3.646vw, 70px);
+  transform: translateX(-50%) rotate(10.94deg);
   border-radius: 50%;
-  border: 2px solid var(--ink);
-  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: rgba(61, 54, 40, 0.82);
+  box-shadow: inset 0 0 0 clamp(3px, 0.31vw, 6px) rgba(255,255,255,0.72);
   padding: 0;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .camera-shutter:hover:not(:disabled),
 .camera-shutter:focus-visible {
-  transform: scale(1.06);
+  transform: translateX(-50%) rotate(10.94deg) scale(1.06);
   outline: none;
 }
 .camera-shutter:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Next-arrow archival stamp — same control and bottom-left placement as the
-   previous (cards) screen's continue arrow. */
 .camera-next-stamp {
   position: absolute;
-  left: 0;
-  bottom: clamp(-84px, -8vh, -56px);
+  left: 1.27%;
+  bottom: 1.95%;
   z-index: 3;
+  border: 0;
+  background: none;
+  padding: 0;
+  transform: rotate(9.42deg);
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 .camera-next-stamp img {
   display: block;
-  width: clamp(54px, 5.6vw, 78px);
+  width: clamp(70px, 8.333vw, 160px);
   height: auto;
 }
-.camera-next-stamp:hover:not(:disabled) { background: none; }
+.camera-next-stamp:hover:not(:disabled) { background: none; transform: rotate(9.42deg) scale(1.03); }
+
+@media (prefers-reduced-motion: reduce) {
+  .camera-screen-shade { opacity: 1; transition: none; }
+  .camera-stack-stage { transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh)); transition: none; }
+  .camera-print { opacity: 1; transform: translate(-50%, -50%) rotate(-10.94deg); transition: none; }
+}
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
 .drawer-photo {

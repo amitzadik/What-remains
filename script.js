@@ -1082,6 +1082,7 @@
   const cameraPhoto   = document.getElementById("camera-photo");
   const cameraMsg     = document.getElementById("camera-msg");
   const cameraMemoryTrace = document.getElementById("camera-memory-trace");
+  const cameraStackPile = document.getElementById("camera-stack-pile");
   const cameraDocName = document.getElementById("camera-doc-name");
   const cameraDocDate = document.getElementById("camera-doc-date");
   const cameraDocLines = Array.from(document.querySelectorAll(".camera-document .line__text"));
@@ -1106,6 +1107,16 @@
     // Accumulated family-memory background: the previous question traces sit
     // faintly underneath, with the photograph placed on top as the newest layer.
     setMemoryTraceItems(cameraMemoryTrace, buildQuestionMemoryItems(questions.length));
+    // Carry the exact completed pile into the camera composition. Keeping the
+    // same generated sheets, dimensions and transforms makes the new photo
+    // read as the next layer of one continuous physical animation.
+    if (cameraStackPile && stackPile) cameraStackPile.innerHTML = stackPile.innerHTML;
+    screens.camera.classList.remove("is-entering");
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (screens.camera.classList.contains("active")) {
+        screens.camera.classList.add("is-entering");
+      }
+    }));
     // Reflect the real deposit on the heritage document shown under the photo.
     if (cameraDocName) cameraDocName.textContent = state.name || "";
     if (cameraDocDate) cameraDocDate.textContent = state.date || "";
