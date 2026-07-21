@@ -110,9 +110,12 @@ button{font:inherit;color:inherit}
 /* טקסט רץ עמוד בית — SundayMono Medium, line-height 1.1, letter-spacing -1%.
    Body matches Figma 44px; the title keeps its hero scale (layout unchanged)
    but takes the same Medium weight / line-height / tracking. */
-.landing-v2__copy p{margin:0 0 20px;font-weight:500;line-height:1.1;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(40px,3.95vw,76px);margin-bottom:16px!important}
-.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(25px,2.3vw,44px);text-indent:80px}
+/* טקסט רץ עמוד בית — SundayMono Medium, letter-spacing -1% (shared).
+   Title and body keep their own Figma line-heights (0.95 / 1.1) and sizes.
+   Sizes are reduced 20% from the Figma baseline per request. */
+.landing-v2__copy p{margin:0 0 20px;font-weight:500;letter-spacing:-.01em}
+.landing-v2__title{font-size:clamp(32px,3.16vw,60.8px);line-height:0.95;margin-bottom:16px!important}
+.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(20px,1.84vw,35.2px);line-height:1.1;text-indent:80px}
 
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
@@ -283,8 +286,8 @@ button{font:inherit;color:inherit}
   .landing-v2__search{top:18.61vh;right:24.11vw;width:47.24vw}
   .landing-v2__search-input{font-size:3vw}
   .landing-v2__result{font-size:1.9vw}
-  .landing-v2__title{font-size:3.96vw}
-  .landing-v2__copy p:not(.landing-v2__title){font-size:2.29vw;text-indent:4.17vw}
+  .landing-v2__title{font-size:3.168vw}
+  .landing-v2__copy p:not(.landing-v2__title){font-size:1.832vw;text-indent:4.17vw}
   .landing-v2__corner,.landing-v2__pile{scale:calc(100vw / 1920px);transform-origin:left top}
   .landing-v2__pile{transform-origin:left bottom;left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw)}
 }

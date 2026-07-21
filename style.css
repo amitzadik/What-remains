@@ -82,6 +82,7 @@
   /* מה שישאר דף הנחיתה — Mandatory Variable, wght 816 / wdth 87 */
   --ts-wordmark-family: var(--font-mandatory);
   --ts-wordmark-vsettings: "wght" 816, "wdth" 87;
+  --ts-wordmark-size: 600px;
   --ts-wordmark-lh: 0.9;
   /* טקסט רץ עמוד בית — SundayMono Medium 44 / 1.1 / -1% */
   --ts-homecopy-weight: 500;
@@ -90,22 +91,27 @@
   --ts-homecopy-ls: -0.01em;
   /* שאלות — SundayMono Medium 60 / 1.3 / 0 */
   --ts-question-weight: 500;
+  --ts-question-size: 60px;
   --ts-question-lh: 1.3;
   --ts-question-ls: 0;
   /* שדות בולטים אדום — SundayMono Bold 70 / normal / 0 (red) */
   --ts-redbold-weight: 700;
+  --ts-redbold-size: 70px;
   --ts-redbold-lh: normal;
   --ts-redbold-ls: 0;
   /* ארכיונאי — SundayMono Medium 50 / 1.2 / 0 */
   --ts-archivist-weight: 500;
+  --ts-archivist-size: 50px;
   --ts-archivist-lh: 1.2;
   --ts-archivist-ls: 0;
   /* כרטיסיות בהתחלה / ללא הזחה — SundayMono Medium 30 / 1.5 / 0 */
   --ts-card-weight: 500;
+  --ts-card-size: 30px;
   --ts-card-lh: 1.5;
   --ts-card-ls: 0;
   /* שדות למילוי — SundayMono Medium 18 / normal / 0 */
   --ts-fieldlabel-weight: 500;
+  --ts-fieldlabel-size: 18px;
   --ts-fieldlabel-lh: normal;
   --ts-fieldlabel-ls: 0;
   --paper-tex: url('images/paper-texture.jpg');
@@ -1171,7 +1177,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   max-width: 100%;
   font-family: var(--font-main);
   font-size: clamp(12px, 1.18vw, 16px);
-  font-weight: 600;
+  font-weight: 500;   /* was 600 (no file → fell back to Bold); design-system Medium */
   color: rgba(61,54,40,0.92);
   text-align: center;
   white-space: nowrap;
@@ -3002,7 +3008,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stack-sheet-dk {
   align-self: center;
   font-family: var(--font-main);
-  font-size: clamp(24px, 5.11cqw, 70px);
+  font-size: clamp(24px, 5.11cqw, var(--ts-redbold-size));
   font-weight: var(--ts-redbold-weight);   /* שדות בולטים אדום — Bold */
   line-height: var(--ts-redbold-lh);
   letter-spacing: var(--ts-redbold-ls);
@@ -3116,7 +3122,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform-origin: center;
   font-family: var(--font-main);
   font-size: clamp(3.1rem, 8vw, 8.6rem);
-  font-weight: 600;
+  font-weight: 500;   /* was 600 (no file → fell back to Bold); real Medium */
   line-height: 1.06;
   direction: rtl;
   text-align: right;
@@ -3909,7 +3915,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-label {
   display: block;
   font-family: var(--font-main);
-  font-size: clamp(10px, 1.314cqw, 18px);
+  font-size: clamp(10px, 1.314cqw, var(--ts-fieldlabel-size));
   font-weight: var(--ts-fieldlabel-weight);   /* שדות למילוי — Medium */
   line-height: var(--ts-fieldlabel-lh);
   color: var(--ink);
@@ -3925,7 +3931,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: block;
   font-family: var(--font-main);
   font-weight: var(--ts-question-weight);   /* שאלות — Medium */
-  font-size: clamp(20px, 4.38cqw, 60px);
+  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
   line-height: var(--ts-question-lh);
   letter-spacing: var(--ts-question-ls);
   color: var(--ink);
@@ -3936,7 +3942,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-num {
   color: var(--stamp);   /* שאלות style, red — not the Bold red style */
   font-weight: var(--ts-question-weight);
-  font-size: clamp(20px, 4.38cqw, 60px);
+  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
   letter-spacing: var(--ts-question-ls);
 }
 
@@ -3961,7 +3967,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: flex-start;
   text-align: right;
   font-family: var(--font-main);
-  font-size: clamp(20px, 4.38cqw, 60px);
+  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
   font-weight: var(--ts-question-weight);   /* שאלות — Medium */
   color: var(--ink);
   line-height: var(--ts-question-lh);
@@ -3994,7 +4000,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: flex-end;
   font-family: var(--font-main);
-  font-size: clamp(20px, 4.38cqw, 60px);
+  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
   font-weight: var(--ts-question-weight);   /* שאלות — Medium (answer text) */
   line-height: var(--ts-question-lh);
   letter-spacing: var(--ts-question-ls);
@@ -4059,7 +4065,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   cursor: pointer;
   font-family: var(--font-main);
   font-weight: var(--ts-redbold-weight);   /* שדות בולטים אדום — Bold */
-  font-size: clamp(24px, 5.11cqw, 70px);
+  font-size: clamp(24px, 5.11cqw, var(--ts-redbold-size));
   line-height: var(--ts-redbold-lh);
   letter-spacing: var(--ts-redbold-ls);
   color: var(--stamp);
@@ -4277,10 +4283,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #register-sheet .register-title {
   font-family: var(--font-main);
-  font-size: clamp(24px, 6.143cqw, 50px);
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0;
+  font-size: clamp(24px, 6.143cqw, var(--ts-archivist-size));   /* ארכיונאי */
+  font-weight: var(--ts-archivist-weight);
+  line-height: var(--ts-archivist-lh);
+  letter-spacing: var(--ts-archivist-ls);
   white-space: nowrap;
 }
 
@@ -4309,10 +4315,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: flex-start;
   padding: 0 10px;
   border-left-width: 1.5px;
-  font-size: clamp(16px, 3.686cqw, 30px);
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0;
+  font-size: clamp(16px, 3.686cqw, var(--ts-card-size));   /* ללא הזחה */
+  font-weight: var(--ts-card-weight);
+  line-height: var(--ts-card-lh);
+  letter-spacing: var(--ts-card-ls);
 }
 
 #register-sheet .register-req {
