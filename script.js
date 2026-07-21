@@ -840,7 +840,6 @@
   // PHASE.CARDS — memory traces before the personal message
   // ============================================================
   const cardsScene   = document.getElementById("cards-scene");
-  const cardsStamp   = document.getElementById("cards-memory-stamp");
   const cardsBlankType = document.getElementById("cards-blank-typewriter");
   const btnBeginLeaving = document.getElementById("btn-begin-leaving");
   const cardsMemoryTrace = document.getElementById("cards-memory-trace");
@@ -967,8 +966,6 @@
     cardsCopyRun += 1;
     setMemoryTraceItems(cardsMemoryTrace, buildQuestionMemoryItems(questions.length));
 
-    const answeredCount = state.dontKnow.filter(x => !x).length;
-    if (cardsStamp) cardsStamp.src = "images/stamp" + answeredCount + ".png";
     window.setTimeout(runCardsAcknowledgement, reduceMotion ? 0 : 180);
   }
 

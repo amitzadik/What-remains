@@ -295,22 +295,6 @@ html, body {
   pointer-events: none;
 }
 
-/* Answered-count stamp on the "השאלות מההתחלה" folder — a stampN.png image
-   chosen by the answered count (set in JS). */
-.qfolder-stamp {
-  position: absolute;
-  top: 8vw;                             /* in the brown gap ABOVE the top-middle card */
-  left: 50%;                            /* centered over the top-middle card */
-  width: 15rem;                         /* 12rem + 25% */
-  height: auto;
-  display: none;
-  z-index: 30;                          /* sits above the cards */
-  pointer-events: none;
-  transform: translateX(-50%) rotate(-20deg);
-  transform-origin: center;
-}
-.folder-body[data-folder="3"].is-open .qfolder-stamp { display: block; }
-
 /* Open "השאלות מההתחלה": the 7 opening question cards, each scaled to 30%.
    The card is the exact opening qform card (.qform-sheet > .qform); the wrap
    takes the scaled (30%) footprint so the grid spacing stays correct. The
@@ -2321,17 +2305,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-weight: 700;
   opacity: 1;
   white-space: pre-line;
-}
-
-.cards-memory-stamp {
-  position: absolute;
-  top: clamp(28px, 6vh, 68px);
-  right: clamp(28px, 7vw, 96px);
-  z-index: 2;
-  width: clamp(72px, 10vw, 138px);
-  height: auto;
-  opacity: 0.42;
-  pointer-events: none;
 }
 
 .cards-blank-continue {
@@ -4712,8 +4685,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: transparent;
 }
 #screen-personal .folder-close,
-#screen-personal .folder-search,
-#screen-personal .qfolder-stamp {
+#screen-personal .folder-search {
   display: none !important;
 }
 #screen-personal .folder-content,
