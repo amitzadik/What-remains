@@ -1475,6 +1475,9 @@
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
         el.style.setProperty("--dw", dw + "px");
+        // Unitless scale factor for .pile-doc's transform: scale() needs a
+        // number, and calc() cannot divide a length by a length.
+        el.style.setProperty("--pile-scale", (dw / 1370).toFixed(5));
         const form = it.i === questions.length
           ? archiveLegacyFormHTML(pileCardData)
           : cardFormHTML(it.i, pileCardData);
