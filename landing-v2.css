@@ -7,6 +7,14 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper
 body{font-family:"SundayMono","Courier New",monospace}
 button{font:inherit;color:inherit}
 
+/* composed-transform channels for the pile: breathing (b), deal-in (d), hover pop */
+@property --pbx{syntax:'<length>';inherits:false;initial-value:0px}
+@property --pby{syntax:'<length>';inherits:false;initial-value:0px}
+@property --pbr{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --pdx{syntax:'<length>';inherits:false;initial-value:0px}
+@property --pdr{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --ppop{syntax:'<length>';inherits:false;initial-value:0px}
+
 .landing-v2{
   position:relative;
   width:100vw;
@@ -114,35 +122,28 @@ button{font:inherit;color:inherit}
 }
 @keyframes typewriter-cursor{0%,48%{opacity:.42}49%,100%{opacity:0}}
 
+/* ===== corner photos (top-left) — dealt in from the left, then breathe ===== */
 .landing-v2__corner{position:absolute;inset:0;z-index:4;pointer-events:none}
-.corner-layer{position:absolute;display:flex;align-items:center;justify-content:center;opacity:.81}
+.corner-layer{position:absolute;display:flex;align-items:center;justify-content:center;opacity:0}
 .corner-layer img{display:block;object-fit:cover;box-shadow:4px 0 4px rgba(0,0,0,.25)}
-.corner-layer--a{left:-48px;top:-206.69px;width:414.793px;height:322.937px;--rest-x:0px;--rest-y:0px;--rest-rotation:-99.02deg}
+.corner-layer--a{left:-48px;top:-206.69px;width:414.793px;height:322.937px;--rest-rotation:-99.02deg;--rest-op:.81}
 .corner-layer--a img{width:267.065px;height:377.609px;transform:rotate(var(--rest-rotation))}
-.corner-layer--b{left:-143.14px;top:-64px;width:307.507px;height:210.103px;--rest-x:0px;--rest-y:0px;--rest-rotation:12.39deg;opacity:.8}
+.corner-layer--b{left:-143.14px;top:-64px;width:307.507px;height:210.103px;--rest-rotation:12.39deg;--rest-op:.8}
 .corner-layer--b img{width:281.153px;height:153.356px;transform:rotate(var(--rest-rotation))}
-.corner-layer--c{left:-450px;top:-127px;width:614.433px;height:554.756px;--rest-x:0px;--rest-y:0px;--rest-rotation:-34.67deg;opacity:.8}
+.corner-layer--c{left:-450px;top:-127px;width:614.433px;height:554.756px;--rest-rotation:-34.67deg;--rest-op:.8}
 .corner-layer--c img{width:537.834px;height:302.532px;transform:rotate(var(--rest-rotation))}
-.corner-layer--d{left:-273px;top:-123px;width:388.288px;height:449.823px;--rest-x:0px;--rest-y:0px;--rest-rotation:-21.82deg}
+.corner-layer--d{left:-273px;top:-123px;width:388.288px;height:449.823px;--rest-rotation:-21.82deg;--rest-op:.81}
 .corner-layer--d img{width:267.065px;height:377.609px;transform:rotate(var(--rest-rotation))}
 
-.landing-v2.is-idle .corner-layer--a{animation:paper-breathe-a 8.7s ease-in-out infinite}
-.landing-v2.is-idle .corner-layer--b{animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
-.landing-v2.is-idle .corner-layer--c{animation:paper-breathe-a 9.4s ease-in-out .7s infinite reverse}
-.landing-v2.is-idle .corner-layer--d{animation:paper-breathe-b 8.1s ease-in-out 1.8s infinite reverse}
-@keyframes paper-breathe-a{
-  0%,100%{transform:translate3d(0,0,0) rotate(0)}
-  48%{transform:translate3d(1.5px,-1px,0) rotate(.38deg)}
-}
-@keyframes paper-breathe-b{
-  0%,100%{transform:translate3d(0,0,0) rotate(0)}
-  54%{transform:translate3d(-1px,1.5px,0) rotate(-.42deg)}
-}
+@keyframes corner-deal{0%{opacity:0;transform:translate3d(-46vw,0,0)}55%{opacity:var(--rest-op,.8)}100%{opacity:var(--rest-op,.8);transform:translate3d(0,0,0)}}
+@keyframes paper-breathe-a{0%,100%{transform:translate3d(0,0,0) rotate(0)}48%{transform:translate3d(1.5px,-1px,0) rotate(.38deg)}}
+@keyframes paper-breathe-b{0%,100%{transform:translate3d(0,0,0) rotate(0)}54%{transform:translate3d(-1px,1.5px,0) rotate(-.42deg)}}
 
+/* ===== the pile (bottom-left) — each sheet dealt in from the left, then breathes ===== */
 .landing-v2__pile{
   position:absolute;
-  left:-365px;
-  bottom:-255px;
+  left:-46px;
+  bottom:-203px;
   width:645px;
   height:599px;
   z-index:8;
@@ -152,30 +153,54 @@ button{font:inherit;color:inherit}
   cursor:pointer;
   transform:rotate(-8.72deg);
 }
-.pile-photo,.pile-sheet{position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22)}
-.pile-photo{background-color:#d7d1c6;background-size:cover;background-position:center;filter:grayscale(.35);opacity:.8}
-.pile-photo--1{width:310px;height:220px;left:52px;top:205px;transform:rotate(-16deg);background-image:url("images/figma-photo-small.png")}
-.pile-photo--2{width:440px;height:245px;left:92px;top:170px;transform:rotate(4deg);background-image:url("images/figma-photo-family.png")}
-.pile-photo--3{width:292px;height:206px;left:252px;top:128px;transform:rotate(28.78deg);background-image:url("images/figma-photo-portrait.png")}
-.pile-photo--4{width:437px;height:238px;left:22px;top:218px;transform:rotate(-5.1deg);background-image:url("images/figma-photo-wide.png")}
+.pile-photo,.pile-sheet{
+  position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
+  transform:translate3d(calc(var(--pbx) + var(--pdx)),calc(var(--pby) + var(--ppop)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr)));
+}
+.pile-photo{background-color:#d7d1c6;background-size:cover;background-position:center;filter:grayscale(.35)}
+.pile-photo--1{--rr:-16deg;--rest-op:.8;--bx-to:1.5px;--by-to:-1px;--br-to:.35deg;--bdur:8.2s;--bdelay:-1.1s;width:310px;height:220px;left:52px;top:205px;background-image:url("images/figma-photo-small.png")}
+.pile-photo--2{--rr:4deg;--rest-op:.8;--bx-to:-1.3px;--by-to:1.4px;--br-to:-.3deg;--bdur:7.4s;--bdelay:-2.6s;width:440px;height:245px;left:92px;top:170px;background-image:url("images/figma-photo-family.png")}
+.pile-photo--3{--rr:28.78deg;--rest-op:.8;--bx-to:1.6px;--by-to:1px;--br-to:.32deg;--bdur:8.8s;--bdelay:-.7s;width:292px;height:206px;left:252px;top:128px;background-image:url("images/figma-photo-portrait.png")}
+.pile-photo--4{--rr:-5.1deg;--rest-op:.8;--bx-to:-1.2px;--by-to:-1.4px;--br-to:-.34deg;--bdur:7.8s;--bdelay:-3.2s;width:437px;height:238px;left:22px;top:218px;background-image:url("images/figma-photo-wide.png")}
 .pile-sheet{background-color:#f3eee2;background-image:var(--paper-texture);background-size:cover}
-.pile-sheet--back{width:560px;height:330px;left:74px;top:230px;transform:rotate(-12deg);opacity:.8}
-.pile-sheet--middle{width:540px;height:350px;left:58px;top:190px;transform:rotate(7deg);opacity:.84}
-.pile-sheet--front{width:524px;height:370px;left:82px;top:-4px;transform:rotate(18deg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;opacity:.9}
+.pile-sheet--back{--rr:-12deg;--rest-op:.8;--bx-to:1.3px;--by-to:1.3px;--br-to:.28deg;--bdur:9.1s;--bdelay:-1.9s;width:560px;height:330px;left:74px;top:230px}
+.pile-sheet--middle{--rr:7deg;--rest-op:.84;--bx-to:-1.5px;--by-to:-1.1px;--br-to:-.3deg;--bdur:8s;--bdelay:-.4s;width:540px;height:350px;left:58px;top:190px}
+.pile-sheet--front{--rr:18deg;--rest-op:.9;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;width:524px;height:370px;left:82px;top:-4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .26s cubic-bezier(.32,1.3,.62,1),box-shadow .26s ease}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
 .pile-label{font-size:50px;font-weight:500;line-height:1.2;white-space:nowrap}
 
+@keyframes pile-deal{0%{opacity:0;--pdx:-720px;--pdr:14deg}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdr:0deg}}
+@keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
+
+/* hover the pile → its top sheet pops toward the viewer ~11px */
+.landing-v2__pile:hover .pile-sheet--front{--ppop:-11px;box-shadow:0 -6px 16px rgba(0,0,0,.28),0 10px 22px rgba(0,0,0,.22)}
+
 .landing-v2.is-revealed .landing-v2__copy{opacity:1}
 .landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
-.landing-v2.is-card-entered .landing-v2__pile{animation:place-card 2.45s both}
-@keyframes place-card{
-  0%{left:-365px;bottom:-255px;transform:rotate(-10.1deg)}
-  76%{left:-38px;bottom:-198px;transform:rotate(-8.35deg)}
-  90%{left:-49px;bottom:-205px;transform:rotate(-8.82deg)}
-  100%{left:-46px;bottom:-203px;transform:rotate(-8.72deg)}
-}
 .landing-v2.is-revealed::after{opacity:.24}
+
+/* deal-in: corners first, then the pile builds up (front sheet lands last) */
+.landing-v2.is-card-entered .corner-layer{animation:corner-deal .8s cubic-bezier(.32,1.3,.62,1) both}
+.landing-v2.is-card-entered .corner-layer--b{animation-delay:130ms}
+.landing-v2.is-card-entered .corner-layer--c{animation-delay:260ms}
+.landing-v2.is-card-entered .corner-layer--d{animation-delay:390ms}
+.landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal .78s cubic-bezier(.32,1.3,.62,1) both}
+.landing-v2.is-card-entered .pile-photo--1{animation-delay:520ms}
+.landing-v2.is-card-entered .pile-photo--2{animation-delay:650ms}
+.landing-v2.is-card-entered .pile-photo--3{animation-delay:780ms}
+.landing-v2.is-card-entered .pile-photo--4{animation-delay:910ms}
+.landing-v2.is-card-entered .pile-sheet--back{animation-delay:1040ms}
+.landing-v2.is-card-entered .pile-sheet--middle{animation-delay:1170ms}
+.landing-v2.is-card-entered .pile-sheet--front{animation-delay:1300ms}
+
+/* settled: once the deal finishes, papers settle into the constant breathing
+   (replaces the deal animation) — independent of the typewriter finishing */
+.landing-v2.is-settled .corner-layer--a{opacity:.81;animation:paper-breathe-a 8.7s ease-in-out infinite}
+.landing-v2.is-settled .corner-layer--b{opacity:.8;animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
+.landing-v2.is-settled .corner-layer--c{opacity:.8;animation:paper-breathe-a 9.4s ease-in-out .7s infinite reverse}
+.landing-v2.is-settled .corner-layer--d{opacity:.81;animation:paper-breathe-b 8.1s ease-in-out 1.8s infinite reverse}
+.landing-v2.is-settled .pile-photo,.landing-v2.is-settled .pile-sheet{opacity:var(--rest-op,1);animation:pile-breathe var(--bdur,8s) ease-in-out var(--bdelay,0s) infinite}
 
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2__nav{top:2.96vh;right:1.67vw;gap:1.67vw}
@@ -184,39 +209,18 @@ button{font:inherit;color:inherit}
   .landing-v2__title{font-size:3.96vw}
   .landing-v2__copy p:not(.landing-v2__title){font-size:2.29vw;text-indent:4.17vw}
   .landing-v2__corner,.landing-v2__pile{scale:calc(100vw / 1920px);transform-origin:left top}
-  .landing-v2__pile{transform-origin:left bottom}
-  .landing-v2.is-card-entered .landing-v2__pile{animation-name:place-card-scaled}
-  @keyframes place-card-scaled{
-    0%{left:-19vw;bottom:-13.28vw;transform:rotate(-10.1deg)}
-    76%{left:calc(106px - 7.5vw);bottom:calc(-87px - 5.78125vw);transform:rotate(-8.35deg)}
-    90%{left:calc(95px - 7.5vw);bottom:calc(-94px - 5.78125vw);transform:rotate(-8.82deg)}
-    100%{left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw);transform:rotate(-8.72deg)}
-  }
+  .landing-v2__pile{transform-origin:left bottom;left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw)}
 }
 
 @media (max-width:900px){
   .landing-v2__nav{top:18px;right:18px;gap:12px}.icon-btn{width:58px;height:58px}
   .landing-v2__copy{top:15vh;right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:35px}
-  .landing-v2__pile{transform:scale(.72) rotate(-8.72deg);transform-origin:left bottom}
-  .landing-v2.is-card-entered .landing-v2__pile{animation-name:place-card-mobile}
-  @keyframes place-card-mobile{
-    0%{left:-365px;bottom:-255px;transform:scale(.72) rotate(-10.1deg)}
-    76%{left:-117px;bottom:-160px;transform:scale(.72) rotate(-8.35deg)}
-    90%{left:-128px;bottom:-167px;transform:scale(.72) rotate(-8.82deg)}
-    100%{left:-125px;bottom:-165px;transform:scale(.72) rotate(-8.72deg)}
-  }
+  .landing-v2__pile{transform:scale(.72) rotate(-8.72deg);transform-origin:left bottom;left:-125px;bottom:-165px}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .landing-v2__wordmark,.landing-v2__pile,.landing-v2__copy,.corner-layer{transition:none!important;animation:none!important}
-  .landing-v2.is-card-entered .landing-v2__pile{left:-46px;bottom:-203px;transform:rotate(-8.72deg)}
+  .landing-v2__wordmark,.landing-v2__copy{transition:none!important}
+  .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important;transform:translate3d(0,0,0)!important}
+  .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdr:0deg}
   .typewriter-live.is-typing::after{display:none}
-}
-
-@media (min-width:901px) and (max-width:1600px) and (prefers-reduced-motion:reduce){
-  .landing-v2.is-card-entered .landing-v2__pile{left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw)}
-}
-
-@media (max-width:900px) and (prefers-reduced-motion:reduce){
-  .landing-v2.is-card-entered .landing-v2__pile{left:-125px;bottom:-165px;transform:scale(.72) rotate(-8.72deg)}
 }

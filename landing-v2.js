@@ -56,12 +56,16 @@
     screen.classList.add('is-revealed');
     if (reduceMotion) {
       screen.classList.add('is-card-entered');
+      screen.classList.add('is-settled');
       cardFinished = true;
       revealAll();
     } else {
       window.setTimeout(() => typePart(0), 260);
       window.setTimeout(() => {
         screen.classList.add('is-card-entered');
+        // once the papers have dealt in, let them settle into the breathing
+        // (independent of the typewriter, which finishes much later)
+        window.setTimeout(() => screen.classList.add('is-settled'), 2250);
         window.setTimeout(() => {
           cardFinished = true;
           beginIdleWhenReady();
