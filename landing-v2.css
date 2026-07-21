@@ -48,10 +48,11 @@ button{font:inherit;color:inherit}
   direction:rtl;
   text-align:right;
   font-family:"Mandatory Variable",sans-serif;
-  font-size:clamp(250px,31vw,600px);
+  font-size:clamp(250px,31.25vw,600px);
   line-height:.9;
-  font-weight:800;
-  font-variation-settings:"wdth" 105;
+  /* Figma: Mandatory Variable TRIAL — named instance “Bold 18”. */
+  font-weight:816;
+  font-variation-settings:"wght" 816,"wdth" 87;
   color:var(--ink);
   opacity:.15;
   white-space:normal;
