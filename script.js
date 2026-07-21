@@ -1432,16 +1432,33 @@
   // Build the scattered pile from the open drawer's own materials: the
   // question document sheets behind the depositor's photos/videos, each laid
   // at a stable pseudo-random position, rotation and size.
+  // The viewer's drawer code as a stable 4-digit label (e.g. "0001") for the
+  // faint number printed across the kraft envelope cards.
+  function pileCodeLabel() {
+    const c = String(currentDrawerCode || "");
+    return /^\d+$/.test(c) ? c.padStart(4, "0") : (c || "0001");
+  }
+
   function renderArchivePile() {
     if (!archivePile) return;
     const media = pileMedia.concat(pileLocalMedia);
     const docCount = pileCardData ? questions.length : 0;
 
+    // The add/search controls become kraft "envelope" cards scattered in the
+    // pile. Detach them first so they only reappear where we place them, then
+    // re-append into their envelopes below (references + listeners survive).
+    if (btnPersonalToGeneral) btnPersonalToGeneral.remove();
+    if (btnPersonalArchiveSearch) btnPersonalArchiveSearch.remove();
+
     // The document sheets form the back of the pile; the depositor's own
-    // photos/videos sit on top as the materials laid over the archive.
+    // photos/videos sit on top as the materials laid over the archive; the two
+    // kraft envelope cards (search always, add only for the owner) sit in front.
     const items = [];
     for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
     media.forEach(m => items.push({ type: "media", m: m }));
+    // Fixed seeds keep the envelopes' scatter stable as media loads in.
+    items.push({ type: "ctrl", btn: btnPersonalArchiveSearch, seed: 903 });
+    if (ownerView) items.push({ type: "ctrl", btn: btnPersonalToGeneral, seed: 947 });
 
     // Document-sheet width in px so the qform can scale from its 1500px base.
     // Large, like the Figma — the sheets crop against the screen edges.
@@ -1450,11 +1467,21 @@
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
       const el = document.createElement("div");
-      el.className = "pile-item pile-item--" + (it.type === "doc" ? "doc" : "photo");
       if (it.type === "doc") {
+        el.className = "pile-item pile-item--doc";
         el.style.setProperty("--dw", dw + "px");
         el.innerHTML = '<div class="pile-doc">' + cardFormHTML(it.i, pileCardData) + "</div>";
+        // Decorative "next" arrow tucked into a corner of some sheets (Figma).
+        if (pileRand(it.i + 200) > 0.45) {
+          el.insertAdjacentHTML("beforeend",
+            '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
+        }
+      } else if (it.type === "ctrl") {
+        el.className = "pile-item pile-item--envelope";
+        el.innerHTML = '<span class="envelope-code" aria-hidden="true">' + pileCodeLabel() + "</span>";
+        if (it.btn) el.appendChild(it.btn);
       } else {
+        el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
@@ -1462,20 +1489,17 @@
       }
       // Stable scatter — bottom-weighted like the Figma: the pile begins in
       // the lower half of the page and the large sheets crop past the bottom.
-      const rot = (pileRand(k + 1) - 0.5) * 16;          // ~ -8..8deg
-      const tx  = (pileRand(k + 7) - 0.5) * 50;           // % of pile, -25..25
-      const ty  = (pileRand(k + 13) - 0.5) * 42;          // % of pile, -21..21
+      const seed = it.seed != null ? it.seed : k;
+      const rot = (pileRand(seed + 1) - 0.5) * 16;        // ~ -8..8deg
+      const tx  = (pileRand(seed + 7) - 0.5) * 50;         // % of pile, -25..25
+      const ty  = (pileRand(seed + 13) - 0.5) * 42;        // % of pile, -21..21
       el.style.left = (50 + tx) + "%";
       el.style.top  = (64 + ty) + "%";                    // centred low, not mid-page
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
-      el.style.zIndex = String(10 + k);
+      // Envelopes sit in front of the papers/photos, like the Figma reference.
+      el.style.zIndex = it.type === "ctrl" ? String(200 + k) : String(10 + k);
       archivePile.appendChild(el);
     });
-
-    // The + (add material) control shows only for the drawer's owner.
-    if (btnPersonalToGeneral) {
-      btnPersonalToGeneral.style.display = ownerView ? "" : "none";
-    }
   }
 
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
