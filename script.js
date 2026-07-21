@@ -380,6 +380,8 @@
   // Enter the questionnaire flow with the register card as the active
   // sheet on the questions stage.
   function startRegistration() {
+    closeLoginModal();
+    closeAccountModal();
     resetQuestionStage();
     checkDepositBtn();
     showScreen("questions");

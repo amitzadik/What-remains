@@ -1198,7 +1198,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.35);
-  z-index: 100;
+  /* The current home is an iframe at z-index 10000. Authentication and
+     archive dialogs must sit above it, not open invisibly underneath. */
+  z-index: 20000;
   justify-content: center;
   align-items: center;
   padding: 1rem;
