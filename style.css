@@ -2158,7 +2158,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --blank-type-speed: 48ms;
   padding: 0;
   background-color: #F4EFE5;
-  background-image: var(--paper-tex);
+  background-image: url("images/figma-question-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -2187,7 +2187,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-memory-copy {
   position: relative;
   z-index: 2;
-  width: min(1080px, 88vw);
+  width: min(65.26vw, 1253px);
   justify-self: center;
   align-self: center;
   text-align: right;
@@ -2208,15 +2208,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   z-index: 3;
   left: 50%;
-  top: 50%;
-  width: min(680px, 82vw);
-  transform: translate(-50%, -50%) scale(1);
+  top: 7.59vh;
+  width: min(58.54vw, 1124px);
+  transform: translateX(-50%);
   direction: rtl;
-  text-align: center;
-  font-family: var(--font-main);
-  font-size: clamp(1.48rem, 2.8vw, 2.65rem);
-  line-height: 1.55;
-  font-weight: 500;
+  text-align: right;
+  font-family: var(--font-mandatory);
+  font-size: clamp(36px, 10.4167vw, 200px);
+  line-height: 1;
+  font-weight: 816;
+  font-variation-settings: "wght" 816, "wdth" 87;
   color: var(--ink);
   opacity: 0;
   filter: blur(0);
@@ -2232,9 +2233,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-scene.is-ack-receding .cards-memory-ack {
-  opacity: 0.07;
-  filter: blur(5px);
-  transform: translate(-50%, -50%) scale(0.96);
+  top: 3.98vh;
+  opacity: 0.22;
+  filter: blur(16px);
+  transform: translateX(-50%);
 }
 
 .cards-scene.is-copy-visible.is-ack-receding .cards-memory-ack {
@@ -2242,14 +2244,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-memory-copy p {
-  width: max-content;
-  max-width: min(900px, 84vw);
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
   min-height: 3.7em;
   font-family: var(--font-main);
-  font-size: clamp(1.34rem, 2vw, 2.12rem);
-  line-height: 1.62;
-  font-weight: 500;
+  font-size: clamp(18px, 4.1667vw, 80px);
+  line-height: 1.1;
+  font-weight: 700;
   opacity: 1;
   white-space: pre-line;
 }
@@ -2297,6 +2299,43 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .cards-blank-continue:disabled {
   cursor: default;
 }
+
+/* Figma transition frames 471:7394 and 470:7358. The six recorded
+   answers retain their exact 1920×1080 coordinates and scale with the
+   viewport; the oldest extra trace remains outside this composition. */
+.cards-memory-trace .question-memory-trace__item {
+  right: auto;
+  direction: rtl;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-mandatory);
+  font-weight: 816;
+  font-variation-settings: "wght" 816, "wdth" 87;
+  line-height: 1.3;
+  color: var(--ink);
+  mix-blend-mode: multiply;
+  opacity: 0.25;
+  transform: translateX(-100%);
+  transform-origin: right top;
+  transition: opacity 0.9s ease, filter 1.1s ease, top 1.1s ease, left 1.1s ease;
+}
+.cards-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(10px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="1"] { left: 75.99vw; top: 1.204vh; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(12px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 36.302vw; top: 15vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(14px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(16px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 49.444vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(18px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 103.125vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(20px); }
+.cards-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
+
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item {
+  opacity: 0.15;
+}
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="0"] { filter: blur(18px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="1"] { filter: blur(20px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 35.781vw; filter: blur(22px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="3"] { filter: blur(24px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="4"] { top: 41.852vh; filter: blur(26px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 98.802vw; filter: blur(28px); }
 
 /* ============================================================
    PHASE.RECORD — text or audio choice
@@ -2645,13 +2684,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-legacy {
   background-color: #F4EFE5;
-  background-image: var(--paper-tex);
+  background-image: url("images/figma-question-background.jpg");
   overflow: hidden;
 }
 
 #screen-legacy .qform-stage {
   z-index: 2;
-  width: min(86vw, calc(78vh * 1.5), 1280px);
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  transform: rotate(0.73deg);
 }
 
 #screen-legacy .qform-sheet {
@@ -2660,7 +2700,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-legacy .qform {
   position: relative;
-  opacity: 1;
+  opacity: 0.9;
   background: transparent;
 }
 
@@ -2675,7 +2715,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     var(--paper-tex);
   background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.3;
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -2708,6 +2748,23 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-wrap: balance;
 }
 
+#screen-legacy .qform-header .qform-cell:nth-child(1) { width: 27.36%; }
+#screen-legacy .qform-header .qform-cell:nth-child(2) { width: 23.28%; }
+#screen-legacy .qform-header .qform-cell:nth-child(3) { width: 23.28%; }
+#screen-legacy .qform-header .qform-cell:nth-child(4) { width: 26.08%; }
+
+#screen-legacy .qform-actions {
+  position: absolute;
+  left: calc(100% * 85 / 1370);
+  right: auto;
+  bottom: calc(100% * 100 / 1370);
+  width: clamp(60px, 11.68cqw, 160px);
+  height: clamp(60px, 11.68cqw, 160px);
+  display: block;
+  direction: ltr;
+}
+#screen-legacy .qform-actions__continue { margin: 0; }
+
 #screen-legacy .line__text {
   background: transparent;
 }
@@ -2716,18 +2773,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   z-index: 1;
   left: 50%;
-  top: 50%;
-  width: min(680px, 82vw);
-  transform: translate(-50%, -50%) scale(0.96);
+  top: 12.685vh;
+  width: min(57.813vw, 1110px);
+  transform: translateX(-50%);
   direction: rtl;
-  text-align: center;
-  font-family: var(--font-main);
-  font-size: clamp(1.48rem, 2.8vw, 2.65rem);
-  line-height: 1.55;
-  font-weight: 500;
+  text-align: right;
+  font-family: var(--font-mandatory);
+  font-size: clamp(36px, 10.4167vw, 200px);
+  line-height: 1;
+  font-weight: 816;
+  font-variation-settings: "wght" 816, "wdth" 87;
   color: var(--ink);
-  opacity: 0.06;
-  filter: blur(5px);
+  opacity: 0.1;
+  filter: blur(16px);
   pointer-events: none;
 }
 

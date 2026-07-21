@@ -536,9 +536,12 @@
     const items = [];
     const limit = Math.min(count, questions.length);
     for (let i = 0; i < limit; i++) {
-      items.push(questions[i]);
       const answer = String(state.answers[i] || "").replace(/\s+/g, " ").trim();
-      if (answer && !state.dontKnow[i]) items.push(answer);
+      if (state.dontKnow[i]) {
+        items.push("לא יודע/ת");
+      } else if (answer) {
+        items.push(answer);
+      }
     }
     return items;
   }
