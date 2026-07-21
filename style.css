@@ -3656,7 +3656,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-questions .qform {
   isolation: isolate;
-  background-color: var(--cream);
+  background-color: transparent;
   background-image: none;
   opacity: 1;
 }
@@ -3676,6 +3676,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-questions .qform > * {
   z-index: 1;
+}
+
+/* The question action sits 30px inside the ruled frame, rather than on its
+   bottom border. Registration keeps its separately tuned Figma position. */
+#screen-questions .qform-sheet--active .qform-actions {
+  left: calc(100% * 96 / 1370);
+  bottom: calc(100% * 125 / 1370);
 }
 
 #screen-questions .qform-grid,
