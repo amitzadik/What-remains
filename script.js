@@ -445,8 +445,7 @@
   // Actions from the new Figma landing. These call the real application
   // functions directly; the removed legacy landing is no longer used as a
   // hidden proxy layer.
-  window.addEventListener("wr-landing-action", (event) => {
-    const action = event.detail;
+  window.handleWhatRemainsLandingAction = (action) => {
     if (action === "create") startRegistration();
     if (action === "search") {
       renderLandingDrawers();
@@ -463,7 +462,7 @@
       if (sess && sess.code) openOwnDrawer(sess);
       else openLoginModal();
     }
-  });
+  };
 
   // ============================================================
   // Register card (name + email + phone) — first sheet of the pile

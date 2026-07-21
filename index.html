@@ -356,11 +356,8 @@
     </div>
   </div>
 
-  <script src="script.js?v=19"></script>
+  <script src="script.js?v=20"></script>
   <script>
-    window.handleWhatRemainsLandingAction = function (action) {
-      window.dispatchEvent(new CustomEvent('wr-landing-action', { detail: action }));
-    };
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
       window.handleWhatRemainsLandingAction(event.data.action);
