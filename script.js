@@ -82,7 +82,7 @@
     submitted: false,    // guards against a double webhook submission
     frozenCount: 0,      // stacked (frozen) sheets behind the live question
     date: new Date().toLocaleDateString("he-IL", {
-      day: "2-digit", month: "2-digit", year: "2-digit"
+      day: "numeric", month: "numeric", year: "2-digit"
     })
   };
 
