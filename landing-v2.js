@@ -63,9 +63,9 @@
       window.setTimeout(() => typePart(0), 260);
       window.setTimeout(() => {
         screen.classList.add('is-card-entered');
-        // once the papers have dealt in, let them settle into the breathing
+        // once the ~10s deal finishes, let the papers settle into the breathing
         // (independent of the typewriter, which finishes much later)
-        window.setTimeout(() => screen.classList.add('is-settled'), 2250);
+        window.setTimeout(() => screen.classList.add('is-settled'), 10200);
         window.setTimeout(() => {
           cardFinished = true;
           beginIdleWhenReady();

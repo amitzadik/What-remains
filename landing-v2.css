@@ -156,7 +156,7 @@ button{font:inherit;color:inherit}
 }
 .pile-photo,.pile-sheet{
   position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
-  transform:translate3d(calc(var(--pbx) + var(--pdx)),calc(var(--pby) + var(--ppop)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr)));
+  transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),var(--pby),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr)));
 }
 .pile-photo{background-color:#d7d1c6;background-size:cover;background-position:center;filter:grayscale(.35)}
 .pile-photo--1{--rr:-16deg;--rest-op:.8;--bx-to:1.5px;--by-to:-1px;--br-to:.35deg;--bdur:8.2s;--bdelay:-1.1s;width:310px;height:220px;left:52px;top:205px;background-image:url("images/figma-photo-small.png")}
@@ -174,26 +174,29 @@ button{font:inherit;color:inherit}
 @keyframes pile-deal{0%{opacity:0;--pdx:-720px;--pdr:14deg}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdr:0deg}}
 @keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
 
-/* hover the pile → its top sheet pops toward the viewer ~11px */
-.landing-v2__pile:hover .pile-sheet--front{--ppop:-11px;box-shadow:0 -6px 16px rgba(0,0,0,.28),0 10px 22px rgba(0,0,0,.22)}
+/* hover the pile → its top sheet slides to the right; no colour change
+   (override the global button:hover red from style.css) */
+.landing-v2__pile:hover:not(:disabled){color:var(--ink)}
+.landing-v2__pile:hover .pile-sheet--front{--ppop:18px;box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18)}
 
 .landing-v2.is-revealed .landing-v2__copy{opacity:1}
 .landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
 .landing-v2.is-revealed::after{opacity:.24}
 
-/* deal-in: corners first, then the pile builds up (front sheet lands last) */
-.landing-v2.is-card-entered .corner-layer{animation:corner-deal .8s cubic-bezier(.32,1.3,.62,1) both}
-.landing-v2.is-card-entered .corner-layer--b{animation-delay:130ms}
-.landing-v2.is-card-entered .corner-layer--c{animation-delay:260ms}
-.landing-v2.is-card-entered .corner-layer--d{animation-delay:390ms}
-.landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal .78s cubic-bezier(.32,1.3,.62,1) both}
-.landing-v2.is-card-entered .pile-photo--1{animation-delay:520ms}
-.landing-v2.is-card-entered .pile-photo--2{animation-delay:650ms}
-.landing-v2.is-card-entered .pile-photo--3{animation-delay:780ms}
-.landing-v2.is-card-entered .pile-photo--4{animation-delay:910ms}
-.landing-v2.is-card-entered .pile-sheet--back{animation-delay:1040ms}
-.landing-v2.is-card-entered .pile-sheet--middle{animation-delay:1170ms}
-.landing-v2.is-card-entered .pile-sheet--front{animation-delay:1300ms}
+/* deal-in: corners first, then the pile builds up (front sheet lands last).
+   Stretched so the whole deal spans ~10s (870ms between papers, 1.3s each). */
+.landing-v2.is-card-entered .corner-layer{animation:corner-deal 1.3s cubic-bezier(.32,1.3,.62,1) both}
+.landing-v2.is-card-entered .corner-layer--b{animation-delay:870ms}
+.landing-v2.is-card-entered .corner-layer--c{animation-delay:1740ms}
+.landing-v2.is-card-entered .corner-layer--d{animation-delay:2610ms}
+.landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal 1.3s cubic-bezier(.32,1.3,.62,1) both}
+.landing-v2.is-card-entered .pile-photo--1{animation-delay:3480ms}
+.landing-v2.is-card-entered .pile-photo--2{animation-delay:4350ms}
+.landing-v2.is-card-entered .pile-photo--3{animation-delay:5220ms}
+.landing-v2.is-card-entered .pile-photo--4{animation-delay:6090ms}
+.landing-v2.is-card-entered .pile-sheet--back{animation-delay:6960ms}
+.landing-v2.is-card-entered .pile-sheet--middle{animation-delay:7830ms}
+.landing-v2.is-card-entered .pile-sheet--front{animation-delay:8700ms}
 
 /* settled: once the deal finishes, papers settle into the constant breathing
    (replaces the deal animation) — independent of the typewriter finishing */
