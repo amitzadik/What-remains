@@ -5240,26 +5240,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-pile.is-spread .pile-item--photo { --spread-x:34vw; --spread-y:4vh; }
 .archive-pile.is-spread .pile-item--envelope { opacity: 0; pointer-events: none; }
 
-/* The record card is pulled up out of the pile in one continuous physical
-   action — no opacity anywhere in the reveal. The card is fully opaque the
-   whole time; while closed it is concealed by a clip (the "pile surface"),
-   and as it is pulled upward the clip opens with the same motion, so the
-   top edge of the card emerges first, exactly like a sheet drawn out from
-   under the papers that are shifting aside. On close it is pushed back
-   down under the surface first, then the panel releases (visibility only,
-   after the movement — never a fade). */
 .personal-tool-panel {
   position: absolute;
   inset: 0;
   z-index: 260;
   pointer-events: none;
+  opacity: 0;
   visibility: hidden;
-  transition: visibility 0s linear 520ms;
+  transition: opacity 320ms ease, visibility 0s linear 320ms;
 }
 .personal-tool-panel[aria-hidden="false"] {
+  opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: visibility 0s;
+  transition-delay: 180ms;
 }
 .personal-tool-card {
   position: absolute;
@@ -5271,24 +5265,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      cqw (percent of the card's own width) — the card and its contents always
      scale together as one proportional unit, never independently. */
   container-type: inline-size;
-  transform: translate(-50%, calc(-50% + 11vh)) rotate(-7.4deg) scale(0.955);
+  transform: translate(-50%, -50%) rotate(-3.96deg) scale(0.94);
   transform-origin: center;
   background: #a1835a url("images/figma-archive-search-card.jpg") center/cover no-repeat;
-  box-shadow: 2px 2px 8px rgba(0,0,0,.18);
+  box-shadow: 4px 4px 20px rgba(0,0,0,.25);
   color: var(--ink);
-  opacity: 1;
-  clip-path: inset(0 0 100% 0);
+  opacity: .95;
   font-family: var(--font-main);
-  transition: transform 520ms var(--ease-settle), clip-path 520ms var(--ease-settle), box-shadow 420ms ease;
+  transition: transform 720ms cubic-bezier(.22,1,.36,1);
 }
 .personal-tool-panel[aria-hidden="false"] .personal-tool-card {
   transform: translate(-50%, -50%) rotate(-3.96deg) scale(1);
-  clip-path: inset(0 0 0% 0);
-  box-shadow: 4px 4px 20px rgba(0,0,0,.25);
-  transition: transform 760ms var(--ease-arrive) 140ms, clip-path 760ms var(--ease-arrive) 140ms, box-shadow 760ms ease 140ms;
 }
 .personal-tool-panel--upload .personal-tool-card {
-  transform: translate(-50%, calc(-50% + 11vh)) rotate(9.2deg) scale(.955);
+  transform: translate(-50%, -50%) rotate(5.96deg) scale(.94);
   background-image: url("images/figma-archive-add-card.jpg");
 }
 .personal-tool-panel--upload[aria-hidden="false"] .personal-tool-card {
@@ -5340,6 +5330,5 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 @media (prefers-reduced-motion: reduce) {
   .archive-pile.is-spread .pile-item,
-  .personal-tool-panel,
   .personal-tool-card { transition:none; }
 }
