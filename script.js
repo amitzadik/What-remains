@@ -1473,6 +1473,7 @@
         }
       } else if (it.type === "ctrl") {
         el.className = "pile-item pile-item--envelope";
+        el.classList.add(it.btn === btnPersonalToGeneral ? "pile-item--envelope-add" : "pile-item--envelope-search");
         el.innerHTML = '<span class="envelope-code" aria-hidden="true">' + pileCodeLabel() + "</span>";
         if (it.btn) el.appendChild(it.btn);
       } else {
@@ -1495,8 +1496,8 @@
         x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
       } else if (it.type === "ctrl") {
         const isAdd = it.btn === btnPersonalToGeneral;
-        x = isAdd ? 48 : 50;
-        y = isAdd ? 78 : 97;
+        x = isAdd ? 48.04 : 49.09;
+        y = isAdd ? 97.08 : 115.00;
         rot = isAdd ? 12.8 : -13.9;
         z = isAdd ? 220 : 210;
       } else {

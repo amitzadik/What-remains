@@ -5015,19 +5015,32 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   align-items: center;
   justify-content: center;
   background-color: #a1835a;
-  background-image: url("images/figma-personal-archive-background.jpg");
+  border: none;
+  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+.pile-item--envelope::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background-size: cover;
   background-position: center;
-  border: none;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   opacity: 0.95;
-  overflow: hidden;
+  pointer-events: none;
+}
+.pile-item--envelope-add::before {
+  background-image: url("images/figma-archive-add-card.jpg");
+}
+.pile-item--envelope-search::before {
+  background-image: url("images/figma-archive-search-card.jpg");
 }
 .envelope-code {
   position: absolute;
-  left: 50%;
-  bottom: 9%;
-  transform: translateX(-50%);
+  left: 58.08%;
+  top: 30.62%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
   font-family: var(--font-main);
   font-weight: 700;
   font-size: clamp(3rem, 5.208vw, 6.25rem);
@@ -5036,7 +5049,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   color: rgba(62, 54, 38, 0.8);   /* --ink at ~80% */
   white-space: nowrap;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 .envelope-icon-btn {
   position: relative;
@@ -5082,6 +5095,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   inset: auto;
   width: clamp(72px, 9.375vw, 180px);
   height: clamp(72px, 9.375vw, 180px);
+}
+
+.pile-item--envelope .envelope-icon-btn {
+  position: absolute;
+  width: 22.49%;
+  height: 31.80%;
+}
+.pile-item--envelope-add .envelope-icon-btn {
+  left: 5.34%;
+  top: 8.72%;
+}
+.pile-item--envelope-search .envelope-icon-btn {
+  left: 73.84%;
+  top: 3.63%;
 }
 
 @keyframes personal-pile-breathe {
