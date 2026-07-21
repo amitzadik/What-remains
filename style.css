@@ -3763,6 +3763,101 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   caret-color: var(--stamp);
 }
 
+/* Figma registration frame (465:5711). The registration sheet has its own
+   A6 proportions; removing the stage modifier restores the question layout. */
+#screen-questions .qform-stage--register {
+  width: min(42.396vw, calc(53.426vh * 1.41075), 814px);
+  aspect-ratio: 814 / 577;
+  transform: rotate(2deg);
+}
+
+#register-sheet {
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+#register-sheet .qform--register {
+  padding: 0;
+  opacity: 1;
+  background-color: var(--cream);
+  background-image: url("images/figma-question-paper.jpg");
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+#register-sheet #btn-back-welcome {
+  display: none;
+}
+
+#register-sheet .register-head {
+  top: calc(100% * 50 / 577);
+  right: calc(100% * 42 / 814);
+  gap: 0;
+}
+
+#register-sheet .register-title {
+  font-family: var(--font-main);
+  font-size: clamp(25px, 2.604vw, 50px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+#register-sheet .register-table {
+  position: absolute;
+  top: calc(100% * 194 / 577);
+  left: 50%;
+  width: calc(100% * 583 / 814);
+  height: calc(100% * 199 / 577);
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+#register-sheet .register-row {
+  flex: 1 1 0;
+  min-height: 0;
+  border-width: 1.5px;
+}
+
+#register-sheet .register-row + .register-row {
+  margin-top: -1.5px;
+}
+
+#register-sheet .register-label {
+  flex: 0 0 calc(100% * 132 / 583);
+  justify-content: flex-start;
+  padding: 0 10px;
+  border-left-width: 1.5px;
+  font-size: clamp(18px, 1.5625vw, 30px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+#register-sheet .register-req {
+  color: var(--ink);
+  margin-left: 0;
+}
+
+#register-sheet .register-input {
+  padding: 0 12px;
+  font-size: clamp(18px, 1.5625vw, 30px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+#register-sheet .qform-actions__continue {
+  bottom: -14px;
+  left: -16px;
+}
+
+#register-sheet .qform-img-btn img {
+  width: clamp(70px, 5.469vw, 105px);
+  height: clamp(70px, 5.469vw, 105px);
+}
+
 @media (max-width: 600px) {
   .qform-label { font-size: 0.62rem; }
   .qform-value { font-size: 0.85rem; }
