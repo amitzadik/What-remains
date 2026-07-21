@@ -11,86 +11,15 @@
 
   <iframe id="figma-landing" class="figma-landing" src="landing-v2.html" title="מה שישאר — עמוד הבית"></iframe>
 
-  <!-- ============== SCREEN: LANDING (intro + fork) ============== -->
-  <section id="screen-landing" class="screen active">
-    <!-- Archive drawer wall (background) -->
+  <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
+  <section id="screen-landing" class="screen" aria-label="הארכיון">
     <div class="landing-bg" id="landing-bg"></div>
-
-    <!-- Centered logo (over drawers, behind popup) -->
-    <img src="images/logo.png" alt="מה שישאר" class="landing-logo" id="landing-logo">
-
-    <!-- Stamps (outside the popup — always visible, top-left) -->
-    <div class="landing-stamps">
-      <div class="landing-stamps-left">
-        <img
-          id="stamp-login"
-          class="landing-stamp"
-          src="images/login-default.png"
-          data-hover="images/login-hover.png"
-          alt="התחברות"
-        >
-        <img
-          id="stamp-mydrawer"
-          class="landing-stamp"
-          src="images/my-drawer-default.png"
-          data-hover="images/my-drawer-hover.png"
-          alt="המגירה שלי"
-        >
-        <img
-          id="stamp-search"
-          class="landing-stamp"
-          src="images/search-default.png"
-          data-hover="images/search-hover.png"
-          alt="חיפוש בארכיון"
-        >
-      </div>
-      <img
-        id="stamp-add"
-        class="landing-stamp"
-        src="images/add-new-default.png"
-        data-hover="images/add-new-hover.png"
-        alt="הוסף לארכיון"
-      >
-    </div>
-
-    <!-- In-place archive search, toggled by the search stamp -->
     <input
       type="text"
       id="landing-search"
       class="input-field landing-search"
       placeholder="חיפוש לפי שם"
-      hidden
     >
-
-    <div class="archive-entry-space" aria-label="ברוכים הבאים לארכיון">
-      <div class="archive-entry-past" aria-hidden="true">
-        <span class="past-trace past-trace--q past-trace--q1">באיזו שפה...</span>
-        <span class="past-trace past-trace--q past-trace--q2">מה סבא אהב...</span>
-        <span class="past-trace past-trace--q past-trace--q3">מה גרם לסבתא...</span>
-        <span class="past-trace past-trace--q past-trace--q4">ממה סבא...</span>
-        <span class="past-trace past-trace--q past-trace--q5">על מה סבתא חלמה...</span>
-        <span class="past-trace past-trace--q past-trace--q6">על מה סבא לא...</span>
-        <span class="past-trace past-trace--q past-trace--q7">מתי נולד...</span>
-        <span class="past-trace past-trace--form past-trace--form-a"></span>
-        <span class="past-trace past-trace--form past-trace--form-b"></span>
-        <span class="past-trace past-trace--lines past-trace--lines-a"></span>
-        <span class="past-trace past-trace--lines past-trace--lines-b"></span>
-        <span class="past-trace past-trace--date">04.07.26</span>
-        <span class="past-trace past-trace--date past-trace--date-alt">05.07</span>
-        <span class="past-trace past-trace--ink past-trace--ink-a"></span>
-        <span class="past-trace past-trace--ink past-trace--ink-b"></span>
-        <span class="past-trace past-trace--hand">תשו... נשאר...</span>
-        <span class="past-trace past-trace--edge"></span>
-      </div>
-      <div class="archive-entry-present landing-card-face landing-card-front">
-        <div class="landing-body">
-          <p class="archive-entry-title">ברוכים הבאים לארכיון מה שישאר</p>
-          <p>כאן נאספים הדברים שבחרנו להשאיר אחרינו. מילים, זיכרונות, תמונות ועדויות שנועדו להגיע אל מי שיבואו אחרינו.</p>
-          <p>באפשרותכם לעיין במה שנשמר עבורכם, או להוסיף שכבה חדשה משלכם.</p>
-          <p>כל ארכיון אישי נשמר תחת קוד גישה ייחודי שיאפשר לכם לשוב אליו בעתיד ולשתף אותו רק עם מי שאתם בוחרים.</p>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- ============== SCREEN: QUESTIONS (register card + 1-7) ============== -->
@@ -315,25 +244,6 @@
     </article>
   </section>
 
-  <!-- ============== SCREEN: PRINT / ENVELOPE INSTRUCTIONS ============== -->
-  <section id="screen-print" class="screen">
-    <div class="print-instr-wrap">
-      <div class="print-instr-title">לפני שממשיכים</div>
-      <div class="print-instr-body">
-        הגלויה שלך מודפסת.<br>
-        קח אותה מהמדפסת.<br>
-        החתם אותה בחותמת שעל השולחן.<br>
-        הכנס אותה למעטפה.<br>
-        תן את המעטפה לאדם שאתה רוצה שיהיה חשוף למידע שאתה בוחר להכניס.
-      </div>
-      <div class="btn-group" style="justify-content: center; margin-top: 2rem;">
-        <button id="btn-to-archive" type="button" class="img-btn" data-default="images/next-default.png" data-hover="images/next-hover.png">
-          <img src="images/next-default.png" width="105" height="105">
-        </button>
-      </div>
-    </div>
-  </section>
-
   <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
   <section id="screen-personal" class="screen">
     <div class="archive-box">
@@ -446,20 +356,10 @@
     </div>
   </div>
 
-  <script src="script.js?v=18"></script>
+  <script src="script.js?v=19"></script>
   <script>
     window.handleWhatRemainsLandingAction = function (action) {
-      const intro = document.getElementById('figma-landing');
-      if (action === 'create') {
-        if (intro) {
-          intro.classList.add('is-dismissed');
-          window.setTimeout(() => intro.remove(), 500);
-        }
-        document.getElementById('stamp-add')?.click();
-      }
-      if (action === 'search') document.getElementById('stamp-search')?.click();
-      if (action === 'login') document.getElementById('stamp-login')?.click();
-      if (action === 'drawer') document.getElementById('stamp-mydrawer')?.click();
+      window.dispatchEvent(new CustomEvent('wr-landing-action', { detail: action }));
     };
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

@@ -90,19 +90,21 @@
   // Screen routing
   // ============================================================
   const screens = {
-    landing:   document.getElementById("screen-landing"),
+    archive:   document.getElementById("screen-landing"),
     questions: document.getElementById("screen-questions"),
     cards:     document.getElementById("screen-cards"),
     legacy:    document.getElementById("screen-legacy"),
     stack:     document.getElementById("screen-stack"),
     camera:    document.getElementById("screen-camera"),
     envelope:  document.getElementById("screen-envelope"),
-    print:     document.getElementById("screen-print"),
     personal:  document.getElementById("screen-personal")
   };
+  const figmaLanding = document.getElementById("figma-landing");
 
   function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.remove("active"));
+    Object.values(screens).forEach(s => { if (s) s.classList.remove("active"); });
+    if (figmaLanding) figmaLanding.classList.toggle("is-dismissed", name !== "landing");
+    if (name === "landing") return;
     if (screens[name]) screens[name].classList.add("active");
   }
 
@@ -439,6 +441,29 @@
     showScreen("questions");
     setTimeout(() => nameInput.focus(), 60);
   }
+
+  // Actions from the new Figma landing. These call the real application
+  // functions directly; the removed legacy landing is no longer used as a
+  // hidden proxy layer.
+  window.addEventListener("wr-landing-action", (event) => {
+    const action = event.detail;
+    if (action === "create") startRegistration();
+    if (action === "search") {
+      renderLandingDrawers();
+      showScreen("archive");
+      if (searchInput) window.setTimeout(() => searchInput.focus(), 60);
+    }
+    if (action === "login") {
+      const sess = getSession();
+      if (sess && sess.code) openAccountModal();
+      else openLoginModal();
+    }
+    if (action === "drawer") {
+      const sess = getSession();
+      if (sess && sess.code) openOwnDrawer(sess);
+      else openLoginModal();
+    }
+  });
 
   // ============================================================
   // Register card (name + email + phone) — first sheet of the pile
@@ -1240,7 +1265,10 @@
   if (btnEnvelopeNext) {
     btnEnvelopeNext.addEventListener("click", () => {
       if (btnEnvelopeNext.disabled) return;
-      showScreen("print");
+      renderLandingDrawers();
+      const sess = getSession();
+      if (sess && sess.code) openOwnDrawer(sess);
+      else showScreen("landing");
     });
   }
 
@@ -1254,19 +1282,6 @@
   // ============================================================
   // PHASE.PRINT_INSTRUCTIONS — simple text → back home (the archive)
   // ============================================================
-  const btnToArchive = document.getElementById("btn-to-archive");
-  btnToArchive.addEventListener("click", () => {
-    renderLandingDrawers(); // refresh — includes the user's new drawer
-    // Land the just-created depositor straight inside their own drawer,
-    // logged in as the owner; fall back to the archive if no session.
-    const sess = getSession();
-    if (sess && sess.code) {
-      openOwnDrawer(sess);
-    } else {
-      showScreen("landing");
-    }
-  });
-
   // ============================================================
   // Personal archive (the user's own drawer)
   // ============================================================
@@ -1496,7 +1511,7 @@
   if (btnPersonalArchiveSearch) {
     btnPersonalArchiveSearch.addEventListener("click", () => {
       renderLandingDrawers();
-      showScreen("landing");
+      showScreen("archive");
     });
   }
 
@@ -1511,7 +1526,7 @@
   btnPersonalRestart.addEventListener("click", () => {
     activeViewer = null;
     renderLandingDrawers();
-    showScreen("landing");
+    showScreen("archive");
   });
 
   // ============================================================
