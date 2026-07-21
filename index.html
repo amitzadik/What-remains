@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=30" />
+  <link rel="stylesheet" href="style.css?v=31" />
 </head>
 <body dir="rtl">
 
@@ -253,6 +253,33 @@
       <!-- The scattered pile of this depositor's own archive materials -->
       <div class="archive-pile" id="archive-pile"></div>
 
+      <section id="personal-search-panel" class="personal-tool-panel personal-tool-panel--search" aria-hidden="true">
+        <form id="personal-search-form" class="personal-tool-card">
+          <span class="personal-tool-owner" id="personal-search-owner"></span>
+          <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-search-code"></strong>
+          <h2>בקשת אחזור:</h2>
+          <div class="personal-tool-grid">
+            <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה למצוא היום?</span><textarea id="personal-search-query" required></textarea></label>
+            <label class="personal-tool-field"><span>באיזה פורמט?</span><input id="personal-search-format" type="text"></label>
+          </div>
+          <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
+          <button class="personal-tool-submit personal-tool-submit--back" type="submit" aria-label="חיפוש"><img src="images/back-default.png" alt=""></button>
+        </form>
+      </section>
+
+      <section id="personal-upload-panel" class="personal-tool-panel personal-tool-panel--upload" aria-hidden="true">
+        <form id="personal-upload-form" class="personal-tool-card">
+          <span class="personal-tool-owner" id="personal-upload-owner"></span>
+          <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-upload-code"></strong>
+          <h2>הוספת פריט/ים לארכיון האישי</h2>
+          <div class="personal-tool-grid">
+            <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה להוסיף?</span><textarea id="personal-upload-description" required></textarea></label>
+            <label class="personal-tool-field"><span>סוג הפורמט/ים</span><input id="personal-upload-format" type="text"></label>
+          </div>
+          <button class="personal-tool-submit personal-tool-submit--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon.png" alt=""></button>
+        </form>
+      </section>
+
       <!-- Close: small fixed top-right chrome. Add + archive are relocated into
            the scattered pile as kraft "envelope" cards by renderArchivePile(). -->
       <button id="btn-personal-restart" type="button" class="img-btn pile-ctrl pile-ctrl--close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה">
@@ -357,7 +384,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=23"></script>
+  <script src="script.js?v=24"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

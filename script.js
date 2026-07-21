@@ -1243,6 +1243,12 @@
   const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
   const btnPersonalArchiveSearch = document.getElementById("btn-personal-archive-search");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
+  const archiveBox = document.querySelector("#screen-personal .archive-box");
+  const personalSearchPanel = document.getElementById("personal-search-panel");
+  const personalUploadPanel = document.getElementById("personal-upload-panel");
+  const personalSearchForm = document.getElementById("personal-search-form");
+  const personalUploadForm = document.getElementById("personal-upload-form");
+  const personalSearchStatus = document.getElementById("personal-search-status");
 
   // Personal-archive state. The scattered pile is built from THIS depositor's
   // own materials: their answered question cards plus their photos/videos.
@@ -1250,6 +1256,7 @@
   let pileCardData = null;   // the 7 question cards' data for the open drawer
   let pileMedia = [];        // authoritative media {src, kind, own?} (drive + own photo)
   let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
+  let pendingUploadMetadata = null;
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1259,7 +1266,10 @@
   uploadInput.addEventListener("change", () => {
     const file = uploadInput.files && uploadInput.files[0];
     uploadInput.value = ""; // let the same file be re-picked later
-    if (file && currentDrawerCode) uploadFileToDrawer(file, currentDrawerCode);
+    if (file && currentDrawerCode) {
+      closePersonalTool();
+      uploadFileToDrawer(file, currentDrawerCode);
+    }
   });
 
   // Upload a file into the drawer's Drive folder (fire-and-forget POST, like
@@ -1284,10 +1294,13 @@
             code: code,
             filename: file.name || "file",
             mimeType: file.type || "application/octet-stream",
+            description: pendingUploadMetadata ? pendingUploadMetadata.description : "",
+            requestedFormat: pendingUploadMetadata ? pendingUploadMetadata.format : "",
             data: base64
           })
         });
       } catch (err) { /* לא חוסם */ }
+      pendingUploadMetadata = null;
       // No readable response — give Drive a moment, then reload the listing.
       setTimeout(() => loadDrawerFiles(code), 4000);
     };
@@ -1515,6 +1528,37 @@
     });
   }
 
+  function setPersonalToolText() {
+    const code = pileCodeLabel();
+    ["personal-search-code", "personal-upload-code"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = code;
+    });
+    ["personal-search-owner", "personal-upload-owner"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = pileCardData ? pileCardData.name : "";
+    });
+  }
+
+  function openPersonalTool(kind) {
+    if (!archiveBox) return;
+    setPersonalToolText();
+    archiveBox.classList.add("is-tool-open", "is-tool-" + kind);
+    if (archivePile) archivePile.classList.add("is-spread");
+    if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", kind === "search" ? "false" : "true");
+    if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", kind === "upload" ? "false" : "true");
+    const focusTarget = document.getElementById(kind === "search" ? "personal-search-query" : "personal-upload-description");
+    window.setTimeout(() => { if (focusTarget) focusTarget.focus(); }, 520);
+  }
+
+  function closePersonalTool() {
+    if (!archiveBox || !archiveBox.classList.contains("is-tool-open")) return false;
+    archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
+    if (archivePile) archivePile.classList.remove("is-spread");
+    if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
+    if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
+    if (personalSearchStatus) personalSearchStatus.textContent = "";
+    return true;
+  }
+
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
   window.addEventListener("resize", () => {
     if (screens.personal && screens.personal.classList.contains("active")) {
@@ -1546,20 +1590,40 @@
   // Drawer control → browse the full archive (the landing drawer wall).
   if (btnPersonalArchiveSearch) {
     btnPersonalArchiveSearch.addEventListener("click", () => {
-      renderLandingDrawers();
-      showScreen("archive");
+      openPersonalTool("search");
     });
   }
 
   // + control → the owner adds a new photo/video to their archive.
   btnPersonalToGeneral.addEventListener("click", () => {
     if (!ownerView || !currentDrawerCode) return;
-    uploadInput.accept = "image/*,video/*";
+    openPersonalTool("upload");
+  });
+
+  if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const query = document.getElementById("personal-search-query").value.trim();
+    const format = document.getElementById("personal-search-format").value.trim();
+    if (!query) return;
+    window.dispatchEvent(new CustomEvent("whatremains:archive-search", {
+      detail: { code: currentDrawerCode, query: query, format: format }
+    }));
+    if (personalSearchStatus) personalSearchStatus.textContent = "הבקשה התקבלה";
+  });
+
+  if (personalUploadForm) personalUploadForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const description = document.getElementById("personal-upload-description").value.trim();
+    const format = document.getElementById("personal-upload-format").value.trim();
+    if (!description) return;
+    pendingUploadMetadata = { description: description, format: format };
+    uploadInput.accept = "image/*,video/*,.pdf,.doc,.docx,.txt,audio/*";
     uploadInput.click();
   });
 
   // Bottom-right: back to the archive; re-lock so re-entry needs the code
   btnPersonalRestart.addEventListener("click", () => {
+    if (closePersonalTool()) return;
     activeViewer = null;
     showScreen("landing");
   });
