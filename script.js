@@ -1092,6 +1092,10 @@
   const btnCameraBack = document.getElementById("btn-camera-back");
   const envelopeTransition = document.getElementById("memory-envelope-transition");
   const btnEnvelopeNext = document.getElementById("btn-envelope-next");
+  const stampInstructionsPile = document.getElementById("stamp-instructions-pile");
+  const stampInstructionsTrace = document.getElementById("stamp-instructions-trace");
+  const stampInstructionsCode = document.getElementById("stamp-instructions-code");
+  const stampInstructionsPhoto = document.getElementById("stamp-instructions-photo-preview");
 
   let cameraStream = null;
 
@@ -1200,14 +1204,29 @@
 
   function initEnvelopeTransition() {
     if (!envelopeTransition) return;
-    envelopeTransition.classList.remove("is-closing", "is-sealed");
-    if (btnEnvelopeNext) btnEnvelopeNext.disabled = true;
-    void envelopeTransition.offsetWidth;
-    envelopeTransition.classList.add("is-closing");
-    setTimeout(() => {
-      envelopeTransition.classList.add("is-sealed");
-      if (btnEnvelopeNext) btnEnvelopeNext.disabled = false;
-    }, reduceMotion ? 0 : 2300);
+    setMemoryTraceItems(stampInstructionsTrace, buildQuestionMemoryItems(questions.length));
+    if (stampInstructionsPile && cameraStackPile) {
+      stampInstructionsPile.innerHTML = cameraStackPile.innerHTML;
+    }
+    if (stampInstructionsCode) {
+      stampInstructionsCode.textContent = String(state.userCode || "0001").padStart(4, "0");
+    }
+    if (stampInstructionsPhoto) {
+      if (state.photoDataUrl) {
+        stampInstructionsPhoto.src = state.photoDataUrl;
+        stampInstructionsPhoto.hidden = false;
+      } else {
+        stampInstructionsPhoto.hidden = true;
+        stampInstructionsPhoto.removeAttribute("src");
+      }
+    }
+    envelopeTransition.classList.remove("is-visible");
+    if (btnEnvelopeNext) btnEnvelopeNext.disabled = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (screens.envelope.classList.contains("active")) {
+        envelopeTransition.classList.add("is-visible");
+      }
+    }));
   }
 
   btnCameraNext.addEventListener("click", () => {

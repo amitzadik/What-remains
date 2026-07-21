@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=24" />
+  <link rel="stylesheet" href="style.css?v=25" />
 </head>
 <body dir="rtl">
 
@@ -293,26 +293,26 @@
 
   <!-- ============== SCREEN: ENVELOPE TRANSITION ============== -->
   <section id="screen-envelope" class="screen">
-    <div class="memory-envelope-transition" id="memory-envelope-transition">
-      <div class="memory-envelope-copy">
-        מה שישאר מאיתנו הוא לא רק מה שזוכרים עלינו, אלא גם מה שבחרנו להשאיר לדורות הבאים.
+    <div class="stamp-instructions-shade" aria-hidden="true"></div>
+    <div class="question-memory-trace stamp-instructions-trace" id="stamp-instructions-trace" aria-hidden="true"></div>
+    <div class="legacy-memory-ack stamp-instructions-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+    <div class="stamp-instructions-stack" aria-hidden="true">
+      <div class="stamp-instructions-pile" id="stamp-instructions-pile"></div>
+      <div class="stamp-instructions-photo">
+        <img id="stamp-instructions-photo-preview" hidden alt="">
       </div>
-
-      <div class="memory-envelope-scene" aria-hidden="true">
-        <div class="memory-layer memory-layer--question"></div>
-        <div class="memory-layer memory-layer--legacy"></div>
-        <div class="memory-layer memory-layer--photo"></div>
-        <div class="memory-envelope-object">
-          <div class="memory-envelope-back"></div>
-          <div class="memory-envelope-pocket"></div>
-          <div class="memory-envelope-flap"></div>
-        </div>
-      </div>
-
-      <button id="btn-envelope-next" type="button" class="img-btn envelope-next" data-default="images/next-default.png" data-hover="images/next-hover.png">
-        <img src="images/next-default.png" width="105" height="105">
-      </button>
     </div>
+    <article class="stamp-instructions-sheet" id="memory-envelope-transition">
+      <div class="stamp-instructions-code" id="stamp-instructions-code" aria-label="קוד הגישה"></div>
+      <div class="stamp-instructions-copy">
+        <p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת שנמצאת על השולחן. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך לארכיון שיצרת.</p>
+        <p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>
+        <p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>
+      </div>
+      <button id="btn-envelope-next" type="button" class="img-btn stamp-instructions-next" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+        <img src="images/next-default.png" width="160" height="160" alt="">
+      </button>
+    </article>
   </section>
 
   <!-- ============== SCREEN: PRINT / ENVELOPE INSTRUCTIONS ============== -->
@@ -446,7 +446,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=17"></script>
+  <script src="script.js?v=18"></script>
   <script>
     window.handleWhatRemainsLandingAction = function (action) {
       const intro = document.getElementById('figma-landing');

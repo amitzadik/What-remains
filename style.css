@@ -3600,6 +3600,157 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .envelope-next:disabled img { opacity: 0.35; }
 
+/* ============================================================
+   PHASE.STAMP_INSTRUCTIONS — Figma 480:8677
+============================================================ */
+#screen-envelope {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background-color: #8f795c;
+  background-image: url("images/figma-question-background.jpg");
+  background-size: cover;
+  background-position: center;
+}
+.stamp-instructions-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(19, 13, 0, 0.3);
+}
+.stamp-instructions-trace { z-index: 1; }
+.stamp-instructions-ack {
+  z-index: 1;
+  top: 12.69vh;
+  opacity: 0.05;
+  filter: blur(16px);
+}
+.stamp-instructions-stack {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  aspect-ratio: 1370 / 969;
+  container-type: inline-size;
+  transform: translate(-50%, -50%);
+}
+.stamp-instructions-pile { position: absolute; inset: 0; }
+.stamp-instructions-pile .stack-transition-sheet {
+  opacity: var(--stack-opacity);
+  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
+}
+.stamp-instructions-photo {
+  position: absolute;
+  z-index: 10;
+  left: 49%;
+  top: 56%;
+  width: min(83.17cqw, 1139.5px);
+  aspect-ratio: 1139.487 / 737.315;
+  box-sizing: border-box;
+  padding: clamp(8px, 1.31cqw, 18px);
+  background: #fff;
+  box-shadow: 0 5px 5px rgba(0,0,0,.25);
+  transform: translate(-50%, -50%) rotate(-10.94deg);
+}
+.stamp-instructions-photo::before {
+  content: "";
+  position: absolute;
+  inset: clamp(8px, 1.31cqw, 18px);
+  background: #000;
+}
+.stamp-instructions-photo img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.stamp-instructions-photo img[hidden] { display: none; }
+
+.stamp-instructions-sheet {
+  position: absolute;
+  z-index: 20;
+  left: 48.78%;
+  top: 54.75%;
+  width: min(64.779vw, calc(81.454vh * 1.4138), 1243.756px);
+  aspect-ratio: 1243.756 / 879.707;
+  overflow: hidden;
+  direction: rtl;
+  color: var(--ink);
+  background-color: rgba(244, 239, 229, 0.95);
+  background-image: url("images/figma-question-background.jpg");
+  background-size: cover;
+  box-shadow: 0 5px 5px rgba(0,0,0,.25);
+  opacity: 0;
+  transform: translate(-48%, -47%) rotate(-1deg) scale(.97);
+  transform-origin: center;
+  transition: opacity 650ms ease, transform 1100ms cubic-bezier(.16,1,.3,1);
+}
+.stamp-instructions-sheet.is-visible {
+  opacity: .95;
+  transform: translate(-50%, -50%) rotate(2.31deg) scale(1);
+}
+.stamp-instructions-copy {
+  position: absolute;
+  z-index: 2;
+  top: 17.3%;
+  right: 12.7%;
+  width: 75.56%;
+  direction: rtl;
+  text-align: right;
+  font-family: var(--font-main);
+  font-size: clamp(18px, 2.2917vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.stamp-instructions-copy p {
+  margin: 0 0 clamp(9px, 1.04vw, 20px);
+  text-indent: clamp(32px, 4.1667vw, 80px);
+}
+.stamp-instructions-copy p:last-child { margin-bottom: 0; }
+.stamp-instructions-code {
+  position: absolute;
+  z-index: 1;
+  left: 6%;
+  right: 1%;
+  top: 16%;
+  direction: ltr;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-mandatory);
+  font-size: clamp(220px, 46.875vw, 900px);
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 70;
+  line-height: 1;
+  color: #c34237;
+  opacity: .2;
+  filter: blur(3px);
+  mix-blend-mode: multiply;
+  transform: rotate(6.18deg);
+  transform-origin: center;
+}
+.stamp-instructions-next {
+  position: absolute;
+  z-index: 3;
+  left: 3.24%;
+  bottom: 4.23%;
+  width: clamp(72px, 8.333vw, 160px);
+  height: clamp(72px, 8.333vw, 160px);
+}
+.stamp-instructions-next img { width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-instructions-sheet,
+  .stamp-instructions-sheet.is-visible {
+    opacity: .95;
+    transform: translate(-50%, -50%) rotate(2.31deg);
+    transition: none;
+  }
+}
+
 /* Stage — responsive 3:2 page (design base 1500×1000), centred with
    breathing room; overflow stays visible so the tilted pile and the
    sheet shadows aren't clipped (the .screen clips at the viewport). */
