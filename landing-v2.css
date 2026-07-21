@@ -1,7 +1,6 @@
-@font-face{font-family:"SundayMono";src:url("SundayMono-Regular.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Mandatory Variable";src:url("MandatoryVariable.ttf") format("truetype-variations");font-weight:200 900;font-style:normal;font-display:swap}
-
-:root{--ink:#3e3626;--paper:#faf6ee;--paper-texture:url("images/figma-landing-background.jpg")}
+/* SundayMono + Mandatory Variable @font-face (full weight family) come from
+   style.css, which this page also loads. font-synthesis:none — real files only. */
+:root{--ink:#3e3626;--paper:#faf6ee;--paper-texture:url("images/figma-landing-background.jpg");font-synthesis:none}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink)}
 body{font-family:"SundayMono","Courier New",monospace}
@@ -108,9 +107,12 @@ button{font:inherit;color:inherit}
   background-image:none;
   box-shadow:none;
 }
-.landing-v2__copy p{margin:0 0 20px;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(40px,3.95vw,76px);font-weight:700;line-height:.95;letter-spacing:0!important;margin-bottom:16px!important}
-.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(25px,2.3vw,44px);line-height:1.1;font-weight:500;text-indent:80px}
+/* טקסט רץ עמוד בית — SundayMono Medium, line-height 1.1, letter-spacing -1%.
+   Body matches Figma 44px; the title keeps its hero scale (layout unchanged)
+   but takes the same Medium weight / line-height / tracking. */
+.landing-v2__copy p{margin:0 0 20px;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.landing-v2__title{font-size:clamp(40px,3.95vw,76px);margin-bottom:16px!important}
+.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(25px,2.3vw,44px);text-indent:80px}
 
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
