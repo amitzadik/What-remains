@@ -75,9 +75,18 @@
   }, 500);
 
   function sendAction(action) {
-    if (window.parent !== window) {
-      window.parent.postMessage({ source: 'what-remains-landing', action }, window.location.origin);
+    if (window.parent === window) return;
+    // Same-origin is the normal production path and gives immediate, reliable
+    // button behaviour. postMessage remains the fallback for isolated previews.
+    try {
+      if (typeof window.parent.handleWhatRemainsLandingAction === 'function') {
+        window.parent.handleWhatRemainsLandingAction(action);
+        return;
+      }
+    } catch (_) {
+      // Cross-origin preview: fall through to the message bridge.
     }
+    window.parent.postMessage({ source: 'what-remains-landing', action }, '*');
   }
 
   // Mirror the form stamp-button interaction inside the isolated landing

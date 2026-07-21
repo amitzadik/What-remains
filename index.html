@@ -448,17 +448,22 @@
 
   <script src="script.js?v=17"></script>
   <script>
-    window.addEventListener('message', (event) => {
-      if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
+    window.handleWhatRemainsLandingAction = function (action) {
       const intro = document.getElementById('figma-landing');
-      if (event.data.action === 'create') {
-        intro.classList.add('is-dismissed');
-        window.setTimeout(() => intro.remove(), 500);
+      if (action === 'create') {
+        if (intro) {
+          intro.classList.add('is-dismissed');
+          window.setTimeout(() => intro.remove(), 500);
+        }
         document.getElementById('stamp-add')?.click();
       }
-      if (event.data.action === 'search') document.getElementById('stamp-search')?.click();
-      if (event.data.action === 'login') document.getElementById('stamp-login')?.click();
-      if (event.data.action === 'drawer') document.getElementById('stamp-mydrawer')?.click();
+      if (action === 'search') document.getElementById('stamp-search')?.click();
+      if (action === 'login') document.getElementById('stamp-login')?.click();
+      if (action === 'drawer') document.getElementById('stamp-mydrawer')?.click();
+    };
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
+      window.handleWhatRemainsLandingAction(event.data.action);
     });
   </script>
 </body>
