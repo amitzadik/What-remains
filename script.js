@@ -94,6 +94,7 @@
     questions: document.getElementById("screen-questions"),
     cards:     document.getElementById("screen-cards"),
     legacy:    document.getElementById("screen-legacy"),
+    stack:     document.getElementById("screen-stack"),
     camera:    document.getElementById("screen-camera"),
     envelope:  document.getElementById("screen-envelope"),
     print:     document.getElementById("screen-print"),
@@ -853,8 +854,8 @@
     if (txt === "") return;
     state.legacyText = txt;
     submitToSheet(); // all 12 fields are now filled — fire-and-forget
-    initCameraScreen();
-    showScreen("camera");
+    initStackTransition();
+    showScreen("stack");
   });
 
   // ============================================================
@@ -913,6 +914,68 @@
           '<div class="qform-row qform-answer-row">' + buildAnswerLines(i, src) + '</div>' +
         '</div>' +
       '</article>';
+  }
+
+  function stackQuestionFormHTML(i) {
+    const action = '<div class="stack-sheet-actions">' +
+      (state.dontKnow[i] ? '<span class="stack-sheet-dk">לא יודע/ת</span>' : '') +
+      '<img src="images/next-default.png" alt="" width="160" height="160">' +
+      '</div>';
+    return cardFormHTML(i).replace('</article>', action + '</article>');
+  }
+
+  function stackLegacyFormHTML() {
+    const parts = String(state.legacyText || '').split('\n');
+    let answerRows = '';
+    for (let i = 0; i < 5; i++) {
+      answerRows += '<div class="answer-line">' +
+        (i === 0 ? '<span class="qform-label">תשובה</span>' : '') +
+        '<span class="line__text">' + esc(parts[i] || '') + '</span></div>';
+    }
+    return '<article class="qform stack-legacy-form">' +
+      '<div class="qform-grid">' +
+        '<div class="qform-row qform-header">' +
+          '<div class="qform-cell"><span class="qform-label">שם העונה</span><span class="qform-value">' + esc(state.name) + '</span></div>' +
+          '<div class="qform-cell"><span class="qform-label">על</span><span class="qform-value">עליי</span></div>' +
+          '<div class="qform-cell"><span class="qform-label">תאריך</span><span class="qform-value">' + esc(state.date) + '</span></div>' +
+          '<div class="qform-cell qform-cell-num"><span class="qform-label">סוג מסמך</span><span class="qform-value qform-num">מורשת</span></div>' +
+        '</div>' +
+        '<div class="qform-row qform-question-row"><span class="qform-label">שאלה</span>' +
+          '<div class="qform-question-text">מה היית רוצה שהנכדים שלך ידעו עליך?</div></div>' +
+        '<div class="qform-row qform-answer-row">' + answerRows + '</div>' +
+      '</div>' +
+      '<div class="stack-sheet-actions"><img src="images/next-default.png" alt="" width="160" height="160"></div>' +
+    '</article>';
+  }
+
+  const stackStage = document.getElementById("stack-transition-stage");
+  const stackPile = document.getElementById("stack-transition-pile");
+  const stackMemoryTrace = document.getElementById("stack-memory-trace");
+  let stackTransitionRun = 0;
+
+  function initStackTransition() {
+    if (!stackStage || !stackPile) return;
+    const run = ++stackTransitionRun;
+    setMemoryTraceItems(stackMemoryTrace, buildQuestionMemoryItems(questions.length));
+    stackStage.classList.remove("is-forming");
+    let sheets = '';
+    for (let i = 0; i < questions.length; i++) {
+      sheets += '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="' + i + '">' +
+        stackQuestionFormHTML(i) + '</div>';
+    }
+    sheets += '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
+      stackLegacyFormHTML() + '</div>';
+    stackPile.innerHTML = sheets;
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (run === stackTransitionRun) stackStage.classList.add("is-forming");
+    }));
+
+    window.setTimeout(() => {
+      if (run !== stackTransitionRun || !screens.stack.classList.contains("active")) return;
+      initCameraScreen();
+      showScreen("camera");
+    }, reduceMotion ? 200 : 4300);
   }
 
   let cardsCopyRun = 0;

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=22" />
+  <link rel="stylesheet" href="style.css?v=23" />
 </head>
 <body dir="rtl">
 
@@ -238,6 +238,16 @@
 
     </article>
     </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: STACK FORMATION — 7 questions + legacy ============== -->
+  <section id="screen-stack" class="screen" aria-label="יצירת ערימת הזיכרונות">
+    <div class="stack-transition-shade" aria-hidden="true"></div>
+    <div class="question-memory-trace stack-memory-trace" id="stack-memory-trace" aria-hidden="true"></div>
+    <div class="legacy-memory-ack stack-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+    <div class="stack-transition-stage" id="stack-transition-stage" aria-live="polite">
+      <div class="stack-transition-pile" id="stack-transition-pile"></div>
     </div>
   </section>
 
@@ -475,7 +485,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=15"></script>
+  <script src="script.js?v=16"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
