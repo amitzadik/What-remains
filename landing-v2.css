@@ -277,22 +277,23 @@ button{font:inherit;color:inherit}
 .landing-v2.is-revealed::after{opacity:.24}
 
 /* deal-in: corners first, then the pile builds up (front sheet lands last).
-   The whole deal still spans ~10s, but the gaps between papers are uneven
-   (660–1090ms) and each paper takes its own time (--deal-dur, 1.22–1.44s) —
-   the rhythm of a hand laying papers, not a timer. Fixed values, so the
-   sequence is identical on every load. */
+   The whole deal spans ~7.8s: the gaps between papers stay uneven
+   (490–810ms, the same irregular ratios as before, compressed ~0.74×)
+   and each paper keeps its own unhurried duration (--deal-dur,
+   1.22–1.44s) — less dead air between papers, same calm handling.
+   Fixed values, so the sequence is identical on every load. */
 .landing-v2.is-card-entered .corner-layer{animation:corner-deal var(--deal-dur,1.3s) var(--ease-deal) both}
-.landing-v2.is-card-entered .corner-layer--b{animation-delay:740ms}
-.landing-v2.is-card-entered .corner-layer--c{animation-delay:1830ms}
-.landing-v2.is-card-entered .corner-layer--d{animation-delay:2560ms}
+.landing-v2.is-card-entered .corner-layer--b{animation-delay:550ms}
+.landing-v2.is-card-entered .corner-layer--c{animation-delay:1360ms}
+.landing-v2.is-card-entered .corner-layer--d{animation-delay:1900ms}
 .landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
-.landing-v2.is-card-entered .pile-photo--1{animation-delay:3520ms}
-.landing-v2.is-card-entered .pile-photo--2{animation-delay:4180ms}
-.landing-v2.is-card-entered .pile-photo--3{animation-delay:5260ms}
-.landing-v2.is-card-entered .pile-photo--4{animation-delay:5980ms}
-.landing-v2.is-card-entered .pile-sheet--back{animation-delay:7040ms}
-.landing-v2.is-card-entered .pile-sheet--middle{animation-delay:7710ms}
-.landing-v2.is-card-entered .pile-sheet--front{animation-delay:8640ms}
+.landing-v2.is-card-entered .pile-photo--1{animation-delay:2610ms}
+.landing-v2.is-card-entered .pile-photo--2{animation-delay:3100ms}
+.landing-v2.is-card-entered .pile-photo--3{animation-delay:3890ms}
+.landing-v2.is-card-entered .pile-photo--4{animation-delay:4430ms}
+.landing-v2.is-card-entered .pile-sheet--back{animation-delay:5210ms}
+.landing-v2.is-card-entered .pile-sheet--middle{animation-delay:5700ms}
+.landing-v2.is-card-entered .pile-sheet--front{animation-delay:6390ms}
 
 /* settled: once the deal finishes, papers settle into the constant breathing
    (replaces the deal animation) — independent of the typewriter finishing */
