@@ -2744,8 +2744,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-legacy .qform-question-text {
-  max-width: 760px;
-  text-wrap: balance;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  font-size: clamp(18px, 3.5cqw, 48px);
+  white-space: nowrap;
+  text-wrap: nowrap;
 }
 
 #screen-legacy .qform-header .qform-cell:nth-child(1) { width: 27.36%; }
