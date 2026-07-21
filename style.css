@@ -518,28 +518,77 @@ button.red-btn:hover:not(:disabled) { background: transparent; color: var(--red)
 /* ============================================================
    Image buttons (stamp-style)
 ============================================================ */
+/* Stamp buttons — physical "emboss" feel: flat at rest (no shadow), the
+   stamp presses into the paper on hover (inset shadow sitting exactly on the
+   drawn circle), and deeper on press with the ink soaking in. Replaces the
+   old default/hover image swap. --stamp-src (the button's own texture) is set
+   per button in JS for the ink-soak multiply layer. */
 .img-btn {
+  --emboss-radius: 50%;
+  --emboss-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: opacity 0.24s ease, transform 0.12s ease, filter 0.24s ease;
+  transform: translateY(0) scale(1);
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 150ms var(--emboss-ease), filter 150ms var(--emboss-ease);
 }
 .img-btn img {
+  position: relative;
+  z-index: 1;
   display: block;
   filter: saturate(0.86) contrast(0.96);
-  transition: opacity 0.24s ease, filter 0.24s ease;
+  transition: filter 150ms var(--emboss-ease);
 }
 button.img-btn:hover:not(:disabled) { background: none; color: inherit; }
-.img-btn:hover:not(:disabled) img {
-  opacity: 0.92;
-  filter: saturate(1.08) contrast(1.04);
+/* indentation shadow — on the drawn stamp, appears only from hover */
+.img-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--emboss-radius);
+  box-shadow: none;
+  pointer-events: none;
+  transition: box-shadow 150ms var(--emboss-ease);
 }
-.img-btn:active:not(:disabled) {
-  transform: translateY(1px) scale(0.97);
+/* ink-soak multiply — the same stamp texture pressed into the paper */
+.img-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: var(--emboss-radius);
+  background: var(--stamp-src, none) center / contain no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--emboss-ease);
 }
+.img-btn:hover:not(:disabled) { transform: translateY(2px) scale(0.98); }
+.img-btn:hover:not(:disabled)::before {
+  box-shadow: inset 0 2px 6px rgba(62, 54, 38, 0.30), inset 0 1px 2px rgba(62, 54, 38, 0.18);
+}
+.img-btn:hover:not(:disabled)::after { opacity: 0.34; }
+.img-btn:active:not(:disabled),
+.img-btn.is-pressing:not(:disabled) { transform: translateY(4px) scale(0.95); }
+.img-btn:active:not(:disabled)::before,
+.img-btn.is-pressing:not(:disabled)::before {
+  box-shadow: inset 0 3px 9px rgba(62, 54, 38, 0.44), inset 0 2px 3px rgba(62, 54, 38, 0.26);
+}
+.img-btn:active:not(:disabled) img,
+.img-btn.is-pressing:not(:disabled) img { filter: contrast(1.14) brightness(0.94); }
+.img-btn:active:not(:disabled)::after,
+.img-btn.is-pressing:not(:disabled)::after { opacity: 0.62; }
+.img-btn:focus-visible { outline: 2.5px solid var(--stamp); outline-offset: 5px; }
 .img-btn:disabled { cursor: not-allowed; }
 .img-btn:disabled img { opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) {
+  .img-btn, .img-btn img, .img-btn::before, .img-btn::after { transition: none; }
+}
 
 /* Back / close buttons — absolute top-right of their container */
 .img-btn--corner-back {
@@ -2243,12 +2292,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translateY(0);
 }
 
-.cards-blank-continue:hover,
-.cards-blank-continue:focus-visible {
-  background: none;
-  outline: none;
-  transform: translateY(-2px);
-}
+.cards-blank-continue:hover { background: none; }
 
 .cards-blank-continue:disabled {
   cursor: default;
@@ -2390,11 +2434,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: clamp(54px, 5.6vw, 78px);
   height: auto;
 }
-.camera-next-stamp:hover:not(:disabled),
-.camera-next-stamp:focus-visible {
-  transform: translateY(-2px);
-  outline: none;
-}
+.camera-next-stamp:hover:not(:disabled) { background: none; }
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
 .drawer-photo {
@@ -4428,7 +4468,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   border: none;
   background: none;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 .pile-ctrl img {
   display: block;
@@ -4436,7 +4475,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   object-fit: contain;
 }
-.pile-ctrl:hover:not(:disabled) { transform: scale(1.08); background: none; }
+.pile-ctrl:hover:not(:disabled) { background: none; }
 .pile-ctrl--close   { top: var(--ctrl-inset); }
 .pile-ctrl--archive { bottom: var(--ctrl-inset); }
 .pile-ctrl--add     { bottom: calc(var(--ctrl-inset) + var(--ctrl-size) + var(--ctrl-gap)); }

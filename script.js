@@ -1669,14 +1669,19 @@
   // Boot
   // ============================================================
 
-  // Hover swap for all .img-btn buttons (data-default/data-hover on the button)
-  document.addEventListener('mouseover', e => {
-    const btn = e.target.closest('.img-btn');
-    if (btn && !btn.disabled) btn.querySelector('img').src = btn.dataset.hover;
-  });
-  document.addEventListener('mouseout', e => {
-    const btn = e.target.closest('.img-btn');
-    if (btn) btn.querySelector('img').src = btn.dataset.default;
+  // Stamp buttons use a CSS "emboss" press effect instead of a hover image
+  // swap. Give each button its own texture (for the ink-soak multiply layer)
+  // and mirror the pressed state on touch devices, where there is no hover.
+  document.querySelectorAll('.img-btn').forEach(btn => {
+    const img = btn.querySelector('img');
+    const src = btn.dataset.default || (img && img.getAttribute('src'));
+    if (src) btn.style.setProperty('--stamp-src', 'url("' + src + '")');
+    btn.addEventListener('touchstart', () => {
+      if (!btn.disabled) btn.classList.add('is-pressing');
+    }, { passive: true });
+    const release = () => btn.classList.remove('is-pressing');
+    btn.addEventListener('touchend', release);
+    btn.addEventListener('touchcancel', release);
   });
 
   checkDepositBtn();
