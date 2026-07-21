@@ -74,19 +74,105 @@
     }
   }, 500);
 
-  function sendAction(action) {
+  function sendAction(action, payload) {
     if (window.parent === window) return;
     // Same-origin is the normal production path and gives immediate, reliable
     // button behaviour. postMessage remains the fallback for isolated previews.
     try {
       if (typeof window.parent.handleWhatRemainsLandingAction === 'function') {
-        window.parent.handleWhatRemainsLandingAction(action);
+        window.parent.handleWhatRemainsLandingAction(action, payload);
         return;
       }
     } catch (_) {
       // Cross-origin preview: fall through to the message bridge.
     }
-    window.parent.postMessage({ source: 'what-remains-landing', action }, '*');
+    window.parent.postMessage({ source: 'what-remains-landing', action, payload }, '*');
+  }
+
+  // Same-origin bridge to the archive's single search source of truth. Returns
+  // an array of matches, or null when the direct call isn't available (e.g. a
+  // cross-origin preview) so the UI can show a "connecting" state.
+  function fetchMatches(query) {
+    if (window.parent === window) return null;
+    try {
+      if (typeof window.parent.getArchiveMatches === 'function') {
+        return window.parent.getArchiveMatches(query);
+      }
+    } catch (_) {
+      // Cross-origin preview: no direct access to the archive data.
+    }
+    return null;
+  }
+
+  // ----- inline archive search (stays entirely inside landing-v2) -----
+  const searchField = document.getElementById('landing-v2-search-input');
+  const resultsList = document.getElementById('landing-v2-results');
+  let currentMatches = [];   // codes live here in JS, never in the DOM
+  let searchDebounce = 0;
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderResults() {
+    if (!resultsList) return;
+    const matches = fetchMatches(searchField ? searchField.value : '');
+    if (matches === null) {
+      currentMatches = [];
+      resultsList.innerHTML = '<li class="landing-v2__results-note">מתחבר…</li>';
+      return;
+    }
+    currentMatches = matches;
+    if (!matches.length) {
+      resultsList.innerHTML = '<li class="landing-v2__results-note">לא נמצאו תוצאות</li>';
+      return;
+    }
+    resultsList.innerHTML = matches.map((v, i) => (
+      '<li><button type="button" class="landing-v2__result" data-index="' + i + '">' +
+      escapeHtml(v && v.name ? v.name : '(ללא שם)') + '</button></li>'
+    )).join('');
+  }
+
+  function openSearch() {
+    screen.classList.add('is-searching');
+    if (searchField) {
+      searchField.value = '';
+      window.setTimeout(() => searchField.focus(), 40);
+    }
+    renderResults();
+  }
+  function closeSearch() {
+    screen.classList.remove('is-searching');
+    window.clearTimeout(searchDebounce);
+    currentMatches = [];
+    if (resultsList) resultsList.innerHTML = '';
+  }
+  function toggleSearch() {
+    if (screen.classList.contains('is-searching')) closeSearch();
+    else openSearch();
+  }
+
+  if (searchField) {
+    searchField.addEventListener('input', () => {
+      window.clearTimeout(searchDebounce);
+      searchDebounce = window.setTimeout(renderResults, 150);
+    });
+    searchField.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSearch();
+    });
+  }
+  if (resultsList) {
+    resultsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.landing-v2__result');
+      if (!btn) return;
+      const v = currentMatches[parseInt(btn.getAttribute('data-index'), 10)];
+      if (v && v.code != null) {
+        // Opening a drawer is a distinct screen — this deliberately leaves
+        // landing-v2, reusing the archive wall's open-by-code path.
+        sendAction('openDrawer', { code: String(v.code) });
+        closeSearch();
+      }
+    });
   }
 
   // Mirror the form stamp-button interaction inside the isolated landing
@@ -104,7 +190,7 @@
   });
 
   document.getElementById('landing-v2-add')?.addEventListener('click', () => sendAction('create'));
-  screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', () => sendAction('search'));
+  screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', toggleSearch);
   screen.querySelector('[aria-label="התחברות"]')?.addEventListener('click', () => sendAction('login'));
   screen.querySelector('[aria-label="המגירה שלי"]')?.addEventListener('click', () => sendAction('drawer'));
 })();

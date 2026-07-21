@@ -9,7 +9,7 @@
 </head>
 <body dir="rtl">
 
-  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=21" title="מה שישאר — עמוד הבית"></iframe>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=22" title="מה שישאר — עמוד הבית"></iframe>
 
   <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
   <section id="screen-landing" class="screen" aria-label="הארכיון">
@@ -361,7 +361,7 @@
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
-      window.handleWhatRemainsLandingAction(event.data.action);
+      window.handleWhatRemainsLandingAction(event.data.action, event.data.payload);
     });
   </script>
 </body>

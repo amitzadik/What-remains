@@ -6,7 +6,7 @@
   <title>מה שישאר — עמוד הבית</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=20">
-  <link rel="stylesheet" href="landing-v2.css?v=12">
+  <link rel="stylesheet" href="landing-v2.css?v=13">
 </head>
 <body>
   <main class="landing-v2" id="landing-v2">
@@ -34,6 +34,11 @@
       </div>
     </section>
 
+    <section class="landing-v2__search" id="landing-v2-search" aria-label="חיפוש בארכיון">
+      <input type="text" class="landing-v2__search-input" id="landing-v2-search-input" placeholder="חיפוש לפי שם" aria-label="חיפוש לפי שם" autocomplete="off">
+      <ul class="landing-v2__results" id="landing-v2-results"></ul>
+    </section>
+
     <button class="landing-v2__pile" id="landing-v2-add" type="button" aria-label="צור את האוסף שלך">
       <span class="pile-photo pile-photo--1"></span>
       <span class="pile-photo pile-photo--2"></span>
@@ -47,6 +52,6 @@
       </span>
     </button>
   </main>
-  <script src="landing-v2.js?v=8"></script>
+  <script src="landing-v2.js?v=9"></script>
 </body>
 </html>

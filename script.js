@@ -113,16 +113,25 @@
   // ============================================================
   const landingBg = document.getElementById("landing-bg");
 
+  // Single source of truth for "search the archive by name": the same name
+  // filter + Hebrew sort used by both the archive wall and the landing-v2
+  // inline search. An empty query returns the whole archive, sorted.
+  function getArchiveMatches(query) {
+    const q = (query || "").trim();
+    let drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
+    if (q) drawers = drawers.filter(v => (v.name || "").includes(q));
+    return drawers;
+  }
+  // Exposed to the landing-v2 iframe (same-origin direct call, mirroring
+  // window.handleWhatRemainsLandingAction) so search runs without leaving it.
+  window.getArchiveMatches = getArchiveMatches;
+
   // The landing IS the archive: it shows the full drawer wall, filtered
   // live by the in-place search input when one is open.
   function renderLandingDrawers() {
     if (!landingBg) return;
     landingBg.innerHTML = "";
-    const query = (searchInput && searchInput.value ? searchInput.value : "").trim();
-    let drawers = allDrawers().sort((a, b) => a.name.localeCompare(b.name, "he"));
-    if (query) {
-      drawers = drawers.filter(v => (v.name || "").includes(query));
-    }
+    const drawers = getArchiveMatches(searchInput && searchInput.value ? searchInput.value : "");
     drawers.forEach(v => landingBg.appendChild(buildDrawerEl(v)));
   }
 
@@ -380,7 +389,7 @@
   // Actions from the new Figma landing. These call the real application
   // functions directly; the removed legacy landing is no longer used as a
   // hidden proxy layer.
-  window.handleWhatRemainsLandingAction = (action) => {
+  window.handleWhatRemainsLandingAction = (action, payload) => {
     if (action === "create") startRegistration();
     if (action === "search") {
       renderLandingDrawers();
@@ -396,6 +405,14 @@
       const sess = getSession();
       if (sess && sess.code) openOwnDrawer(sess);
       else openLoginModal();
+    }
+    // Open a specific archive drawer chosen from the landing-v2 inline search.
+    // Reuses the same open-by-code path as the archive wall (owner unlocks,
+    // everyone else gets the code modal).
+    if (action === "openDrawer") {
+      const code = payload && payload.code != null ? String(payload.code) : "";
+      const v = code ? getArchiveMatches("").find(x => x.code === code) : null;
+      if (v) openViewerDrawer(v, null);
     }
   };
 
@@ -1566,6 +1583,22 @@
     }, 430);
   }
 
+  // Open a specific viewer's drawer, exactly like clicking it on the archive
+  // wall: the owner (matching session code) skips the code prompt; everyone
+  // else must enter that drawer's own code. drawerEl may be null when opened
+  // from a context with no wall element (e.g. the landing-v2 search results).
+  function openViewerDrawer(v, drawerEl) {
+    if (!v) return;
+    const sess = getSession();
+    if (sess && sess.code && sess.code === v.code) {
+      activeViewer = v;
+      activeDrawerEl = drawerEl || null;
+      openArchiveStack(drawerEl || null, () => openDrawerInterior(v));
+    } else {
+      openArchiveStack(drawerEl || null, () => openCodeModal(v, drawerEl || null));
+    }
+  }
+
   // Build one archive envelope element for the landing archive wall.
   function buildDrawerEl(v) {
     const d = document.createElement("div");
@@ -1592,16 +1625,7 @@
 
     // Owner (logged-in, code matches) skips the code prompt; everyone
     // else must enter the drawer's code to view it.
-    d.addEventListener("click", () => {
-      const sess = getSession();
-      if (sess && sess.code && sess.code === v.code) {
-        activeViewer = v;
-        activeDrawerEl = d;
-        openArchiveStack(d, () => openDrawerInterior(v));
-      } else {
-        openArchiveStack(d, () => openCodeModal(v, d));
-      }
-    });
+    d.addEventListener("click", () => openViewerDrawer(v, d));
     return d;
   }
 
