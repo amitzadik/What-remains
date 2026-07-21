@@ -79,9 +79,14 @@ button{font:inherit;color:inherit}
   flex-direction:row-reverse;
   gap:32px;
 }
-.icon-btn{border:0;background:transparent;padding:0;cursor:pointer;width:90px;height:90px}
-.icon-btn img{display:block;width:100%;height:100%;object-fit:contain;transition:transform .2s ease,opacity .2s ease}
-.icon-btn:hover img{transform:translateY(-2px);opacity:.82}
+.icon-btn{border:0;background:transparent;padding:0;cursor:pointer;width:90px;height:90px;--emboss-radius:50%}
+.icon-btn img{display:block;width:100%;height:100%;object-fit:contain}
+/* The home controls use the same physical stamp states as the form controls:
+   gentle indentation on hover, deeper ink/press on pointer down, and the same
+   keyboard focus ring. Their Figma coordinates and dimensions stay unchanged. */
+.icon-btn.img-btn:hover:not(:disabled){transform:translateY(2px) scale(.98)}
+.icon-btn.img-btn:active:not(:disabled),
+.icon-btn.img-btn.is-pressing:not(:disabled){transform:translateY(4px) scale(.95)}
 
 .landing-v2__copy{
   position:absolute;

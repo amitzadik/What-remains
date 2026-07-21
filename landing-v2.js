@@ -80,6 +80,20 @@
     }
   }
 
+  // Mirror the form stamp-button interaction inside the isolated landing
+  // iframe, including the pressed state on touch screens.
+  screen.querySelectorAll('.icon-btn.img-btn').forEach((button) => {
+    const image = button.querySelector('img');
+    const source = button.dataset.default || image?.getAttribute('src');
+    if (source) button.style.setProperty('--stamp-src', `url("${source}")`);
+    button.addEventListener('touchstart', () => {
+      if (!button.disabled) button.classList.add('is-pressing');
+    }, { passive: true });
+    const release = () => button.classList.remove('is-pressing');
+    button.addEventListener('touchend', release);
+    button.addEventListener('touchcancel', release);
+  });
+
   document.getElementById('landing-v2-add')?.addEventListener('click', () => sendAction('create'));
   screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', () => sendAction('search'));
   screen.querySelector('[aria-label="התחברות"]')?.addEventListener('click', () => sendAction('login'));
