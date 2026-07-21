@@ -3607,8 +3607,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   padding: 0;
   overflow: hidden;
-  background-color: #8f795c;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: #806b4f;
+  background-image: url("images/figma-stamp-background.jpg");
   background-size: cover;
   background-position: center;
 }
@@ -3714,22 +3714,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stamp-instructions-code {
   position: absolute;
   z-index: 1;
-  left: 6%;
-  right: 1%;
-  top: 16%;
+  left: 0;
+  right: 0;
+  top: 50%;
   direction: ltr;
   text-align: center;
   white-space: nowrap;
   font-family: var(--font-mandatory);
-  font-size: clamp(220px, 46.875vw, 900px);
+  font-size: clamp(190px, 41.667vw, 800px);
   font-weight: 400;
   font-variation-settings: "wght" 400, "wdth" 70;
-  line-height: 1;
+  line-height: .8;
   color: #c34237;
   opacity: .2;
   filter: blur(3px);
   mix-blend-mode: multiply;
-  transform: rotate(6.18deg);
+  transform: translateY(-50%) rotate(6.18deg) scaleX(.72);
   transform-origin: center;
 }
 .stamp-instructions-next {
