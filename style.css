@@ -4057,8 +4057,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .qmem-word { transition: none; }
 }
 
-#screen-questions .qform-sheet {
-  box-shadow: none;
+#screen-questions .qform-sheet,
+#screen-legacy .qform-sheet {
+  /* Figma paper shadow: visible primarily along the lower edge, so every
+     questionnaire sheet reads as a physical page above the background. */
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* Once the depositor leaves the register card it hides behind the
