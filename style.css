@@ -5084,14 +5084,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: clamp(72px, 9.375vw, 180px);
 }
 
-@keyframes personal-photo-figma-motion {
-  0% { translate: 0 0; }
-  8.501% { translate: -21px -20px; }
-  100% { translate: -21px -20px; }
+@keyframes personal-pile-breathe {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  50% {
+    translate: var(--breathe-x, 1.5px) var(--breathe-y, -1px);
+    rotate: var(--breathe-r, 0.38deg);
+  }
 }
-.pile-item--motion-photo {
-  animation: personal-photo-figma-motion 2s linear infinite;
+.pile-item--breathing {
+  animation: personal-pile-breathe var(--breathe-duration, 8s) ease-in-out var(--breathe-delay, 0s) infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .pile-item--motion-photo { animation: none; }
+  .pile-item--breathing { animation: none; }
 }

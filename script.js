@@ -1477,13 +1477,18 @@
         if (it.btn) el.appendChild(it.btn);
       } else {
         el.className = "pile-item pile-item--photo";
-        if (k === docCount) el.classList.add("pile-item--motion-photo");
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
         el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
       }
+      el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
+      el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 37) * 2)).toFixed(2) + "px");
+      el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 43) * 2)).toFixed(2) + "px");
+      el.style.setProperty("--breathe-r", ((pileRand(seed + 47) - 0.5) * 1).toFixed(3) + "deg");
+      el.style.setProperty("--breathe-duration", (6 + pileRand(seed + 53) * 4).toFixed(2) + "s");
+      el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc") {
         const slot = docLayout[it.i];
