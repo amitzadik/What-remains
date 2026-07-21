@@ -4851,12 +4851,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    question sheets + photos laid out as a loose physical pile.
 ============================================================ */
 #screen-personal {
-  background-color: #96774e;
-  background-image: url("paperboard-texture.jpg");
+  --ctrl-size: clamp(58px, 4.688vw, 90px);
+  --ctrl-inset: clamp(20px, 2.083vw, 40px);
+  isolation: isolate;
+  background-color: #a1835a;
+  background-image: url("images/figma-personal-archive-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-blend-mode: multiply;
+}
+#screen-personal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(19, 13, 0, 0.3);
+  pointer-events: none;
 }
 
 .archive-box {
@@ -4864,6 +4874,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 100%;
   height: 100%;
   overflow: hidden;
+  z-index: 1;
 }
 
 /* Name plate, top-centre — light tag with the depositor's name in rust */
@@ -4872,7 +4883,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   top: clamp(16px, 3vh, 34px);
   left: 50%;
   transform: translateX(-50%);
-  width: auto;
+  width: min(248px, 64vw);
+  height: min(51px, 13.2vw);
   max-width: 80vw;
   aspect-ratio: auto;
   margin: 0;
@@ -4887,14 +4899,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   margin: 0;
   font-family: var(--font-main);
   font-weight: 700;
-  font-size: clamp(1.05rem, 1.7vw, 1.5rem);
-  letter-spacing: 0.04em;
-  color: #c34237;
-  background: #ece2cd;
-  border: 1px solid rgba(195, 66, 55, 0.32);
-  border-radius: 4px;
-  padding: 0.5em 1.7em;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.15rem, 2.083vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: 0;
+  color: #ce453a;
+  background: #eee6d6;
+  border: none;
+  border-radius: 0;
+  padding: 0 0.4em;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   white-space: nowrap;
 }
 
@@ -4917,11 +4935,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Photograph — thin equal matte border, archival tone, drop shadow.
    Large, like the Figma, so the pile fills the frame and crops at edges. */
 .pile-item--photo {
-  width: clamp(300px, calc(40vw * var(--w, 1)), 720px);
-  padding: clamp(6px, 0.8vw, 12px);
-  background: #fbf7ef;
-  border: 1px solid rgba(61, 54, 40, 0.18);
-  box-shadow: 0 18px 36px rgba(24, 16, 6, 0.4);
+  width: clamp(240px, calc(29vw * var(--w, 1)), 620px);
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 .pile-item--photo img {
   display: block;
@@ -4949,20 +4967,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    translucent like a tracing-paper page laid over the pile. */
 .pile-item--doc {
   width: var(--dw, 460px);
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 1370 / 969;
   overflow: hidden;
-  box-shadow: 0 18px 36px rgba(24, 16, 6, 0.28);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 .pile-doc {
-  width: 1500px;
-  height: 1000px;
-  transform: scale(calc(var(--dw, 460px) / 1500));
+  width: 1370px;
+  height: 969px;
+  container-type: inline-size;
+  transform: scale(calc(var(--dw, 460px) / 1370));
   transform-origin: top left;
 }
 .pile-item--doc .qform {
   width: 100%;
   height: 100%;
-  opacity: 0.72;
+  opacity: 0.81;
 }
 
 /* Decorative "next" arrow tucked into a corner of some question sheets, like
@@ -4986,28 +5005,28 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    drawer-code number printed diagonally across, and the existing icon centred
    on top. Placement/rotation come from renderArchivePile()'s pileRand scatter. */
 .pile-item--envelope {
-  width: clamp(300px, 40vw, 600px);
-  aspect-ratio: 4 / 3;
+  width: clamp(300px, 42.49vw, 816px);
+  aspect-ratio: 815.779 / 577;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #8a6d46;
-  background-image: url("paperboard-texture.jpg");
+  background-color: #a1835a;
+  background-image: url("images/figma-personal-archive-background.jpg");
   background-size: cover;
   background-position: center;
-  background-blend-mode: multiply;
-  border: 1px solid rgba(61, 54, 40, 0.28);
-  box-shadow: 0 18px 36px rgba(24, 16, 6, 0.42);
+  border: none;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  opacity: 0.95;
   overflow: hidden;
 }
 .envelope-code {
   position: absolute;
   left: 50%;
   bottom: 9%;
-  transform: translateX(-50%) rotate(-20deg);
+  transform: translateX(-50%);
   font-family: var(--font-main);
   font-weight: 700;
-  font-size: clamp(3rem, 9vw, 8rem);
+  font-size: clamp(3rem, 5.208vw, 6.25rem);
   line-height: 1;
   letter-spacing: 0.08em;
   color: rgba(62, 54, 38, 0.8);   /* --ink at ~80% */
@@ -5018,7 +5037,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-icon-btn {
   position: relative;
   z-index: 2;
-  width: clamp(72px, 9vw, 128px);
+  width: clamp(72px, 9.375vw, 180px);
   height: auto;
   padding: 0;
   border: none;
@@ -5034,10 +5053,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .envelope-icon-btn:hover:not(:disabled) { background: none; }
 
 /* Close control — small fixed top-right chrome (kept as-is, per the Figma). */
-#screen-personal {
-  --ctrl-size: clamp(58px, 6vw, 90px);
-  --ctrl-inset: clamp(20px, 2vw, 40px);
-}
 .pile-ctrl {
   position: absolute;
   right: var(--ctrl-inset);
@@ -5057,3 +5072,22 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .pile-ctrl:hover:not(:disabled) { background: none; }
 .pile-ctrl--close   { top: var(--ctrl-inset); }
+
+.pile-item--envelope .pile-ctrl {
+  position: relative;
+  inset: auto;
+  width: clamp(72px, 9.375vw, 180px);
+  height: clamp(72px, 9.375vw, 180px);
+}
+
+@keyframes personal-photo-figma-motion {
+  0% { translate: 0 0; }
+  8.501% { translate: -21px -20px; }
+  100% { translate: -21px -20px; }
+}
+.pile-item--motion-photo {
+  animation: personal-photo-figma-motion 2s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pile-item--motion-photo { animation: none; }
+}

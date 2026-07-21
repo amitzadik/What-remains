@@ -1359,7 +1359,8 @@
       name: viewer.name || state.name,
       date: viewer.isUser ? state.date : "",
       answers: answers || [],
-      dontKnow: dontKnow || []
+      dontKnow: dontKnow || [],
+      legacyText: viewer.isUser ? state.legacyText : (viewer.archive || "")
     };
 
     // Seed the pile media with the depositor's own portrait — the photo taken
@@ -1393,10 +1394,36 @@
     return /^\d+$/.test(c) ? c.padStart(4, "0") : (c || "0001");
   }
 
+  function archiveLegacyFormHTML(src) {
+    const data = src || {};
+    const parts = String(data.legacyText || "").split("\n");
+    let answerRows = "";
+    for (let i = 0; i < 5; i++) {
+      answerRows += '<div class="answer-line">' +
+        (i === 0 ? '<span class="qform-label">תשובה</span>' : '') +
+        '<span class="line__text">' + esc(parts[i] || '') + '</span></div>';
+    }
+    return '<article class="qform stack-legacy-form">' +
+      '<div class="qform-grid">' +
+        '<div class="qform-row qform-header">' +
+          '<div class="qform-cell"><span class="qform-label">שם העונה</span><span class="qform-value">' + esc(data.name || '') + '</span></div>' +
+          '<div class="qform-cell"><span class="qform-label">על</span><span class="qform-value">עליי</span></div>' +
+          '<div class="qform-cell"><span class="qform-label">תאריך</span><span class="qform-value">' + esc(data.date || '') + '</span></div>' +
+          '<div class="qform-cell qform-cell-num"><span class="qform-label">סוג מסמך</span><span class="qform-value qform-num">מורשת</span></div>' +
+        '</div>' +
+        '<div class="qform-row qform-question-row"><span class="qform-label">שאלה</span>' +
+          '<div class="qform-question-text">מה היית רוצה שהנכדים שלך ידעו עליך?</div></div>' +
+        '<div class="qform-row qform-answer-row">' + answerRows + '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
   function renderArchivePile() {
     if (!archivePile) return;
     const media = pileMedia.concat(pileLocalMedia);
-    const docCount = pileCardData ? questions.length : 0;
+    // Every personal archive begins with the seven answers, the legacy page,
+    // and the portrait taken afterwards (when it is available).
+    const docCount = pileCardData ? questions.length + 1 : 0;
 
     // The add/search controls become kraft "envelope" cards scattered in the
     // pile. Detach them first so they only reappear where we place them, then
@@ -1414,9 +1441,19 @@
     items.push({ type: "ctrl", btn: btnPersonalArchiveSearch, seed: 903 });
     if (ownerView) items.push({ type: "ctrl", btn: btnPersonalToGeneral, seed: 947 });
 
-    // Document-sheet width in px so the qform can scale from its 1500px base.
-    // Large, like the Figma — the sheets crop against the screen edges.
-    const dw = Math.max(560, Math.min(1120, window.innerWidth * 0.64));
+    // The Figma pile uses small complete forms, scaled as a single object.
+    const dw = Math.max(340, Math.min(820, window.innerWidth * 0.43));
+
+    const docLayout = [
+      { x: 48, y: 77, r: -9.6, z: 36 },
+      { x: 47, y: 61, r: -0.4, z: 24 },
+      { x: 43, y: 50, r: -4.7, z: 20 },
+      { x: 52, y: 43, r: 5.1, z: 18 },
+      { x: 55, y: 36, r: -2.1, z: 16 },
+      { x: 44, y: 31, r: 2.6, z: 14 },
+      { x: 51, y: 25, r: 0.8, z: 12 },
+      { x: 50, y: 20, r: 11.3, z: 10 }
+    ];
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
@@ -1424,7 +1461,10 @@
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
         el.style.setProperty("--dw", dw + "px");
-        el.innerHTML = '<div class="pile-doc">' + cardFormHTML(it.i, pileCardData) + "</div>";
+        const form = it.i === questions.length
+          ? archiveLegacyFormHTML(pileCardData)
+          : cardFormHTML(it.i, pileCardData);
+        el.innerHTML = '<div class="pile-doc">' + form + "</div>";
         // Decorative "next" arrow tucked into a corner of some sheets (Figma).
         if (pileRand(it.i + 200) > 0.45) {
           el.insertAdjacentHTML("beforeend",
@@ -1436,22 +1476,34 @@
         if (it.btn) el.appendChild(it.btn);
       } else {
         el.className = "pile-item pile-item--photo";
+        if (k === docCount) el.classList.add("pile-item--motion-photo");
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
         el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
       }
-      // Stable scatter — bottom-weighted like the Figma: the pile begins in
-      // the lower half of the page and the large sheets crop past the bottom.
       const seed = it.seed != null ? it.seed : k;
-      const rot = (pileRand(seed + 1) - 0.5) * 16;        // ~ -8..8deg
-      const tx  = (pileRand(seed + 7) - 0.5) * 50;         // % of pile, -25..25
-      const ty  = (pileRand(seed + 13) - 0.5) * 42;        // % of pile, -21..21
-      el.style.left = (50 + tx) + "%";
-      el.style.top  = (64 + ty) + "%";                    // centred low, not mid-page
+      let x, y, rot, z;
+      if (it.type === "doc") {
+        const slot = docLayout[it.i];
+        x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
+      } else if (it.type === "ctrl") {
+        const isAdd = it.btn === btnPersonalToGeneral;
+        x = isAdd ? 48 : 50;
+        y = isAdd ? 78 : 97;
+        rot = isAdd ? 12.8 : -13.9;
+        z = isAdd ? 220 : 210;
+      } else {
+        const mediaIndex = k - docCount;
+        x = mediaIndex === 0 ? 66 : 50 + (pileRand(seed + 7) - 0.5) * 52;
+        y = mediaIndex === 0 ? 22 : 54 + (pileRand(seed + 13) - 0.5) * 45;
+        rot = mediaIndex === 0 ? -9.75 : (pileRand(seed + 1) - 0.5) * 16;
+        z = 70 + k;
+      }
+      el.style.left = x + "%";
+      el.style.top = y + "%";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
-      // Envelopes sit in front of the papers/photos, like the Figma reference.
-      el.style.zIndex = it.type === "ctrl" ? String(200 + k) : String(10 + k);
+      el.style.zIndex = String(z);
       archivePile.appendChild(el);
     });
   }
