@@ -112,13 +112,6 @@
   // Landing (PHASE.LANDING) — archive drawer wall + intro card + stamps
   // ============================================================
   const landingBg = document.getElementById("landing-bg");
-  const landingOverlay = document.getElementById("landing-overlay");
-  const landingCard    = document.getElementById("landing-card");
-  const stampSearch = document.getElementById("stamp-search");
-  const stampAdd    = document.getElementById("stamp-add");
-  const stampLogin    = document.getElementById("stamp-login");
-  const stampMyDrawer = document.getElementById("stamp-mydrawer");
-  const landingStamps = document.querySelector("#screen-landing .landing-stamps");
 
   // The landing IS the archive: it shows the full drawer wall, filtered
   // live by the in-place search input when one is open.
@@ -133,25 +126,13 @@
     drawers.forEach(v => landingBg.appendChild(buildDrawerEl(v)));
   }
 
-  // Click outside the card (on the overlay) dismisses it
-  if (landingOverlay) {
-    landingOverlay.addEventListener("click", (e) => {
-      if (e.target === landingOverlay) {
-        landingOverlay.classList.add("is-hidden");
-      }
-    });
-  }
-
-  // Popup corner button: first click flips the card, second dismisses
-  // the popup and reveals the landing behind it
+  // Popup corner button: click flips the card to its back face.
   const landingCardInner = document.getElementById("landing-card-inner");
   const btnCardFlip = document.getElementById("btn-card-flip");
   if (btnCardFlip && landingCardInner) {
     btnCardFlip.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (landingCardInner.classList.contains("is-flipped")) {
-        dismissLandingPopup();
-      } else {
+      if (!landingCardInner.classList.contains("is-flipped")) {
         landingCardInner.classList.add("is-flipped");
         startLandingTypewriter("back");
       }
@@ -242,38 +223,6 @@
     tick();
   }
 
-  document.querySelectorAll("#screen-landing .landing-stamp").forEach(stamp => {
-    const def = stamp.src;
-    const hov = stamp.dataset.hover;
-    stamp.addEventListener("mouseenter", () => { if (hov) stamp.src = hov; });
-    stamp.addEventListener("mouseleave", () => { stamp.src = def; });
-  });
-
-  function dismissLandingPopup() {
-    if (landingOverlay) landingOverlay.classList.add("is-hidden");
-  }
-
-  // Search stamp toggles the in-place search bar (no navigation)
-  if (stampSearch) {
-    stampSearch.addEventListener("click", () => {
-      dismissLandingPopup();
-      if (!searchInput) return;
-      searchInput.hidden = !searchInput.hidden;
-      if (!searchInput.hidden) {
-        searchInput.focus();
-      } else {
-        searchInput.value = "";
-        applySearchFilter();
-      }
-    });
-  }
-  if (stampAdd) {
-    stampAdd.addEventListener("click", () => {
-      dismissLandingPopup();
-      startRegistration();
-    });
-  }
-
   // ============================================================
   // Auth / session — shared contract: localStorage "wr_session"
   //   { email, code, name }. "logged in" = session exists with a code.
@@ -293,9 +242,10 @@
   // True while viewing a drawer the logged-in user owns (gates the edit UI)
   let ownerView = false;
 
-  function updateHeaderAuthState() {
-    if (landingStamps) landingStamps.classList.toggle("is-authed", isLoggedIn());
-  }
+  // The old in-page header stamps were removed; the new landing (landing-v2)
+  // owns login/my-drawer entry, so there is no in-page auth chrome to sync.
+  // Kept as a stable no-op hook for the existing call sites.
+  function updateHeaderAuthState() {}
 
   // --- Login modal ---
   const loginModal       = document.getElementById("login-modal");
@@ -415,23 +365,8 @@
     openDrawerInterior(viewer);
   }
 
-  // Header: login + my-drawer stamps
-  if (stampLogin) {
-    stampLogin.addEventListener("click", () => {
-      dismissLandingPopup();
-      const sess = getSession();
-      if (sess && sess.code) openAccountModal();   // logged in → account screen
-      else openLoginModal();                        // not logged in → login form
-    });
-  }
-  if (stampMyDrawer) {
-    stampMyDrawer.addEventListener("click", () => {
-      const sess = getSession();
-      if (!sess || !sess.code) return;   // disabled until logged in
-      dismissLandingPopup();
-      openOwnDrawer(sess);
-    });
-  }
+  // Login / my-drawer entry now lives on the landing-v2 nav, routed through
+  // handleWhatRemainsLandingAction ("login" / "drawer"). No in-page stamps.
 
   // Enter the questionnaire flow with the register card as the active
   // sheet on the questions stage.
