@@ -1247,6 +1247,15 @@
   const personalUploadForm = document.getElementById("personal-upload-form");
   const personalSearchStatus = document.getElementById("personal-search-status");
 
+  // Pre-decode the large record-card textures (~12MP each). Otherwise the browser
+  // decodes them lazily the first time the panel is shown, janking the main thread
+  // and freezing the shared-element open animation for that first frame batch.
+  ["images/figma-archive-search-card.jpg", "images/figma-archive-add-card.jpg"].forEach(src => {
+    const im = new Image();
+    im.src = src;
+    if (im.decode) im.decode().catch(() => {});
+  });
+
   // Personal-archive state. The scattered pile is built from THIS depositor's
   // own materials: their answered question cards plus their photos/videos.
   let currentDrawerCode = "";
@@ -1538,24 +1547,106 @@
     });
   }
 
+  // The clicked envelope the record card is currently morphing to/from.
+  let activeToolSource = null;
+  const TOOL_FLIP_MS = 720;
+  const TOOL_FLIP_EASE = "cubic-bezier(.22, 1, .36, 1)";
+
+  const TOOL_REST_ROT = { search: -3.96, upload: 5.96 };   // final card rotation per tool
+
+  // Build the two transform keyframes for the shared-element morph between the
+  // clicked envelope and the open record card. Everything is in px (the -50%
+  // centring becomes -half the card box) so the Web Animations API interpolates
+  // cleanly. The envelope's resting centre is read from layout (offsetLeft/Top)
+  // so pile breathing/spread transforms never skew it.
+  function toolCardFlipFrames(card, srcEl, restRotDeg) {
+    card.style.transform = "";                        // resting = the open layout
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    const cr = card.getBoundingClientRect();
+    const cardCX = cr.left + cr.width / 2, cardCY = cr.top + cr.height / 2;
+    const pile = archivePile.getBoundingClientRect();
+    const envCX = pile.left + srcEl.offsetLeft, envCY = pile.top + srcEl.offsetTop;
+    const dx = envCX - cardCX, dy = envCY - cardCY;
+    const sx = srcEl.offsetWidth / cw, sy = srcEl.offsetHeight / ch;
+    const rot = parseFloat(getComputedStyle(srcEl).getPropertyValue("--rot")) || 0;
+    const from = "translate(" + (dx - cw / 2).toFixed(2) + "px, " + (dy - ch / 2).toFixed(2) +
+      "px) rotate(" + rot.toFixed(2) + "deg) scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
+    const rest = "translate(" + (-cw / 2).toFixed(2) + "px, " + (-ch / 2).toFixed(2) +
+      "px) rotate(" + restRotDeg + "deg) scale(1)";
+    return { from: from, rest: rest };
+  }
+
+  // One continuous shared-element transform (Web Animations API): open grows the
+  // card out of the envelope; reverse shrinks it back and holds on the envelope
+  // (forwards) until the caller reveals it.
+  function flipToolCard(card, srcEl, restRotDeg, reverse, onFinish) {
+    if (card.getAnimations) card.getAnimations().forEach(a => a.cancel());
+    const f = toolCardFlipFrames(card, srcEl, restRotDeg);
+    const frames = reverse
+      ? [{ transform: f.rest }, { transform: f.from }]
+      : [{ transform: f.from }, { transform: f.rest }];
+    const anim = card.animate(frames, {
+      duration: TOOL_FLIP_MS, easing: TOOL_FLIP_EASE, fill: reverse ? "forwards" : "none"
+    });
+    if (onFinish) anim.onfinish = onFinish;
+    return anim;
+  }
+
   function openPersonalTool(kind) {
     if (!archiveBox) return;
     setPersonalToolText();
+    const panel = kind === "search" ? personalSearchPanel : personalUploadPanel;
+    const card = panel ? panel.querySelector(".personal-tool-card") : null;
+    const srcEl = archivePile && archivePile.querySelector(
+      kind === "search" ? ".pile-item--envelope-search" : ".pile-item--envelope-add");
+
     archiveBox.classList.add("is-tool-open", "is-tool-" + kind);
     if (archivePile) archivePile.classList.add("is-spread");
     if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", kind === "search" ? "false" : "true");
     if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", kind === "upload" ? "false" : "true");
+
+    // Shared-element open: the record card starts as the exact envelope (spot,
+    // size, rotation) and grows into the open layout — one continuous object,
+    // pure movement, no fade. The envelope is hidden instantly beneath it.
+    activeToolSource = null;
+    if (card && srcEl && !reduceMotion) {
+      srcEl.style.visibility = "hidden";
+      flipToolCard(card, srcEl, TOOL_REST_ROT[kind], false, null);
+      activeToolSource = srcEl;
+    }
+
     const focusTarget = document.getElementById(kind === "search" ? "personal-search-query" : "personal-upload-description");
-    window.setTimeout(() => { if (focusTarget) focusTarget.focus(); }, 520);
+    // preventScroll: focusing the field must never scroll the open card out of place.
+    window.setTimeout(() => { if (focusTarget) focusTarget.focus({ preventScroll: true }); }, TOOL_FLIP_MS + 40);
   }
 
   function closePersonalTool() {
     if (!archiveBox || !archiveBox.classList.contains("is-tool-open")) return false;
-    archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
-    if (archivePile) archivePile.classList.remove("is-spread");
-    if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
-    if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
+    const kind = archiveBox.classList.contains("is-tool-upload") ? "upload" : "search";
+    const panel = kind === "search" ? personalSearchPanel : personalUploadPanel;
+    const card = panel ? panel.querySelector(".personal-tool-card") : null;
+    const srcEl = activeToolSource;
+
+    if (archivePile) archivePile.classList.remove("is-spread");   // papers disperse back (unchanged)
     if (personalSearchStatus) personalSearchStatus.textContent = "";
+
+    const finish = () => {
+      archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
+      if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
+      if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
+      if (card && card.getAnimations) card.getAnimations().forEach(a => a.cancel());
+      if (card) card.style.transform = "";
+      if (srcEl) srcEl.style.visibility = "";   // reveal envelope only once the card covers its spot
+      activeToolSource = null;
+    };
+
+    // Reverse shared-element: the same card shrinks back onto the envelope, then
+    // the envelope is revealed only once the card fully covers its spot.
+    if (card && srcEl && !reduceMotion) {
+      flipToolCard(card, srcEl, TOOL_REST_ROT[kind], true, finish);
+    } else {
+      finish();
+    }
     return true;
   }
 

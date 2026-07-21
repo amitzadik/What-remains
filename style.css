@@ -5217,15 +5217,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   inset: 0;
   z-index: 260;
   pointer-events: none;
-  opacity: 0;
+  /* Instant visibility only — no opacity fade. The record card itself carries
+     the whole open/close motion as a shared-element transform (see script.js),
+     so the panel must never crossfade over or under it. */
   visibility: hidden;
-  transition: opacity 320ms ease, visibility 0s linear 320ms;
 }
 .personal-tool-panel[aria-hidden="false"] {
-  opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition-delay: 180ms;
 }
 .personal-tool-card {
   position: absolute;
@@ -5244,7 +5243,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   color: var(--ink);
   opacity: .95;
   font-family: var(--font-main);
-  transition: transform 720ms cubic-bezier(.22,1,.36,1);
+  /* The open/close motion is a shared-element transform driven by the Web
+     Animations API (see script.js). No CSS transition here, so it can't fight
+     the animation or skew the next open's rect measurement. */
 }
 .personal-tool-panel[aria-hidden="false"] .personal-tool-card {
   transform: translate(-50%, -50%) rotate(-3.96deg) scale(1);
