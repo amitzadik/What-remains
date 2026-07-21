@@ -1441,8 +1441,9 @@
     items.push({ type: "ctrl", btn: btnPersonalArchiveSearch, seed: 903 });
     if (ownerView) items.push({ type: "ctrl", btn: btnPersonalToGeneral, seed: 947 });
 
-    // The Figma pile uses small complete forms, scaled as a single object.
-    const dw = Math.max(340, Math.min(820, window.innerWidth * 0.43));
+    // Keep the archive sheets at the same real responsive dimensions used by
+    // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
+    const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
 
     const docLayout = [
       { x: 48, y: 77, r: -9.6, z: 36 },
@@ -1554,8 +1555,7 @@
   // Bottom-right: back to the archive; re-lock so re-entry needs the code
   btnPersonalRestart.addEventListener("click", () => {
     activeViewer = null;
-    renderLandingDrawers();
-    showScreen("archive");
+    showScreen("landing");
   });
 
   // ============================================================

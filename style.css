@@ -4983,6 +4983,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   opacity: 0.81;
 }
+.pile-item--doc .qform-dk-btn,
+.pile-item--doc .stack-sheet-dk {
+  display: none !important;
+}
 
 /* Decorative "next" arrow tucked into a corner of some question sheets, like
    the Figma. Purely visual — it inherits the sheet's own scatter rotation and
