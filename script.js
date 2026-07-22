@@ -470,18 +470,14 @@
   const btnDk   = document.getElementById("btn-dk-q");
   const lines = Array.from(document.querySelectorAll("#lines .line__text"));
 
-  // ── Question paper pile ────────────────────────────────────────────────
-  // The questionnaire is a single live sheet, but every answered question
-  // leaves a physical page behind it. As the pile grows the older pages are
-  // nudged further outward (translation + rotation + layering), so the papers
-  // read as accumulating and being displaced — never a frozen stack. The
-  // answer-word memory background and the final stack composition are
-  // untouched; this only adds the physical pages under the live sheet.
-  const qformPile = document.getElementById("qform-pile");
+  // ── Live question sheet drift ──────────────────────────────────────────
+  // The questionnaire is a single live sheet. It is not frozen: it settles
+  // into a slightly different position/angle for each question so the page
+  // reads as being handled, matching the gently tilted form in Figma. The
+  // distributed answer traces behind it (see renderMemoryBackground) drift
+  // through the space separately — the sheets are never collected into a pile.
   const activeQuestionSheet = document.querySelector("#screen-questions .qform-sheet--active");
 
-  // Per-question resting offset for the live sheet (px / deg), fixed so the
-  // motion is identical on every run.
   const Q_ACTIVE_SHIFT = [
     { x: 0,  y: 0,  r: 0 },
     { x: -9, y: 6,  r: -0.9 },
@@ -491,11 +487,6 @@
     { x: -8, y: -6, r: -0.9 },
     { x: 6,  y: 7,  r: 0.6 }
   ];
-  const BK_X = [-16, 13, -10, 15, -8, 11, -13, 9];
-  const BK_Y = [9, -7, 12, 6, 10, -5, 8, -6];
-  const BK_R = [-1.6, 1.2, -0.9, 1.7, -1.2, 1.0, -1.4, 0.8];
-
-  let questionPile = [];
 
   function applyActiveSheetShift() {
     if (!activeQuestionSheet) return;
@@ -504,36 +495,7 @@
       "translate(" + s.x + "px," + s.y + "px) rotate(" + s.r + "deg)";
   }
 
-  function layoutQuestionPile() {
-    const n = questionPile.length;
-    questionPile.forEach((el, k) => {
-      const bx = BK_X[k % BK_X.length];
-      const by = BK_Y[k % BK_Y.length];
-      const br = BK_R[k % BK_R.length];
-      const gen = n - 1 - k;                       // pages that landed after this one
-      const len = Math.hypot(bx, by) || 1;
-      const push = gen * 3;                         // older pages drift outward
-      const x = bx + (bx / len) * push;
-      const y = by + (by / len) * push;
-      const r = br + (br >= 0 ? 1 : -1) * gen * 0.25;
-      el.style.zIndex = String(2 + k);             // newest backer nearest the live sheet
-      el.style.transform =
-        "translate(" + x.toFixed(2) + "px," + y.toFixed(2) + "px) rotate(" + r.toFixed(2) + "deg)";
-    });
-  }
-
-  function dropQuestionBacker() {
-    if (!qformPile) return;
-    const el = document.createElement("div");
-    el.className = "qform-pile__sheet";
-    qformPile.appendChild(el);
-    questionPile.push(el);
-    layoutQuestionPile();
-  }
-
-  function resetQuestionPile() {
-    questionPile = [];
-    if (qformPile) qformPile.innerHTML = "";
+  function resetActiveSheetShift() {
     if (activeQuestionSheet) activeQuestionSheet.style.transform = "";
   }
 
@@ -705,7 +667,7 @@
       qMemoryTrace.classList.remove("is-visible");
     }
     if (registerSheet) registerSheet.removeAttribute("aria-hidden");
-    resetQuestionPile();
+    resetActiveSheetShift();
   }
 
   // Leaving the register card: the form stays put and question 1 appears; the
@@ -745,6 +707,21 @@
   ];
   const MEMORY_BASE_VW = 18.23;  // 350px / 1920px
   const MEMORY_STEP = 0.8;       // each older word is 20% smaller
+  // Each distributed trace keeps its scatter slot but drifts a little further
+  // through the space as it ages, so the whole composition slowly shifts
+  // between questions instead of sitting frozen (never collected into a pile).
+  // Fixed per-slot direction (vw / vh / deg per step); capped so the traces
+  // stay in their distributed positions throughout the sequence.
+  const MEMORY_DRIFT = [
+    { dx: -0.55, dy: -0.42, dr: -0.34 },  // 0 — depositor name
+    { dx: 0.48,  dy: 0.5,   dr: 0.3 },    // 1
+    { dx: -0.5,  dy: 0.46,  dr: -0.28 },  // 2
+    { dx: 0.52,  dy: -0.4,  dr: 0.32 },   // 3
+    { dx: -0.46, dy: 0.5,   dr: -0.3 },   // 4
+    { dx: 0.5,   dy: -0.48, dr: 0.28 },   // 5
+    { dx: -0.4,  dy: 0.44,  dr: -0.26 }   // 6
+  ];
+  const MEMORY_DRIFT_MAX = 5;    // stop accumulating drift after this many steps
 
   function memoryWords() {
     const words = [];
@@ -777,13 +754,22 @@
         qMemoryTrace.appendChild(el);
       }
       if (el.textContent !== text) el.textContent = text;
-      const slot = MEMORY_SLOTS[Math.min(i, MEMORY_SLOTS.length - 1)];
+      const slotIndex = Math.min(i, MEMORY_SLOTS.length - 1);
+      const slot = MEMORY_SLOTS[slotIndex];
       const age = total - 1 - i;                       // newest word (age 0) is largest
       const vw = (MEMORY_BASE_VW * Math.pow(MEMORY_STEP, age)).toFixed(2);
       const cap = Math.round(350 * Math.pow(MEMORY_STEP, age) * 1.2);
       el.style.right = slot.right + "%";
       el.style.top = slot.top + "%";
       el.style.fontSize = "min(" + vw + "vw, " + cap + "px)";
+      // Slow drift through the space, growing with age but capped so the
+      // trace never leaves its distributed region.
+      const drift = MEMORY_DRIFT[slotIndex];
+      const steps = Math.min(age, MEMORY_DRIFT_MAX);
+      el.style.transform =
+        "translate(" + (drift.dx * steps).toFixed(2) + "vw," +
+        (drift.dy * steps).toFixed(2) + "vh) rotate(" +
+        (drift.dr * steps).toFixed(2) + "deg)";
     });
     existing.forEach((el, key) => { if (!keep.has(key)) el.remove(); });
     qMemoryTrace.classList.toggle("is-visible", total > 0);
@@ -799,10 +785,9 @@
     state.currentQuestion++;
 
     isQuestionTransitioning = true;
-    // The answered page drops behind the live sheet, joining the drifting
-    // pile; its words also recede into the memory background.
+    // The answer recedes into the distributed memory background, and every
+    // existing trace drifts a little further through the space.
     renderMemoryBackground();
-    dropQuestionBacker();
     if (state.currentQuestion >= questions.length) {
       initCards();
       showScreen("cards");

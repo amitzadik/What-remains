@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=42" />
+  <link rel="stylesheet" href="style.css?v=43" />
 </head>
 <body dir="rtl">
 
-  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=29" title="מה שישאר — עמוד הבית"></iframe>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=30" title="מה שישאר — עמוד הבית"></iframe>
 
   <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
   <section id="screen-landing" class="screen" aria-label="הארכיון">
@@ -27,10 +27,6 @@
     <div class="question-name-ghost" id="question-name-ghost" aria-hidden="true"></div>
     <div class="question-memory-trace" id="question-memory-trace" aria-hidden="true"></div>
     <div class="qform-stage qform-stage--register">
-
-    <!-- Physical pile of already-answered question pages, accumulating and
-         drifting behind the live sheet as the questionnaire advances. -->
-    <div class="qform-pile" id="qform-pile" aria-hidden="true"></div>
 
     <!-- Register card — the first sheet of the pile -->
     <div class="qform-sheet" id="register-sheet">
@@ -384,7 +380,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=32"></script>
+  <script src="script.js?v=33"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

@@ -4119,6 +4119,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transition:
     right 1.15s cubic-bezier(0.22, 1, 0.36, 1),
     top 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
     font-size 1.15s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.8s ease;
 }
@@ -4141,32 +4142,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   will-change: transform;
 }
 
-/* Pile of previously-answered pages behind the live sheet. Each backer is a
-   blank, opaque question page; JS positions/rotates/layers them so the pile
-   accumulates and the older sheets drift outward through the space. */
-.qform-pile {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-.qform-pile__sheet {
-  position: absolute;
-  inset: 0;
-  background-color: var(--cream);
-  background-image: url("images/figma-question-paper.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.8;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-  transform-origin: center;
-  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  #screen-questions .qform-sheet--active,
-  .qform-pile__sheet { transition: none; }
+  #screen-questions .qform-sheet--active { transition: none; }
 }
 
 /* Once the depositor leaves the register card it hides behind the
