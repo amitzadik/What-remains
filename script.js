@@ -1587,27 +1587,20 @@
     // two sheets the same dimensions. The z values leave gaps so photographs can
     // be interleaved between the paper layers (see photoLayout).
     const docLayout = [
-      { x: 43, y: 58, r: -8.0, z: 40, s: 0.62 },
-      { x: 61, y: 50, r: 6.5,  z: 34, s: 0.39 },
-      { x: 32, y: 45, r: -4.2, z: 29, s: 0.58 },
-      { x: 64, y: 41, r: 9.8,  z: 24, s: 0.36 },
-      { x: 47, y: 37, r: -6.5, z: 20, s: 0.51 },
-      { x: 55, y: 30, r: 3.2,  z: 16, s: 0.42 },
-      { x: 37, y: 30, r: -2.0, z: 12, s: 0.59 },
-      { x: 50, y: 23, r: 8.5,  z: 9,  s: 0.41 }
+      { x: 50.2, y: 98.8, r: -9.62, s: 1.00, z: 92 },
+      { x: 42.4, y: 49.7, r:  2.98, s: 0.82, z: 30 },
+      { x: 55.7, y: 47.2, r: -0.30, s: 0.72, z: 62 },
+      { x: 48.8, y: 34.6, r: 11.31, s: 0.61, z: 16 },
+      { x: 51.9, y: 44.1, r: -4.18, s: 0.79, z: 52 },
+      { x: 46.3, y: 40.8, r:  0.73, s: 0.68, z: 38 },
+      { x: 49.1, y: 54.9, r: -0.30, s: 0.80, z: 70 },
+      { x: 47.6, y: 37.4, r: 11.31, s: 0.67, z: 20 }
     ];
-
-    // Photographs are woven INTO the pile — each sits at a z between the paper
-    // layers (the gaps in docLayout's z), so some of it is covered by forms above
-    // and the rest shows between them. Sizes and tilts vary; nothing sits on top
-    // as a separate floating card.
     const photoLayout = [
-      { x: 49, y: 42, r: -9.5, z: 32, s: 0.68 },
-      { x: 36, y: 51, r: 7.0,  z: 19, s: 0.56 },
-      { x: 60, y: 45, r: -13,  z: 26, s: 0.60 },
-      { x: 45, y: 33, r: 11.5, z: 14, s: 0.50 },
-      { x: 55, y: 54, r: -5.0, z: 22, s: 0.70 },
-      { x: 33, y: 44, r: 15.5, z: 11, s: 0.54 }
+      { x: 66.0, y: 25.0, r: -9.75, s: 0.92, z: 44 },
+      { x: 43.0, y: 52.0, r:  2.32, s: 1.18, z: 58 },
+      { x: 62.0, y: 67.0, r: 28.78, s: 0.88, z: 34 },
+      { x: 47.0, y: 72.0, r: -5.10, s: 1.26, z: 76 }
     ];
 
     archivePile.innerHTML = "";
@@ -1636,7 +1629,6 @@
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
-        el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
       }
       el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
