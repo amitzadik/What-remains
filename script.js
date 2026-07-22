@@ -151,22 +151,81 @@
   const landingTypewriterState = new WeakMap();
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Split into reveal units. Array.from keeps surrogate pairs (emoji) whole and
+  // is index-aligned with the per-site `chars` arrays that drive the rhythm.
+  function typewriterUnits(text) {
+    return Array.from(text || "");
+  }
+
+  // Stable typewriter: the FINAL text is laid out from the very first frame so
+  // the element already occupies its final width, height, line breaks, wrapping
+  // and alignment. A hidden full-text reserve fixes the block's box; an absolute
+  // "live" layer holds the same text as per-character spans, all starting
+  // hidden. Typing only flips per-character visibility — no reflow, so words
+  // never jump between lines and lines never move. Characters are revealed in
+  // logical (reading) order, which the browser lays out correctly for RTL.
   function prepareTypewriterElement(el, text) {
     if (!el) return null;
     el.classList.add("typewriter-stable");
+    const norm = text || "";
     el.innerHTML =
       '<span class="typewriter-reserve" aria-hidden="true"></span>' +
-      '<span class="typewriter-live"></span>';
+      '<span class="typewriter-live" aria-hidden="true"></span>';
     const reserve = el.querySelector(".typewriter-reserve");
     const live = el.querySelector(".typewriter-live");
-    if (reserve) reserve.textContent = text || "";
-    if (live) live.textContent = "";
+    if (reserve) reserve.textContent = norm;
+    if (live) {
+      const units = typewriterUnits(norm);
+      const frag = document.createDocumentFragment();
+      const spans = [];
+      units.forEach(ch => {
+        const span = document.createElement("span");
+        span.className = "tw-char";
+        // A "\n" span still forces its line break under pre-wrap even while
+        // hidden, so the final line structure is present from the first frame.
+        span.textContent = ch;
+        frag.appendChild(span);
+        spans.push(span);
+      });
+      live.appendChild(frag);
+      live.__twSpans = spans;
+      live.__twCursorIndex = -1;
+    }
     return live;
   }
 
+  // Reveal characters [0, count) on a prepared live layer and park the caret on
+  // the last revealed character. Visibility-only — never touches layout.
+  function revealTypewriterUpTo(live, count) {
+    if (!live || !live.__twSpans) return;
+    const spans = live.__twSpans;
+    const upto = Math.max(0, Math.min(count, spans.length));
+    for (let i = 0; i < upto; i++) {
+      if (spans[i]) spans[i].classList.add("tw-shown");
+    }
+    const cursorIdx = upto - 1;
+    if (live.__twCursorIndex !== cursorIdx) {
+      if (live.__twCursorIndex >= 0 && spans[live.__twCursorIndex]) {
+        spans[live.__twCursorIndex].classList.remove("tw-cursor");
+      }
+      if (cursorIdx >= 0 && spans[cursorIdx]) {
+        spans[cursorIdx].classList.add("tw-cursor");
+      }
+      live.__twCursorIndex = cursorIdx;
+    }
+  }
+
+  // Instantly reveal every character (reduced motion / "finish now" paths) and
+  // clear the caret, since typing is complete.
   function setTypewriterText(el, text) {
     const live = el && el.querySelector ? el.querySelector(".typewriter-live") : null;
-    if (live) {
+    if (live && live.__twSpans) {
+      live.__twSpans.forEach(s => { if (s) s.classList.add("tw-shown"); });
+      if (live.__twCursorIndex >= 0 && live.__twSpans[live.__twCursorIndex]) {
+        live.__twSpans[live.__twCursorIndex].classList.remove("tw-cursor");
+      }
+      live.__twCursorIndex = -1;
+    } else if (live) {
       live.textContent = text || "";
     } else if (el) {
       el.textContent = text || "";
@@ -217,8 +276,8 @@
 
     function tick() {
       const target = part.live || part.el;
-      target.textContent += chars[charIndex] || "";
       charIndex += 1;
+      revealTypewriterUpTo(target, charIndex);
 
       if (charIndex < chars.length) {
         window.setTimeout(tick, speed);
@@ -627,8 +686,8 @@
     function tick() {
       if (run !== questionTypewriterRun) return;
       const target = questionLive || qText;
-      target.textContent += chars[charIndex] || "";
       charIndex += 1;
+      revealTypewriterUpTo(target, charIndex);
 
       if (charIndex < chars.length) {
         const prev = chars[charIndex - 1];
@@ -881,8 +940,8 @@
     function tick() {
       if (run !== legacyTypewriterRun) return;
       const target = live || legacyQText;
-      target.textContent += chars[charIndex] || "";
       charIndex += 1;
+      revealTypewriterUpTo(target, charIndex);
 
       if (charIndex === enableAt) {
         setLegacyInputEnabled(true);
@@ -1144,8 +1203,8 @@
     function tick() {
       if (run !== cardsCopyRun) return;
       const target = cardsLive || cardsBlankType;
-      target.textContent += chars[charIndex] || "";
       charIndex += 1;
+      revealTypewriterUpTo(target, charIndex);
 
       if (charIndex < chars.length) {
         window.setTimeout(tick, speed);

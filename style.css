@@ -1960,6 +1960,17 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   color: inherit;
 }
 
+/* Per-character reveal. The full text is laid out from the first frame; only
+   visibility changes as characters are "typed", so nothing reflows — words
+   never jump between lines and lines never move. Plain inline spans keep the
+   exact wrapping/bidi of the reserve copy (do NOT make them inline-block). */
+.typewriter-live .tw-char {
+  visibility: hidden;
+}
+.typewriter-live .tw-char.tw-shown {
+  visibility: visible;
+}
+
 .qform-question-text .typewriter-live {
   inset: auto 0 0 0;
 }

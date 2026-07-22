@@ -133,13 +133,22 @@ button{font:inherit;color:inherit}
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
 .typewriter-live{position:absolute;inset:0;white-space:pre-wrap}
-.typewriter-live.is-typing::after{
+/* Per-character reveal: full text laid out from frame one, only visibility
+   changes — no reflow, no words jumping between lines. */
+.typewriter-live .tw-char{visibility:hidden}
+.typewriter-live .tw-char.tw-shown{visibility:visible}
+/* Caret rides the last revealed character. Absolutely positioned so it takes
+   no layout space (never perturbs wrapping); sits just past the reading-end
+   edge, which the browser places correctly for RTL. Gated on .is-typing so it
+   vanishes when typing completes, preserving the original cursor behaviour. */
+.typewriter-live.is-typing .tw-char.tw-cursor{position:relative}
+.typewriter-live.is-typing .tw-char.tw-cursor::after{
   content:"";
-  display:inline-block;
+  position:absolute;
+  inset-inline-end:-.16em;
+  bottom:.12em;
   width:1px;
   height:.78em;
-  margin-inline-start:.12em;
-  vertical-align:-.05em;
   background:currentColor;
   opacity:.42;
   animation:typewriter-cursor 1.15s steps(1,end) infinite;
@@ -330,5 +339,5 @@ button{font:inherit;color:inherit}
   .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important;transform:translate3d(0,0,0)!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
   .pile-sheet--front{transition:none}
-  .typewriter-live.is-typing::after{display:none}
+  .typewriter-live.is-typing .tw-char.tw-cursor::after{display:none}
 }
