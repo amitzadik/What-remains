@@ -2280,7 +2280,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .cards-scene.is-ack-visible .cards-memory-ack {
-  opacity: 1;
+  opacity: 0.9;   /* Figma 470:7357 — foreground acknowledgement at 90% */
 }
 
 .cards-scene.is-ack-receding .cards-memory-ack {
@@ -2304,7 +2304,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   line-height: 1.1;
   font-weight: 700;
   opacity: 1;
-  white-space: pre-line;
+  /* Figma 470:7392 — SundayMono Bold 80/1.1, right-aligned, multiply; the copy
+     wraps naturally inside the 1253px box (no forced line break). */
+  mix-blend-mode: multiply;
+  white-space: normal;
 }
 
 .cards-blank-continue {
@@ -2340,10 +2343,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   cursor: default;
 }
 
-/* Figma transition frames 471:7394 and 470:7358. The six recorded
-   answers retain their exact 1920×1080 coordinates and scale with the
-   viewport; the oldest extra trace remains outside this composition. */
-.cards-memory-trace .question-memory-trace__item {
+/* Figma transition frames 471:7394 and 470:7358. The six recorded answers
+   retain their exact 1920×1080 coordinates and scale with the viewport; the
+   oldest extra trace remains outside this composition. These rules are
+   #screen-cards-scoped so they win over the questionnaire's global
+   [data-age] trace treatment, keeping the accumulated background exactly as
+   readable as Figma (opacity 0.25, blur 10–20px) at the acknowledgement
+   moment — not the fainter questionnaire fade. */
+#screen-cards .cards-memory-trace .question-memory-trace__item {
   right: auto;
   direction: rtl;
   text-align: right;
@@ -2355,17 +2362,18 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   color: var(--ink);
   mix-blend-mode: multiply;
   opacity: 0.25;
+  filter: blur(10px);
   transform: translateX(-100%);
   transform-origin: right top;
   transition: opacity 0.9s ease, filter 1.1s ease, top 1.1s ease, left 1.1s ease;
 }
-.cards-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(10px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="1"] { left: 75.99vw; top: 1.204vh; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(12px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 36.302vw; top: 15vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(14px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(16px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 49.444vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(18px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 103.125vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(20px); }
-.cards-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(10px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="1"] { left: 75.99vw; top: 1.204vh; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(12px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 36.302vw; top: 15vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(14px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(16px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 49.444vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(18px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 103.125vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(20px); }
+#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
 
 #screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item {
   opacity: 0.15;
