@@ -5292,25 +5292,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   pointer-events: auto;
   cursor: pointer;
   font-family: var(--font-main);
-  /* One physical sheet: identical size, typography, padding and rotation at
-     every moment. Only --tool-x/--tool-y change, and a single transform
-     transition carries this exact sheet between its pile-peek spot and the
-     centred open spot; closing runs the same transition in reverse back to the
-     precise starting position. No scale, no fade, no layout swap. */
+  /* One physical sheet at one fixed size and design. It already exists full
+     size — most of it simply sits below the lower edge of the screen. Opening
+     and closing change ONLY --tool-y (vertical position): the sheet is pulled
+     straight up and pushed straight back down. Its width, height, rotation,
+     typography and internal layout never change, and --tool-x stays 0 so there
+     is no horizontal movement — pure translateY. No scale, fade, morph or
+     reflow, ever. */
   transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* Resting: each sheet peeks up from the bottom of the pile at its own open
-   rotation (search to the right, add to the left) so both stay clickable. */
-.personal-tool-panel--search .personal-tool-card { --tool-x: 18vw;  --tool-y: 58vh; --tool-rot: -3.96deg; }
+/* Resting: each sheet is already full size, sitting below the fold and peeking
+   its top edge up. They differ only in how far down they sit and their fixed
+   rotation, so both stay grabbable; horizontally both are centred. */
+.personal-tool-panel--search .personal-tool-card { --tool-y: 60vh; --tool-rot: -3.96deg; }
 .personal-tool-panel--upload .personal-tool-card {
-  --tool-x: -18vw; --tool-y: 58vh; --tool-rot: 5.96deg;
+  --tool-y: 52vh; --tool-rot: 5.96deg;
   background-image: url("images/figma-archive-add-card.jpg");
 }
-/* Opened: the clicked sheet slides to the centre — same size, same rotation. */
-.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-x: 0vw; --tool-y: 0vh; cursor: default; }
-/* While one sheet is open, the other slips fully below, out of the composition. */
+/* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
+   changes (to 0); rotation, size and everything else are identical. */
+.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-y: 0vh; cursor: default; }
+/* While one sheet is open, the other slides straight down, fully below. */
 .archive-box.is-tool-open .personal-tool-panel[aria-hidden="true"] .personal-tool-card {
-  --tool-x: 0vw; --tool-y: 132vh; pointer-events: none;
+  --tool-y: 132vh; pointer-events: none;
 }
 /* A closed sheet is a single click target: its own controls stay inert so a
    click on it can only mean "bring me forward", never "type / submit". */
@@ -5330,8 +5334,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-family:var(--font-mandatory); font-weight:700; font-variation-settings:"wght" 700,"wdth" 36;
   font-size:8.902cqw; line-height:1; opacity:.8;
 }
+/* The archive number (≈120px, its own line box) reaches ~13% of the sheet
+   height, so the title sits well below it — no glyph overlap. These are fixed
+   percentages of the sheet, and the sheet's size never changes, so the spacing
+   is identical whether the sheet is peeking or fully open. */
 .personal-tool-card h2 {
-  position:absolute; top:9.2%; right:8.7%; margin:0;
+  position:absolute; top:17.5%; right:8.7%; margin:0;
   font-size:3.709cqw; font-weight:500; line-height:1.2;
 }
 .personal-tool-panel--upload .personal-tool-card h2 { right:13.5%; }
