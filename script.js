@@ -1703,6 +1703,11 @@
   wireToolOpen(personalSearchForm, personalSearchPanel, "search", null);
   wireToolOpen(personalUploadForm, personalUploadPanel, "upload", () => ownerView && !!currentDrawerCode);
 
+  // Back arrow on each open sheet closes it (returns it to the pile).
+  document.querySelectorAll(".personal-tool-back").forEach((btn) => {
+    btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closePersonalTool(); });
+  });
+
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
   window.addEventListener("resize", () => {
     if (screens.personal && screens.personal.classList.contains("active")) {

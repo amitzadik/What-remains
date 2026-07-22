@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=47" />
+  <link rel="stylesheet" href="style.css?v=48" />
 </head>
 <body dir="rtl">
 
-  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=34" title="מה שישאר — עמוד הבית"></iframe>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=35" title="מה שישאר — עמוד הבית"></iframe>
 
   <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
   <section id="screen-landing" class="screen" aria-label="הארכיון">
@@ -251,7 +251,7 @@
 
       <section id="personal-search-panel" class="personal-tool-panel personal-tool-panel--search" aria-hidden="true">
         <form id="personal-search-form" class="personal-tool-card">
-          <span class="personal-tool-owner" id="personal-search-owner"></span>
+          <button class="personal-tool-icon personal-tool-icon--search" type="submit" aria-label="חיפוש"><img src="images/figma-archive-search-icon.png" alt=""></button>
           <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-search-code"></strong>
           <h2>בקשת אחזור:</h2>
           <div class="personal-tool-grid">
@@ -259,20 +259,21 @@
             <label class="personal-tool-field"><span>באיזה פורמט?</span><input id="personal-search-format" type="text"></label>
           </div>
           <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
-          <button class="personal-tool-submit personal-tool-submit--back" type="submit" aria-label="חיפוש"><img src="images/back-default.png" alt=""></button>
+          <span class="personal-tool-owner" id="personal-search-owner"></span>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/back-default.png" alt=""></button>
         </form>
       </section>
 
       <section id="personal-upload-panel" class="personal-tool-panel personal-tool-panel--upload" aria-hidden="true">
         <form id="personal-upload-form" class="personal-tool-card">
+          <button class="personal-tool-icon personal-tool-icon--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon.png" alt=""></button>
           <span class="personal-tool-owner" id="personal-upload-owner"></span>
-          <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-upload-code"></strong>
-          <h2>הוספת פריט/ים לארכיון האישי</h2>
+          <h2>הוספת פריטים</h2>
           <div class="personal-tool-grid">
             <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה להוסיף?</span><textarea id="personal-upload-description" required></textarea></label>
-            <label class="personal-tool-field"><span>סוג הפורמט/ים</span><input id="personal-upload-format" type="text"></label>
+            <label class="personal-tool-field"><span>סוג הפריט/ים</span><input id="personal-upload-format" type="text"></label>
           </div>
-          <button class="personal-tool-submit personal-tool-submit--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon.png" alt=""></button>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/back-default.png" alt=""></button>
         </form>
       </section>
 
@@ -374,7 +375,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=35"></script>
+  <script src="script.js?v=36"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

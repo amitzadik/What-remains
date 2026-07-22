@@ -5274,11 +5274,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(70.203vw, calc(92vh * 1.349), 1348px);
-  aspect-ratio: 1348 / 999;
+  width: min(70.203vw, calc(92vh * 1.4134), 1348px);
+  aspect-ratio: 1012 / 716;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
-     scale together as one proportional unit, never independently. */
+     scale together as one proportional unit, never independently. Figma sheet
+     is 1012×716, so 1cqw = 1% of 1012px there. */
   container-type: inline-size;
   --tool-x: 0vw;
   --tool-y: 0vh;
@@ -5320,53 +5321,80 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    click on it can only mean "bring me forward", never "type / submit". */
 .personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field textarea,
 .personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field input,
-.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-submit {
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-icon,
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-back {
   pointer-events: none;
 }
+/* ===== Tool sheet internals — matched to Figma 702:467 (search) and 702:484
+   (add). The sheet is 1012×716; every value is a fixed % of the sheet (font
+   sizes in cqw = % of sheet width, exactly as in Figma where 1cqw = 10.12px),
+   so the layout is pixel-proportional to Figma and never reflows as the sheet
+   is pulled up/down. Fonts: SundayMono Medium 30 (labels) / 50 (title),
+   Mandatory Bold-Condensed 120 (number). ===== */
+
+/* Owner name "עמית צדיק" — bottom-right on the search sheet, top-right on add. */
 .personal-tool-owner {
-  position:absolute; left:3.1%; top:3.2%; font-size:2.226cqw; font-weight:500;
+  position:absolute; right:4.9%; font-size:2.964cqw; font-weight:500; line-height:1.5;
 }
+.personal-tool-panel--search .personal-tool-owner { top:88.5%; }
+.personal-tool-panel--upload .personal-tool-owner { top:6.6%; }
+
+/* Search sheet only: "תיק מס׳" label with the large archive number below it. */
 .personal-tool-file-label {
-  position:absolute; right:3.1%; top:3.2%; font-size:2.226cqw; font-weight:500;
+  position:absolute; right:4.3%; top:6.4%; font-size:2.964cqw; font-weight:500; line-height:1.5;
 }
 .personal-tool-code {
-  position:absolute; right:10.8%; top:1.2%;
+  position:absolute; right:16%; top:4.4%;
   font-family:var(--font-mandatory); font-weight:700; font-variation-settings:"wght" 700,"wdth" 36;
-  font-size:8.902cqw; line-height:1; opacity:.8;
+  font-size:11.858cqw; line-height:1; opacity:.8;
 }
-/* The archive number (≈120px, its own line box) reaches ~13% of the sheet
-   height, so the title sits well below it — no glyph overlap. These are fixed
-   percentages of the sheet, and the sheet's size never changes, so the spacing
-   is identical whether the sheet is peeking or fully open. */
+
+/* Title — "בקשת אחזור:" / "הוספת פריטים". SundayMono Medium 50 / 1.2. It sits
+   well clear of the number above it (fixed %; the sheet never resizes, so the
+   gap is identical whether peeking or open). */
 .personal-tool-card h2 {
-  position:absolute; top:17.5%; right:8.7%; margin:0;
-  font-size:3.709cqw; font-weight:500; line-height:1.2;
+  position:absolute; top:22.3%; right:18%; margin:0;
+  font-size:4.941cqw; font-weight:500; line-height:1.2;
 }
-.personal-tool-panel--upload .personal-tool-card h2 { right:13.5%; }
+.personal-tool-panel--upload .personal-tool-card h2 { right:17%; }
+
+/* Field box — bordered, split into a tall query row and a shorter format row,
+   with a thin rule under each field label. */
 .personal-tool-grid {
-  position:absolute; left:18.1%; right:18.1%; top:27.1%; height:43.3%;
-  border:1.5px solid var(--ink); display:grid; grid-template-rows:2fr 1fr;
+  position:absolute; left:17.3%; right:17.2%; top:31.9%; bottom:22.3%;
+  border:1.5px solid var(--ink); display:grid; grid-template-rows:54.8fr 45.2fr;
 }
-.personal-tool-field { position:relative; display:block; border-top:1.5px solid var(--ink); }
-.personal-tool-field:first-child { border-top:0; }
+.personal-tool-field { position:relative; display:block; }
+.personal-tool-field + .personal-tool-field { border-top:1.5px solid var(--ink); }
+.personal-tool-field::after {
+  content:""; position:absolute; left:0; right:0; top:23.4%; border-top:1px solid var(--ink);
+}
 .personal-tool-field span {
-  position:absolute; top:3%; right:2%; font-size:2.226cqw; font-weight:500;
+  position:absolute; top:6%; right:2.2%; font-size:2.964cqw; font-weight:500; line-height:1.5;
 }
 .personal-tool-field textarea,
 .personal-tool-field input {
-  position:absolute; inset:0; width:100%; height:100%; border:0; outline:0; resize:none;
-  padding:5.193cqw 2% 2%; background:transparent; color:var(--ink);
-  font:500 2.522cqw/1.35 var(--font-main); direction:rtl;
+  position:absolute; left:0; right:0; top:26%; bottom:0; width:100%;
+  border:0; outline:0; resize:none; padding:0.8cqw 2.2% 2%;
+  background:transparent; color:var(--ink);
+  font:500 2.964cqw/1.4 var(--font-main); direction:rtl;
 }
-.personal-tool-field input { padding-top:4.006cqw; }
-.personal-tool-submit {
-  position:absolute; left:2.6%; bottom:2.2%; width:11.87%; aspect-ratio:1;
+
+/* Top-left action stamp (search magnifier / add +) and bottom-left back arrow. */
+.personal-tool-icon {
+  position:absolute; border:0; padding:0; background:none; cursor:pointer;
+}
+.personal-tool-icon img { display:block; width:100%; height:100%; object-fit:contain; }
+.personal-tool-icon--search { left:4.6%; top:5.1%; width:13.4%; aspect-ratio:1; }
+.personal-tool-icon--add    { left:3.7%; top:4.1%; width:15.4%; aspect-ratio:1; }
+.personal-tool-back {
+  position:absolute; left:3.2%; bottom:8%; width:8.5%; aspect-ratio:1;
   border:0; padding:0; background:none; cursor:pointer;
 }
-.personal-tool-submit img { display:block; width:100%; height:100%; object-fit:contain; }
+.personal-tool-back img { display:block; width:100%; height:100%; object-fit:contain; }
+
 .personal-tool-status {
-  position:absolute; right:18.1%; top:72%; margin:0; color:var(--stamp);
-  font-size:1.929cqw;
+  position:absolute; right:17.3%; bottom:13%; margin:0; color:var(--stamp); font-size:2.1cqw;
 }
 .archive-box.is-tool-open .drawer-header { opacity:0; }
 .archive-box.is-tool-open .pile-ctrl--close { z-index:400; }
