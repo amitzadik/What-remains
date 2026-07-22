@@ -1587,14 +1587,14 @@
     // two sheets the same dimensions. The z values leave gaps so photographs can
     // be interleaved between the paper layers (see photoLayout).
     const docLayout = [
-      { x: 27, y: 66, r: -17.0, z: 40, s: 0.80 },
-      { x: 75, y: 58, r: 13.4,  z: 34, s: 0.50 },
-      { x: 18, y: 45, r: -6.6,  z: 29, s: 0.74 },
-      { x: 82, y: 41, r: 16.2,  z: 24, s: 0.46 },
-      { x: 41, y: 33, r: -12.3, z: 20, s: 0.66 },
-      { x: 69, y: 27, r: 4.8,   z: 16, s: 0.54 },
-      { x: 32, y: 21, r: -2.6,  z: 12, s: 0.76 },
-      { x: 57, y: 15, r: 18.4,  z: 9,  s: 0.52 }
+      { x: 43, y: 58, r: -8.0, z: 40, s: 0.62 },
+      { x: 61, y: 50, r: 6.5,  z: 34, s: 0.39 },
+      { x: 32, y: 45, r: -4.2, z: 29, s: 0.58 },
+      { x: 64, y: 41, r: 9.8,  z: 24, s: 0.36 },
+      { x: 47, y: 37, r: -6.5, z: 20, s: 0.51 },
+      { x: 55, y: 30, r: 3.2,  z: 16, s: 0.42 },
+      { x: 37, y: 30, r: -2.0, z: 12, s: 0.59 },
+      { x: 50, y: 23, r: 8.5,  z: 9,  s: 0.41 }
     ];
 
     // Photographs are woven INTO the pile — each sits at a z between the paper
@@ -1602,12 +1602,12 @@
     // and the rest shows between them. Sizes and tilts vary; nothing sits on top
     // as a separate floating card.
     const photoLayout = [
-      { x: 49, y: 40, r: -11.5, z: 32, s: 0.82 },
-      { x: 28, y: 55, r: 8.5,   z: 19, s: 0.68 },
-      { x: 71, y: 47, r: -16,   z: 26, s: 0.74 },
-      { x: 44, y: 30, r: 13.5,  z: 14, s: 0.58 },
-      { x: 63, y: 61, r: -5.5,  z: 22, s: 0.86 },
-      { x: 24, y: 43, r: 18.5,  z: 11, s: 0.64 }
+      { x: 49, y: 42, r: -9.5, z: 32, s: 0.68 },
+      { x: 36, y: 51, r: 7.0,  z: 19, s: 0.56 },
+      { x: 60, y: 45, r: -13,  z: 26, s: 0.60 },
+      { x: 45, y: 33, r: 11.5, z: 14, s: 0.50 },
+      { x: 55, y: 54, r: -5.0, z: 22, s: 0.70 },
+      { x: 33, y: 44, r: 15.5, z: 11, s: 0.54 }
     ];
 
     archivePile.innerHTML = "";
