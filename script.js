@@ -470,6 +470,73 @@
   const btnDk   = document.getElementById("btn-dk-q");
   const lines = Array.from(document.querySelectorAll("#lines .line__text"));
 
+  // ── Question paper pile ────────────────────────────────────────────────
+  // The questionnaire is a single live sheet, but every answered question
+  // leaves a physical page behind it. As the pile grows the older pages are
+  // nudged further outward (translation + rotation + layering), so the papers
+  // read as accumulating and being displaced — never a frozen stack. The
+  // answer-word memory background and the final stack composition are
+  // untouched; this only adds the physical pages under the live sheet.
+  const qformPile = document.getElementById("qform-pile");
+  const activeQuestionSheet = document.querySelector("#screen-questions .qform-sheet--active");
+
+  // Per-question resting offset for the live sheet (px / deg), fixed so the
+  // motion is identical on every run.
+  const Q_ACTIVE_SHIFT = [
+    { x: 0,  y: 0,  r: 0 },
+    { x: -9, y: 6,  r: -0.9 },
+    { x: 8,  y: -5, r: 0.8 },
+    { x: -6, y: 8,  r: -0.7 },
+    { x: 10, y: 4,  r: 1.1 },
+    { x: -8, y: -6, r: -0.9 },
+    { x: 6,  y: 7,  r: 0.6 }
+  ];
+  const BK_X = [-16, 13, -10, 15, -8, 11, -13, 9];
+  const BK_Y = [9, -7, 12, 6, 10, -5, 8, -6];
+  const BK_R = [-1.6, 1.2, -0.9, 1.7, -1.2, 1.0, -1.4, 0.8];
+
+  let questionPile = [];
+
+  function applyActiveSheetShift() {
+    if (!activeQuestionSheet) return;
+    const s = Q_ACTIVE_SHIFT[Math.min(state.currentQuestion, Q_ACTIVE_SHIFT.length - 1)];
+    activeQuestionSheet.style.transform =
+      "translate(" + s.x + "px," + s.y + "px) rotate(" + s.r + "deg)";
+  }
+
+  function layoutQuestionPile() {
+    const n = questionPile.length;
+    questionPile.forEach((el, k) => {
+      const bx = BK_X[k % BK_X.length];
+      const by = BK_Y[k % BK_Y.length];
+      const br = BK_R[k % BK_R.length];
+      const gen = n - 1 - k;                       // pages that landed after this one
+      const len = Math.hypot(bx, by) || 1;
+      const push = gen * 3;                         // older pages drift outward
+      const x = bx + (bx / len) * push;
+      const y = by + (by / len) * push;
+      const r = br + (br >= 0 ? 1 : -1) * gen * 0.25;
+      el.style.zIndex = String(2 + k);             // newest backer nearest the live sheet
+      el.style.transform =
+        "translate(" + x.toFixed(2) + "px," + y.toFixed(2) + "px) rotate(" + r.toFixed(2) + "deg)";
+    });
+  }
+
+  function dropQuestionBacker() {
+    if (!qformPile) return;
+    const el = document.createElement("div");
+    el.className = "qform-pile__sheet";
+    qformPile.appendChild(el);
+    questionPile.push(el);
+    layoutQuestionPile();
+  }
+
+  function resetQuestionPile() {
+    questionPile = [];
+    if (qformPile) qformPile.innerHTML = "";
+    if (activeQuestionSheet) activeQuestionSheet.style.transform = "";
+  }
+
   // Maps each of the 7 questions to its "about" value shown in the
   // header cell ("על").
   const questionAbouts = [
@@ -497,6 +564,7 @@
   function renderQuestion(instantQuestionText) {
     const idx = state.currentQuestion;
     qNum.textContent  = (idx + 1) + "/" + questions.length;
+    applyActiveSheetShift();
     typeQuestionText(questions[idx], instantQuestionText);
     if (qAbout) qAbout.textContent = questionAbouts[idx] || "";
     clearLines();
@@ -637,6 +705,7 @@
       qMemoryTrace.classList.remove("is-visible");
     }
     if (registerSheet) registerSheet.removeAttribute("aria-hidden");
+    resetQuestionPile();
   }
 
   // Leaving the register card: the form stays put and question 1 appears; the
@@ -730,14 +799,17 @@
     state.currentQuestion++;
 
     isQuestionTransitioning = true;
-    // Only the answer recedes: push it into the memory background, leave the
-    // form in place and swap in the next prompt (or move on to the cards).
+    // The answered page drops behind the live sheet, joining the drifting
+    // pile; its words also recede into the memory background.
     renderMemoryBackground();
+    dropQuestionBacker();
     if (state.currentQuestion >= questions.length) {
       initCards();
       showScreen("cards");
     } else {
-      renderQuestion(true);
+      // Every question types itself in — the typewriter is not limited to the
+      // first prompt. questionTypewriterRun guards against a replay once done.
+      renderQuestion();
     }
     window.setTimeout(() => { isQuestionTransitioning = false; }, reduceMotion ? 0 : 450);
   }
@@ -781,6 +853,68 @@
   const legacyLines   = Array.from(document.querySelectorAll("#legacy-lines .line__text"));
   const btnLegacyNext = document.getElementById("btn-legacy-next");
   const legacyMemoryTrace = document.getElementById("legacy-memory-trace");
+  const legacyQText   = document.querySelector("#screen-legacy .qform-question-text");
+  const LEGACY_QUESTION_TEXT = legacyQText ? legacyQText.textContent : "";
+  let legacyTypewriterRun = 0;
+
+  // Keep the answer lines inert while the prompt is still typing, so the
+  // depositor reads the question before writing — mirrors the questionnaire's
+  // motion language without adding a noticeable wait.
+  function setLegacyInputEnabled(on) {
+    legacyLines.forEach(l => l.setAttribute("contenteditable", on ? "true" : "false"));
+  }
+  function focusLegacyStart() {
+    if (legacyLines[0]) {
+      legacyLines[0].focus();
+      placeCaretAtEnd(legacyLines[0]);
+    }
+  }
+
+  // Same typewriter as the seven questionnaire prompts, applied to the legacy
+  // question. The input opens once the prompt is sufficiently visible.
+  function typeLegacyQuestion() {
+    if (!legacyQText) { focusLegacyStart(); return; }
+    legacyTypewriterRun += 1;
+    const run = legacyTypewriterRun;
+    const text = LEGACY_QUESTION_TEXT;
+    const live = prepareTypewriterElement(legacyQText, text);
+    setLegacyInputEnabled(false);
+
+    if (reduceMotion) {
+      setTypewriterText(legacyQText, text);
+      legacyQText.classList.remove("is-typing");
+      setLegacyInputEnabled(true);
+      focusLegacyStart();
+      return;
+    }
+
+    const chars = Array.from(text);
+    let charIndex = 0;
+    legacyQText.classList.add("is-typing");
+    const enableAt = Math.min(chars.length, Math.ceil(chars.length * 0.55));
+
+    function tick() {
+      if (run !== legacyTypewriterRun) return;
+      const target = live || legacyQText;
+      target.textContent += chars[charIndex] || "";
+      charIndex += 1;
+
+      if (charIndex === enableAt) {
+        setLegacyInputEnabled(true);
+        focusLegacyStart();
+      }
+
+      if (charIndex < chars.length) {
+        const prev = chars[charIndex - 1];
+        const delay = /[.,!?;:،.]/.test(prev) ? 150 : 42;
+        window.setTimeout(tick, delay);
+      } else {
+        legacyQText.classList.remove("is-typing");
+        setLegacyInputEnabled(true);
+      }
+    }
+    tick();
+  }
 
   function getLegacyText() {
     return legacyLines.map(l => l.textContent.trim()).filter(Boolean).join("\n");
@@ -798,12 +932,15 @@
     setMemoryTraceItems(legacyMemoryTrace, buildQuestionMemoryItems(questions.length));
     clearLegacyLines();
     btnLegacyNext.disabled = true;
-    if (legacyLines[0]) {
-      setTimeout(() => {
-        legacyLines[0].focus();
-        placeCaretAtEnd(legacyLines[0]);
-      }, 50);
-    }
+    // Settle the legacy page onto the preserved background as a new layer,
+    // rather than cutting to a fresh screen.
+    screens.legacy.classList.remove("is-entering");
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (screens.legacy.classList.contains("active")) {
+        screens.legacy.classList.add("is-entering");
+      }
+    }));
+    setTimeout(typeLegacyQuestion, 50);
   }
 
   legacyLines.forEach(line => {
@@ -1011,7 +1148,7 @@
       setTypewriterText(cardsBlankType, text);
       cardsScene.classList.remove("is-typing");
       cardsScene.classList.add("is-copy-done");
-      if (btnBeginLeaving) btnBeginLeaving.disabled = false;
+      window.setTimeout(() => { if (run === cardsCopyRun) beginLeaving(); }, 600);
       return;
     }
 
@@ -1030,7 +1167,9 @@
       } else {
         cardsScene.classList.remove("is-typing");
         cardsScene.classList.add("is-copy-done");
-        if (btnBeginLeaving) btnBeginLeaving.disabled = false;
+        // Hold the finished line for a beat, then continue on its own — no
+        // button, no click required.
+        window.setTimeout(() => { if (run === cardsCopyRun) beginLeaving(); }, 2500);
       }
     }
 
@@ -1041,12 +1180,6 @@
     if (!cardsScene.classList.contains("is-copy-done")) return;
     initLegacy();
     showScreen("legacy");
-  }
-  if (btnBeginLeaving) {
-    btnBeginLeaving.addEventListener("click", (e) => {
-      e.stopPropagation();
-      beginLeaving();
-    });
   }
 
   // ============================================================

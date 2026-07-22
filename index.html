@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=41" />
+  <link rel="stylesheet" href="style.css?v=42" />
 </head>
 <body dir="rtl">
 
-  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=28" title="מה שישאר — עמוד הבית"></iframe>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=29" title="מה שישאר — עמוד הבית"></iframe>
 
   <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
   <section id="screen-landing" class="screen" aria-label="הארכיון">
@@ -27,6 +27,10 @@
     <div class="question-name-ghost" id="question-name-ghost" aria-hidden="true"></div>
     <div class="question-memory-trace" id="question-memory-trace" aria-hidden="true"></div>
     <div class="qform-stage qform-stage--register">
+
+    <!-- Physical pile of already-answered question pages, accumulating and
+         drifting behind the live sheet as the questionnaire advances. -->
+    <div class="qform-pile" id="qform-pile" aria-hidden="true"></div>
 
     <!-- Register card — the first sheet of the pile -->
     <div class="qform-sheet" id="register-sheet">
@@ -189,9 +193,6 @@
         <div class="cards-memory-copy">
           <p id="cards-blank-typewriter" data-text="מה שישאר מאיתנו הוא לא רק מה שזוכרים עלינו,
 אלא גם מה שנבחר להשאיר לדורות הבאים."></p>
-          <button id="btn-begin-leaving" type="button" class="img-btn cards-blank-continue" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך" disabled>
-            <img src="images/next-default.png" width="105" height="105" alt="">
-          </button>
         </div>
       </div>
     </div>
@@ -383,7 +384,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=31"></script>
+  <script src="script.js?v=32"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

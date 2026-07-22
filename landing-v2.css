@@ -101,7 +101,7 @@ button{font:inherit;color:inherit}
 .landing-v2__copy{
   position:absolute;
   top:calc(50% - 339px);
-  right:calc(50% - 497px);
+  right:calc(50% - 420px);
   left:auto;
   bottom:auto;
   width:907px;
@@ -126,6 +126,8 @@ button{font:inherit;color:inherit}
    Sizes are reduced 20% from the Figma baseline per request. */
 .landing-v2__copy p{margin:0 0 20px;font-weight:500;letter-spacing:-.01em}
 .landing-v2__title{font-size:clamp(32px,3.16vw,60.8px);line-height:0.95;margin-bottom:16px!important}
+/* First sentence bold (Figma) — beats the shared .landing-v2__copy p weight. */
+.landing-v2__copy p.landing-v2__title{font-weight:700}
 .landing-v2__copy p:not(.landing-v2__title){font-size:clamp(20px,1.84vw,35.2px);line-height:1.1;text-indent:80px}
 
 .typewriter-stable{position:relative}
@@ -213,7 +215,7 @@ button{font:inherit;color:inherit}
 .landing-v2__search{
   position:absolute;
   top:calc(50% - 300px);
-  right:calc(50% - 497px);
+  right:calc(50% - 420px);
   width:720px;
   max-width:80vw;
   z-index:9;
@@ -306,8 +308,8 @@ button{font:inherit;color:inherit}
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2__nav{top:2.96vh;right:1.67vw;gap:1.67vw}
   .icon-btn{width:4.69vw;height:4.69vw}
-  .landing-v2__copy{top:18.61vh;right:24.11vw;width:47.24vw}
-  .landing-v2__search{top:18.61vh;right:24.11vw;width:47.24vw}
+  .landing-v2__copy{top:18.61vh;right:28vw;width:47.24vw}
+  .landing-v2__search{top:18.61vh;right:28vw;width:47.24vw}
   .landing-v2__search-input{font-size:3vw}
   .landing-v2__result{font-size:1.9vw}
   .landing-v2__title{font-size:3.168vw}

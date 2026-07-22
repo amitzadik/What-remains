@@ -2471,16 +2471,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: #fff;
   border: none;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  transform: translate(18vw, 18vh) rotate(4deg) scale(0.83);
+  /* Placed, not faded: the print stays fully opaque and enters from a
+     slightly offset position above the pile, rotating and settling as it is
+     laid down onto the stack (no fade/scale-up "generated" feel). */
+  opacity: 1;
+  transform: translate(calc(-50% + 5vw), calc(-50% - 9vh)) rotate(-4.5deg);
   transform-origin: center;
-  transition:
-    transform 1750ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 520ms ease;
+  transition: transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 #screen-camera.is-entering .camera-print {
-  opacity: 1;
-  transform: translate(-50%, -50%) rotate(-10.94deg) scale(1);
+  transform: translate(-50%, -50%) rotate(-10.94deg);
 }
 
 .camera-area {
@@ -2559,7 +2559,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 @media (prefers-reduced-motion: reduce) {
   .camera-screen-shade { opacity: 1; transition: none; }
   .camera-stack-stage { transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh)); transition: none; }
-  .camera-print { opacity: 1; transform: translate(-50%, -50%) rotate(-10.94deg); transition: none; }
+  .camera-print { opacity: 1; transform: translate(-50%, -50%) rotate(-10.94deg) !important; transition: none; }
 }
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
@@ -2783,6 +2783,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-legacy .qform-sheet {
   box-shadow: 0 12px 30px rgba(61, 54, 40, 0.14), 0 2px 8px rgba(61, 54, 40, 0.08);
+}
+
+/* The legacy moment ("הקדשת רגע לדור שקדם לך") is not a new screen: the
+   accumulated answer traces and the acknowledgement stay in place underneath,
+   and the legacy sheet is introduced as one more layer — a page settling onto
+   the existing archive from a slightly offset position (opaque, no fade). */
+#screen-legacy .qform-sheet--active {
+  transform: translate(3.2vw, -7vh) rotate(-2.4deg);
+  transition: transform 1200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+#screen-legacy.is-entering .qform-sheet--active {
+  transform: translate(0, 0) rotate(0deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  #screen-legacy .qform-sheet--active,
+  #screen-legacy.is-entering .qform-sheet--active {
+    transform: translate(0, 0) rotate(0deg);
+    transition: none;
+  }
 }
 
 #screen-legacy .qform {
@@ -3730,14 +3749,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-image: url("images/figma-question-background.jpg");
   background-size: cover;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
-  opacity: 0;
-  transform: translate(-48%, -47%) rotate(-1deg) scale(.97);
+  /* Placed onto the pile, not faded in: the sheet keeps its paper opacity and
+     enters from a slightly offset position, rotating and settling as it lands
+     on top of the existing stack. */
+  opacity: .95;
+  transform: translate(calc(-50% + 4vw), calc(-50% - 9vh)) rotate(-3.5deg);
   transform-origin: center;
-  transition: opacity 650ms ease, transform 1100ms cubic-bezier(.16,1,.3,1);
+  transition: transform 1200ms cubic-bezier(.16,1,.3,1);
 }
 .stamp-instructions-sheet.is-visible {
-  opacity: .95;
-  transform: translate(-50%, -50%) rotate(2.31deg) scale(1);
+  transform: translate(-50%, -50%) rotate(2.31deg);
 }
 .stamp-instructions-copy {
   position: absolute;
@@ -4110,6 +4131,42 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   /* Figma paper shadow: visible primarily along the lower edge, so every
      questionnaire sheet reads as a physical page above the background. */
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* The live question sheet is not static: it settles into a slightly
+   different position and angle for each question, so the paper reads as
+   being handled and re-placed rather than swapped in digitally. */
+#screen-questions .qform-sheet--active {
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Pile of previously-answered pages behind the live sheet. Each backer is a
+   blank, opaque question page; JS positions/rotates/layers them so the pile
+   accumulates and the older sheets drift outward through the space. */
+.qform-pile {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.qform-pile__sheet {
+  position: absolute;
+  inset: 0;
+  background-color: var(--cream);
+  background-image: url("images/figma-question-paper.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.8;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  transform-origin: center;
+  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-questions .qform-sheet--active,
+  .qform-pile__sheet { transition: none; }
 }
 
 /* Once the depositor leaves the register card it hides behind the
