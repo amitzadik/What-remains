@@ -1573,10 +1573,6 @@
 
     // The document sheets form the back of the pile; the depositor's own
     // photos/videos sit on top as the materials laid over the archive.
-    const items = [];
-    for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
-    media.forEach(m => items.push({ type: "media", m: m }));
-
     // Keep the archive sheets at the same real responsive dimensions used by
     // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
     const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
@@ -1588,8 +1584,8 @@
     // be interleaved between the paper layers (see photoLayout).
     const docLayout = [
       { x: 50.2, y: 73.0, r: -9.62, s: 0.800, z: 92 },
-      { x: 47.0, y: 49.0, r:  2.98, s: 0.656, z: 30 },
-      { x: 52.0, y: 47.0, r: -0.30, s: 0.576, z: 62 },
+      { x: 45.5, y: 49.0, r:  2.98, s: 0.656, z: 30 },
+      { x: 53.5, y: 47.0, r: -0.30, s: 0.576, z: 62 },
       { x: 49.0, y: 43.0, r: 11.31, s: 0.488, z: 16 },
       { x: 51.0, y: 50.0, r: -4.18, s: 0.632, z: 52 },
       { x: 48.0, y: 46.0, r:  0.73, s: 0.544, z: 38 },
@@ -1602,15 +1598,27 @@
       { x: 55.0, y: 49.0, r: 28.78, s: 0.68, z: 34 },
       { x: 49.0, y: 56.0, r: -5.10, s: 0.88, z: 76 }
     ];
+    const fragmentLayout = [
+      { x: 43.0, y: 45.0, r: -14.2, s: 0.69, z: 5 },
+      { x: 57.0, y: 44.0, r:  13.6, s: 0.66, z: 6 },
+      { x: 50.5, y: 38.0, r:  -6.8, s: 0.61, z: 7 }
+    ];
+
+    const items = [];
+    fragmentLayout.forEach((slot, i) => items.push({ type: "doc", i: [5, 3, 6][i], fragment: true, slot: slot }));
+    for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
+    media.forEach((m, mediaIndex) => items.push({ type: "media", m: m, mediaIndex: mediaIndex }));
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
       const el = document.createElement("div");
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
+        if (it.fragment) el.classList.add("pile-item--fragment");
         // Per-sheet width from its size multiplier, so every sheet is a
         // different size (depth) while keeping the exact 1370×969 proportions.
-        const dwItem = dw * (docLayout[it.i] ? docLayout[it.i].s : 1);
+        const docSlot = it.fragment ? it.slot : docLayout[it.i];
+        const dwItem = dw * docSlot.s;
         el.style.setProperty("--dw", dwItem + "px");
         // Unitless scale factor for .pile-doc's transform: scale() needs a
         // number, and calc() cannot divide a length by a length.
@@ -1620,7 +1628,7 @@
           : cardFormHTML(it.i, pileCardData);
         el.innerHTML = '<div class="pile-doc">' + form + "</div>";
         // Decorative "next" arrow tucked into a corner of some sheets (Figma).
-        if (pileRand(it.i + 200) > 0.45) {
+        if (!it.fragment && pileRand(it.i + 200) > 0.45) {
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
@@ -1639,10 +1647,10 @@
       el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc") {
-        const slot = docLayout[it.i];
+        const slot = it.fragment ? it.slot : docLayout[it.i];
         x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
       } else {
-        const mediaIndex = k - docCount;
+        const mediaIndex = it.mediaIndex;
         const p = photoLayout[mediaIndex];
         if (p) {
           x = p.x; y = p.y; rot = p.r; z = p.z;
