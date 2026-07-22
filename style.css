@@ -5274,7 +5274,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(70.203vw, calc(92vh * 1.4134), 1348px);
+  /* ~30% smaller than the questionnaire sheet so the two brown cards sit
+     naturally in the composition and stay the focus without dominating. Scale
+     only — the cqw-based typography, texture and animation are unchanged. */
+  width: min(49.14vw, calc(64.4vh * 1.4134), 944px);
   aspect-ratio: 1012 / 716;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
@@ -5305,9 +5308,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred. */
-.personal-tool-panel--search .personal-tool-card { --tool-y: 60vh; --tool-rot: -3.96deg; }
+.personal-tool-panel--search .personal-tool-card { --tool-y: 50vh; --tool-rot: -3.96deg; }
 .personal-tool-panel--upload .personal-tool-card {
-  --tool-y: 52vh; --tool-rot: 5.96deg;
+  --tool-y: 43vh; --tool-rot: 5.96deg;
   background-image: url("images/figma-archive-add-card.jpg");
 }
 /* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
