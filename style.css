@@ -5286,7 +5286,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --tool-rot: -3.96deg;
   transform: translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y))) rotate(var(--tool-rot));
   transform-origin: center;
-  background: #a1835a url("images/figma-archive-search-card.jpg") center/cover no-repeat;
+  /* Kraft sheet — the same paper texture as the desk, but multiplied by a warm
+     tint so it reads as a distinctly darker, grainier kraft card sitting on the
+     lighter desk (matching the Figma), instead of blending flat into it. */
+  background-color: #d8c4a1;
+  background-image: url("images/figma-archive-search-card.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
   box-shadow: 4px 4px 20px rgba(0,0,0,.25);
   color: var(--ink);
   opacity: 1;

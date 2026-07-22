@@ -1581,15 +1581,18 @@
     // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
     const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
 
+    // Each sheet has its own size (s = multiplier on the base width) so the pile
+    // reads with depth and perspective like the Figma composition — larger
+    // sheets in front, smaller ones receding — instead of one uniform stack.
     const docLayout = [
-      { x: 48, y: 77, r: -9.6, z: 36 },
-      { x: 47, y: 61, r: -0.4, z: 24 },
-      { x: 43, y: 50, r: -4.7, z: 20 },
-      { x: 52, y: 43, r: 5.1, z: 18 },
-      { x: 55, y: 36, r: -2.1, z: 16 },
-      { x: 44, y: 31, r: 2.6, z: 14 },
-      { x: 51, y: 25, r: 0.8, z: 12 },
-      { x: 50, y: 20, r: 11.3, z: 10 }
+      { x: 48, y: 77, r: -9.6, z: 36, s: 1.02 },
+      { x: 47, y: 61, r: -0.4, z: 24, s: 0.84 },
+      { x: 43, y: 50, r: -4.7, z: 20, s: 1.06 },
+      { x: 52, y: 43, r: 5.1, z: 18, s: 0.77 },
+      { x: 55, y: 36, r: -2.1, z: 16, s: 0.95 },
+      { x: 44, y: 31, r: 2.6, z: 14, s: 0.82 },
+      { x: 51, y: 25, r: 0.8, z: 12, s: 0.9 },
+      { x: 50, y: 20, r: 11.3, z: 10, s: 0.72 }
     ];
 
     archivePile.innerHTML = "";
@@ -1597,10 +1600,13 @@
       const el = document.createElement("div");
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
-        el.style.setProperty("--dw", dw + "px");
+        // Per-sheet width from its size multiplier, so every sheet is a
+        // different size (depth) while keeping the exact 1370×969 proportions.
+        const dwItem = dw * (docLayout[it.i] ? docLayout[it.i].s : 1);
+        el.style.setProperty("--dw", dwItem + "px");
         // Unitless scale factor for .pile-doc's transform: scale() needs a
         // number, and calc() cannot divide a length by a length.
-        el.style.setProperty("--pile-scale", (dw / 1370).toFixed(5));
+        el.style.setProperty("--pile-scale", (dwItem / 1370).toFixed(5));
         const form = it.i === questions.length
           ? archiveLegacyFormHTML(pileCardData)
           : cardFormHTML(it.i, pileCardData);
