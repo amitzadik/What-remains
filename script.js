@@ -1672,34 +1672,28 @@
 
   const TOOL_REST_ROT = { search: -3.96, upload: 5.96 };   // final card rotation per tool
 
-  // Build the two transform keyframes for the shared-element morph between the
-  // clicked envelope and the open record card. Everything is in px (the -50%
-  // centring becomes -half the card box) so the Web Animations API interpolates
-  // cleanly. The envelope's resting centre is read from layout (offsetLeft/Top)
-  // so pile breathing/spread transforms never skew it.
-  function toolCardFlipFrames(card, srcEl, restRotDeg) {
+  // Build the two transform keyframes for the paper's slide. The paper keeps its
+  // exact designed size, typography and rotation (restRotDeg) — only its
+  // vertical position changes. "rest" is the open resting layout; "from" is the
+  // same rigid sheet pushed straight down to just below the fold. No scale, no
+  // fade, no reflow: the only thing that animates is translateY.
+  function toolCardSlideFrames(card, restRotDeg) {
     card.style.transform = "";                        // resting = the open layout
-    const cw = card.offsetWidth, ch = card.offsetHeight;
     const cr = card.getBoundingClientRect();
-    const cardCX = cr.left + cr.width / 2, cardCY = cr.top + cr.height / 2;
-    const pile = archivePile.getBoundingClientRect();
-    const envCX = pile.left + srcEl.offsetLeft, envCY = pile.top + srcEl.offsetTop;
-    const dx = envCX - cardCX, dy = envCY - cardCY;
-    const sx = srcEl.offsetWidth / cw, sy = srcEl.offsetHeight / ch;
-    const rot = parseFloat(getComputedStyle(srcEl).getPropertyValue("--rot")) || 0;
-    const from = "translate(" + (dx - cw / 2).toFixed(2) + "px, " + (dy - ch / 2).toFixed(2) +
-      "px) rotate(" + rot.toFixed(2) + "deg) scale(" + sx.toFixed(4) + ", " + sy.toFixed(4) + ")";
-    const rest = "translate(" + (-cw / 2).toFixed(2) + "px, " + (-ch / 2).toFixed(2) +
-      "px) rotate(" + restRotDeg + "deg) scale(1)";
+    // Slide distance = from the card's resting top down to just past the bottom
+    // of the viewport, so the whole sheet starts fully below and rises into place.
+    const slide = Math.round(window.innerHeight - cr.top + 24);
+    const rest = "translate(-50%, -50%) rotate(" + restRotDeg + "deg)";
+    const from = "translate(-50%, calc(-50% + " + slide + "px)) rotate(" + restRotDeg + "deg)";
     return { from: from, rest: rest };
   }
 
-  // One continuous shared-element transform (Web Animations API): open grows the
-  // card out of the envelope; reverse shrinks it back and holds on the envelope
-  // (forwards) until the caller reveals it.
-  function flipToolCard(card, srcEl, restRotDeg, reverse, onFinish) {
+  // Pure vertical translation (Web Animations API): open slides the rigid paper
+  // up from below into its resting position; reverse slides it back down and
+  // holds it below (forwards) until the caller reveals the envelope.
+  function slideToolCard(card, restRotDeg, reverse, onFinish) {
     if (card.getAnimations) card.getAnimations().forEach(a => a.cancel());
-    const f = toolCardFlipFrames(card, srcEl, restRotDeg);
+    const f = toolCardSlideFrames(card, restRotDeg);
     const frames = reverse
       ? [{ transform: f.rest }, { transform: f.from }]
       : [{ transform: f.from }, { transform: f.rest }];
@@ -1723,14 +1717,13 @@
     if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", kind === "search" ? "false" : "true");
     if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", kind === "upload" ? "false" : "true");
 
-    // Shared-element open: the record card starts as the exact envelope (spot,
-    // size, rotation) and grows into the open layout — one continuous object,
-    // pure movement, no fade. The envelope is hidden instantly beneath it.
+    // Open: the paper slides straight up from below the fold into its resting
+    // position — one rigid sheet, pure vertical movement, no scale, no fade. The
+    // clicked envelope is hidden instantly beneath it and revealed again on close.
     activeToolSource = null;
-    if (card && srcEl && !reduceMotion) {
-      srcEl.style.visibility = "hidden";
-      flipToolCard(card, srcEl, TOOL_REST_ROT[kind], false, null);
-      activeToolSource = srcEl;
+    if (card && !reduceMotion) {
+      if (srcEl) { srcEl.style.visibility = "hidden"; activeToolSource = srcEl; }
+      slideToolCard(card, TOOL_REST_ROT[kind], false, null);
     }
 
     const focusTarget = document.getElementById(kind === "search" ? "personal-search-query" : "personal-upload-description");
@@ -1758,10 +1751,10 @@
       activeToolSource = null;
     };
 
-    // Reverse shared-element: the same card shrinks back onto the envelope, then
-    // the envelope is revealed only once the card fully covers its spot.
-    if (card && srcEl && !reduceMotion) {
-      flipToolCard(card, srcEl, TOOL_REST_ROT[kind], true, finish);
+    // Reverse: the same rigid paper slides straight back down below the fold,
+    // then the envelope is revealed only once the paper has cleared its spot.
+    if (card && !reduceMotion) {
+      slideToolCard(card, TOOL_REST_ROT[kind], true, finish);
     } else {
       finish();
     }

@@ -5278,26 +5278,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      cqw (percent of the card's own width) — the card and its contents always
      scale together as one proportional unit, never independently. */
   container-type: inline-size;
-  transform: translate(-50%, -50%) rotate(-3.96deg) scale(0.94);
+  transform: translate(-50%, -50%) rotate(-3.96deg);
   transform-origin: center;
   background: #a1835a url("images/figma-archive-search-card.jpg") center/cover no-repeat;
   box-shadow: 4px 4px 20px rgba(0,0,0,.25);
   color: var(--ink);
-  opacity: .95;
+  opacity: 1;
   font-family: var(--font-main);
-  /* The open/close motion is a shared-element transform driven by the Web
-     Animations API (see script.js). No CSS transition here, so it can't fight
-     the animation or skew the next open's rect measurement. */
+  /* The paper keeps its exact designed size, typography and rotation at all
+     times. The open/close motion is a pure vertical translation driven by the
+     Web Animations API (see script.js) — no scale, no fade, no reflow — so the
+     paper reads as one rigid sheet sliding up from below and back down. No CSS
+     transition here, so it can't fight the animation or skew the next open's
+     rect measurement. */
 }
 .personal-tool-panel[aria-hidden="false"] .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(-3.96deg) scale(1);
+  transform: translate(-50%, -50%) rotate(-3.96deg);
 }
 .personal-tool-panel--upload .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(5.96deg) scale(.94);
+  transform: translate(-50%, -50%) rotate(5.96deg);
   background-image: url("images/figma-archive-add-card.jpg");
 }
 .personal-tool-panel--upload[aria-hidden="false"] .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(5.96deg) scale(1);
+  transform: translate(-50%, -50%) rotate(5.96deg);
 }
 .personal-tool-owner {
   position:absolute; left:3.1%; top:3.2%; font-size:2.226cqw; font-weight:500;
