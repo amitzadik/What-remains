@@ -1581,18 +1581,33 @@
     // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
     const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
 
-    // Each sheet has its own size (s = multiplier on the base width) so the pile
-    // reads with depth and perspective like the Figma composition — larger
-    // sheets in front, smaller ones receding — instead of one uniform stack.
+    // Each form has its own size (s = multiplier on the base width), rotation and
+    // spot, so the pile reads with real depth and perspective like the Figma
+    // reference — some forms large and close, others small and receding — with no
+    // two sheets the same dimensions. The z values leave gaps so photographs can
+    // be interleaved between the paper layers (see photoLayout).
     const docLayout = [
-      { x: 48, y: 77, r: -9.6, z: 36, s: 1.02 },
-      { x: 47, y: 61, r: -0.4, z: 24, s: 0.84 },
-      { x: 43, y: 50, r: -4.7, z: 20, s: 1.06 },
-      { x: 52, y: 43, r: 5.1, z: 18, s: 0.77 },
-      { x: 55, y: 36, r: -2.1, z: 16, s: 0.95 },
-      { x: 44, y: 31, r: 2.6, z: 14, s: 0.82 },
-      { x: 51, y: 25, r: 0.8, z: 12, s: 0.9 },
-      { x: 50, y: 20, r: 11.3, z: 10, s: 0.72 }
+      { x: 44, y: 73, r: -11.5, z: 40, s: 1.04 },
+      { x: 62, y: 63, r: 7.4,   z: 34, s: 0.64 },
+      { x: 38, y: 53, r: -3.4,  z: 29, s: 0.98 },
+      { x: 59, y: 45, r: 9.8,   z: 24, s: 0.60 },
+      { x: 45, y: 39, r: -7.2,  z: 20, s: 0.88 },
+      { x: 64, y: 31, r: 2.8,   z: 16, s: 0.72 },
+      { x: 47, y: 25, r: -1.6,  z: 12, s: 1.0  },
+      { x: 54, y: 18, r: 12.6,  z: 9,  s: 0.68 }
+    ];
+
+    // Photographs are woven INTO the pile — each sits at a z between the paper
+    // layers (the gaps in docLayout's z), so some of it is covered by forms above
+    // and the rest shows between them. Sizes and tilts vary; nothing sits on top
+    // as a separate floating card.
+    const photoLayout = [
+      { x: 52, y: 37, r: -8.5, z: 32, s: 0.98 },
+      { x: 38, y: 57, r: 6.5,  z: 19, s: 0.86 },
+      { x: 63, y: 50, r: -12,  z: 26, s: 0.92 },
+      { x: 46, y: 33, r: 10,   z: 14, s: 0.74 },
+      { x: 58, y: 62, r: -4.5, z: 22, s: 1.10 },
+      { x: 33, y: 46, r: 15,   z: 11, s: 0.80 }
     ];
 
     archivePile.innerHTML = "";
@@ -1636,10 +1651,19 @@
         x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
       } else {
         const mediaIndex = k - docCount;
-        x = mediaIndex === 0 ? 66 : 50 + (pileRand(seed + 7) - 0.5) * 52;
-        y = mediaIndex === 0 ? 22 : 54 + (pileRand(seed + 13) - 0.5) * 45;
-        rot = mediaIndex === 0 ? -9.75 : (pileRand(seed + 1) - 0.5) * 16;
-        z = 70 + k;
+        const p = photoLayout[mediaIndex];
+        if (p) {
+          x = p.x; y = p.y; rot = p.r; z = p.z;
+          el.style.setProperty("--w", p.s.toFixed(3));
+        } else {
+          // Extra photos beyond the fixed slots scatter into the pile at a
+          // mid-range z so they, too, stay woven between the paper layers.
+          x = 50 + (pileRand(seed + 7) - 0.5) * 54;
+          y = 42 + (pileRand(seed + 13) - 0.5) * 50;
+          rot = (pileRand(seed + 1) - 0.5) * 24;
+          z = 11 + Math.floor(pileRand(seed + 17) * 28);
+          el.style.setProperty("--w", (0.68 + pileRand(seed + 41) * 0.5).toFixed(3));
+        }
       }
       el.style.left = x + "%";
       el.style.top = y + "%";
