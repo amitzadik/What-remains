@@ -1577,35 +1577,28 @@
     // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
     const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
 
-    // Each form has its own size (s = multiplier on the base width), rotation and
-    // spot, so the pile reads with real depth and perspective like the Figma
-    // reference — some forms large and close, others small and receding — with no
-    // two sheets the same dimensions. The z values leave gaps so photographs can
-    // be interleaved between the paper layers (see photoLayout).
+    // Explicit reconstruction of Figma 457:2108 on its 1920×1080 canvas. These
+    // are deliberately individual values, not a generated fan/scatter. Widths
+    // stay proportional to the complete 1370×969 form so its outer rule and all
+    // text remain inside the paper at every viewport size.
     const docLayout = [
-      { x: 50.2, y: 73.0, r: -9.62, s: 0.800, z: 92 },
-      { x: 44.0, y: 49.0, r:  2.98, s: 0.656, z: 30 },
-      { x: 55.0, y: 47.0, r: -0.30, s: 0.576, z: 62 },
-      { x: 49.0, y: 43.0, r: 11.31, s: 0.488, z: 16 },
-      { x: 51.0, y: 50.0, r: -4.18, s: 0.632, z: 52 },
-      { x: 48.0, y: 46.0, r:  0.73, s: 0.544, z: 38 },
-      { x: 50.0, y: 54.0, r: -0.30, s: 0.640, z: 70 },
-      { x: 49.0, y: 41.0, r: 11.31, s: 0.536, z: 20 }
+      { x: 49.7, y: 69.9, r: -9.62, s: 0.800, z: 92 },
+      { x: 46.9, y: 46.8, r:  2.98, s: 0.704, z: 28 },
+      { x: 52.3, y: 50.8, r: -0.30, s: 0.799, z: 70 },
+      { x: 49.4, y: 50.2, r: 11.31, s: 0.756, z: 16 },
+      { x: 51.1, y: 47.7, r: -4.18, s: 0.724, z: 54 },
+      { x: 47.9, y: 42.7, r:  0.73, s: 0.690, z: 36 },
+      { x: 50.4, y: 55.3, r: -0.30, s: 0.799, z: 76 },
+      { x: 48.7, y: 45.0, r: 11.31, s: 0.704, z: 20 }
     ];
     const photoLayout = [
-      { x: 68.7, y: 41.1, r: -9.75, s: 0.74, z: 44 },
-      { x: 46.0, y: 50.0, r:  2.32, s: 0.82, z: 58 },
-      { x: 55.0, y: 49.0, r: 28.78, s: 0.68, z: 34 },
-      { x: 49.0, y: 56.0, r: -5.10, s: 0.88, z: 76 }
-    ];
-    const fragmentLayout = [
-      { x: 43.0, y: 45.0, r: -14.2, s: 0.69, z: 5 },
-      { x: 57.0, y: 44.0, r:  13.6, s: 0.66, z: 6 },
-      { x: 50.5, y: 38.0, r:  -6.8, s: 0.61, z: 7 }
+      { x: 67.8, y: 38.0, r: -9.75, s: 0.74, z: 12 },
+      { x: 46.1, y: 28.4, r:  2.32, s: 0.82, z: 32 },
+      { x: 58.3, y: 44.4, r: 28.78, s: 0.68, z: 44 },
+      { x: 48.0, y: 51.6, r: -5.10, s: 0.88, z: 64 }
     ];
 
     const items = [];
-    fragmentLayout.forEach((slot, i) => items.push({ type: "doc", i: [5, 3, 6][i], fragment: true, slot: slot }));
     for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
     media.forEach((m, mediaIndex) => items.push({ type: "media", m: m, mediaIndex: mediaIndex }));
 
@@ -1614,10 +1607,9 @@
       const el = document.createElement("div");
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
-        if (it.fragment) el.classList.add("pile-item--fragment");
         // Per-sheet width from its size multiplier, so every sheet is a
         // different size (depth) while keeping the exact 1370×969 proportions.
-        const docSlot = it.fragment ? it.slot : docLayout[it.i];
+        const docSlot = docLayout[it.i];
         const dwItem = dw * docSlot.s;
         el.style.setProperty("--dw", dwItem + "px");
         // Unitless scale factor for .pile-doc's transform: scale() needs a
@@ -1628,7 +1620,7 @@
           : cardFormHTML(it.i, pileCardData);
         el.innerHTML = '<div class="pile-doc">' + form + "</div>";
         // Decorative "next" arrow tucked into a corner of some sheets (Figma).
-        if (!it.fragment && pileRand(it.i + 200) > 0.45) {
+        if (pileRand(it.i + 200) > 0.45) {
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
@@ -1647,7 +1639,7 @@
       el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc") {
-        const slot = it.fragment ? it.slot : docLayout[it.i];
+        const slot = docLayout[it.i];
         x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
       } else {
         const mediaIndex = it.mediaIndex;

@@ -5274,17 +5274,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: 50%;
   top: 50%;
-  /* Sized to the Figma proportion (~44vw) so the two brown cards sit naturally
-     at the bottom of the pile and stay the focus without dominating. Scale only
-     — the cqw-based typography, texture and animation are unchanged. */
-  width: min(42.49vw, calc(53.43vh * 1.41228), 816px);
+  /* Figma 457:2108: the rotated 1012×716 cards occupy an approximately
+     1104×815 bounding box. Keep the card and all printed detail proportional. */
+  width: min(57.5vw, calc(72.4vh * 1.41228), 1104px);
   aspect-ratio: 1288 / 912;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
      scale together as one proportional unit, never independently. Figma sheet
      is 1012×716, so 1cqw = 1% of 1012px there. */
   container-type: inline-size;
-  --tool-x: 0vw;
+  --tool-x: 0px;
   --tool-y: 0vh;
   --tool-rot: -3.96deg;
   transform: translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y))) rotate(var(--tool-rot));
@@ -5308,14 +5307,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred. */
-.personal-tool-panel--search .personal-tool-card { --tool-y: 56.7vh; --tool-rot: 0deg; }
+.personal-tool-panel--search .personal-tool-card {
+  --tool-x: -53px;
+  --tool-y: 61.85vh;
+  --tool-rot: -5.87deg;
+}
 .personal-tool-panel--upload .personal-tool-card {
-  --tool-y: 39vh; --tool-rot: 0deg;
+  --tool-x: 48px;
+  --tool-y: 51.9vh;
+  --tool-rot: 8.22deg;
   background-image: url("images/figma-archive-add-card-v2.jpg");
 }
 /* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
    changes (to 0); rotation, size and everything else are identical. */
-.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-y: 0vh; cursor: default; }
+.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-x: 0px; --tool-y: 0vh; cursor: default; }
 /* While one sheet is open, the other slides straight down, fully below. */
 .archive-box.is-tool-open .personal-tool-panel[aria-hidden="true"] .personal-tool-card {
   --tool-y: 132vh; pointer-events: none;
