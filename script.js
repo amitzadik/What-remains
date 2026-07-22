@@ -1355,8 +1355,6 @@
   // ============================================================
   const pName    = document.getElementById("p-name");
   const archivePile = document.getElementById("archive-pile");
-  const btnPersonalToGeneral = document.getElementById("btn-personal-to-general");
-  const btnPersonalArchiveSearch = document.getElementById("btn-personal-archive-search");
   const btnPersonalRestart   = document.getElementById("btn-personal-restart");
   const archiveBox = document.querySelector("#screen-personal .archive-box");
   const personalSearchPanel = document.getElementById("personal-search-panel");
@@ -1562,21 +1560,22 @@
     // and the portrait taken afterwards (when it is available).
     const docCount = pileCardData ? questions.length + 1 : 0;
 
-    // The add/search controls become kraft "envelope" cards scattered in the
-    // pile. Detach them first so they only reappear where we place them, then
-    // re-append into their envelopes below (references + listeners survive).
-    if (btnPersonalToGeneral) btnPersonalToGeneral.remove();
-    if (btnPersonalArchiveSearch) btnPersonalArchiveSearch.remove();
+    // The search/add papers are no longer separate kraft "envelope" cards in the
+    // pile — each is the actual tool sheet (.personal-tool-card) tucked at the
+    // bottom of the pile, peeking up, and it is that same sheet that slides
+    // forward when clicked (see openPersonalTool). Fill in its printed
+    // owner/code and reveal the papers this drawer is allowed to show.
+    setPersonalToolText();
+    if (archiveBox) {
+      archiveBox.classList.add("is-pile-ready");
+      archiveBox.classList.toggle("is-owner", ownerView);
+    }
 
     // The document sheets form the back of the pile; the depositor's own
-    // photos/videos sit on top as the materials laid over the archive; the two
-    // kraft envelope cards (search always, add only for the owner) sit in front.
+    // photos/videos sit on top as the materials laid over the archive.
     const items = [];
     for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
     media.forEach(m => items.push({ type: "media", m: m }));
-    // Fixed seeds keep the envelopes' scatter stable as media loads in.
-    items.push({ type: "ctrl", btn: btnPersonalArchiveSearch, seed: 903 });
-    if (ownerView) items.push({ type: "ctrl", btn: btnPersonalToGeneral, seed: 947 });
 
     // Keep the archive sheets at the same real responsive dimensions used by
     // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
@@ -1611,11 +1610,6 @@
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
-      } else if (it.type === "ctrl") {
-        el.className = "pile-item pile-item--envelope";
-        el.classList.add(it.btn === btnPersonalToGeneral ? "pile-item--envelope-add" : "pile-item--envelope-search");
-        el.innerHTML = '<span class="envelope-code" aria-hidden="true">' + pileCodeLabel() + "</span>";
-        if (it.btn) el.appendChild(it.btn);
       } else {
         el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
@@ -1634,12 +1628,6 @@
       if (it.type === "doc") {
         const slot = docLayout[it.i];
         x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
-      } else if (it.type === "ctrl") {
-        const isAdd = it.btn === btnPersonalToGeneral;
-        x = isAdd ? 48.04 : 49.09;
-        y = isAdd ? 97.08 : 115.00;
-        rot = isAdd ? 12.8 : -13.9;
-        z = isAdd ? 210 : 220;
       } else {
         const mediaIndex = k - docCount;
         x = mediaIndex === 0 ? 66 : 50 + (pileRand(seed + 7) - 0.5) * 52;
@@ -1665,101 +1653,55 @@
     });
   }
 
-  // The clicked envelope the record card is currently morphing to/from.
-  let activeToolSource = null;
-  const TOOL_FLIP_MS = 720;
-  const TOOL_FLIP_EASE = "cubic-bezier(.22, 1, .36, 1)";
-
-  const TOOL_REST_ROT = { search: -3.96, upload: 5.96 };   // final card rotation per tool
-
-  // Build the two transform keyframes for the paper's slide. The paper keeps its
-  // exact designed size, typography and rotation (restRotDeg) — only its
-  // vertical position changes. "rest" is the open resting layout; "from" is the
-  // same rigid sheet pushed straight down to just below the fold. No scale, no
-  // fade, no reflow: the only thing that animates is translateY.
-  function toolCardSlideFrames(card, restRotDeg) {
-    card.style.transform = "";                        // resting = the open layout
-    const cr = card.getBoundingClientRect();
-    // Slide distance = from the card's resting top down to just past the bottom
-    // of the viewport, so the whole sheet starts fully below and rises into place.
-    const slide = Math.round(window.innerHeight - cr.top + 24);
-    const rest = "translate(-50%, -50%) rotate(" + restRotDeg + "deg)";
-    const from = "translate(-50%, calc(-50% + " + slide + "px)) rotate(" + restRotDeg + "deg)";
-    return { from: from, rest: rest };
-  }
-
-  // Pure vertical translation (Web Animations API): open slides the rigid paper
-  // up from below into its resting position; reverse slides it back down and
-  // holds it below (forwards) until the caller reveals the envelope.
-  function slideToolCard(card, restRotDeg, reverse, onFinish) {
-    if (card.getAnimations) card.getAnimations().forEach(a => a.cancel());
-    const f = toolCardSlideFrames(card, restRotDeg);
-    const frames = reverse
-      ? [{ transform: f.rest }, { transform: f.from }]
-      : [{ transform: f.from }, { transform: f.rest }];
-    const anim = card.animate(frames, {
-      duration: TOOL_FLIP_MS, easing: TOOL_FLIP_EASE, fill: reverse ? "forwards" : "none"
-    });
-    if (onFinish) anim.onfinish = onFinish;
-    return anim;
-  }
-
+  // One physical sheet, start to finish. The paper the user clicks in the pile
+  // *is* the paper that opens: opening only toggles state classes, and a single
+  // CSS transform transition carries the exact same sheet (identical size,
+  // typography, padding and rotation) between its pile-peek position and the
+  // centred open position. Closing removes the same classes, so the transition
+  // runs in reverse and the sheet returns to the very position, rotation and
+  // stacking order it started from. No second element, no layout swap.
   function openPersonalTool(kind) {
     if (!archiveBox) return;
+    if (archiveBox.classList.contains("is-tool-open")) return;
     setPersonalToolText();
-    const panel = kind === "search" ? personalSearchPanel : personalUploadPanel;
-    const card = panel ? panel.querySelector(".personal-tool-card") : null;
-    const srcEl = archivePile && archivePile.querySelector(
-      kind === "search" ? ".pile-item--envelope-search" : ".pile-item--envelope-add");
 
     archiveBox.classList.add("is-tool-open", "is-tool-" + kind);
-    if (archivePile) archivePile.classList.add("is-spread");
+    if (archivePile) archivePile.classList.add("is-spread");   // the rest of the pile disperses (unchanged)
     if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", kind === "search" ? "false" : "true");
     if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", kind === "upload" ? "false" : "true");
 
-    // Open: the paper slides straight up from below the fold into its resting
-    // position — one rigid sheet, pure vertical movement, no scale, no fade. The
-    // clicked envelope is hidden instantly beneath it and revealed again on close.
-    activeToolSource = null;
-    if (card && !reduceMotion) {
-      if (srcEl) { srcEl.style.visibility = "hidden"; activeToolSource = srcEl; }
-      slideToolCard(card, TOOL_REST_ROT[kind], false, null);
-    }
-
     const focusTarget = document.getElementById(kind === "search" ? "personal-search-query" : "personal-upload-description");
-    // preventScroll: focusing the field must never scroll the open card out of place.
-    window.setTimeout(() => { if (focusTarget) focusTarget.focus({ preventScroll: true }); }, TOOL_FLIP_MS + 40);
+    // Focus only once the sheet has settled, so the field never scrolls it away.
+    window.setTimeout(() => { if (focusTarget) focusTarget.focus({ preventScroll: true }); }, reduceMotion ? 0 : 760);
   }
 
   function closePersonalTool() {
     if (!archiveBox || !archiveBox.classList.contains("is-tool-open")) return false;
-    const kind = archiveBox.classList.contains("is-tool-upload") ? "upload" : "search";
-    const panel = kind === "search" ? personalSearchPanel : personalUploadPanel;
-    const card = panel ? panel.querySelector(".personal-tool-card") : null;
-    const srcEl = activeToolSource;
-
-    if (archivePile) archivePile.classList.remove("is-spread");   // papers disperse back (unchanged)
+    // Reverse the identical motion: drop the state classes and the same
+    // transition carries the sheet back to its exact pile-peek position.
+    archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
+    if (archivePile) archivePile.classList.remove("is-spread");
+    if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
+    if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
     if (personalSearchStatus) personalSearchStatus.textContent = "";
-
-    const finish = () => {
-      archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
-      if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
-      if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
-      if (card && card.getAnimations) card.getAnimations().forEach(a => a.cancel());
-      if (card) card.style.transform = "";
-      if (srcEl) srcEl.style.visibility = "";   // reveal envelope only once the card covers its spot
-      activeToolSource = null;
-    };
-
-    // Reverse: the same rigid paper slides straight back down below the fold,
-    // then the envelope is revealed only once the paper has cleared its spot.
-    if (card && !reduceMotion) {
-      slideToolCard(card, TOOL_REST_ROT[kind], true, finish);
-    } else {
-      finish();
-    }
     return true;
   }
+
+  // Clicking a peeking tool sheet brings that exact sheet forward. Interior
+  // controls are inert until it is open (see CSS), so a closed-sheet click can
+  // only ever mean "open me".
+  function wireToolOpen(form, panel, kind, guard) {
+    if (!form || !panel) return;
+    form.addEventListener("click", (e) => {
+      if (panel.getAttribute("aria-hidden") !== "false") {
+        if (guard && !guard()) return;
+        e.preventDefault();
+        openPersonalTool(kind);
+      }
+    });
+  }
+  wireToolOpen(personalSearchForm, personalSearchPanel, "search", null);
+  wireToolOpen(personalUploadForm, personalUploadPanel, "upload", () => ownerView && !!currentDrawerCode);
 
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
   window.addEventListener("resize", () => {
@@ -1789,18 +1731,18 @@
     });
   }
 
-  // Drawer control → browse the full archive (the landing drawer wall).
-  if (btnPersonalArchiveSearch) {
-    btnPersonalArchiveSearch.addEventListener("click", () => {
-      openPersonalTool("search");
-    });
+  // The archive-box always crops (overflow:hidden) and must never scroll — the
+  // tool sheets peek below the fold, and focusing an input could otherwise
+  // scroll the whole desk to chase it, shifting the opened sheet off-centre.
+  // Pin it at the origin so the sheet's position stays exactly as designed.
+  if (archiveBox) {
+    archiveBox.addEventListener("scroll", () => {
+      if (archiveBox.scrollTop || archiveBox.scrollLeft) {
+        archiveBox.scrollTop = 0;
+        archiveBox.scrollLeft = 0;
+      }
+    }, { passive: true });
   }
-
-  // + control → the owner adds a new photo/video to their archive.
-  btnPersonalToGeneral.addEventListener("click", () => {
-    if (!ownerView || !currentDrawerCode) return;
-    openPersonalTool("upload");
-  });
 
   if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {
     e.preventDefault();

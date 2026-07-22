@@ -5257,17 +5257,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .personal-tool-panel {
   position: absolute;
   inset: 0;
-  z-index: 260;
+  z-index: 261;
+  /* Only the sheet itself is interactive — the panel is a passive layer, so the
+     two peeking sheets never block each other or the pile behind them. */
   pointer-events: none;
-  /* Instant visibility only — no opacity fade. The record card itself carries
-     the whole open/close motion as a shared-element transform (see script.js),
-     so the panel must never crossfade over or under it. */
   visibility: hidden;
 }
-.personal-tool-panel[aria-hidden="false"] {
-  visibility: visible;
-  pointer-events: auto;
-}
+/* The tool sheets are present the moment the drawer's pile is built, peeking up
+   from the bottom of the pile. The add sheet only for the drawer's owner. */
+.archive-box.is-pile-ready .personal-tool-panel--search { visibility: visible; }
+.archive-box.is-pile-ready.is-owner .personal-tool-panel--upload { visibility: visible; }
+.personal-tool-panel--search { z-index: 262; }
+.personal-tool-panel--upload { z-index: 261; }
+.personal-tool-panel[aria-hidden="false"] { z-index: 265; }   /* the open sheet on top */
 .personal-tool-card {
   position: absolute;
   left: 50%;
@@ -5278,29 +5280,44 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      cqw (percent of the card's own width) — the card and its contents always
      scale together as one proportional unit, never independently. */
   container-type: inline-size;
-  transform: translate(-50%, -50%) rotate(-3.96deg);
+  --tool-x: 0vw;
+  --tool-y: 0vh;
+  --tool-rot: -3.96deg;
+  transform: translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y))) rotate(var(--tool-rot));
   transform-origin: center;
   background: #a1835a url("images/figma-archive-search-card.jpg") center/cover no-repeat;
   box-shadow: 4px 4px 20px rgba(0,0,0,.25);
   color: var(--ink);
   opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
   font-family: var(--font-main);
-  /* The paper keeps its exact designed size, typography and rotation at all
-     times. The open/close motion is a pure vertical translation driven by the
-     Web Animations API (see script.js) — no scale, no fade, no reflow — so the
-     paper reads as one rigid sheet sliding up from below and back down. No CSS
-     transition here, so it can't fight the animation or skew the next open's
-     rect measurement. */
+  /* One physical sheet: identical size, typography, padding and rotation at
+     every moment. Only --tool-x/--tool-y change, and a single transform
+     transition carries this exact sheet between its pile-peek spot and the
+     centred open spot; closing runs the same transition in reverse back to the
+     precise starting position. No scale, no fade, no layout swap. */
+  transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.personal-tool-panel[aria-hidden="false"] .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(-3.96deg);
-}
+/* Resting: each sheet peeks up from the bottom of the pile at its own open
+   rotation (search to the right, add to the left) so both stay clickable. */
+.personal-tool-panel--search .personal-tool-card { --tool-x: 18vw;  --tool-y: 58vh; --tool-rot: -3.96deg; }
 .personal-tool-panel--upload .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(5.96deg);
+  --tool-x: -18vw; --tool-y: 58vh; --tool-rot: 5.96deg;
   background-image: url("images/figma-archive-add-card.jpg");
 }
-.personal-tool-panel--upload[aria-hidden="false"] .personal-tool-card {
-  transform: translate(-50%, -50%) rotate(5.96deg);
+/* Opened: the clicked sheet slides to the centre — same size, same rotation. */
+.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-x: 0vw; --tool-y: 0vh; cursor: default; }
+/* While one sheet is open, the other slips fully below, out of the composition. */
+.archive-box.is-tool-open .personal-tool-panel[aria-hidden="true"] .personal-tool-card {
+  --tool-x: 0vw; --tool-y: 132vh; pointer-events: none;
+}
+/* A closed sheet is a single click target: its own controls stay inert so a
+   click on it can only mean "bring me forward", never "type / submit". */
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field textarea,
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field input,
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-submit {
+  pointer-events: none;
 }
 .personal-tool-owner {
   position:absolute; left:3.1%; top:3.2%; font-size:2.226cqw; font-weight:500;
