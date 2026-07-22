@@ -5277,7 +5277,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   /* Sized to the Figma proportion (~44vw) so the two brown cards sit naturally
      at the bottom of the pile and stay the focus without dominating. Scale only
      — the cqw-based typography, texture and animation are unchanged. */
-  width: min(96.3vw, calc(96vh * 1.41228), 1288px);
+  width: min(42.49vw, calc(53.43vh * 1.41228), 816px);
   aspect-ratio: 1288 / 912;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
@@ -5308,7 +5308,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred. */
-.personal-tool-panel--search .personal-tool-card { --tool-y: 46vh; --tool-rot: 0deg; }
+.personal-tool-panel--search .personal-tool-card { --tool-y: 56.7vh; --tool-rot: 0deg; }
 .personal-tool-panel--upload .personal-tool-card {
   --tool-y: 39vh; --tool-rot: 0deg;
   background-image: url("images/figma-archive-add-card-v2.jpg");
