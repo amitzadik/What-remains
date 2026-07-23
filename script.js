@@ -1462,6 +1462,7 @@
   let pileMedia = [];        // authoritative media {src, kind, own?} (drive + own photo)
   let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
   let pendingUploadMetadata = null;
+  let archiveTransitionRun = 0;
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1593,6 +1594,7 @@
     renderArchivePile();
     loadDrawerFiles(currentDrawerCode); // append this drawer's Drive materials
     showScreen("personal");
+    runArchiveOpeningTransition();
   }
 
   // Deterministic pseudo-random in [0,1) so each pile item keeps a stable
@@ -1636,6 +1638,30 @@
     '</article>';
   }
 
+  function archiveStampInstructionsHTML() {
+    return '<article class="archive-stamp-sheet">' +
+      '<div class="archive-stamp-code">' + esc(pileCodeLabel()) + '</div>' +
+      '<div class="archive-stamp-copy">' +
+        '<p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת שנמצאת על השולחן. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך לארכיון שיצרת.</p>' +
+        '<p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>' +
+        '<p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>' +
+      '</div>' +
+      '<img class="archive-stamp-next" src="images/next-default.png" alt="" aria-hidden="true">' +
+    '</article>';
+  }
+
+  function runArchiveOpeningTransition() {
+    if (!archiveBox) return;
+    const run = ++archiveTransitionRun;
+    archiveBox.classList.remove("is-archive-opening", "is-archive-open");
+    void archiveBox.offsetWidth;
+    archiveBox.classList.add("is-archive-opening");
+    window.setTimeout(() => {
+      if (run !== archiveTransitionRun || !screens.personal.classList.contains("active")) return;
+      archiveBox.classList.add("is-archive-open");
+    }, reduceMotion ? 0 : 450);
+  }
+
   function renderArchivePile() {
     if (!archivePile) return;
     const media = pileMedia.concat(pileLocalMedia);
@@ -1654,30 +1680,24 @@
       archiveBox.classList.toggle("is-owner", ownerView);
     }
 
-    // The document sheets form the back of the pile; the depositor's own
-    // photos/videos sit on top as the materials laid over the archive.
-    // Exact reconstruction of the direct layers in Figma 457:2108. The whole
-    // 1920×1080 composition scales as one centred scene, preserving every
-    // paper's proportions, crop and overlap on non-reference screens.
+    // Figma 751:305, direct-layer order. Each visible material has one explicit
+    // destination and one matching source in the completed collection pile.
     const sceneScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
     const docLayout = [
-      { cx: 948.50, cy: 542.00, w:  925, r: 11.308, z:  2, dataIndex: 1 },
-      { cx: 967.68, cy: 597.44, w: 1091, r: -0.300, z:  3, dataIndex: 6 },
-      { cx: 654.05, cy: 642.56, w: 1095, r:  2.975, z:  4, dataIndex: 2 },
-      { cx: 960.03, cy: 834.68, w: 1174, r: -1.296, z:  7, dataIndex: 7 },
-      { cx: 963.00, cy:1071.50, w: 1370, r: -9.618, z: 15, dataIndex: 0 }
+      { cx: 934.797, cy: 704.129, w:1370, r: 19.590, z:1, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:977.000,cy:494.559,w:814,r:4.74} },
+      { cx: 751.834, cy: 718.204, w:1370, r: -3.569, z:2, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28} },
+      { cx:1127.374, cy: 804.483, w:1370, r: 10.919, z:3, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:905.421,cy:573.182,w:1370,r:5.95} },
+      { cx: 862.766, cy: 869.046, w:1370, r: -4.349, z:4, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40} }
     ];
     const photoLayout = [
-      { cx:1319.74, cy:444.24, w: 556.00, h:741.00, r: -9.752, z:  1, fallback:"images/figma-photo-small.png" },
-      { cx: 859.04, cy:509.79, w: 474.75, h:633.00, r:-16.878, z:  5, fallback:"images/figma-photo-portrait.png" },
-      { cx: 960.02, cy:702.32, w:1297.14, h:707.53, r: -2.877, z:  6, fallback:"images/figma-photo-wide.png" },
-      { cx:1433.03, cy:841.57, w: 556.00, h:741.00, r: 28.779, z:  8, fallback:"images/figma-photo-small.png" },
-      { cx: 963.55, cy:837.18, w:1280.00, h:720.00, r:  2.323, z:  9, fallback:"images/figma-photo-family.png" },
-      { cx: 863.01, cy:1063.17,w:1449.48, h:790.63, r: -5.100, z: 14, fallback:"images/figma-photo-family.png" }
+      { cx:735.334, cy:873.046, w:1139.487, h:737.315, r:8.642, z:5,
+        from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png" }
     ];
+    const instructionLayout = {
+      cx:1113.655, cy:1023.266, w:1243.756, r:6.032, z:6,
+      from:{cx:955.100,cy:671.164,w:1370,r:15.86}
+    };
 
-    // Figma exposes five forms and six photographs. The other three forms are
-    // completely covered, so rendering them would change the visible edges.
     const items = [];
     if (docCount) docLayout.forEach((slot, i) => items.push({ type:"doc", i:slot.dataIndex, slot, seed:i }));
     photoLayout.forEach((slot, i) => items.push({
@@ -1687,6 +1707,7 @@
       slot,
       seed:20 + i
     }));
+    items.push({ type:"instructions", slot:instructionLayout, seed:40 });
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
@@ -1710,13 +1731,17 @@
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
-      } else {
+      } else if (it.type === "media") {
         el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
+      } else {
+        el.className = "pile-item pile-item--instructions";
+        el.innerHTML = archiveStampInstructionsHTML();
+        el.style.setProperty("--iw", (it.slot.w * sceneScale).toFixed(2) + "px");
       }
-      el.classList.add("pile-item--breathing");
+      if (it.type !== "instructions") el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
       el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 37) * 2)).toFixed(2) + "px");
       el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 43) * 2)).toFixed(2) + "px");
@@ -1727,12 +1752,21 @@
       if (it.type === "doc") {
         const slot = it.slot;
         x = slot.cx; y = slot.cy; rot = slot.r; z = slot.z;
-      } else {
+        el.style.setProperty("--doc-opacity", slot.opacity);
+        el.style.setProperty("--doc-shadow", slot.shadow);
+      } else if (it.type === "media") {
         const p = it.slot;
         x = p.cx; y = p.cy; rot = p.r; z = p.z;
         el.style.setProperty("--pw", (p.w * sceneScale).toFixed(2) + "px");
         el.style.setProperty("--ph", (p.h * sceneScale).toFixed(2) + "px");
+      } else {
+        x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
+      const from = it.slot.from;
+      el.style.setProperty("--from-x", ((from.cx - x) * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--from-y", ((from.cy - y) * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--from-r", from.r.toFixed(2) + "deg");
+      el.style.setProperty("--from-scale", (from.w / it.slot.w).toFixed(5));
       el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
       el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
