@@ -133,18 +133,12 @@ button{font:inherit;color:inherit}
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
 .typewriter-live{position:absolute;inset:0;white-space:pre-wrap}
-.typewriter-live.is-typing::after{
-  content:"";
-  display:inline-block;
-  width:1px;
-  height:.78em;
-  margin-inline-start:.12em;
-  vertical-align:-.05em;
-  background:currentColor;
-  opacity:.42;
-  animation:typewriter-cursor 1.15s steps(1,end) infinite;
-}
-@keyframes typewriter-cursor{0%,48%{opacity:.42}49%,100%{opacity:0}}
+/* Per-character reveal: full text laid out from frame one, only visibility
+   changes — no reflow, no words jumping between lines. No caret is drawn, so
+   the text begins directly with the first typed character and no vertical line
+   ever leads ahead of it. */
+.typewriter-live .tw-char{visibility:hidden}
+.typewriter-live .tw-char.tw-shown{visibility:visible}
 
 /* ===== corner photos (top-left) — dealt in from the left, then breathe ===== */
 .landing-v2__corner{position:absolute;inset:0;z-index:4;pointer-events:none}
@@ -330,5 +324,4 @@ button{font:inherit;color:inherit}
   .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important;transform:translate3d(0,0,0)!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
   .pile-sheet--front{transition:none}
-  .typewriter-live.is-typing::after{display:none}
 }

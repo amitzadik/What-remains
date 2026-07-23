@@ -3,15 +3,40 @@
   if (!screen) return;
 
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Stable typewriter: the full text is laid out from the first frame (hidden
+  // reserve fixes the block; the absolute live layer holds every character as a
+  // hidden span). Typing only flips per-character visibility, so nothing
+  // reflows — words never jump between lines and lines never move.
   const parts = [...screen.querySelectorAll('.landing-v2__copy p')].map((el) => {
     const text = [...el.childNodes].map((node) => (
       node.nodeName === 'BR' ? '\n' : (node.textContent || '')
     )).join('');
     el.classList.add('typewriter-stable');
-    el.innerHTML = '<span class="typewriter-reserve" aria-hidden="true"></span><span class="typewriter-live"></span>';
+    el.innerHTML = '<span class="typewriter-reserve" aria-hidden="true"></span><span class="typewriter-live" aria-hidden="true"></span>';
     el.querySelector('.typewriter-reserve').textContent = text;
-    return { el, live: el.querySelector('.typewriter-live'), text };
+    const live = el.querySelector('.typewriter-live');
+    const spans = Array.from(text).map((ch) => {
+      const span = document.createElement('span');
+      span.className = 'tw-char';
+      span.textContent = ch;   // a "\n" span still forces its break under pre-wrap
+      live.appendChild(span);
+      return span;
+    });
+    return { el, live, text, spans, cursor: -1 };
   });
+
+  // Reveal characters [0, count) in reading order and park the caret on the last
+  // one. Visibility-only — never touches layout.
+  function revealPartUpTo(part, count) {
+    const upto = Math.max(0, Math.min(count, part.spans.length));
+    for (let i = 0; i < upto; i++) part.spans[i].classList.add('tw-shown');
+    const cursorIdx = upto - 1;
+    if (part.cursor !== cursorIdx) {
+      if (part.cursor >= 0 && part.spans[part.cursor]) part.spans[part.cursor].classList.remove('tw-cursor');
+      if (cursorIdx >= 0 && part.spans[cursorIdx]) part.spans[cursorIdx].classList.add('tw-cursor');
+      part.cursor = cursorIdx;
+    }
+  }
 
   let typingFinished = false;
   let cardFinished = false;
@@ -21,7 +46,11 @@
   }
 
   function revealAll() {
-    parts.forEach((part) => { part.live.textContent = part.text; });
+    parts.forEach((part) => {
+      part.spans.forEach((s) => s.classList.add('tw-shown'));
+      if (part.cursor >= 0 && part.spans[part.cursor]) part.spans[part.cursor].classList.remove('tw-cursor');
+      part.cursor = -1;
+    });
     typingFinished = true;
     beginIdleWhenReady();
   }
@@ -38,15 +67,15 @@
     part.live.classList.add('is-typing');
 
     function tick() {
-      part.live.textContent += chars[i] || '';
       i += 1;
+      revealPartUpTo(part, i);
       if (i < chars.length) {
         const char = chars[i - 1];
-        const pause = /[.,:;!?\u05C3]/.test(char) ? 105 : (char === ' ' ? 20 : 34);
-        window.setTimeout(tick, index === 0 ? pause + 7 : pause);
+        const pause = /[.,:;!?\u05C3]/.test(char) ? 124 : (char === ' ' ? 24 : 40);
+        window.setTimeout(tick, index === 0 ? pause + 8 : pause);
       } else {
         part.live.classList.remove('is-typing');
-        window.setTimeout(() => typePart(index + 1), 110);
+        window.setTimeout(() => typePart(index + 1), 130);
       }
     }
     tick();
