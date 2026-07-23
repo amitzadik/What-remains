@@ -71,11 +71,11 @@
       revealPartUpTo(part, i);
       if (i < chars.length) {
         const char = chars[i - 1];
-        const pause = /[.,:;!?\u05C3]/.test(char) ? 105 : (char === ' ' ? 20 : 34);
-        window.setTimeout(tick, index === 0 ? pause + 7 : pause);
+        const pause = /[.,:;!?\u05C3]/.test(char) ? 124 : (char === ' ' ? 24 : 40);
+        window.setTimeout(tick, index === 0 ? pause + 8 : pause);
       } else {
         part.live.classList.remove('is-typing');
-        window.setTimeout(() => typePart(index + 1), 110);
+        window.setTimeout(() => typePart(index + 1), 130);
       }
     }
     tick();

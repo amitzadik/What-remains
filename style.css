@@ -1522,7 +1522,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    Landing screen (PHASE.LANDING) — drawer wall + intro card
 ============================================================ */
 #screen-landing {
-  --blank-type-speed: 48ms;
+  --blank-type-speed: 57ms;
   padding: 0;
   background-color: var(--cream);
   background-image: var(--paper-tex);
@@ -2217,7 +2217,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    PHASE.CARDS — accumulated memory traces before preserving
 ============================================================ */
 #screen-cards {
-  --blank-type-speed: 48ms;
+  --blank-type-speed: 57ms;
   padding: 0;
   background-color: #F4EFE5;
   background-image: url("images/figma-question-background.jpg");

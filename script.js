@@ -262,7 +262,7 @@
   function typewriterSpeedFor(screenEl) {
     const raw = getComputedStyle(screenEl).getPropertyValue("--blank-type-speed").trim();
     const value = parseFloat(raw);
-    return Number.isFinite(value) ? value : 48;
+    return Number.isFinite(value) ? value : 57;
   }
 
   function typeLandingPart(parts, partIndex) {
@@ -691,7 +691,7 @@
 
       if (charIndex < chars.length) {
         const prev = chars[charIndex - 1];
-        const delay = /[.,!?;:،.]/.test(prev) ? 150 : 42;
+        const delay = /[.,!?;:،.]/.test(prev) ? 177 : 50;
         window.setTimeout(tick, delay);
         return;
       }
@@ -950,7 +950,7 @@
 
       if (charIndex < chars.length) {
         const prev = chars[charIndex - 1];
-        const delay = /[.,!?;:،.]/.test(prev) ? 150 : 42;
+        const delay = /[.,!?;:،.]/.test(prev) ? 177 : 50;
         window.setTimeout(tick, delay);
       } else {
         legacyQText.classList.remove("is-typing");
