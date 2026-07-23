@@ -896,7 +896,6 @@
   const legacyDate    = document.getElementById("legacy-date");
   const legacyLines   = Array.from(document.querySelectorAll("#legacy-lines .line__text"));
   const btnLegacyNext = document.getElementById("btn-legacy-next");
-  const legacyMemoryTrace = document.getElementById("legacy-memory-trace");
   const legacyQText   = document.querySelector("#screen-legacy .qform-question-text");
   const LEGACY_QUESTION_TEXT = legacyQText ? legacyQText.textContent : "";
   let legacyTypewriterRun = 0;
@@ -973,7 +972,14 @@
   function initLegacy() {
     legacyName.textContent = state.name;
     legacyDate.textContent = state.date;
-    setMemoryTraceItems(legacyMemoryTrace, buildQuestionMemoryItems(questions.length));
+    // Carry the exact accumulated background node forward. Moving the existing
+    // element preserves its children, positions, layering and rendered state;
+    // nothing is cloned, rebuilt or reset between the typed sentence and the
+    // legacy question.
+    if (cardsMemoryTrace && screens.legacy && cardsMemoryTrace.parentNode !== screens.legacy) {
+      screens.legacy.insertBefore(cardsMemoryTrace, screens.legacy.firstChild);
+    }
+    if (cardsMemoryTrace) cardsMemoryTrace.classList.add("is-continuing");
     clearLegacyLines();
     btnLegacyNext.disabled = true;
     // Settle the legacy page onto the preserved background as a new layer,
@@ -1139,6 +1145,13 @@
   let cardsCopyRun = 0;
 
   function initCards() {
+    // A restarted flow returns the same background node to its original screen
+    // before its next set of accumulated memories is rendered.
+    if (cardsMemoryTrace && screens.cards && cardsMemoryTrace.parentNode !== screens.cards) {
+      const cardsWrap = document.getElementById("cards-wrap");
+      screens.cards.insertBefore(cardsMemoryTrace, cardsWrap || screens.cards.firstChild);
+    }
+    if (cardsMemoryTrace) cardsMemoryTrace.classList.remove("is-continuing");
     if (cardsScene) {
       cardsScene.classList.remove("is-typing", "is-copy-done", "is-ack-visible", "is-ack-receding", "is-copy-visible");
     }
