@@ -5035,16 +5035,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Photograph — thin equal matte border, archival tone, drop shadow.
    Large, like the Figma, so the pile fills the frame and crops at edges. */
 .pile-item--photo {
-  width: clamp(240px, calc(29vw * var(--w, 1)), 620px);
+  width: var(--pw, 556px);
+  height: var(--ph, 741px);
   padding: 0;
   background: transparent;
   border: none;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 }
 .pile-item--photo img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   filter: saturate(0.9) contrast(0.96);
 }
 .pile-item.is-uploading { opacity: 0.6; }
@@ -5285,9 +5288,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: 50%;
   top: 50%;
-  /* Figma 457:2108: the rotated 1012×716 cards occupy an approximately
-     1104×815 bounding box. Keep the card and all printed detail proportional. */
-  width: min(57.5vw, calc(72.4vh * 1.41228), 1104px);
+  /* Figma 457:2108: each source card is exactly 1012×716 before rotation;
+     its rotation creates the larger visible bounding box in the composition. */
+  width: min(52.708vw, calc(66.296vh * 1.41341), 1012px);
   aspect-ratio: 1288 / 912;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
@@ -5313,7 +5316,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      typography and internal layout never change, and --tool-x stays 0 so there
      is no horizontal movement — pure translateY. No scale, fade, morph or
      reflow, ever. */
-  transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+  translate: 0 0;
+  transition:
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 300ms cubic-bezier(0.22, 0.72, 0.34, 1);
 }
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
@@ -5328,6 +5334,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --tool-y: 51.9vh;
   --tool-rot: 8.22deg;
   background-image: url("images/figma-archive-add-card-v2.jpg");
+}
+/* Overview affordance: lift only the hovered kraft paper. `translate` is kept
+   separate from the shared-element `transform`, so opening/closing retains its
+   existing path, timing, size and rotation exactly. */
+.archive-box:not(.is-tool-open)
+  .personal-tool-panel[aria-hidden="true"]
+  .personal-tool-card:hover {
+  translate: 0 -16px;
 }
 /* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
    changes (to 0); rotation, size and everything else are identical. */
@@ -5422,4 +5436,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 @media (prefers-reduced-motion: reduce) {
   .archive-pile.is-spread .pile-item,
   .personal-tool-card { transition:none; }
+  .archive-box:not(.is-tool-open)
+    .personal-tool-panel[aria-hidden="true"]
+    .personal-tool-card:hover { translate:0 0; }
 }

@@ -1632,34 +1632,37 @@
 
     // The document sheets form the back of the pile; the depositor's own
     // photos/videos sit on top as the materials laid over the archive.
-    // Keep the archive sheets at the same real responsive dimensions used by
-    // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
-    const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
-
-    // Explicit reconstruction of Figma 457:2108 on its 1920×1080 canvas. These
-    // are deliberately individual values, not a generated fan/scatter. Widths
-    // stay proportional to the complete 1370×969 form so its outer rule and all
-    // text remain inside the paper at every viewport size.
+    // Exact reconstruction of the direct layers in Figma 457:2108. The whole
+    // 1920×1080 composition scales as one centred scene, preserving every
+    // paper's proportions, crop and overlap on non-reference screens.
+    const sceneScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
     const docLayout = [
-      { x: 49.7, y: 69.9, r: -9.62, s: 0.800, z: 92 },
-      { x: 46.9, y: 46.8, r:  2.98, s: 0.704, z: 28 },
-      { x: 52.3, y: 50.8, r: -0.30, s: 0.799, z: 70 },
-      { x: 49.4, y: 50.2, r: 11.31, s: 0.756, z: 16 },
-      { x: 51.1, y: 47.7, r: -4.18, s: 0.724, z: 54 },
-      { x: 47.9, y: 42.7, r:  0.73, s: 0.690, z: 36 },
-      { x: 50.4, y: 55.3, r: -0.30, s: 0.799, z: 76 },
-      { x: 48.7, y: 45.0, r: 11.31, s: 0.704, z: 20 }
+      { cx: 948.50, cy: 542.00, w:  925, r: 11.308, z:  2, dataIndex: 1 },
+      { cx: 967.68, cy: 597.44, w: 1091, r: -0.300, z:  3, dataIndex: 6 },
+      { cx: 654.05, cy: 642.56, w: 1095, r:  2.975, z:  4, dataIndex: 2 },
+      { cx: 960.03, cy: 834.68, w: 1174, r: -1.296, z:  7, dataIndex: 7 },
+      { cx: 963.00, cy:1071.50, w: 1370, r: -9.618, z: 15, dataIndex: 0 }
     ];
     const photoLayout = [
-      { x: 67.8, y: 38.0, r: -9.75, s: 0.74, z: 12 },
-      { x: 46.1, y: 28.4, r:  2.32, s: 0.82, z: 32 },
-      { x: 58.3, y: 44.4, r: 28.78, s: 0.68, z: 44 },
-      { x: 48.0, y: 51.6, r: -5.10, s: 0.88, z: 64 }
+      { cx:1319.74, cy:444.24, w: 556.00, h:741.00, r: -9.752, z:  1, fallback:"images/figma-photo-small.png" },
+      { cx: 859.04, cy:509.79, w: 474.75, h:633.00, r:-16.878, z:  5, fallback:"images/figma-photo-portrait.png" },
+      { cx: 960.02, cy:702.32, w:1297.14, h:707.53, r: -2.877, z:  6, fallback:"images/figma-photo-wide.png" },
+      { cx:1433.03, cy:841.57, w: 556.00, h:741.00, r: 28.779, z:  8, fallback:"images/figma-photo-small.png" },
+      { cx: 963.55, cy:837.18, w:1280.00, h:720.00, r:  2.323, z:  9, fallback:"images/figma-photo-family.png" },
+      { cx: 863.01, cy:1063.17,w:1449.48, h:790.63, r: -5.100, z: 14, fallback:"images/figma-photo-family.png" }
     ];
 
+    // Figma exposes five forms and six photographs. The other three forms are
+    // completely covered, so rendering them would change the visible edges.
     const items = [];
-    for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
-    media.forEach((m, mediaIndex) => items.push({ type: "media", m: m, mediaIndex: mediaIndex }));
+    if (docCount) docLayout.forEach((slot, i) => items.push({ type:"doc", i:slot.dataIndex, slot, seed:i }));
+    photoLayout.forEach((slot, i) => items.push({
+      type:"media",
+      m:media[i] || { src:slot.fallback, kind:"image", decorative:true },
+      mediaIndex:i,
+      slot,
+      seed:20 + i
+    }));
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
@@ -1668,8 +1671,8 @@
         el.className = "pile-item pile-item--doc";
         // Per-sheet width from its size multiplier, so every sheet is a
         // different size (depth) while keeping the exact 1370×969 proportions.
-        const docSlot = docLayout[it.i];
-        const dwItem = dw * docSlot.s;
+        const docSlot = it.slot;
+        const dwItem = docSlot.w * sceneScale;
         el.style.setProperty("--dw", dwItem + "px");
         // Unitless scale factor for .pile-doc's transform: scale() needs a
         // number, and calc() cannot divide a length by a length.
@@ -1698,26 +1701,16 @@
       el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc") {
-        const slot = docLayout[it.i];
-        x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
+        const slot = it.slot;
+        x = slot.cx; y = slot.cy; rot = slot.r; z = slot.z;
       } else {
-        const mediaIndex = it.mediaIndex;
-        const p = photoLayout[mediaIndex];
-        if (p) {
-          x = p.x; y = p.y; rot = p.r; z = p.z;
-          el.style.setProperty("--w", p.s.toFixed(3));
-        } else {
-          // Extra photos beyond the fixed slots scatter into the pile at a
-          // mid-range z so they, too, stay woven between the paper layers.
-          x = 50 + (pileRand(seed + 7) - 0.5) * 54;
-          y = 42 + (pileRand(seed + 13) - 0.5) * 50;
-          rot = (pileRand(seed + 1) - 0.5) * 24;
-          z = 11 + Math.floor(pileRand(seed + 17) * 28);
-          el.style.setProperty("--w", (0.68 + pileRand(seed + 41) * 0.5).toFixed(3));
-        }
+        const p = it.slot;
+        x = p.cx; y = p.cy; rot = p.r; z = p.z;
+        el.style.setProperty("--pw", (p.w * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--ph", (p.h * sceneScale).toFixed(2) + "px");
       }
-      el.style.left = x + "%";
-      el.style.top = y + "%";
+      el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
+      el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
       el.style.zIndex = String(z);
       archivePile.appendChild(el);
