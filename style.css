@@ -45,6 +45,7 @@
    Tokens (from old style.css)
 ============================================================ */
 :root {
+  --figma-paper-settle: linear(0, 0.0188, 0.0679, 0.1374, 0.2195, 0.308, 0.3978, 0.4856, 0.5686, 0.6452, 0.7142, 0.7753, 0.8283, 0.8735, 0.9113, 0.9423, 0.9671, 0.9866, 1.0014, 1.0123, 1.0198, 1.0247, 1.0274, 1.0283, 1.0281, 1.0268, 1.025, 1.0227, 1.0202, 1.0177, 1.0152, 1.0128, 1.0106, 1.0085, 1.0068, 1.0052, 1.0039, 1.0028, 1.0018, 1.0011, 1.0005, 1, 0.9997, 0.9995, 0.9993, 0.9992, 0.9992, 0.9992, 0.9992, 0.9993, 0.9993);
   /* === Palette === */
   --cream:           #FAF6EE;
   --parchment:       #F0E8D8;
@@ -2459,38 +2460,83 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-stack-stage {
   position: absolute;
   z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
-  aspect-ratio: 1370 / 969;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   container-type: inline-size;
-  transform: translate(-50%, -50%);
-  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-#screen-camera.is-entering .camera-stack-stage {
-  transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh));
+  transform: none;
 }
 .camera-stack-pile { position: absolute; inset: 0; }
 .camera-stack-pile .stack-transition-sheet {
-  opacity: var(--stack-opacity);
-  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
-  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+  inset: auto;
+  opacity: .8;
+  translate: 0 0;
+  transform: none;
+  transform-origin: center;
+  will-change: translate, rotate;
 }
-.camera-stack-pile .stack-transition-sheet[data-sheet="0"] { --stack-x: -8%; --stack-y: -9%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="1"] { --stack-x: 11%; --stack-y: -6%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="2"] { --stack-x: -14%; --stack-y: 0%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="3"] { --stack-x: 13%; --stack-y: 5%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="4"] { --stack-x: -7%; --stack-y: 8%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="5"] { --stack-x: 7%; --stack-y: -2%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="6"] { --stack-x: -2%; --stack-y: -5%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] { --stack-x: 1%; --stack-y: 6%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="registration"] {
+  z-index: 1;
+  left: 29.6875%;
+  top: 19.08%;
+  width: 42.396%;
+  aspect-ratio: 814 / 577;
+  rotate: 4.74deg;
+}
+.camera-stack-pile .stack-transition-sheet[data-sheet="0"] {
+  z-index: 2;
+  opacity: .9;
+  left: 20.82%;
+  top: 4.91%;
+  width: 71.354%;
+  aspect-ratio: 1370 / 969;
+  rotate: -5.28deg;
+}
+.camera-stack-pile .stack-transition-sheet[data-sheet="1"] {
+  z-index: 3;
+  opacity: .9;
+  left: 11.48%;
+  top: 8.211%;
+  width: 71.354%;
+  aspect-ratio: 1370 / 969;
+  rotate: 5.95deg;
+}
+.camera-stack-pile .stack-transition-sheet[data-sheet="5"] {
+  z-index: 4;
+  opacity: .9;
+  left: 18.395%;
+  top: 12.454%;
+  width: 71.354%;
+  aspect-ratio: 1370 / 969;
+  rotate: -18.4deg;
+}
+.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] {
+  z-index: 5;
+  opacity: .9;
+  left: 14.068%;
+  top: 17.284%;
+  width: 71.354%;
+  aspect-ratio: 1370 / 969;
+  rotate: 15.86deg;
+}
+.camera-stack-pile .stack-transition-sheet .qform {
+  width: 100%;
+  height: 100%;
+}
+.camera-stack-pile .stack-registration-form .register-input {
+  display: block;
+  min-height: 1em;
+  border: 0;
+  background: transparent;
+}
 
 .camera-print {
   position: absolute;
   z-index: 4;
-  left: 48.88%;
-  top: 56.71%;
-  width: min(59.348vw, calc(68.27vh * 1.5455), 1139.5px);
+  left: 19.206%;
+  top: 22.578%;
+  width: 59.348%;
+  height: auto;
   aspect-ratio: 1139.487 / 737.315;
   box-sizing: border-box;
   padding: clamp(8px, 0.9375vw, 18px);
@@ -2501,12 +2547,97 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      slightly offset position above the pile, rotating and settling as it is
      laid down onto the stack (no fade/scale-up "generated" feel). */
   opacity: 1;
-  transform: translate(calc(-50% + 5vw), calc(-50% - 9vh)) rotate(-4.5deg);
+  translate: 0 0;
+  rotate: -10.77deg;
+  transform: none;
   transform-origin: center;
-  transition: transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: translate, rotate;
+}
+
+/* Figma 758:329 — one 2929.965ms collection timeline.  Visibility comes
+   exclusively from opaque papers travelling in from beyond the viewport. */
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="registration"] {
+  animation: figma-758-registration-move 2929.965ms linear both,
+             figma-758-registration-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="0"] {
+  animation: figma-758-q11-move 2929.965ms linear both,
+             figma-758-q11-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="1"] {
+  animation: figma-758-q12-move 2929.965ms linear both,
+             figma-758-q12-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="5"] {
+  animation: figma-758-q16-move 2929.965ms linear both,
+             figma-758-q16-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] {
+  animation: figma-758-q17-move 2929.965ms linear both,
+             figma-758-q17-turn 2929.965ms linear both;
 }
 #screen-camera.is-entering .camera-print {
-  transform: translate(-50%, -50%) rotate(-10.94deg);
+  animation: figma-758-camera-move 2929.965ms linear both,
+             figma-758-camera-turn 2929.965ms linear both;
+}
+
+@keyframes figma-758-registration-move {
+  0% { animation-timing-function: var(--figma-paper-settle); translate: -71.127vw 52.957vh; }
+  23.751%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-registration-turn {
+  0% { animation-timing-function: var(--figma-paper-settle); rotate: -16.91deg; }
+  23.631%, 100% { rotate: 4.74deg; }
+}
+@keyframes figma-758-q11-move {
+  0%, 5.726% { translate: -94.353vw -77.699vh; }
+  5.726% { animation-timing-function: var(--figma-paper-settle); }
+  32.629%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q11-turn {
+  0%, 5.63% { rotate: 2.74deg; }
+  5.63% { animation-timing-function: var(--figma-paper-settle); }
+  32.738%, 100% { rotate: -5.28deg; }
+}
+@keyframes figma-758-q12-move {
+  0%, 27.099% { translate: -79.479vw 103.143vh; }
+  27.099% { animation-timing-function: var(--figma-paper-settle); }
+  41.124%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q12-turn {
+  0%, 27.133% { rotate: -7.06deg; }
+  27.133% { animation-timing-function: var(--figma-paper-settle); }
+  41.161%, 100% { rotate: 5.95deg; }
+}
+@keyframes figma-758-q16-move {
+  0%, 32.629% { translate: 89.035vw 40.321vh; }
+  32.629% { animation-timing-function: var(--figma-paper-settle); }
+  56.145%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q16-turn {
+  0%, 32.629% { rotate: -3.39deg; }
+  32.629% { animation-timing-function: var(--figma-paper-settle); }
+  56.209%, 100% { rotate: -18.4deg; }
+}
+@keyframes figma-758-q17-move {
+  0%, 47.261% { translate: -15.677vw -112.13vh; }
+  47.261% { animation-timing-function: var(--figma-paper-settle); }
+  63.284%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q17-turn {
+  0%, 52.899% { rotate: .73deg; }
+  52.899% { animation-timing-function: var(--figma-paper-settle); }
+  63.284%, 100% { rotate: 15.86deg; }
+}
+@keyframes figma-758-camera-move {
+  0%, 57.816% { translate: 94.054vw 68.939vh; }
+  57.816% { animation-timing-function: var(--figma-paper-settle); }
+  89.293%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-camera-turn {
+  0%, 57.816% { rotate: -1.49deg; }
+  57.816% { animation-timing-function: var(--figma-paper-settle); }
+  89.318%, 100% { rotate: -10.77deg; }
 }
 
 .camera-area {
@@ -2584,8 +2715,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 @media (prefers-reduced-motion: reduce) {
   .camera-screen-shade { opacity: 1; transition: none; }
-  .camera-stack-stage { transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh)); transition: none; }
-  .camera-print { opacity: 1; transform: translate(-50%, -50%) rotate(-10.94deg) !important; transition: none; }
+  .camera-stack-stage { transform: none; }
+  #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet,
+  #screen-camera.is-entering .camera-print {
+    animation: none;
+    translate: 0 0;
+  }
+  .camera-print { opacity: 1; transform: none; rotate: -10.77deg; }
 }
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
@@ -3720,30 +3856,54 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stamp-instructions-stack {
   position: absolute;
   z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
-  aspect-ratio: 1370 / 969;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   container-type: inline-size;
-  transform: translate(-50%, -50%);
 }
 .stamp-instructions-pile { position: absolute; inset: 0; }
 .stamp-instructions-pile .stack-transition-sheet {
-  opacity: var(--stack-opacity);
-  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
+  inset: auto;
+  opacity: .8;
+  transform: none;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="registration"] {
+  z-index: 1; left: 29.6875%; top: 19.08%; width: 42.396%;
+  aspect-ratio: 814 / 577; rotate: 4.74deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="0"] {
+  z-index: 2; opacity: .9; left: 20.82%; top: 4.91%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: -5.28deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="1"] {
+  z-index: 3; opacity: .9; left: 11.48%; top: 8.211%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: 5.95deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="5"] {
+  z-index: 4; opacity: .9; left: 18.395%; top: 12.454%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: -18.4deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="legacy"] {
+  z-index: 5; opacity: .9; left: 14.068%; top: 17.284%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: 15.86deg;
+}
+.stamp-instructions-pile .stack-transition-sheet .qform {
+  width: 100%;
+  height: 100%;
 }
 .stamp-instructions-photo {
   position: absolute;
-  z-index: 10;
-  left: 49%;
-  top: 56%;
-  width: min(83.17cqw, 1139.5px);
+  z-index: 6;
+  left: 19.206%;
+  top: 22.578%;
+  width: 59.348%;
+  height: auto;
   aspect-ratio: 1139.487 / 737.315;
   box-sizing: border-box;
   padding: clamp(8px, 1.31cqw, 18px);
   background: #fff;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
-  transform: translate(-50%, -50%) rotate(-10.94deg);
+  rotate: -10.77deg;
 }
 .stamp-instructions-photo::before {
   content: "";
@@ -3779,12 +3939,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      enters from a slightly offset position, rotating and settling as it lands
      on top of the existing stack. */
   opacity: .95;
-  transform: translate(calc(-50% + 4vw), calc(-50% - 9vh)) rotate(-3.5deg);
+  translate: -1540.548px 825.218px;
+  rotate: -8.78deg;
+  transform: translate(-50%, -50%);
   transform-origin: center;
-  transition: transform 1200ms cubic-bezier(.16,1,.3,1);
+  will-change: translate, rotate;
 }
 .stamp-instructions-sheet.is-visible {
-  transform: translate(-50%, -50%) rotate(2.31deg);
+  animation: figma-480-instructions-move 2s linear both,
+             figma-480-instructions-turn 2s linear both;
+}
+@keyframes figma-480-instructions-move {
+  0% {
+    animation-timing-function: var(--figma-paper-settle);
+    translate: -80.237vw 76.409vh;
+  }
+  39.833%, 100% { translate: 0 0; }
+}
+@keyframes figma-480-instructions-turn {
+  0% {
+    animation-timing-function: var(--figma-paper-settle);
+    rotate: -8.78deg;
+  }
+  39.86%, 100% { rotate: 4.86deg; }
 }
 .stamp-instructions-copy {
   position: absolute;
@@ -3840,8 +4017,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .stamp-instructions-sheet,
   .stamp-instructions-sheet.is-visible {
     opacity: .95;
-    transform: translate(-50%, -50%) rotate(2.31deg);
-    transition: none;
+    translate: 0 0;
+    rotate: 4.86deg;
+    animation: none;
   }
 }
 

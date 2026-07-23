@@ -1020,7 +1020,6 @@
     state.legacyText = txt;
     submitToSheet(); // all 12 fields are now filled — fire-and-forget
     initStackTransition();
-    showScreen("stack");
   });
 
   // ============================================================
@@ -1112,6 +1111,20 @@
     '</article>';
   }
 
+  function stackRegistrationFormHTML() {
+    return '<article class="qform qform--register stack-registration-form">' +
+      '<div class="register-head">' +
+        '<img src="images/next-default.png" alt="" width="105" height="105">' +
+        '<div class="register-title">פרטי המפקיד</div>' +
+      '</div>' +
+      '<div class="register-table">' +
+        '<div class="register-row"><span class="register-label">*שם מלא:</span><span class="register-input">' + esc(state.name) + '</span></div>' +
+        '<div class="register-row"><span class="register-label">*מייל:</span><span class="register-input">' + esc(state.email) + '</span></div>' +
+        '<div class="register-row"><span class="register-label">טלפון:</span><span class="register-input">' + esc(state.phone) + '</span></div>' +
+      '</div>' +
+    '</article>';
+  }
+
   const stackStage = document.getElementById("stack-transition-stage");
   const stackPile = document.getElementById("stack-transition-pile");
   const stackMemoryTrace = document.getElementById("stack-memory-trace");
@@ -1122,24 +1135,25 @@
     const run = ++stackTransitionRun;
     setMemoryTraceItems(stackMemoryTrace, buildQuestionMemoryItems(questions.length));
     stackStage.classList.remove("is-forming");
-    let sheets = '';
-    for (let i = 0; i < questions.length; i++) {
-      sheets += '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="' + i + '">' +
-        stackQuestionFormHTML(i) + '</div>';
-    }
-    sheets += '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
-      stackLegacyFormHTML() + '</div>';
+    const sheets =
+      '<div class="stack-transition-sheet stack-transition-sheet--registration" data-sheet="registration">' +
+        stackRegistrationFormHTML() + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="0">' +
+        stackQuestionFormHTML(0) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="1">' +
+        stackQuestionFormHTML(1) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="5">' +
+        stackQuestionFormHTML(5) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
+        stackLegacyFormHTML() + '</div>';
     stackPile.innerHTML = sheets;
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (run === stackTransitionRun) stackStage.classList.add("is-forming");
     }));
 
-    window.setTimeout(() => {
-      if (run !== stackTransitionRun || !screens.stack.classList.contains("active")) return;
-      initCameraScreen();
-      showScreen("camera");
-    }, reduceMotion ? 200 : 4300);
+    initCameraScreen();
+    showScreen("camera");
   }
 
   let cardsCopyRun = 0;
@@ -1281,11 +1295,8 @@
     // read as the next layer of one continuous physical animation.
     if (cameraStackPile && stackPile) cameraStackPile.innerHTML = stackPile.innerHTML;
     screens.camera.classList.remove("is-entering");
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (screens.camera.classList.contains("active")) {
-        screens.camera.classList.add("is-entering");
-      }
-    }));
+    void screens.camera.offsetWidth;
+    screens.camera.classList.add("is-entering");
     // Reflect the real deposit on the heritage document shown under the photo.
     if (cameraDocName) cameraDocName.textContent = state.name || "";
     if (cameraDocDate) cameraDocDate.textContent = state.date || "";
