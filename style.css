@@ -2469,14 +2469,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
   transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.camera-stack-pile .stack-transition-sheet[data-sheet="0"] { --stack-x: -8%; --stack-y: -9%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="1"] { --stack-x: 11%; --stack-y: -6%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="2"] { --stack-x: -14%; --stack-y: 0%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="3"] { --stack-x: 13%; --stack-y: 5%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="4"] { --stack-x: -7%; --stack-y: 8%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="5"] { --stack-x: 7%; --stack-y: -2%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="6"] { --stack-x: -2%; --stack-y: -5%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] { --stack-x: 1%; --stack-y: 6%; }
+/* Match the wider, messier landing spots the gathering animation ends on, so
+   the pile stays put (no tightening snap) as the camera screen takes over. */
+.camera-stack-pile .stack-transition-sheet[data-sheet="0"] { --stack-x: -17%; --stack-y: -10%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="1"] { --stack-x: 16%; --stack-y: -7%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="2"] { --stack-x: -19%; --stack-y: 1%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="3"] { --stack-x: 18%; --stack-y: 6%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="4"] { --stack-x: -9%; --stack-y: 12%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="5"] { --stack-x: 8%; --stack-y: -12%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="6"] { --stack-x: -4%; --stack-y: -6%; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] { --stack-x: 2%; --stack-y: 3%; }
 
 .camera-print {
   position: absolute;
@@ -2965,8 +2967,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --stack-dur: 1320ms;
   --stack-over: 0deg;
   --stack-opacity: 0.68;
+  --stack-ease: var(--ease-arrive);
+  --stack-z: auto;
   position: absolute;
   inset: 0;
+  z-index: var(--stack-z);
   opacity: 0;
   transform: translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(0.93);
   transform-origin: center;
@@ -2974,21 +2979,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   pointer-events: none;
 }
 .stack-transition-stage.is-forming .stack-transition-sheet {
-  animation: stack-sheet-arrive var(--stack-dur) var(--ease-arrive) var(--stack-delay) both;
+  animation: stack-sheet-arrive var(--stack-dur) var(--stack-ease) var(--stack-delay) both;
 }
 
-/* Hand-laid rhythm: the gaps between sheets are deliberately uneven
-   (140–310ms) and each sheet takes its own time — a person dealing
-   papers, not a timer. --stack-over lets each sheet land a fraction
-   past its resting angle and relax back. Fixed values, same every run. */
-.stack-transition-sheet[data-sheet="0"] { --stack-x: -7%; --stack-y: -10%; --stack-rot: -5.8deg; --stack-from-x: -72vw; --stack-from-y: -24vh; --stack-from-rot: -12deg; --stack-delay: 0ms; --stack-dur: 1430ms; --stack-over: -0.6deg; --stack-opacity: 0.48; }
-.stack-transition-sheet[data-sheet="1"] { --stack-x: 10%; --stack-y: -8%; --stack-rot: 2.71deg; --stack-from-x: 70vw; --stack-from-y: -20vh; --stack-from-rot: 9deg; --stack-delay: 170ms; --stack-dur: 1290ms; --stack-over: 0.5deg; --stack-opacity: 0.52; }
-.stack-transition-sheet[data-sheet="2"] { --stack-x: -13%; --stack-y: -2%; --stack-rot: -3.5deg; --stack-from-x: -68vw; --stack-from-y: 8vh; --stack-from-rot: -10deg; --stack-delay: 430ms; --stack-dur: 1450ms; --stack-over: -0.45deg; --stack-opacity: 0.56; }
-.stack-transition-sheet[data-sheet="3"] { --stack-x: 12%; --stack-y: 3%; --stack-rot: 4.3deg; --stack-from-x: 72vw; --stack-from-y: 14vh; --stack-from-rot: 11deg; --stack-delay: 560ms; --stack-dur: 1300ms; --stack-over: 0.55deg; --stack-opacity: 0.58; }
-.stack-transition-sheet[data-sheet="4"] { --stack-x: -8%; --stack-y: 6%; --stack-rot: -2deg; --stack-from-x: -62vw; --stack-from-y: 28vh; --stack-from-rot: -8deg; --stack-delay: 850ms; --stack-dur: 1390ms; --stack-over: -0.4deg; --stack-opacity: 0.62; }
-.stack-transition-sheet[data-sheet="5"] { --stack-x: 6%; --stack-y: -4%; --stack-rot: 1.5deg; --stack-from-x: 64vw; --stack-from-y: -30vh; --stack-from-rot: 8deg; --stack-delay: 1000ms; --stack-dur: 1270ms; --stack-over: 0.35deg; --stack-opacity: 0.66; }
-.stack-transition-sheet[data-sheet="6"] { --stack-x: -3%; --stack-y: -7%; --stack-rot: 2.7deg; --stack-from-x: -54vw; --stack-from-y: -38vh; --stack-from-rot: -6deg; --stack-delay: 1310ms; --stack-dur: 1360ms; --stack-over: -0.3deg; --stack-opacity: 0.72; }
-.stack-transition-sheet[data-sheet="legacy"] { --stack-x: 0%; --stack-y: 4%; --stack-rot: 0.73deg; --stack-from-x: 58vw; --stack-from-y: 34vh; --stack-from-rot: 7deg; --stack-delay: 1450ms; --stack-dur: 1480ms; --stack-over: 0.2deg; --stack-opacity: 0.9; }
+/* Hands gathering scattered papers, not a machine dealing a clean stack.
+   Each sheet has its own entry direction (several starting only partly
+   off-screen), its own path, rotation, easing and duration, and its own
+   landing spot — deliberately spread wide and uneven so the finished pile
+   stays irregular, layered and slightly messy rather than converging on one
+   point. Delays are clustered (0/1, 2/3, 4/5 overlap) so several sheets are
+   in the air at once and the rhythm never reads as sequential. --stack-over
+   keeps the landing to a small, un-bouncy overshoot that relaxes back.
+   Fixed values, same every run. */
+.stack-transition-sheet[data-sheet="0"] { --stack-x: -17%; --stack-y: -10%; --stack-rot: -6.2deg; --stack-from-x: -78vw; --stack-from-y: -18vh; --stack-from-rot: -14deg; --stack-delay: 0ms; --stack-dur: 1180ms; --stack-over: -0.5deg; --stack-opacity: 0.5; --stack-ease: cubic-bezier(0.22, 0.04, 0.18, 1); --stack-z: 1; }
+.stack-transition-sheet[data-sheet="1"] { --stack-x: 16%; --stack-y: -7%; --stack-rot: 3.6deg; --stack-from-x: 66vw; --stack-from-y: -26vh; --stack-from-rot: 12deg; --stack-delay: 70ms; --stack-dur: 1040ms; --stack-over: 0.45deg; --stack-opacity: 0.54; --stack-ease: cubic-bezier(0.34, 0.02, 0.2, 1); --stack-z: 2; }
+.stack-transition-sheet[data-sheet="2"] { --stack-x: -19%; --stack-y: 1%; --stack-rot: -4deg; --stack-from-x: -46vw; --stack-from-y: 22vh; --stack-from-rot: -9deg; --stack-delay: 300ms; --stack-dur: 1260ms; --stack-over: -0.4deg; --stack-opacity: 0.58; --stack-ease: cubic-bezier(0.28, 0.08, 0.24, 1); --stack-z: 3; }
+.stack-transition-sheet[data-sheet="3"] { --stack-x: 18%; --stack-y: 6%; --stack-rot: 5.2deg; --stack-from-x: 80vw; --stack-from-y: 10vh; --stack-from-rot: 13deg; --stack-delay: 380ms; --stack-dur: 1100ms; --stack-over: 0.5deg; --stack-opacity: 0.62; --stack-ease: cubic-bezier(0.4, 0.05, 0.16, 1); --stack-z: 4; }
+.stack-transition-sheet[data-sheet="4"] { --stack-x: -9%; --stack-y: 12%; --stack-rot: -2.4deg; --stack-from-x: -58vw; --stack-from-y: 34vh; --stack-from-rot: -7deg; --stack-delay: 720ms; --stack-dur: 1300ms; --stack-over: -0.35deg; --stack-opacity: 0.66; --stack-ease: cubic-bezier(0.34, 0.02, 0.2, 1); --stack-z: 5; }
+.stack-transition-sheet[data-sheet="5"] { --stack-x: 8%; --stack-y: -12%; --stack-rot: 1.8deg; --stack-from-x: 42vw; --stack-from-y: -34vh; --stack-from-rot: 8deg; --stack-delay: 800ms; --stack-dur: 1020ms; --stack-over: 0.3deg; --stack-opacity: 0.7; --stack-ease: cubic-bezier(0.22, 0.04, 0.18, 1); --stack-z: 6; }
+.stack-transition-sheet[data-sheet="6"] { --stack-x: -4%; --stack-y: -6%; --stack-rot: 2.9deg; --stack-from-x: -70vw; --stack-from-y: -40vh; --stack-from-rot: -11deg; --stack-delay: 1180ms; --stack-dur: 1200ms; --stack-over: -0.3deg; --stack-opacity: 0.78; --stack-ease: cubic-bezier(0.28, 0.08, 0.24, 1); --stack-z: 7; }
+.stack-transition-sheet[data-sheet="legacy"] { --stack-x: 2%; --stack-y: 3%; --stack-rot: 0.6deg; --stack-from-x: 52vw; --stack-from-y: 30vh; --stack-from-rot: 9deg; --stack-delay: 1520ms; --stack-dur: 1240ms; --stack-over: 0.2deg; --stack-opacity: 0.92; --stack-ease: cubic-bezier(0.4, 0.05, 0.16, 1); --stack-z: 8; }
 
 @keyframes stack-sheet-arrive {
   0% { opacity: 0; transform: translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(0.93); }
