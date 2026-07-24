@@ -58,10 +58,12 @@
      page paper, and a warmer, slightly darker, semi-transparent form paper
      placed above it. They must never read as one flat surface. */
   --form-page-bg:    #FCF6ED;                    /* full-screen page paper */
-  /* Warmer, slightly darker translucent form paper (Figma #F3E8D6 @ 50%),
-     nudged warmer/denser so the tan tone still reads distinctly against the
-     page once this project's greige paper grain multiplies over it. */
-  --form-paper:      rgba(233, 216, 187, 0.72);
+  /* Warmer translucent form paper (Figma #F3E8D6 @ 50%), nudged a touch warmer
+     and denser so the form stays a clearly distinct layer above the page. */
+  --form-paper:      rgba(240, 227, 200, 0.56);
+  /* The exact Texturelabs paper grain from Figma, laid over both the page and
+     the form in multiply — light enough that it only adds fibre, never tint. */
+  --paper-tex-234:   url('images/Texturelabs_Paper_234M.jpg');
 
   /* Wood derivatives */
   --wood-light:      #C4A882;
@@ -2230,9 +2232,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --blank-type-speed: 57ms;
   padding: 0;
   background-color: var(--form-page-bg);
+  /* Texturelabs grain in multiply, then a light cream wash so the page paper
+     stays the lightest layer and the form paper still reads warmer above it. */
   background-image:
-    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
-    url("images/figma-question-background.jpg");
+    linear-gradient(rgba(252, 246, 237, 0.5), rgba(252, 246, 237, 0.5)),
+    var(--paper-tex-234);
+  background-blend-mode: normal, multiply;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -2417,9 +2422,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-camera {
   padding: 0;
   background-color: var(--form-page-bg);
+  /* Texturelabs grain in multiply, then a light cream wash so the page paper
+     stays the lightest layer and the form paper still reads warmer above it. */
   background-image:
-    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
-    url("images/figma-question-background.jpg");
+    linear-gradient(rgba(252, 246, 237, 0.5), rgba(252, 246, 237, 0.5)),
+    var(--paper-tex-234);
+  background-blend-mode: normal, multiply;
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -2777,9 +2785,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-questions {
   background-color: var(--form-page-bg);
+  /* Texturelabs grain in multiply, then a light cream wash so the page paper
+     stays the lightest layer and the form paper still reads warmer above it. */
   background-image:
-    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
-    url("images/figma-question-background.jpg");
+    linear-gradient(rgba(252, 246, 237, 0.5), rgba(252, 246, 237, 0.5)),
+    var(--paper-tex-234);
+  background-blend-mode: normal, multiply;
   background-size: cover;
   overflow: hidden;
 }
@@ -2808,9 +2819,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #screen-legacy {
   background-color: var(--form-page-bg);
+  /* Texturelabs grain in multiply, then a light cream wash so the page paper
+     stays the lightest layer and the form paper still reads warmer above it. */
   background-image:
-    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
-    url("images/figma-question-background.jpg");
+    linear-gradient(rgba(252, 246, 237, 0.5), rgba(252, 246, 237, 0.5)),
+    var(--paper-tex-234);
+  background-blend-mode: normal, multiply;
   overflow: hidden;
 }
 
@@ -2906,9 +2920,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-stack {
   padding: 0;
   background-color: var(--form-page-bg);
+  /* Texturelabs grain in multiply, then a light cream wash so the page paper
+     stays the lightest layer and the form paper still reads warmer above it. */
   background-image:
-    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
-    url("images/figma-question-background.jpg");
+    linear-gradient(rgba(252, 246, 237, 0.5), rgba(252, 246, 237, 0.5)),
+    var(--paper-tex-234);
+  background-blend-mode: normal, multiply;
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -3922,11 +3939,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-image: var(--paper-tex);
+  background-image: var(--paper-tex-234);
   background-size: cover;
   background-repeat: no-repeat;
   mix-blend-mode: multiply;
-  opacity: 0.24;
+  opacity: 0.5;
   pointer-events: none;
 }
 /* All ink (grid + text + actions) sits above the grain layer. */
