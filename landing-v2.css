@@ -262,30 +262,6 @@ button{font:inherit;color:inherit}
   cursor:pointer;
   transform:none;
 }
-.pile-reference{
-  position:absolute;
-  inset:0;
-  display:block;
-  width:640px;
-  height:445px;
-  object-fit:contain;
-  pointer-events:none;
-  opacity:0;
-  --rest-op:1;
-  --bx-to:1px;
-  --by-to:-1.2px;
-  --br-to:.22deg;
-  --bdur:8.5s;
-  --bdelay:-2.2s;
-  --deal-dur:1.44s;
-  --deal-dx:-712px;
-  --deal-dy:6px;
-  --deal-dr:12deg;
-  transform:translate3d(calc(var(--pbx) + var(--pdx)),calc(var(--pby) + var(--pdy)),0) rotate(calc(var(--pbr) + var(--pdr)));
-  translate:0 0;
-  rotate:0deg;
-  transition:translate .56s var(--ease-release) 70ms,rotate .56s var(--ease-release) 70ms,filter .56s ease 70ms;
-}
 .pile-photo,.pile-sheet{
   position:absolute;display:block;z-index:1;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
   transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),calc(var(--pby) + var(--pdy) + var(--ppy)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr) + var(--ppr)));
@@ -298,6 +274,10 @@ button{font:inherit;color:inherit}
 .pile-sheet{background-color:#f3eee2;background-image:var(--paper-texture);background-size:cover}
 .pile-sheet--back{--rr:-12deg;--rest-op:.8;--bx-to:1.3px;--by-to:1.3px;--br-to:.28deg;--bdur:9.1s;--bdelay:-1.9s;--deal-dur:1.38s;--deal-dx:-726px;--deal-dy:8px;--deal-dr:13.5deg;width:560px;height:330px;left:74px;top:230px}
 .pile-sheet--middle{--rr:7deg;--rest-op:.84;--bx-to:-1.5px;--by-to:-1.1px;--br-to:-.3deg;--bdur:8s;--bdelay:-.4s;--deal-dur:1.26s;--deal-dx:-746px;--deal-dy:-10px;--deal-dr:15.5deg;width:540px;height:350px;left:58px;top:190px}
+.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
+.pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
+.pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
+.pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
 
 @keyframes pile-deal{0%{opacity:0;--pdx:var(--deal-dx,-720px);--pdy:var(--deal-dy,0px);--pdr:var(--deal-dr,14deg)}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdy:0px;--pdr:0deg}}
 @keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
@@ -307,11 +287,13 @@ button{font:inherit;color:inherit}
    The slide reads as a hand moving the sheet aside: it starts a breath
    late, lifts a hair and pivots slightly as it goes, and on release it
    slips back slower than it was pushed (asymmetric in/out timing). */
-.landing-v2__pile:hover .pile-reference{
-  translate:18px -2px;
-  rotate:.8deg;
-  filter:drop-shadow(5px 6px 7px rgba(0,0,0,.18));
-  transition:translate .42s var(--ease-uncover) 30ms,rotate .42s var(--ease-uncover) 30ms,filter .5s ease 30ms;
+.landing-v2__pile:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.landing-v2__pile:hover .pile-sheet--front{
+  --ppop:18px;
+  --ppy:-8px;
+  --ppr:.8deg;
+  box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18);
+  transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms,--ppr .42s var(--ease-uncover) 30ms,box-shadow .5s ease 30ms;
 }
 
 /* ===== inline archive search — replaces the intro copy while active ===== */
@@ -389,24 +371,20 @@ button{font:inherit;color:inherit}
    Fixed values, so the sequence is identical on every load. */
 .landing-v2.is-card-entered .corner-layer{animation:corner-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .corner-layer--photo{animation-delay:550ms}
-.landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet,.landing-v2.is-card-entered .pile-reference{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
+.landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .pile-photo--1{animation-delay:2610ms}
 .landing-v2.is-card-entered .pile-photo--2{animation-delay:3100ms}
 .landing-v2.is-card-entered .pile-photo--3{animation-delay:3890ms}
 .landing-v2.is-card-entered .pile-photo--4{animation-delay:4430ms}
 .landing-v2.is-card-entered .pile-sheet--back{animation-delay:5210ms}
 .landing-v2.is-card-entered .pile-sheet--middle{animation-delay:5700ms}
-.landing-v2.is-card-entered .pile-reference{animation-delay:6390ms}
+.landing-v2.is-card-entered .pile-sheet--front{animation-delay:6390ms}
 
 /* settled: once the deal finishes, papers settle into the constant breathing
    (replaces the deal animation) — independent of the typewriter finishing */
 .landing-v2.is-settled .corner-layer--paper{opacity:1;animation:paper-breathe-a 8.7s ease-in-out infinite}
 .landing-v2.is-settled .corner-layer--photo{opacity:1;animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
 .landing-v2.is-settled .pile-photo,.landing-v2.is-settled .pile-sheet{opacity:var(--rest-op,1);animation:pile-breathe var(--bdur,8s) ease-in-out var(--bdelay,0s) infinite}
-.landing-v2.is-settled .pile-reference{opacity:1;animation:pile-breathe var(--bdur,8s) ease-in-out var(--bdelay,0s) infinite}
-.landing-v2.is-settled .pile-photo,
-.landing-v2.is-settled .pile-sheet--back,
-.landing-v2.is-settled .pile-sheet--middle{opacity:0!important;animation:none}
 
 /* ===== credits, Figma 779:1396 ===== */
 .landing-v2__credit-overlay{
@@ -489,5 +467,5 @@ button{font:inherit;color:inherit}
   .landing-v2__wordmark,.landing-v2__copy{transition:none!important}
   .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
-  .pile-reference,.corner-credit-card{transition:none}
+  .pile-sheet--front,.corner-credit-card{transition:none}
 }
