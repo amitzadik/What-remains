@@ -1,7 +1,7 @@
 /* SundayMono + Mandatory Variable @font-face (full weight family) come from
    style.css, which this page also loads. font-synthesis:none — real files only. */
 :root{
-  --ink:#3e3626;--paper:#fcf6ed;--paper-texture:url("images/Texturelabs_Paper_234M.jpg");font-synthesis:none;
+  --ink:#3e3626;--paper:#faf6ee;--paper-texture:url("images/figma-landing-background.jpg");font-synthesis:none;
   /* Motion — "handled paper": --ease-deal lays a sheet down with a faint
      settle-past (calmer than a spring); --ease-uncover slides the top layer
      aside under a hand; --ease-release lets it slip back on its own. */
@@ -34,13 +34,21 @@ button{font:inherit;color:inherit}
   background-color:var(--paper);
   background-image:var(--paper-texture);
   background-size:cover;
-  background-position:center 38.3%;
+  background-position:center;
   background-repeat:no-repeat;
-  background-blend-mode:multiply;
-  transition:background-position 14s cubic-bezier(.45,0,.15,1);
 }
 .landing-v2::after{
-  content:none;
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
+  opacity:.16;
+  mix-blend-mode:multiply;
+  background-image:
+    radial-gradient(circle at 73% 66%,rgba(62,54,38,.2),transparent 22%),
+    radial-gradient(circle at 63% 48%,rgba(62,54,38,.13),transparent 18%);
+  transition:opacity 2.8s ease;
 }
 
 .landing-v2__wordmark{
@@ -169,26 +177,6 @@ button{font:inherit;color:inherit}
   --deal-from-y:-9px;
   --deal-from-r:1.8deg;
 }
-.corner-layer--credit{
-  z-index:3;
-  width:172px;
-  height:440px;
-  cursor:pointer;
-  pointer-events:auto;
-  --rest-op:1;
-  --deal-dur:1.42s;
-  --deal-from-x:-42vw;
-  --deal-from-y:11px;
-  --deal-from-r:-1.5deg;
-  translate:0 0;
-  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
-}
-/* The credit sheet is already tucked under the top-left edge. Keep its
-   entrance transform untouched and pull that same physical sheet farther
-   into the viewport on hover, like the kraft archive cards. */
-.landing-v2.is-settled .corner-layer--credit:hover,
-.landing-v2.is-settled .corner-layer--credit:focus-visible{translate:18px 16px}
-
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
 @keyframes corner-deal{0%{opacity:0;transform:translate3d(var(--deal-from-x,-46vw),var(--deal-from-y,0px),0) rotate(var(--deal-from-r,0deg))}55%{opacity:var(--rest-op,.8)}100%{opacity:var(--rest-op,.8);transform:translate3d(0,0,0) rotate(0deg)}}
@@ -218,9 +206,10 @@ button{font:inherit;color:inherit}
   object-fit:contain;
   pointer-events:none;
   opacity:0;
+  z-index:0;
 }
 .pile-photo,.pile-sheet{
-  position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
+  position:absolute;display:block;z-index:1;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
   transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),calc(var(--pby) + var(--pdy) + var(--ppy)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr) + var(--ppr)));
 }
 .pile-photo{background-color:#d7d1c6;background-size:cover;background-position:center;filter:grayscale(.35)}
@@ -231,7 +220,7 @@ button{font:inherit;color:inherit}
 .pile-sheet{background-color:#f3eee2;background-image:var(--paper-texture);background-size:cover}
 .pile-sheet--back{--rr:-12deg;--rest-op:.8;--bx-to:1.3px;--by-to:1.3px;--br-to:.28deg;--bdur:9.1s;--bdelay:-1.9s;--deal-dur:1.38s;--deal-dx:-726px;--deal-dy:8px;--deal-dr:13.5deg;width:560px;height:330px;left:74px;top:230px}
 .pile-sheet--middle{--rr:7deg;--rest-op:.84;--bx-to:-1.5px;--by-to:-1.1px;--br-to:-.3deg;--bdur:8s;--bdelay:-.4s;--deal-dur:1.26s;--deal-dx:-746px;--deal-dy:-10px;--deal-dr:15.5deg;width:540px;height:350px;left:58px;top:190px}
-.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
+.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;z-index:3;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
 .pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
@@ -244,11 +233,82 @@ button{font:inherit;color:inherit}
    The slide reads as a hand moving the sheet aside: it starts a breath
    late, lifts a hair and pivots slightly as it goes, and on release it
    slips back slower than it was pushed (asymmetric in/out timing). */
-.landing-v2__pile:hover:not(:disabled){color:var(--ink)}
-.landing-v2__pile:hover .pile-sheet--front{
+.pile-sheet--front:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.pile-sheet--front:hover{
   --ppop:18px;--ppy:-2px;--ppr:.8deg;
   box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18);
   transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms,--ppr .42s var(--ease-uncover) 30ms,box-shadow .5s ease 30ms;
+}
+.pile-sheet--front:active:not(:disabled){
+  transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),calc(var(--pby) + var(--pdy) + var(--ppy)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr) + var(--ppr)));
+  border-color:transparent;
+}
+
+/* Full credit sheet: one complete physical card lives inside the lower-left
+   pile, below the create sheet. Its default overlap hides almost all of it;
+   hover pulls the same element upward without changing scale, opacity,
+   rotation or stacking — the archive kraft-card interaction pattern. */
+.pile-credit-slot{
+  position:absolute;
+  left:-16px;
+  top:78px;
+  z-index:2;
+  width:614px;
+  height:439px;
+  padding:0;
+  border:0;
+  overflow:visible;
+  visibility:hidden;
+  cursor:pointer;
+  background:transparent;
+  box-shadow:none;
+  transform:rotate(-5.4deg);
+  transform-origin:center;
+}
+.pile-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.pile-credit-slot:active:not(:disabled){transform:rotate(-5.4deg);border-color:transparent}
+.landing-v2.is-settled .pile-credit-slot{visibility:visible}
+.pile-credit-card{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  direction:rtl;
+  color:var(--ink);
+  background-color:#f3e8d6;
+  background-image:url("images/Texturelabs_Paper_234S.jpg");
+  background-size:cover;
+  background-position:center;
+  background-blend-mode:multiply;
+  box-shadow:0 4px 4px rgba(0,0,0,.25);
+  translate:0 0;
+  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
+}
+.landing-v2.is-settled .pile-credit-slot:hover .pile-credit-card,
+.landing-v2.is-settled .pile-credit-slot:focus-visible .pile-credit-card{translate:24px -132px}
+.pile-credit-card__close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:60px;
+  height:60px;
+  pointer-events:none;
+}
+.pile-credit-card__close img{display:block;width:100%;height:100%;object-fit:contain}
+.pile-credit-card__copy{
+  position:absolute;
+  top:127px;
+  right:93px;
+  width:428px;
+  display:flex;
+  flex-direction:column;
+  font-family:"SundayMono","Courier New",monospace;
+  font-size:30px;
+  font-weight:500;
+  line-height:45px;
+  text-align:right;
+  pointer-events:none;
 }
 
 /* ===== inline archive search — replaces the intro copy while active ===== */
@@ -316,7 +376,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-searching .landing-v2__copy{opacity:0;pointer-events:none;transition:opacity .3s ease}
 .landing-v2.is-searching .landing-v2__search{opacity:1;pointer-events:auto}
 .landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
-.landing-v2.is-revealed{background-position:center 51.2%}
+.landing-v2.is-revealed::after{opacity:.24}
 
 /* deal-in: corners first, then the pile builds up (front sheet lands last).
    The whole deal spans ~7.8s: the gaps between papers stay uneven
@@ -326,7 +386,6 @@ button{font:inherit;color:inherit}
    Fixed values, so the sequence is identical on every load. */
 .landing-v2.is-card-entered .corner-layer{animation:corner-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .corner-layer--photo{animation-delay:550ms}
-.landing-v2.is-card-entered .corner-layer--credit{animation-delay:1360ms}
 .landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .pile-photo--1{animation-delay:2610ms}
 .landing-v2.is-card-entered .pile-photo--2{animation-delay:3100ms}
@@ -340,7 +399,6 @@ button{font:inherit;color:inherit}
    (replaces the deal animation) — independent of the typewriter finishing */
 .landing-v2.is-settled .corner-layer--paper{opacity:1;animation:paper-breathe-a 8.7s ease-in-out infinite}
 .landing-v2.is-settled .corner-layer--photo{opacity:1;animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
-.landing-v2.is-settled .corner-layer--credit{opacity:1}
 .landing-v2.is-settled .pile-photo,.landing-v2.is-settled .pile-sheet{opacity:var(--rest-op,1);animation:pile-breathe var(--bdur,8s) ease-in-out var(--bdelay,0s) infinite}
 .landing-v2.is-settled .pile-reference{opacity:1}
 .landing-v2.is-settled .pile-photo,
