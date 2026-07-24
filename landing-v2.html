@@ -6,13 +6,24 @@
   <title>מה שישאר — עמוד הבית</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=52">
-  <link rel="stylesheet" href="landing-v2.css?v=21">
+  <link rel="stylesheet" href="landing-v2.css?v=22">
 </head>
 <body>
   <main class="landing-v2" id="landing-v2">
     <div class="landing-v2__wordmark" aria-hidden="true">מה שישאר</div>
 
     <div class="landing-v2__corner landing-v2__corner--top">
+      <button class="corner-credit-slot" id="landing-v2-credit-open" type="button" aria-label="קרדיטים">
+        <span class="corner-credit-card">
+          <span class="corner-credit-card__close" aria-hidden="true"><img src="images/close-default.png" alt=""></span>
+          <span class="corner-credit-card__copy" aria-hidden="true">
+            <span>החוג לעיצוב תקשורת חזותית</span>
+            <span>בית הספר לעיצוב</span>
+            <span>אוניברסיטת חיפה</span>
+            <span>תשפ״ו 2026</span>
+          </span>
+        </span>
+      </button>
       <span class="corner-layer corner-layer--paper" aria-hidden="true"><img src="images/home-top-paper-780-1601.png" alt=""></span>
       <span class="corner-layer corner-layer--photo" aria-hidden="true"><img src="images/home-top-image-780-1602.png" alt=""></span>
     </div>
@@ -37,7 +48,7 @@
       <ul class="landing-v2__results" id="landing-v2-results"></ul>
     </section>
 
-    <div class="landing-v2__pile">
+    <button class="landing-v2__pile" id="landing-v2-add" type="button" aria-label="צור את האוסף שלך">
       <img class="pile-reference" src="images/home-left-pile-780-1457.png" alt="">
       <span class="pile-photo pile-photo--1"></span>
       <span class="pile-photo pile-photo--2"></span>
@@ -46,23 +57,11 @@
       <span class="pile-sheet pile-sheet--back"></span>
       <span class="pile-sheet pile-sheet--middle"></span>
 
-      <button class="pile-credit-slot" id="landing-v2-credit-open" type="button" aria-label="קרדיטים">
-        <span class="pile-credit-card">
-          <span class="pile-credit-card__close" aria-hidden="true"><img src="images/close-default.png" alt=""></span>
-          <span class="pile-credit-card__copy" aria-hidden="true">
-            <span>החוג לעיצוב תקשורת חזותית</span>
-            <span>בית הספר לעיצוב</span>
-            <span>אוניברסיטת חיפה</span>
-            <span>תשפ״ו 2026</span>
-          </span>
-        </span>
-      </button>
-
-      <button class="pile-sheet pile-sheet--front" id="landing-v2-add" type="button" aria-label="צור את האוסף שלך">
+      <span class="pile-sheet pile-sheet--front">
         <span class="pile-plus"><img src="images/add-new-default.png" alt=""></span>
         <span class="pile-label">צור את האוסף שלך</span>
-      </button>
-    </div>
+      </span>
+    </button>
 
     <div class="landing-v2__credit-overlay" id="landing-v2-credit-overlay" hidden>
       <section class="landing-v2__credit-dialog" role="dialog" aria-modal="true" aria-labelledby="landing-v2-credit-title">
