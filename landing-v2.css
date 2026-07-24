@@ -158,7 +158,7 @@ button{font:inherit;color:inherit}
 }
 .corner-layer img{display:block;width:100%;height:100%;object-fit:contain}
 .corner-layer--paper{
-  z-index:1;
+  z-index:2;
   width:375px;
   height:120px;
   --rest-op:1;
@@ -168,7 +168,7 @@ button{font:inherit;color:inherit}
   --deal-from-r:-2.2deg;
 }
 .corner-layer--photo{
-  z-index:2;
+  z-index:3;
   width:132px;
   height:137px;
   --rest-op:1;
@@ -176,6 +176,68 @@ button{font:inherit;color:inherit}
   --deal-from-x:-48vw;
   --deal-from-y:-9px;
   --deal-from-r:1.8deg;
+}
+.corner-credit-slot{
+  position:absolute;
+  left:-420px;
+  top:-84px;
+  z-index:1;
+  width:614px;
+  height:439px;
+  padding:0;
+  border:0;
+  overflow:visible;
+  visibility:hidden;
+  cursor:pointer;
+  pointer-events:auto;
+  background:transparent;
+  box-shadow:none;
+  transform:rotate(-15deg);
+  transform-origin:center;
+}
+.corner-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.corner-credit-slot:active:not(:disabled){transform:rotate(-15deg);border-color:transparent}
+.landing-v2.is-settled .corner-credit-slot{visibility:visible}
+.corner-credit-card{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  direction:rtl;
+  color:var(--ink);
+  background-color:#f3e8d6;
+  background-image:url("images/Texturelabs_Paper_234S.jpg");
+  background-size:cover;
+  background-position:center;
+  background-blend-mode:multiply;
+  box-shadow:0 4px 4px rgba(0,0,0,.25);
+  translate:0 0;
+  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
+}
+.landing-v2.is-settled .corner-credit-slot:hover .corner-credit-card,
+.landing-v2.is-settled .corner-credit-slot:focus-visible .corner-credit-card{translate:20px 16px}
+.corner-credit-card__close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:60px;
+  height:60px;
+  pointer-events:none;
+}
+.corner-credit-card__close img{display:block;width:100%;height:100%;object-fit:contain}
+.corner-credit-card__copy{
+  position:absolute;
+  top:127px;
+  right:93px;
+  width:428px;
+  display:flex;
+  flex-direction:column;
+  font-family:"SundayMono","Courier New",monospace;
+  font-size:30px;
+  font-weight:500;
+  line-height:45px;
+  text-align:right;
 }
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
@@ -206,7 +268,6 @@ button{font:inherit;color:inherit}
   object-fit:contain;
   pointer-events:none;
   opacity:0;
-  z-index:0;
 }
 .pile-photo,.pile-sheet{
   position:absolute;display:block;z-index:1;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
@@ -220,7 +281,7 @@ button{font:inherit;color:inherit}
 .pile-sheet{background-color:#f3eee2;background-image:var(--paper-texture);background-size:cover}
 .pile-sheet--back{--rr:-12deg;--rest-op:.8;--bx-to:1.3px;--by-to:1.3px;--br-to:.28deg;--bdur:9.1s;--bdelay:-1.9s;--deal-dur:1.38s;--deal-dx:-726px;--deal-dy:8px;--deal-dr:13.5deg;width:560px;height:330px;left:74px;top:230px}
 .pile-sheet--middle{--rr:7deg;--rest-op:.84;--bx-to:-1.5px;--by-to:-1.1px;--br-to:-.3deg;--bdur:8s;--bdelay:-.4s;--deal-dur:1.26s;--deal-dx:-746px;--deal-dy:-10px;--deal-dr:15.5deg;width:540px;height:350px;left:58px;top:190px}
-.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;z-index:3;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
+.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
 .pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
