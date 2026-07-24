@@ -120,7 +120,7 @@ button{font:inherit;color:inherit}
    Title and body keep their own Figma line-heights (0.95 / 1.1) and sizes.
    Sizes are reduced 20% from the Figma baseline per request. */
 .landing-v2__copy p{margin:0 0 20px;font-weight:500;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(32px,3.16vw,60.8px);line-height:0.95;margin-bottom:16px!important}
+.landing-v2__title{font-size:clamp(32px,3.1667vw,60.8px);line-height:0.95;margin-bottom:16px!important}
 /* First sentence bold (Figma) — beats the shared .landing-v2__copy p weight. */
 .landing-v2__copy p.landing-v2__title{font-weight:700}
 .landing-v2__copy p:not(.landing-v2__title){font-size:clamp(20px,1.84vw,35.2px);line-height:1.1;text-indent:80px}
@@ -135,18 +135,55 @@ button{font:inherit;color:inherit}
 .typewriter-live .tw-char{visibility:hidden}
 .typewriter-live .tw-char.tw-shown{visibility:visible}
 
-/* ===== corner photos (top-left) — dealt in from the left, then breathe ===== */
+/* ===== exact top-left crop from Figma 780:1601 / 780:1602 / 794:1668 ===== */
 .landing-v2__corner{position:absolute;inset:0;z-index:4;pointer-events:none}
-.corner-layer{position:absolute;display:flex;align-items:center;justify-content:center;opacity:0}
-.corner-layer img{display:block;object-fit:cover;box-shadow:4px 0 4px rgba(0,0,0,.25)}
-.corner-layer--a{left:-48px;top:-206.69px;width:414.793px;height:322.937px;--rest-rotation:-99.02deg;--rest-op:.81;--deal-dur:1.34s;--deal-from-x:-44vw;--deal-from-y:7px;--deal-from-r:-2.2deg}
-.corner-layer--a img{width:267.065px;height:377.609px;transform:rotate(var(--rest-rotation))}
-.corner-layer--b{left:-143.14px;top:-64px;width:307.507px;height:210.103px;--rest-rotation:12.39deg;--rest-op:.8;--deal-dur:1.22s;--deal-from-x:-48vw;--deal-from-y:-9px;--deal-from-r:1.8deg}
-.corner-layer--b img{width:281.153px;height:153.356px;transform:rotate(var(--rest-rotation))}
-.corner-layer--c{left:-450px;top:-127px;width:614.433px;height:554.756px;--rest-rotation:-34.67deg;--rest-op:.8;--deal-dur:1.42s;--deal-from-x:-42vw;--deal-from-y:11px;--deal-from-r:-1.5deg}
-.corner-layer--c img{width:537.834px;height:302.532px;transform:rotate(var(--rest-rotation))}
-.corner-layer--d{left:-273px;top:-123px;width:388.288px;height:449.823px;--rest-rotation:-21.82deg;--rest-op:.81;--deal-dur:1.26s;--deal-from-x:-47vw;--deal-from-y:-6px;--deal-from-r:2.1deg}
-.corner-layer--d img{width:267.065px;height:377.609px;transform:rotate(var(--rest-rotation))}
+.corner-layer{
+  position:absolute;
+  left:0;
+  top:0;
+  display:block;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  opacity:0;
+}
+.corner-layer img{display:block;width:100%;height:100%;object-fit:contain}
+.corner-layer--paper{
+  z-index:1;
+  width:375px;
+  height:120px;
+  --rest-op:1;
+  --deal-dur:1.34s;
+  --deal-from-x:-44vw;
+  --deal-from-y:7px;
+  --deal-from-r:-2.2deg;
+}
+.corner-layer--photo{
+  z-index:2;
+  width:132px;
+  height:137px;
+  --rest-op:1;
+  --deal-dur:1.22s;
+  --deal-from-x:-48vw;
+  --deal-from-y:-9px;
+  --deal-from-r:1.8deg;
+}
+.corner-layer--credit{
+  z-index:3;
+  width:172px;
+  height:440px;
+  cursor:pointer;
+  pointer-events:auto;
+  --rest-op:1;
+  --deal-dur:1.42s;
+  --deal-from-x:-42vw;
+  --deal-from-y:11px;
+  --deal-from-r:-1.5deg;
+  transition:transform .3s cubic-bezier(.32,1.06,.5,1);
+}
+.landing-v2.is-settled .corner-layer--credit:hover,
+.landing-v2.is-settled .corner-layer--credit:focus-visible{transform:translateX(16px)}
 
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
@@ -157,16 +194,26 @@ button{font:inherit;color:inherit}
 /* ===== the pile (bottom-left) — each sheet dealt in from the left, then breathes ===== */
 .landing-v2__pile{
   position:absolute;
-  left:-46px;
-  bottom:-203px;
-  width:645px;
-  height:599px;
+  left:0;
+  bottom:-4px;
+  width:640px;
+  height:445px;
   z-index:8;
   border:0;
   background:transparent;
   padding:0;
   cursor:pointer;
-  transform:rotate(-8.72deg);
+  transform:none;
+}
+.pile-reference{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:640px;
+  height:445px;
+  object-fit:contain;
+  pointer-events:none;
+  opacity:0;
 }
 .pile-photo,.pile-sheet{
   position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
@@ -180,10 +227,10 @@ button{font:inherit;color:inherit}
 .pile-sheet{background-color:#f3eee2;background-image:var(--paper-texture);background-size:cover}
 .pile-sheet--back{--rr:-12deg;--rest-op:.8;--bx-to:1.3px;--by-to:1.3px;--br-to:.28deg;--bdur:9.1s;--bdelay:-1.9s;--deal-dur:1.38s;--deal-dx:-726px;--deal-dy:8px;--deal-dr:13.5deg;width:560px;height:330px;left:74px;top:230px}
 .pile-sheet--middle{--rr:7deg;--rest-op:.84;--bx-to:-1.5px;--by-to:-1.1px;--br-to:-.3deg;--bdur:8s;--bdelay:-.4s;--deal-dur:1.26s;--deal-dx:-746px;--deal-dy:-10px;--deal-dr:15.5deg;width:540px;height:350px;left:58px;top:190px}
-.pile-sheet--front{--rr:18deg;--rest-op:.9;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:82px;top:-4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
+.pile-sheet--front{--rr:10.4deg;--rest-op:.96;--bx-to:1px;--by-to:-1.2px;--br-to:.22deg;--bdur:8.5s;--bdelay:-2.2s;--deal-dur:1.44s;--deal-dx:-712px;--deal-dy:6px;--deal-dr:12deg;width:524px;height:370px;left:53px;top:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms,--ppr .56s var(--ease-release) 70ms,box-shadow .56s ease 70ms}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
-.pile-label{font-size:50px;font-weight:500;line-height:1.2;white-space:nowrap}
+.pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
 
 @keyframes pile-deal{0%{opacity:0;--pdx:var(--deal-dx,-720px);--pdy:var(--deal-dy,0px);--pdr:var(--deal-dr,14deg)}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdy:0px;--pdr:0deg}}
 @keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
@@ -274,9 +321,8 @@ button{font:inherit;color:inherit}
    1.22–1.44s) — less dead air between papers, same calm handling.
    Fixed values, so the sequence is identical on every load. */
 .landing-v2.is-card-entered .corner-layer{animation:corner-deal var(--deal-dur,1.3s) var(--ease-deal) both}
-.landing-v2.is-card-entered .corner-layer--b{animation-delay:550ms}
-.landing-v2.is-card-entered .corner-layer--c{animation-delay:1360ms}
-.landing-v2.is-card-entered .corner-layer--d{animation-delay:1900ms}
+.landing-v2.is-card-entered .corner-layer--photo{animation-delay:550ms}
+.landing-v2.is-card-entered .corner-layer--credit{animation-delay:1360ms}
 .landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .pile-photo--1{animation-delay:2610ms}
 .landing-v2.is-card-entered .pile-photo--2{animation-delay:3100ms}
@@ -288,11 +334,70 @@ button{font:inherit;color:inherit}
 
 /* settled: once the deal finishes, papers settle into the constant breathing
    (replaces the deal animation) — independent of the typewriter finishing */
-.landing-v2.is-settled .corner-layer--a{opacity:.81;animation:paper-breathe-a 8.7s ease-in-out infinite}
-.landing-v2.is-settled .corner-layer--b{opacity:.8;animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
-.landing-v2.is-settled .corner-layer--c{opacity:.8;animation:paper-breathe-a 9.4s ease-in-out .7s infinite reverse}
-.landing-v2.is-settled .corner-layer--d{opacity:.81;animation:paper-breathe-b 8.1s ease-in-out 1.8s infinite reverse}
+.landing-v2.is-settled .corner-layer--paper{opacity:1;animation:paper-breathe-a 8.7s ease-in-out infinite}
+.landing-v2.is-settled .corner-layer--photo{opacity:1;animation:paper-breathe-b 7.3s ease-in-out 1.15s infinite}
+.landing-v2.is-settled .corner-layer--credit{opacity:1}
 .landing-v2.is-settled .pile-photo,.landing-v2.is-settled .pile-sheet{opacity:var(--rest-op,1);animation:pile-breathe var(--bdur,8s) ease-in-out var(--bdelay,0s) infinite}
+.landing-v2.is-settled .pile-reference{opacity:1}
+.landing-v2.is-settled .pile-photo,
+.landing-v2.is-settled .pile-sheet--back,
+.landing-v2.is-settled .pile-sheet--middle{opacity:0!important;animation:none}
+
+/* ===== credits, Figma 779:1396 ===== */
+.landing-v2__credit-overlay{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:grid;
+  place-items:center;
+  background:rgba(62,54,38,.14);
+  opacity:0;
+  transition:opacity .24s ease;
+}
+.landing-v2__credit-overlay[hidden]{display:none}
+.landing-v2__credit-overlay.is-open{opacity:1}
+.landing-v2__credit-dialog{
+  position:relative;
+  width:614px;
+  height:439px;
+  max-width:calc(100vw - 40px);
+  max-height:calc(100vh - 40px);
+  overflow:hidden;
+  direction:rtl;
+  color:var(--ink);
+  background-color:#f3e8d6;
+  background-image:url("images/Texturelabs_Paper_234S.jpg");
+  background-size:cover;
+  background-position:center;
+  background-blend-mode:multiply;
+  box-shadow:0 4px 4px rgba(0,0,0,.25);
+}
+.landing-v2__credit-close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  z-index:2;
+  width:60px;
+  height:60px;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+.landing-v2__credit-close img{display:block;width:100%;height:100%;object-fit:contain}
+.landing-v2__credit-copy{
+  position:absolute;
+  top:127px;
+  right:93px;
+  width:428px;
+  font-family:"SundayMono","Courier New",monospace;
+  font-size:30px;
+  font-weight:500;
+  line-height:45px;
+  text-align:right;
+}
+.landing-v2__credit-copy p{margin:0}
+.landing-v2.is-credit-open > :not(.landing-v2__credit-overlay){pointer-events:none}
 
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2__nav{top:2.96vh;right:1.67vw;gap:1.67vw}
@@ -304,19 +409,20 @@ button{font:inherit;color:inherit}
   .landing-v2__title{font-size:3.168vw}
   .landing-v2__copy p:not(.landing-v2__title){font-size:1.832vw;text-indent:4.17vw}
   .landing-v2__corner,.landing-v2__pile{scale:calc(100vw / 1920px);transform-origin:left top}
-  .landing-v2__pile{transform-origin:left bottom;left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw)}
+  .landing-v2__pile{transform-origin:left bottom;left:0;bottom:calc(-4px * (100vw / 1920px))}
 }
 
 @media (max-width:900px){
   .landing-v2__nav{top:18px;right:18px;gap:12px}.icon-btn{width:58px;height:58px}
   .landing-v2__copy{top:15vh;right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:35px}
   .landing-v2__search{top:15vh;right:7vw;width:82vw}
-  .landing-v2__pile{transform:scale(.72) rotate(-8.72deg);transform-origin:left bottom;left:-125px;bottom:-165px}
+  .landing-v2__pile{transform:scale(.72);transform-origin:left bottom;left:-48px;bottom:-4px}
+  .landing-v2__credit-dialog{transform:scale(min(1,calc((100vw - 40px)/614)));transform-origin:center}
 }
 
 @media (prefers-reduced-motion:reduce){
   .landing-v2__wordmark,.landing-v2__copy{transition:none!important}
-  .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important;transform:translate3d(0,0,0)!important}
+  .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
   .pile-sheet--front{transition:none}
 }
