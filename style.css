@@ -2285,6 +2285,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translateY(0);
 }
 
+/* The legacy handoff removes only the completed sentence. The accumulated
+   questionnaire background remains fully present behind it. */
+.cards-scene.is-sentence-leaving .cards-memory-copy {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 650ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .cards-memory-ack {
   position: absolute;
   z-index: 3;
@@ -2923,6 +2931,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow: hidden;
 }
 
+/* The generic SPA router cross-fades screens. This single transition instead
+   carries persistent background nodes between two identical paper surfaces,
+   so the handoff must be instantaneous and visually continuous. */
+#screen-legacy.is-continuous-entry {
+  transition: none;
+}
+
+#screen-legacy .cards-memory-ack.is-persisted {
+  z-index: 1;
+  top: 3.98vh;
+  opacity: 0.22;
+  filter: blur(16px);
+  transform: translateX(-50%);
+}
+
 #screen-legacy .qform-stage {
   z-index: 2;
   width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
@@ -2930,7 +2953,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-legacy .qform-sheet {
-  box-shadow: 0 12px 30px rgba(61, 54, 40, 0.14), 0 2px 8px rgba(61, 54, 40, 0.08);
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.25);
 }
 
 /* The legacy moment ("הקדשת רגע לדור שקדם לך") is not a new screen: the
@@ -2987,7 +3010,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 100%;
   max-width: none;
   min-width: 0;
-  font-size: clamp(18px, 3.5cqw, 48px);
+  font-size: clamp(20px, 4.38cqw, 60px);
   white-space: nowrap;
   text-wrap: nowrap;
 }

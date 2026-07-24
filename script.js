@@ -980,6 +980,15 @@
       screens.legacy.insertBefore(cardsMemoryTrace, screens.legacy.firstChild);
     }
     if (cardsMemoryTrace) cardsMemoryTrace.classList.add("is-continuing");
+    // The blurred acknowledgement is part of the accumulated questionnaire
+    // background in Figma 808:1677. Move that exact node with the answer
+    // fragments so the legacy state keeps the same rendered archive rather
+    // than reconstructing an approximation on a fresh screen.
+    if (cardsMemoryAck && screens.legacy && cardsMemoryAck.parentNode !== screens.legacy) {
+      const stage = screens.legacy.querySelector(".qform-stage");
+      screens.legacy.insertBefore(cardsMemoryAck, stage || null);
+    }
+    if (cardsMemoryAck) cardsMemoryAck.classList.add("is-persisted");
     clearLegacyLines();
     btnLegacyNext.disabled = true;
     // Settle the legacy page onto the preserved background as a new layer,
@@ -1029,6 +1038,7 @@
   const cardsBlankType = document.getElementById("cards-blank-typewriter");
   const btnBeginLeaving = document.getElementById("btn-begin-leaving");
   const cardsMemoryTrace = document.getElementById("cards-memory-trace");
+  const cardsMemoryAck = document.getElementById("cards-memory-ack");
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -1166,8 +1176,12 @@
       screens.cards.insertBefore(cardsMemoryTrace, cardsWrap || screens.cards.firstChild);
     }
     if (cardsMemoryTrace) cardsMemoryTrace.classList.remove("is-continuing");
+    if (cardsMemoryAck && cardsScene && cardsMemoryAck.parentNode !== cardsScene) {
+      cardsScene.insertBefore(cardsMemoryAck, cardsScene.firstChild);
+    }
+    if (cardsMemoryAck) cardsMemoryAck.classList.remove("is-persisted");
     if (cardsScene) {
-      cardsScene.classList.remove("is-typing", "is-copy-done", "is-ack-visible", "is-ack-receding", "is-copy-visible");
+      cardsScene.classList.remove("is-typing", "is-copy-done", "is-ack-visible", "is-ack-receding", "is-copy-visible", "is-sentence-leaving");
     }
     if (btnBeginLeaving) btnBeginLeaving.disabled = true;
     if (cardsBlankType) cardsBlankType.textContent = "";
@@ -1247,10 +1261,28 @@
     tick();
   }
 
+  let isLegacyTransitioning = false;
   function beginLeaving() {
-    if (!cardsScene.classList.contains("is-copy-done")) return;
-    initLegacy();
-    showScreen("legacy");
+    if (!cardsScene.classList.contains("is-copy-done") || isLegacyTransitioning) return;
+    isLegacyTransitioning = true;
+
+    // Remove only the foreground sentence. The answer fragments and blurred
+    // acknowledgement remain untouched until their existing DOM nodes are
+    // handed directly to the legacy screen.
+    cardsScene.classList.add("is-sentence-leaving");
+
+    window.setTimeout(() => {
+      initLegacy();
+      // Both screens use the same paper layer and now contain the same
+      // persistent background nodes. Suppress the generic screen cross-fade
+      // for this one handoff so neither the paper nor the fragments flash.
+      screens.legacy.classList.add("is-continuous-entry");
+      showScreen("legacy");
+      requestAnimationFrame(() => {
+        screens.legacy.classList.remove("is-continuous-entry");
+        isLegacyTransitioning = false;
+      });
+    }, reduceMotion ? 0 : 700);
   }
 
   // ============================================================
