@@ -85,6 +85,7 @@
     screen.classList.add('is-revealed');
     if (reduceMotion) {
       screen.classList.add('is-card-entered');
+      screen.classList.add('is-credit-entered');
       screen.classList.add('is-settled');
       cardFinished = true;
       revealAll();
@@ -92,6 +93,10 @@
       window.setTimeout(() => typePart(0), 260);
       window.setTimeout(() => {
         screen.classList.add('is-card-entered');
+        // The complete credit sheet uses the same translate-only pull pattern
+        // as the archive's brown paper tabs: it starts tucked behind the
+        // top-left paper, then physically slides into its resting position.
+        window.setTimeout(() => screen.classList.add('is-credit-entered'), 2000);
         // once the ~7.8s deal finishes, let the papers settle into the breathing
         // (independent of the typewriter, which finishes much later)
         window.setTimeout(() => screen.classList.add('is-settled'), 7950);
