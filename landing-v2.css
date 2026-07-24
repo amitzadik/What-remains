@@ -1,7 +1,7 @@
 /* SundayMono + Mandatory Variable @font-face (full weight family) come from
    style.css, which this page also loads. font-synthesis:none — real files only. */
 :root{
-  --ink:#3e3626;--paper:#faf6ee;--paper-texture:url("images/figma-landing-background.jpg");font-synthesis:none;
+  --ink:#3e3626;--paper:#fcf6ed;--paper-texture:url("images/Texturelabs_Paper_234M.jpg");font-synthesis:none;
   /* Motion — "handled paper": --ease-deal lays a sheet down with a faint
      settle-past (calmer than a spring); --ease-uncover slides the top layer
      aside under a hand; --ease-release lets it slip back on its own. */
@@ -34,18 +34,13 @@ button{font:inherit;color:inherit}
   background-color:var(--paper);
   background-image:var(--paper-texture);
   background-size:cover;
-  background-position:center;
+  background-position:center 38.3%;
+  background-repeat:no-repeat;
+  background-blend-mode:multiply;
+  transition:background-position 14s cubic-bezier(.45,0,.15,1);
 }
 .landing-v2::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:20;
-  pointer-events:none;
-  opacity:.16;
-  mix-blend-mode:multiply;
-  background-image:radial-gradient(circle at 73% 66%,rgba(62,54,38,.2),transparent 22%),radial-gradient(circle at 63% 48%,rgba(62,54,38,.13),transparent 18%);
-  transition:opacity 2.8s ease;
+  content:none;
 }
 
 .landing-v2__wordmark{
@@ -270,7 +265,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-searching .landing-v2__copy{opacity:0;pointer-events:none;transition:opacity .3s ease}
 .landing-v2.is-searching .landing-v2__search{opacity:1;pointer-events:auto}
 .landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
-.landing-v2.is-revealed::after{opacity:.24}
+.landing-v2.is-revealed{background-position:center 51.2%}
 
 /* deal-in: corners first, then the pile builds up (front sheet lands last).
    The whole deal spans ~7.8s: the gaps between papers stay uneven
