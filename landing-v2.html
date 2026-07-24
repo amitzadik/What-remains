@@ -6,17 +6,18 @@
   <title>מה שישאר — עמוד הבית</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=52">
-  <link rel="stylesheet" href="landing-v2.css?v=19">
+  <link rel="stylesheet" href="landing-v2.css?v=20">
 </head>
 <body>
   <main class="landing-v2" id="landing-v2">
     <div class="landing-v2__wordmark" aria-hidden="true">מה שישאר</div>
 
-    <div class="landing-v2__corner landing-v2__corner--top" aria-hidden="true">
-      <span class="corner-layer corner-layer--a"><img src="images/figma-paper-photo.jpg" alt=""></span>
-      <span class="corner-layer corner-layer--b"><img src="images/figma-photo-wide.png" alt=""></span>
-      <span class="corner-layer corner-layer--c"><img src="images/figma-photo-family.png" alt=""></span>
-      <span class="corner-layer corner-layer--d"><img src="images/figma-photo-portrait.png" alt=""></span>
+    <div class="landing-v2__corner landing-v2__corner--top">
+      <span class="corner-layer corner-layer--paper" aria-hidden="true"><img src="images/home-top-paper-780-1601.png" alt=""></span>
+      <span class="corner-layer corner-layer--photo" aria-hidden="true"><img src="images/home-top-image-780-1602.png" alt=""></span>
+      <button class="corner-layer corner-layer--credit" id="landing-v2-credit-open" type="button" aria-label="קרדיטים">
+        <img src="images/home-credit-tab-794-1668.png" alt="">
+      </button>
     </div>
 
     <nav class="landing-v2__nav" aria-label="פעולות">
@@ -40,6 +41,7 @@
     </section>
 
     <button class="landing-v2__pile" id="landing-v2-add" type="button" aria-label="צור את האוסף שלך">
+      <img class="pile-reference" src="images/home-left-pile-780-1457.png" alt="">
       <span class="pile-photo pile-photo--1"></span>
       <span class="pile-photo pile-photo--2"></span>
       <span class="pile-photo pile-photo--3"></span>
@@ -51,7 +53,21 @@
         <span class="pile-label">צור את האוסף שלך</span>
       </span>
     </button>
+
+    <div class="landing-v2__credit-overlay" id="landing-v2-credit-overlay" hidden>
+      <section class="landing-v2__credit-dialog" role="dialog" aria-modal="true" aria-labelledby="landing-v2-credit-title">
+        <button class="landing-v2__credit-close" id="landing-v2-credit-close" type="button" aria-label="סגירת חלון הקרדיטים">
+          <img src="images/close-default.png" alt="">
+        </button>
+        <div class="landing-v2__credit-copy" id="landing-v2-credit-title">
+          <p>החוג לעיצוב תקשורת חזותית</p>
+          <p>בית הספר לעיצוב</p>
+          <p>אוניברסיטת חיפה</p>
+          <p>תשפ״ו 2026</p>
+        </div>
+      </section>
+    </div>
   </main>
-  <script src="landing-v2.js?v=10"></script>
+  <script src="landing-v2.js?v=11"></script>
 </body>
 </html>

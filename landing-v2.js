@@ -181,6 +181,47 @@
     else openSearch();
   }
 
+  // ----- credit paper + modal (Figma 794:1668 / 779:1396) -----
+  const creditOpen = document.getElementById('landing-v2-credit-open');
+  const creditOverlay = document.getElementById('landing-v2-credit-overlay');
+  const creditClose = document.getElementById('landing-v2-credit-close');
+  let creditReturnFocus = null;
+
+  function openCredits() {
+    if (!creditOverlay || !creditClose) return;
+    creditReturnFocus = document.activeElement;
+    closeSearch();
+    creditOverlay.hidden = false;
+    screen.classList.add('is-credit-open');
+    window.requestAnimationFrame(() => {
+      creditOverlay.classList.add('is-open');
+      creditClose.focus();
+    });
+  }
+
+  function closeCredits() {
+    if (!creditOverlay || creditOverlay.hidden) return;
+    creditOverlay.classList.remove('is-open');
+    screen.classList.remove('is-credit-open');
+    window.setTimeout(() => {
+      creditOverlay.hidden = true;
+      if (creditReturnFocus && typeof creditReturnFocus.focus === 'function') creditReturnFocus.focus();
+      creditReturnFocus = null;
+    }, 240);
+  }
+
+  creditOpen?.addEventListener('click', openCredits);
+  creditClose?.addEventListener('click', closeCredits);
+  creditOverlay?.addEventListener('click', (event) => {
+    if (event.target === creditOverlay) closeCredits();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && creditOverlay && !creditOverlay.hidden) {
+      event.preventDefault();
+      closeCredits();
+    }
+  });
+
   if (searchField) {
     searchField.addEventListener('input', () => {
       window.clearTimeout(searchDebounce);
