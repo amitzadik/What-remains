@@ -270,7 +270,7 @@ button{font:inherit;color:inherit}
   opacity:0;
 }
 .pile-photo,.pile-sheet{
-  position:absolute;display:block;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
+  position:absolute;display:block;z-index:1;box-shadow:0 -4px 7px rgba(0,0,0,.22);opacity:0;--rr:0deg;
   transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),calc(var(--pby) + var(--pdy) + var(--ppy)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr) + var(--ppr)));
 }
 .pile-photo{background-color:#d7d1c6;background-size:cover;background-position:center;filter:grayscale(.35)}
@@ -294,11 +294,82 @@ button{font:inherit;color:inherit}
    The slide reads as a hand moving the sheet aside: it starts a breath
    late, lifts a hair and pivots slightly as it goes, and on release it
    slips back slower than it was pushed (asymmetric in/out timing). */
-.landing-v2__pile:hover:not(:disabled){color:var(--ink)}
-.landing-v2__pile:hover .pile-sheet--front{
+.pile-sheet--front:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.pile-sheet--front:hover{
   --ppop:18px;--ppy:-2px;--ppr:.8deg;
   box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18);
   transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms,--ppr .42s var(--ease-uncover) 30ms,box-shadow .5s ease 30ms;
+}
+.pile-sheet--front:active:not(:disabled){
+  transform:translate3d(calc(var(--pbx) + var(--pdx) + var(--ppop)),calc(var(--pby) + var(--pdy) + var(--ppy)),0) rotate(calc(var(--rr) + var(--pbr) + var(--pdr) + var(--ppr)));
+  border-color:transparent;
+}
+
+/* Full credit sheet: one complete physical card lives inside the lower-left
+   pile, below the create sheet. Its default overlap hides almost all of it;
+   hover pulls the same element upward without changing scale, opacity,
+   rotation or stacking — the archive kraft-card interaction pattern. */
+.pile-credit-slot{
+  position:absolute;
+  left:-16px;
+  top:78px;
+  z-index:2;
+  width:614px;
+  height:439px;
+  padding:0;
+  border:0;
+  overflow:visible;
+  visibility:hidden;
+  cursor:pointer;
+  background:transparent;
+  box-shadow:none;
+  transform:rotate(-5.4deg);
+  transform-origin:center;
+}
+.pile-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
+.pile-credit-slot:active:not(:disabled){transform:rotate(-5.4deg);border-color:transparent}
+.landing-v2.is-settled .pile-credit-slot{visibility:visible}
+.pile-credit-card{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  direction:rtl;
+  color:var(--ink);
+  background-color:#f3e8d6;
+  background-image:url("images/Texturelabs_Paper_234S.jpg");
+  background-size:cover;
+  background-position:center;
+  background-blend-mode:multiply;
+  box-shadow:0 4px 4px rgba(0,0,0,.25);
+  translate:0 0;
+  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
+}
+.landing-v2.is-settled .pile-credit-slot:hover .pile-credit-card,
+.landing-v2.is-settled .pile-credit-slot:focus-visible .pile-credit-card{translate:24px -132px}
+.pile-credit-card__close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:60px;
+  height:60px;
+  pointer-events:none;
+}
+.pile-credit-card__close img{display:block;width:100%;height:100%;object-fit:contain}
+.pile-credit-card__copy{
+  position:absolute;
+  top:127px;
+  right:93px;
+  width:428px;
+  display:flex;
+  flex-direction:column;
+  font-family:"SundayMono","Courier New",monospace;
+  font-size:30px;
+  font-weight:500;
+  line-height:45px;
+  text-align:right;
+  pointer-events:none;
 }
 
 /* ===== inline archive search — replaces the intro copy while active ===== */
