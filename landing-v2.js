@@ -194,13 +194,16 @@
 
   function openCredits() {
     if (!creditOverlay || !creditClose) return;
+    if (screen.classList.contains('is-credit-open')) return;
     creditReturnFocus = document.activeElement;
     closeSearch();
     creditOverlay.hidden = false;
     screen.classList.add('is-credit-open');
+    creditOpen?.setAttribute('role', 'dialog');
+    creditOpen?.setAttribute('aria-modal', 'true');
     window.requestAnimationFrame(() => {
       creditOverlay.classList.add('is-open');
-      creditClose.focus();
+      window.setTimeout(() => creditClose.focus(), 460);
     });
   }
 
@@ -208,15 +211,29 @@
     if (!creditOverlay || creditOverlay.hidden) return;
     creditOverlay.classList.remove('is-open');
     screen.classList.remove('is-credit-open');
+    creditOpen?.setAttribute('role', 'button');
+    creditOpen?.removeAttribute('aria-modal');
     window.setTimeout(() => {
       creditOverlay.hidden = true;
       if (creditReturnFocus && typeof creditReturnFocus.focus === 'function') creditReturnFocus.focus();
       creditReturnFocus = null;
-    }, 240);
+    }, 760);
   }
 
-  creditOpen?.addEventListener('click', openCredits);
-  creditClose?.addEventListener('click', closeCredits);
+  creditOpen?.addEventListener('click', (event) => {
+    if (event.target.closest('.corner-credit-card__close')) return;
+    openCredits();
+  });
+  creditOpen?.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && !screen.classList.contains('is-credit-open')) {
+      event.preventDefault();
+      openCredits();
+    }
+  });
+  creditClose?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeCredits();
+  });
   creditOverlay?.addEventListener('click', (event) => {
     if (event.target === creditOverlay) closeCredits();
   });

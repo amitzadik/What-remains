@@ -6,16 +6,16 @@
   <title>מה שישאר — עמוד הבית</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=52">
-  <link rel="stylesheet" href="landing-v2.css?v=24">
+  <link rel="stylesheet" href="landing-v2.css?v=25">
 </head>
 <body>
   <main class="landing-v2" id="landing-v2">
     <div class="landing-v2__wordmark" aria-hidden="true">מה שישאר</div>
 
     <div class="landing-v2__corner landing-v2__corner--top">
-      <button class="corner-credit-slot" id="landing-v2-credit-open" type="button" aria-label="קרדיטים">
+      <div class="corner-credit-slot" id="landing-v2-credit-open" role="button" tabindex="0" aria-label="קרדיטים">
         <span class="corner-credit-card">
-          <span class="corner-credit-card__close" aria-hidden="true"><img src="images/close-default.png" alt=""></span>
+          <button class="corner-credit-card__close" id="landing-v2-credit-close" type="button" aria-label="סגירת חלון הקרדיטים"><img src="images/close-default.png" alt=""></button>
           <span class="corner-credit-card__copy" aria-hidden="true">
             <span>החוג לעיצוב תקשורת חזותית</span>
             <span>בית הספר לעיצוב</span>
@@ -23,7 +23,7 @@
             <span>תשפ״ו 2026</span>
           </span>
         </span>
-      </button>
+      </div>
       <span class="corner-layer corner-layer--paper" aria-hidden="true"><img src="images/home-top-paper-780-1601.png" alt=""></span>
       <span class="corner-layer corner-layer--photo" aria-hidden="true"><img src="images/home-top-image-780-1602.png" alt=""></span>
     </div>
@@ -61,20 +61,8 @@
       </span>
     </button>
 
-    <div class="landing-v2__credit-overlay" id="landing-v2-credit-overlay" hidden>
-      <section class="landing-v2__credit-dialog" role="dialog" aria-modal="true" aria-labelledby="landing-v2-credit-title">
-        <button class="landing-v2__credit-close" id="landing-v2-credit-close" type="button" aria-label="סגירת חלון הקרדיטים">
-          <img src="images/close-default.png" alt="">
-        </button>
-        <div class="landing-v2__credit-copy" id="landing-v2-credit-title">
-          <p>החוג לעיצוב תקשורת חזותית</p>
-          <p>בית הספר לעיצוב</p>
-          <p>אוניברסיטת חיפה</p>
-          <p>תשפ״ו 2026</p>
-        </div>
-      </section>
-    </div>
+    <div class="landing-v2__credit-overlay" id="landing-v2-credit-overlay" hidden></div>
   </main>
-  <script src="landing-v2.js?v=12"></script>
+  <script src="landing-v2.js?v=13"></script>
 </body>
 </html>
