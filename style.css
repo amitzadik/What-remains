@@ -125,6 +125,7 @@
   --ts-fieldlabel-ls: 0;
   --paper-tex: url('images/paper-texture.jpg');
   --paperboard-tex: url('paperboard-texture.jpg');
+  --flow-paper-tex: url('images/figma-flow-light-paper.jpg');
   --popup-card-w: min(668px, calc(90vw - 232px), calc(85vh * 1.5 - 232px));
   --popup-card-h: calc(var(--popup-card-w) / 1.5);
 }
@@ -5729,4 +5730,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .archive-box:not(.is-tool-open)
     .personal-tool-panel[aria-hidden="true"]
     .personal-tool-card:hover { translate:0 0; }
+}
+
+/* Figma 465:5711 — one shared viewport paper layer for the complete
+   questionnaire flow, from registration through stamping instructions.
+   Kept last so it replaces only each screen's base layer; screen-specific
+   shades, cards and animated children remain unchanged above it. */
+:is(
+  #screen-questions,
+  #screen-legacy,
+  #screen-stack,
+  #screen-cards,
+  #screen-camera,
+  #screen-envelope
+).flow-paper-screen {
+  background-color: #FCF6ED;
+  background-image: var(--flow-paper-tex);
+  background-size: cover;
+  background-position: center 39%;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
 }
