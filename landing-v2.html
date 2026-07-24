@@ -28,9 +28,9 @@
     <section class="landing-v2__copy landing-card-face landing-card-front" aria-label="פתיח">
       <div class="landing-body">
         <p class="landing-v2__title">כאן נאספים הדברים שנבחר להשאיר אחרינו.</p>
-        <p>מילים, זכרונות, תמונות ועדויות<br>שנועדו להגיע אל מי שיבואו אחרינו.</p>
-        <p>באפשרותכם לעיין במה שנשמר עבורכם,<br>או להוסיף שכבה חדשה משלכם.</p>
-        <p>כל ארכיון אישי נשמר תחת קוד גישה<br>ייחודי, שיאפשר לכם לשוב אליו בעתיד.</p>
+        <p>מילים, זכרונות, תמונות ועדויות שנועדו להגיע אל מי שיבואו אחרינו.</p>
+        <p>באפשרותכם לעיין במה שנשמר עבורכם, או להוסיף שכבה חדשה משלכם.</p>
+        <p>כל ארכיון אישי נשמר תחת קוד גישה ייחודי, שיאפשר לכם לשוב אליו בעתיד.</p>
       </div>
     </section>
 
@@ -51,7 +51,39 @@
         <span class="pile-label">צור את האוסף שלך</span>
       </span>
     </button>
+
+    <!-- Credit — a paper tucked under the top-left corner. Its edge peeks on
+         hover (physical pull), and clicking it opens the full credit window. -->
+    <button class="landing-v2__credit" id="landing-v2-credit" type="button"
+            aria-label="קרדיט" aria-haspopup="dialog">
+      <span class="credit-tab__paper"></span>
+    </button>
+
+    <div class="landing-v2__credit-modal" id="landing-v2-credit-modal" role="dialog"
+         aria-modal="true" aria-label="קרדיט" hidden>
+      <div class="credit-modal__scrim" data-credit-close></div>
+      <div class="credit-modal__card">
+        <button class="credit-modal__close" type="button" aria-label="סגירה" data-credit-close>
+          <img src="images/close-default.png" alt="">
+        </button>
+        <div class="credit-modal__logo" id="credit-modal-logo">
+          <img class="credit-modal__logo-img" src="images/haifa-logo.png" alt="אוניברסיטת חיפה">
+          <div class="credit-modal__logo-fallback" aria-hidden="true">
+            <span class="cl-mark"></span>
+            <span class="cl-he">אוניברסיטת חיפה</span>
+            <span class="cl-en">UNIVERSITY OF HAIFA</span>
+            <span class="cl-ar">جامعة حيفا</span>
+          </div>
+        </div>
+        <div class="credit-modal__text">
+          <p>החוג לעיצוב תקשורת חזותית</p>
+          <p>בית הספר לעיצוב</p>
+          <p>אוניברסיטת חיפה</p>
+          <p>תשפ״ו 2026</p>
+        </div>
+      </div>
+    </div>
   </main>
-  <script src="landing-v2.js?v=10"></script>
+  <script src="landing-v2.js?v=11"></script>
 </body>
 </html>

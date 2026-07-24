@@ -96,7 +96,7 @@ button{font:inherit;color:inherit}
 .landing-v2__copy{
   position:absolute;
   top:calc(50% - 339px);
-  right:calc(50% - 420px);
+  right:calc(50% - 497px);
   left:auto;
   bottom:auto;
   width:907px;
@@ -120,10 +120,11 @@ button{font:inherit;color:inherit}
    Title and body keep their own Figma line-heights (0.95 / 1.1) and sizes.
    Sizes are reduced 20% from the Figma baseline per request. */
 .landing-v2__copy p{margin:0 0 20px;font-weight:500;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(32px,3.16vw,60.8px);line-height:0.95;margin-bottom:16px!important}
+/* Figma 563:654 — title 76px Bold / lh .95; body 44px Medium / lh 1.1 / indent 40px. */
+.landing-v2__title{font-size:clamp(40px,3.958vw,76px);line-height:0.95;margin-bottom:16px!important}
 /* First sentence bold (Figma) — beats the shared .landing-v2__copy p weight. */
 .landing-v2__copy p.landing-v2__title{font-weight:700}
-.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(20px,1.84vw,35.2px);line-height:1.1;text-indent:80px}
+.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(25px,2.292vw,44px);line-height:1.1;text-indent:40px}
 
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
@@ -297,12 +298,12 @@ button{font:inherit;color:inherit}
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2__nav{top:2.96vh;right:1.67vw;gap:1.67vw}
   .icon-btn{width:4.69vw;height:4.69vw}
-  .landing-v2__copy{top:18.61vh;right:28vw;width:47.24vw}
-  .landing-v2__search{top:18.61vh;right:28vw;width:47.24vw}
+  .landing-v2__copy{top:18.61vh;right:24.06vw;width:47.24vw}
+  .landing-v2__search{top:18.61vh;right:24.06vw;width:47.24vw}
   .landing-v2__search-input{font-size:3vw}
   .landing-v2__result{font-size:1.9vw}
-  .landing-v2__title{font-size:3.168vw}
-  .landing-v2__copy p:not(.landing-v2__title){font-size:1.832vw;text-indent:4.17vw}
+  .landing-v2__title{font-size:3.958vw}
+  .landing-v2__copy p:not(.landing-v2__title){font-size:2.292vw;text-indent:2.083vw}
   .landing-v2__corner,.landing-v2__pile{scale:calc(100vw / 1920px);transform-origin:left top}
   .landing-v2__pile{transform-origin:left bottom;left:calc(98px - 7.5vw);bottom:calc(-92px - 5.78125vw)}
 }
@@ -319,4 +320,115 @@ button{font:inherit;color:inherit}
   .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important;transform:translate3d(0,0,0)!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
   .pile-sheet--front{transition:none}
+}
+
+/* =====================================================================
+   Credit — a paper tucked under the top-left corner that peeks on hover
+   (Figma 780:1617) and opens into the full credit window (Figma 780:1450).
+   The peek is transform-only; the open window is a separate modal state.
+   ===================================================================== */
+:root{ --credit-paper:#f3e8d6; --credit-tex:url("images/Texturelabs_Paper_234S.jpg"); }
+
+/* --- peeking tab: mostly hidden behind the top-left corner papers --- */
+.landing-v2__credit{
+  position:absolute;
+  top:-238px; left:-150px;
+  width:431px; height:606px;
+  z-index:3;                 /* under the corner photos (z-index 4) */
+  border:0; padding:0; background:transparent; cursor:pointer;
+  transform:translate(0,0);
+  transition:transform .5s var(--ease-release);
+}
+/* hover pulls the paper a little way out — physical, transform-only, ~32px */
+.landing-v2__credit:hover,
+.landing-v2__credit:focus-visible{ transform:translate(26px,19px); outline:none; }
+.credit-tab__paper{
+  position:absolute; inset:0;
+  transform:rotate(-109.99deg);
+  transform-origin:center;
+  background-color:var(--credit-paper);
+  box-shadow:0 4px 4px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.credit-tab__paper::after{
+  content:""; position:absolute; inset:0;
+  background:var(--credit-tex) center/cover;
+  mix-blend-mode:multiply; opacity:.5; pointer-events:none;
+}
+
+/* --- open window (modal) --- */
+.landing-v2__credit-modal[hidden]{ display:none; }
+.landing-v2__credit-modal{
+  position:fixed; inset:0; z-index:60;
+  display:flex; align-items:center; justify-content:center;
+}
+.credit-modal__scrim{
+  position:absolute; inset:0;
+  background:rgba(34,25,11,.55);
+  mix-blend-mode:multiply;
+  animation:credit-fade .28s ease both;
+}
+@keyframes credit-fade{ from{opacity:0} to{opacity:1} }
+.credit-modal__card{
+  position:relative;
+  width:606px; height:431px;
+  max-width:92vw; max-height:88vh;
+  background-color:var(--credit-paper);
+  box-shadow:0 18px 46px rgba(0,0,0,.42), 0 4px 4px rgba(0,0,0,.25);
+  overflow:hidden;
+  direction:rtl; color:var(--ink);
+  transform-origin:center;
+  animation:credit-rise .34s var(--ease-deal) both;
+}
+@keyframes credit-rise{
+  from{ opacity:0; transform:translateY(16px) rotate(-.5deg) scale(.985); }
+  to  { opacity:1; transform:translateY(0)    rotate(-.5deg) scale(1); }
+}
+.credit-modal__card::after{               /* paper grain, multiply */
+  content:""; position:absolute; inset:0; z-index:0;
+  background:var(--credit-tex) center/cover;
+  mix-blend-mode:multiply; opacity:.5; pointer-events:none;
+}
+.credit-modal__card > *{ position:relative; z-index:1; }
+
+.credit-modal__close{
+  position:absolute; top:20px; right:20px; z-index:2;
+  width:60px; height:60px; border:0; padding:0; background:transparent; cursor:pointer;
+  transition:transform .18s ease-out;
+}
+.credit-modal__close img{ display:block; width:100%; height:100%; object-fit:contain; }
+.credit-modal__close:hover{ transform:scale(.94); }
+
+.credit-modal__logo{
+  display:flex; flex-direction:column; align-items:center;
+  padding-top:44px;
+}
+.credit-modal__logo-img{ display:block; width:150px; height:auto; object-fit:contain; }
+.credit-modal__logo-fallback{ display:none; flex-direction:column; align-items:center; text-align:center; }
+.credit-modal__logo.is-missing .credit-modal__logo-img{ display:none; }
+.credit-modal__logo.is-missing .credit-modal__logo-fallback{ display:flex; }
+.credit-modal__logo-fallback .cl-mark{
+  width:56px; height:34px; margin-bottom:8px;
+  background:
+    conic-gradient(from -35deg at 50% 100%, #2c3e63 0 50%, transparent 0) left/50% 100% no-repeat,
+    conic-gradient(from  35deg at 50% 100%, #7fa8c9 0 50%, transparent 0) right/50% 100% no-repeat;
+  clip-path:polygon(0 100%,50% 0,100% 100%);
+}
+.credit-modal__logo-fallback .cl-he{ font-weight:700; font-size:19px; line-height:1.2; }
+.credit-modal__logo-fallback .cl-en{ font-size:11px; letter-spacing:.1em; line-height:1.4; }
+.credit-modal__logo-fallback .cl-ar{ font-size:14px; line-height:1.3; }
+
+.credit-modal__text{
+  margin-top:26px; text-align:center; font-weight:500;
+}
+.credit-modal__text p{ margin:0; font-size:30px; line-height:45px; }
+
+@media (max-width:900px){
+  .credit-modal__card{ width:88vw; height:auto; aspect-ratio:606/431; }
+  .credit-modal__text p{ font-size:clamp(18px,4.4vw,30px); line-height:1.5; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .landing-v2__credit{ transition:none!important; }
+  .credit-modal__scrim,.credit-modal__card{ animation:none!important; }
 }

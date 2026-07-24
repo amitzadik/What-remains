@@ -222,4 +222,49 @@
   screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', toggleSearch);
   screen.querySelector('[aria-label="התחברות"]')?.addEventListener('click', () => sendAction('login'));
   screen.querySelector('[aria-label="המגירה שלי"]')?.addEventListener('click', () => sendAction('drawer'));
+
+  // ----- credit window: peek is CSS-only; here we just open/close the modal.
+  // The fixed modal sits above every homepage layer and its scrim swallows
+  // pointer events, so the homepage can't be interacted with while it's open.
+  const creditBtn = document.getElementById('landing-v2-credit');
+  const creditModal = document.getElementById('landing-v2-credit-modal');
+  const creditLogo = document.getElementById('credit-modal-logo');
+  let creditLastFocus = null;
+
+  function openCredit() {
+    if (!creditModal) return;
+    creditLastFocus = document.activeElement;
+    creditModal.hidden = false;
+    screen.classList.add('is-crediting');
+    const closeBtn = creditModal.querySelector('.credit-modal__close');
+    if (closeBtn) window.setTimeout(() => closeBtn.focus(), 30);
+  }
+  function closeCredit() {
+    if (!creditModal || creditModal.hidden) return;
+    creditModal.hidden = true;
+    screen.classList.remove('is-crediting');
+    if (creditLastFocus && creditLastFocus.focus) creditLastFocus.focus();
+  }
+
+  if (creditBtn) creditBtn.addEventListener('click', openCredit);
+  if (creditModal) {
+    // close button + clicking the dimmed area outside the card
+    creditModal.addEventListener('click', (e) => {
+      if (e.target.closest('[data-credit-close]')) closeCredit();
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && creditModal && !creditModal.hidden) closeCredit();
+  });
+
+  // Show a text lockup fallback until the official University of Haifa mark
+  // (images/haifa-logo.png) is added to the project.
+  if (creditLogo) {
+    const logoImg = creditLogo.querySelector('.credit-modal__logo-img');
+    if (logoImg) {
+      const markMissing = () => creditLogo.classList.add('is-missing');
+      logoImg.addEventListener('error', markMissing);
+      if (logoImg.complete && logoImg.naturalWidth === 0) markMissing();
+    }
+  }
 })();
