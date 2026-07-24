@@ -53,6 +53,16 @@
   --stamp:           #C34237;
   --wood:            #AC8969;
 
+  /* === Light-paper visual system (Figma 492:998) ===
+     The questionnaire flow layers two distinct papers: a light full-screen
+     page paper, and a warmer, slightly darker, semi-transparent form paper
+     placed above it. They must never read as one flat surface. */
+  --form-page-bg:    #FCF6ED;                    /* full-screen page paper */
+  /* Warmer, slightly darker translucent form paper (Figma #F3E8D6 @ 50%),
+     nudged warmer/denser so the tan tone still reads distinctly against the
+     page once this project's greige paper grain multiplies over it. */
+  --form-paper:      rgba(233, 216, 187, 0.72);
+
   /* Wood derivatives */
   --wood-light:      #C4A882;
   --wood-dark:       #8A6E4F;
@@ -2219,8 +2229,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #screen-cards {
   --blank-type-speed: 57ms;
   padding: 0;
-  background-color: #F4EFE5;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: var(--form-page-bg);
+  background-image:
+    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
+    url("images/figma-question-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -2404,8 +2416,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    physical layer. */
 #screen-camera {
   padding: 0;
-  background-color: #F4EFE5;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: var(--form-page-bg);
+  background-image:
+    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
+    url("images/figma-question-background.jpg");
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -2762,8 +2776,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-questions {
-  background-color: #F4EFE5;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: var(--form-page-bg);
+  background-image:
+    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
+    url("images/figma-question-background.jpg");
   background-size: cover;
   overflow: hidden;
 }
@@ -2791,8 +2807,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 #screen-legacy {
-  background-color: #F4EFE5;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: var(--form-page-bg);
+  background-image:
+    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
+    url("images/figma-question-background.jpg");
   overflow: hidden;
 }
 
@@ -2825,25 +2843,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   }
 }
 
+/* Legacy sheet uses the shared warm form paper like every other question. */
 #screen-legacy .qform {
   position: relative;
   opacity: 0.9;
-  background: transparent;
-}
-
-#screen-legacy .qform::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-color: #F4EFE5;
-  background-image:
-    linear-gradient(rgba(244, 239, 229, 0.18), rgba(244, 239, 229, 0.18)),
-    var(--paper-tex);
-  background-size: cover;
-  background-repeat: no-repeat;
-  opacity: 0.6;
-  pointer-events: none;
+  background-color: var(--form-paper);
 }
 
 #screen-legacy .qform-grid,
@@ -2901,8 +2905,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 ============================================================ */
 #screen-stack {
   padding: 0;
-  background-color: #F4EFE5;
-  background-image: url("images/figma-question-background.jpg");
+  background-color: var(--form-page-bg);
+  background-image:
+    linear-gradient(rgba(252, 246, 237, 0.7), rgba(252, 246, 237, 0.7)),
+    url("images/figma-question-background.jpg");
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -3880,17 +3886,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   opacity: 0.5;
 }
 
+/* Shared question-form paper (Figma 492:998). One component, reused for the
+   live questions, the registration card, the legacy sheet, the gathering
+   transition, the camera pile, the stamp pile and the archive record card.
+   The warm translucent fill sits above the page paper so the two stay visibly
+   distinct layers; the paper grain rides on top via a multiply pseudo-element
+   (::before) so the fill's translucency is preserved. Motion/animation logic
+   lives elsewhere and never restyles this paper. */
 .qform {
   --qform-label-inset-y: 0.584cqw;
   --qform-label-inset-x: 0.876cqw;
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: var(--cream);
-  background-image: url("images/figma-question-paper.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
-  opacity: 0.8;
+  /* Isolate so the grain's multiply blends only within this sheet (like the
+     Figma form texture), not against the memory words showing through behind. */
+  isolation: isolate;
+  background-color: var(--form-paper);
+  opacity: 0.9;
   /* Inner area: 52px sides / 85px top+bottom at the 1500×1000 base,
      kept proportional (both percentages resolve against width) */
   padding: calc(100% * 55 / 1370) calc(100% * 52 / 1370);
@@ -3901,6 +3914,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-align: right;
   overflow: hidden;
 }
+
+/* Paper grain — multiplied over the warm fill so it reads as one textured
+   sheet without hiding the fill's translucency. */
+.qform::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--paper-tex);
+  background-size: cover;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.24;
+  pointer-events: none;
+}
+/* All ink (grid + text + actions) sits above the grain layer. */
+.qform-grid,
+.qform-actions { position: relative; z-index: 1; }
 
 /* Ruled grid — framed, fully inside the inner area so no line touches
    the page edge. All 7 rows (header / question / 5 answer lines) share
@@ -4179,26 +4210,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    (opaque) live form rather than lingering as a stray sheet. */
 #register-sheet[aria-hidden="true"] { visibility: hidden; }
 
-#screen-questions .qform {
-  isolation: isolate;
-  background-color: transparent;
-  background-image: none;
-  opacity: 1;
-}
-
-#screen-questions .qform::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image: url("images/figma-question-paper.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.6;
-  pointer-events: none;
-}
-
+/* Live question sheets use the shared .qform paper (warm translucent fill +
+   multiply grain) defined once above — no separate paper here. */
 #screen-questions .qform > * {
   z-index: 1;
 }
@@ -4316,8 +4329,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 #register-sheet .qform--register {
   padding: 0;
   opacity: 1;
-  background-color: var(--cream);
-  background-image: none;
+  background-color: var(--form-paper);
   overflow: hidden;
 }
 
