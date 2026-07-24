@@ -180,10 +180,14 @@ button{font:inherit;color:inherit}
   --deal-from-x:-42vw;
   --deal-from-y:11px;
   --deal-from-r:-1.5deg;
-  transition:transform .3s cubic-bezier(.32,1.06,.5,1);
+  translate:0 0;
+  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
 }
+/* The credit sheet is already tucked under the top-left edge. Keep its
+   entrance transform untouched and pull that same physical sheet farther
+   into the viewport on hover, like the kraft archive cards. */
 .landing-v2.is-settled .corner-layer--credit:hover,
-.landing-v2.is-settled .corner-layer--credit:focus-visible{transform:translateX(16px)}
+.landing-v2.is-settled .corner-layer--credit:focus-visible{translate:18px 16px}
 
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
