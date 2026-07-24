@@ -45,6 +45,7 @@
    Tokens (from old style.css)
 ============================================================ */
 :root {
+  --figma-paper-settle: linear(0, 0.0188, 0.0679, 0.1374, 0.2195, 0.308, 0.3978, 0.4856, 0.5686, 0.6452, 0.7142, 0.7753, 0.8283, 0.8735, 0.9113, 0.9423, 0.9671, 0.9866, 1.0014, 1.0123, 1.0198, 1.0247, 1.0274, 1.0283, 1.0281, 1.0268, 1.025, 1.0227, 1.0202, 1.0177, 1.0152, 1.0128, 1.0106, 1.0085, 1.0068, 1.0052, 1.0039, 1.0028, 1.0018, 1.0011, 1.0005, 1, 0.9997, 0.9995, 0.9993, 0.9992, 0.9992, 0.9992, 0.9992, 0.9993, 0.9993);
   /* === Palette === */
   --cream:           #FAF6EE;
   --parchment:       #F0E8D8;
@@ -136,6 +137,7 @@
   --ts-fieldlabel-ls: 0;
   --paper-tex: url('images/paper-texture.jpg');
   --paperboard-tex: url('paperboard-texture.jpg');
+  --flow-paper-tex: url('images/figma-flow-light-paper.jpg');
   --popup-card-w: min(668px, calc(90vw - 232px), calc(85vh * 1.5 - 232px));
   --popup-card-h: calc(var(--popup-card-w) / 1.5);
 }
@@ -2378,7 +2380,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    [data-age] trace treatment, keeping the accumulated background exactly as
    readable as Figma (opacity 0.25, blur 10–20px) at the acknowledgement
    moment — not the fainter questionnaire fade. */
-#screen-cards .cards-memory-trace .question-memory-trace__item {
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item {
   right: auto;
   direction: rtl;
   text-align: right;
@@ -2395,23 +2397,30 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform-origin: right top;
   transition: opacity 0.9s ease, filter 1.1s ease, top 1.1s ease, left 1.1s ease;
 }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(10px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="1"] { left: 75.99vw; top: 1.204vh; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(12px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 36.302vw; top: 15vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(14px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(16px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 49.444vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(18px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 103.125vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(20px); }
-#screen-cards .cards-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="0"] { left: 100.885vw; top: -3.519vh; width: 13.23vw; font-size: min(5.208vw, 100px); filter: blur(10px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="1"] { left: 75.99vw; top: 1.204vh; width: 30.833vw; font-size: min(7.813vw, 150px); filter: blur(12px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 36.302vw; top: 15vh; width: 40.052vw; font-size: min(10.417vw, 200px); filter: blur(14px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="3"] { left: 101.667vw; top: 31.944vh; width: 49.479vw; font-size: min(13.021vw, 250px); filter: blur(16px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="4"] { left: 48.385vw; top: 49.444vh; width: 59.583vw; font-size: min(15.625vw, 300px); filter: blur(18px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 103.125vw; top: 74.907vh; width: 70.469vw; font-size: min(18.229vw, 350px); filter: blur(20px); }
+:is(#screen-cards, #screen-legacy) .cards-memory-trace .question-memory-trace__item[data-slot="6"] { visibility: hidden; }
 
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item {
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item,
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item {
   opacity: 0.15;
 }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="0"] { filter: blur(18px); }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="1"] { filter: blur(20px); }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="2"] { left: 35.781vw; filter: blur(22px); }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="3"] { filter: blur(24px); }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="4"] { top: 41.852vh; filter: blur(26px); }
-#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="5"] { left: 98.802vw; filter: blur(28px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="0"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="0"] { filter: blur(18px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="1"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="1"] { filter: blur(20px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="2"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="2"] { left: 35.781vw; filter: blur(22px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="3"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="3"] { filter: blur(24px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="4"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="4"] { top: 41.852vh; filter: blur(26px); }
+#screen-cards:has(.cards-scene.is-ack-receding) .cards-memory-trace .question-memory-trace__item[data-slot="5"],
+#screen-legacy .cards-memory-trace.is-continuing .question-memory-trace__item[data-slot="5"] { left: 98.802vw; filter: blur(28px); }
 
 /* ============================================================
    PHASE.RECORD — text or audio choice
@@ -2474,16 +2483,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-stack-stage {
   position: absolute;
   z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
-  aspect-ratio: 1370 / 969;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   container-type: inline-size;
-  transform: translate(-50%, -50%);
-  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-#screen-camera.is-entering .camera-stack-stage {
-  transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh));
+  transform: none;
 }
 .camera-stack-pile { position: absolute; inset: 0; }
 .camera-stack-pile .stack-transition-sheet {
@@ -2505,9 +2509,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-print {
   position: absolute;
   z-index: 4;
-  left: 48.88%;
-  top: 56.71%;
-  width: min(59.348vw, calc(68.27vh * 1.5455), 1139.5px);
+  left: 19.206%;
+  top: 22.578%;
+  width: 59.348%;
+  height: auto;
   aspect-ratio: 1139.487 / 737.315;
   box-sizing: border-box;
   padding: clamp(8px, 0.9375vw, 18px);
@@ -2518,12 +2523,97 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      slightly offset position above the pile, rotating and settling as it is
      laid down onto the stack (no fade/scale-up "generated" feel). */
   opacity: 1;
-  transform: translate(calc(-50% + 5vw), calc(-50% - 9vh)) rotate(-4.5deg);
+  translate: 0 0;
+  rotate: -10.77deg;
+  transform: none;
   transform-origin: center;
-  transition: transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: translate, rotate;
+}
+
+/* Figma 758:329 — one 2929.965ms collection timeline.  Visibility comes
+   exclusively from opaque papers travelling in from beyond the viewport. */
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="registration"] {
+  animation: figma-758-registration-move 2929.965ms linear both,
+             figma-758-registration-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="0"] {
+  animation: figma-758-q11-move 2929.965ms linear both,
+             figma-758-q11-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="1"] {
+  animation: figma-758-q12-move 2929.965ms linear both,
+             figma-758-q12-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="5"] {
+  animation: figma-758-q16-move 2929.965ms linear both,
+             figma-758-q16-turn 2929.965ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] {
+  animation: figma-758-q17-move 2929.965ms linear both,
+             figma-758-q17-turn 2929.965ms linear both;
 }
 #screen-camera.is-entering .camera-print {
-  transform: translate(-50%, -50%) rotate(-10.94deg);
+  animation: figma-758-camera-move 2929.965ms linear both,
+             figma-758-camera-turn 2929.965ms linear both;
+}
+
+@keyframes figma-758-registration-move {
+  0% { animation-timing-function: var(--figma-paper-settle); translate: -71.127vw 52.957vh; }
+  23.751%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-registration-turn {
+  0% { animation-timing-function: var(--figma-paper-settle); rotate: -16.91deg; }
+  23.631%, 100% { rotate: 4.74deg; }
+}
+@keyframes figma-758-q11-move {
+  0%, 5.726% { translate: -94.353vw -77.699vh; }
+  5.726% { animation-timing-function: var(--figma-paper-settle); }
+  32.629%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q11-turn {
+  0%, 5.63% { rotate: 2.74deg; }
+  5.63% { animation-timing-function: var(--figma-paper-settle); }
+  32.738%, 100% { rotate: -5.28deg; }
+}
+@keyframes figma-758-q12-move {
+  0%, 27.099% { translate: -79.479vw 103.143vh; }
+  27.099% { animation-timing-function: var(--figma-paper-settle); }
+  41.124%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q12-turn {
+  0%, 27.133% { rotate: -7.06deg; }
+  27.133% { animation-timing-function: var(--figma-paper-settle); }
+  41.161%, 100% { rotate: 5.95deg; }
+}
+@keyframes figma-758-q16-move {
+  0%, 32.629% { translate: 89.035vw 40.321vh; }
+  32.629% { animation-timing-function: var(--figma-paper-settle); }
+  56.145%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q16-turn {
+  0%, 32.629% { rotate: -3.39deg; }
+  32.629% { animation-timing-function: var(--figma-paper-settle); }
+  56.209%, 100% { rotate: -18.4deg; }
+}
+@keyframes figma-758-q17-move {
+  0%, 47.261% { translate: -15.677vw -112.13vh; }
+  47.261% { animation-timing-function: var(--figma-paper-settle); }
+  63.284%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q17-turn {
+  0%, 52.899% { rotate: .73deg; }
+  52.899% { animation-timing-function: var(--figma-paper-settle); }
+  63.284%, 100% { rotate: 15.86deg; }
+}
+@keyframes figma-758-camera-move {
+  0%, 57.816% { translate: 94.054vw 68.939vh; }
+  57.816% { animation-timing-function: var(--figma-paper-settle); }
+  89.293%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-camera-turn {
+  0%, 57.816% { rotate: -1.49deg; }
+  57.816% { animation-timing-function: var(--figma-paper-settle); }
+  89.318%, 100% { rotate: -10.77deg; }
 }
 
 .camera-area {
@@ -2601,8 +2691,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 @media (prefers-reduced-motion: reduce) {
   .camera-screen-shade { opacity: 1; transition: none; }
-  .camera-stack-stage { transform: translate(calc(-50% - 0.6vw), calc(-50% + 1.3vh)); transition: none; }
-  .camera-print { opacity: 1; transform: translate(-50%, -50%) rotate(-10.94deg) !important; transition: none; }
+  .camera-stack-stage { transform: none; }
+  #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet,
+  #screen-camera.is-entering .camera-print {
+    animation: none;
+    translate: 0 0;
+  }
+  .camera-print { opacity: 1; transform: none; rotate: -10.77deg; }
 }
 
 /* Depositor photo shown inside the drawer's "תמונות" divider */
@@ -3746,30 +3841,54 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stamp-instructions-stack {
   position: absolute;
   z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
-  aspect-ratio: 1370 / 969;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   container-type: inline-size;
-  transform: translate(-50%, -50%);
 }
 .stamp-instructions-pile { position: absolute; inset: 0; }
 .stamp-instructions-pile .stack-transition-sheet {
-  opacity: var(--stack-opacity);
-  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
+  inset: auto;
+  opacity: .8;
+  transform: none;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="registration"] {
+  z-index: 1; left: 29.6875%; top: 19.08%; width: 42.396%;
+  aspect-ratio: 814 / 577; rotate: 4.74deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="0"] {
+  z-index: 2; opacity: .9; left: 20.82%; top: 4.91%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: -5.28deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="1"] {
+  z-index: 3; opacity: .9; left: 11.48%; top: 8.211%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: 5.95deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="5"] {
+  z-index: 4; opacity: .9; left: 18.395%; top: 12.454%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: -18.4deg;
+}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="legacy"] {
+  z-index: 5; opacity: .9; left: 14.068%; top: 17.284%; width: 71.354%;
+  aspect-ratio: 1370 / 969; rotate: 15.86deg;
+}
+.stamp-instructions-pile .stack-transition-sheet .qform {
+  width: 100%;
+  height: 100%;
 }
 .stamp-instructions-photo {
   position: absolute;
-  z-index: 10;
-  left: 49%;
-  top: 56%;
-  width: min(83.17cqw, 1139.5px);
+  z-index: 6;
+  left: 19.206%;
+  top: 22.578%;
+  width: 59.348%;
+  height: auto;
   aspect-ratio: 1139.487 / 737.315;
   box-sizing: border-box;
   padding: clamp(8px, 1.31cqw, 18px);
   background: #fff;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
-  transform: translate(-50%, -50%) rotate(-10.94deg);
+  rotate: -10.77deg;
 }
 .stamp-instructions-photo::before {
   content: "";
@@ -3805,12 +3924,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      enters from a slightly offset position, rotating and settling as it lands
      on top of the existing stack. */
   opacity: .95;
-  transform: translate(calc(-50% + 4vw), calc(-50% - 9vh)) rotate(-3.5deg);
+  translate: -1540.548px 825.218px;
+  rotate: -8.78deg;
+  transform: translate(-50%, -50%);
   transform-origin: center;
-  transition: transform 1200ms cubic-bezier(.16,1,.3,1);
+  will-change: translate, rotate;
 }
 .stamp-instructions-sheet.is-visible {
-  transform: translate(-50%, -50%) rotate(2.31deg);
+  animation: figma-480-instructions-move 2s linear both,
+             figma-480-instructions-turn 2s linear both;
+}
+@keyframes figma-480-instructions-move {
+  0% {
+    animation-timing-function: var(--figma-paper-settle);
+    translate: -80.237vw 76.409vh;
+  }
+  39.833%, 100% { translate: 0 0; }
+}
+@keyframes figma-480-instructions-turn {
+  0% {
+    animation-timing-function: var(--figma-paper-settle);
+    rotate: -8.78deg;
+  }
+  39.86%, 100% { rotate: 4.86deg; }
 }
 .stamp-instructions-copy {
   position: absolute;
@@ -3866,8 +4002,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .stamp-instructions-sheet,
   .stamp-instructions-sheet.is-visible {
     opacity: .95;
-    transform: translate(-50%, -50%) rotate(2.31deg);
-    transition: none;
+    translate: 0 0;
+    rotate: 4.86deg;
+    animation: none;
   }
 }
 
@@ -4993,8 +5130,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --ctrl-size: clamp(58px, 4.688vw, 90px);
   --ctrl-inset: clamp(20px, 2.083vw, 40px);
   isolation: isolate;
-  background-color: #a1835a;
-  background-image: url("images/figma-personal-archive-background.jpg");
+  background-color: #f4efe5;
+  background-image: url("images/figma-question-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -5004,9 +5141,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: rgba(19, 13, 0, 0.3);
+  background:
+    linear-gradient(rgba(19, 13, 0, 0.3), rgba(19, 13, 0, 0.3)),
+    url("images/figma-personal-archive-background.jpg") center / cover no-repeat;
+  opacity: 0;
+  transition: opacity 1500ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
+#screen-personal:has(.archive-box.is-archive-open)::before { opacity: 1; }
 
 .archive-box {
   position: relative;
@@ -5032,7 +5174,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   border-bottom: none;
   background: none;
   z-index: 40;
+  opacity: 0;
+  transition: opacity 450ms ease 1050ms;
 }
+.archive-box.is-archive-open .drawer-header { opacity: 1; }
 .archive-box .drawer-name {
   transform: none;
   margin: 0;
@@ -5066,25 +5211,107 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   transform: translate(calc(-50% + var(--nx, 0px)), calc(-50% + var(--ny, 0px))) rotate(var(--rot, 0deg));
   transform-origin: center;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 1600ms cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
   will-change: transform;
+}
+.archive-box:not(.is-archive-open) .pile-item {
+  transform:
+    translate(
+      calc(-50% + var(--from-x, 0px)),
+      calc(-50% + var(--from-y, 0px))
+    )
+    rotate(var(--from-r, 0deg))
+    scale(var(--from-scale, 1));
+}
+.archive-box.is-archive-open .pile-item {
+  transform:
+    translate(calc(-50% + var(--nx, 0px)), calc(-50% + var(--ny, 0px)))
+    rotate(var(--rot, 0deg))
+    scale(1);
 }
 
 /* Photograph — thin equal matte border, archival tone, drop shadow.
    Large, like the Figma, so the pile fills the frame and crops at edges. */
 .pile-item--photo {
-  width: clamp(240px, calc(29vw * var(--w, 1)), 620px);
-  padding: 0;
-  background: transparent;
+  width: var(--pw, 556px);
+  height: var(--ph, 741px);
+  box-sizing: border-box;
+  padding: clamp(8px, 0.9375vw, 18px);
+  background: #000;
   border: none;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 }
 .pile-item--photo img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   filter: saturate(0.9) contrast(0.96);
+}
+
+.pile-item--instructions {
+  width: var(--iw, 1243.756px);
+  aspect-ratio: 1243.756 / 879.707;
+  overflow: hidden;
+  box-shadow: 0 4px 5px rgba(0,0,0,.25);
+}
+.archive-stamp-sheet {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  direction: rtl;
+  color: var(--ink);
+  background:
+    linear-gradient(rgba(244,239,229,.05), rgba(244,239,229,.05)),
+    url("images/figma-question-background.jpg") center / cover no-repeat;
+  opacity: .95;
+}
+.archive-stamp-copy {
+  position: absolute;
+  z-index: 2;
+  top: 17.3%;
+  right: 12.7%;
+  width: 75.56%;
+  text-align: right;
+  font-family: var(--font-main);
+  font-size: clamp(18px, 2.2917vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.archive-stamp-copy p {
+  margin: 0 0 clamp(9px, 1.04vw, 20px);
+  text-indent: clamp(32px, 4.1667vw, 80px);
+}
+.archive-stamp-copy p:last-child { margin-bottom: 0; }
+.archive-stamp-code {
+  position: absolute;
+  z-index: 1;
+  inset: 50% 0 auto;
+  transform: translateY(-50%) rotate(6.18deg) scaleX(.72);
+  transform-origin: center;
+  direction: ltr;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-mandatory);
+  font-size: clamp(190px, 46.875vw, 900px);
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 70;
+  line-height: .8;
+  color: #c34237;
+  opacity: .2;
+  filter: blur(3px);
+  mix-blend-mode: multiply;
+}
+.archive-stamp-next {
+  position: absolute;
+  z-index: 3;
+  left: 3.24%;
+  bottom: 4.23%;
+  width: 12.86%;
+  height: auto;
 }
 .pile-item.is-uploading { opacity: 0.6; }
 .pile-play {
@@ -5108,7 +5335,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: var(--dw, 460px);
   aspect-ratio: 1370 / 969;
   overflow: hidden;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--doc-shadow, 0 4px 4px rgba(0, 0, 0, 0.25));
 }
 .pile-doc {
   /* Anchor to the card's top-left explicitly. The sheet's layout box is a fixed
@@ -5130,7 +5357,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .pile-item--doc .qform {
   width: 100%;
   height: 100%;
-  opacity: 0.81;
+  opacity: var(--doc-opacity, 0.9);
 }
 .pile-item--doc .qform-dk-btn,
 .pile-item--doc .stack-sheet-dk {
@@ -5248,6 +5475,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .pile-ctrl:hover:not(:disabled) { background: none; }
 .pile-ctrl--close   { top: var(--ctrl-inset); }
+.archive-box .pile-ctrl--close {
+  opacity: 0;
+  transition: opacity 350ms ease 1150ms;
+}
+.archive-box.is-archive-open .pile-ctrl--close { opacity: 1; }
 
 .pile-item--envelope .pile-ctrl {
   position: relative;
@@ -5282,7 +5514,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .pile-item--breathing {
   animation: personal-pile-breathe var(--breathe-duration, 8s) ease-in-out var(--breathe-delay, 0s) infinite;
+  animation-play-state: paused;
 }
+.archive-box.is-archive-open .pile-item--breathing { animation-play-state: running; }
 @media (prefers-reduced-motion: reduce) {
   .pile-item--breathing { animation: none; }
 }
@@ -5293,14 +5527,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(calc(-50% + var(--nx, 0px) + var(--spread-x, 0vw)), calc(-50% + var(--ny, 0px) + var(--spread-y, 0vh))) rotate(var(--rot, 0deg));
   transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), opacity 450ms ease;
 }
-.archive-pile.is-spread .pile-item:nth-child(1) { --spread-x:-34vw; --spread-y:25vh; }
-.archive-pile.is-spread .pile-item:nth-child(2) { --spread-x:-39vw; --spread-y:-33vh; }
-.archive-pile.is-spread .pile-item:nth-child(3) { --spread-x:37vw; --spread-y:-32vh; }
-.archive-pile.is-spread .pile-item:nth-child(4) { --spread-x:40vw; --spread-y:22vh; }
-.archive-pile.is-spread .pile-item:nth-child(5) { --spread-x:-22vw; --spread-y:-40vh; }
-.archive-pile.is-spread .pile-item:nth-child(6) { --spread-x:25vw; --spread-y:38vh; }
-.archive-pile.is-spread .pile-item:nth-child(7) { --spread-x:-42vw; --spread-y:5vh; }
-.archive-pile.is-spread .pile-item:nth-child(8) { --spread-x:42vw; --spread-y:-4vh; }
+.archive-pile.is-spread .pile-item:nth-child(4)  { --spread-x:-34vw; --spread-y:25vh; }
+.archive-pile.is-spread .pile-item:nth-child(5)  { --spread-x:-39vw; --spread-y:-33vh; }
+.archive-pile.is-spread .pile-item:nth-child(6)  { --spread-x:37vw; --spread-y:-32vh; }
+.archive-pile.is-spread .pile-item:nth-child(7)  { --spread-x:40vw; --spread-y:22vh; }
+.archive-pile.is-spread .pile-item:nth-child(8)  { --spread-x:-22vw; --spread-y:-40vh; }
+.archive-pile.is-spread .pile-item:nth-child(9)  { --spread-x:25vw; --spread-y:38vh; }
+.archive-pile.is-spread .pile-item:nth-child(10) { --spread-x:-42vw; --spread-y:5vh; }
+.archive-pile.is-spread .pile-item:nth-child(11) { --spread-x:42vw; --spread-y:-4vh; }
 .archive-pile.is-spread .pile-item--photo { --spread-x:34vw; --spread-y:4vh; }
 .archive-pile.is-spread .pile-item--envelope { opacity: 0; pointer-events: none; }
 
@@ -5324,19 +5558,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(70.203vw, calc(92vh * 1.4134), 1348px);
-  aspect-ratio: 1012 / 716;
+  /* Figma 457:2108: each source card is exactly 1012×716 before rotation;
+     its rotation creates the larger visible bounding box in the composition. */
+  width: min(52.708vw, calc(66.296vh * 1.41341), 1012px);
+  aspect-ratio: 1288 / 912;
   /* The card is a query container so every label/field/number below scales in
      cqw (percent of the card's own width) — the card and its contents always
      scale together as one proportional unit, never independently. Figma sheet
      is 1012×716, so 1cqw = 1% of 1012px there. */
   container-type: inline-size;
-  --tool-x: 0vw;
+  --tool-x: 0px;
   --tool-y: 0vh;
   --tool-rot: -3.96deg;
   transform: translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y))) rotate(var(--tool-rot));
   transform-origin: center;
-  background: #a1835a url("images/figma-archive-search-card.jpg") center/cover no-repeat;
+  background: #a1835a url("images/figma-archive-search-card-v2.jpg") center/cover no-repeat;
   box-shadow: 4px 4px 20px rgba(0,0,0,.25);
   color: var(--ink);
   opacity: 1;
@@ -5350,19 +5586,47 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      typography and internal layout never change, and --tool-x stays 0 so there
      is no horizontal movement — pure translateY. No scale, fade, morph or
      reflow, ever. */
-  transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
+  translate: 0 0;
+  transition:
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 300ms cubic-bezier(0.22, 0.72, 0.34, 1);
+}
+.archive-box:not(.is-archive-open) .personal-tool-card {
+  opacity: 0;
+  pointer-events: none;
+}
+.archive-box.is-archive-open .personal-tool-card {
+  opacity: 1;
+  transition:
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 300ms cubic-bezier(0.22, 0.72, 0.34, 1),
+    opacity 450ms ease 1050ms;
 }
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred. */
-.personal-tool-panel--search .personal-tool-card { --tool-y: 60vh; --tool-rot: -3.96deg; }
+.personal-tool-panel--search .personal-tool-card {
+  --tool-x: -53px;
+  --tool-y: 61.85vh;
+  --tool-rot: 5.87deg;
+}
 .personal-tool-panel--upload .personal-tool-card {
-  --tool-y: 52vh; --tool-rot: 5.96deg;
-  background-image: url("images/figma-archive-add-card.jpg");
+  --tool-x: 48px;
+  --tool-y: 51.9vh;
+  --tool-rot: -8.22deg;
+  background-image: url("images/figma-archive-add-card-v2.jpg");
+}
+/* Overview affordance: lift only the hovered kraft paper. `translate` is kept
+   separate from the shared-element `transform`, so opening/closing retains its
+   existing path, timing, size and rotation exactly. */
+.archive-box:not(.is-tool-open)
+  .personal-tool-panel[aria-hidden="true"]
+  .personal-tool-card:hover {
+  translate: 0 -16px;
 }
 /* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
    changes (to 0); rotation, size and everything else are identical. */
-.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-y: 0vh; cursor: default; }
+.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-x: 0px; --tool-y: 0vh; cursor: default; }
 /* While one sheet is open, the other slides straight down, fully below. */
 .archive-box.is-tool-open .personal-tool-panel[aria-hidden="true"] .personal-tool-card {
   --tool-y: 132vh; pointer-events: none;
@@ -5384,50 +5648,51 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 /* Owner name "עמית צדיק" — bottom-right on the search sheet, top-right on add. */
 .personal-tool-owner {
-  position:absolute; right:4.9%; font-size:2.964cqw; font-weight:500; line-height:1.5;
+  position:absolute; right:3.0%; font-size:2.33cqw; font-weight:500; line-height:1.5;
 }
-.personal-tool-panel--search .personal-tool-owner { top:88.5%; }
-.personal-tool-panel--upload .personal-tool-owner { top:6.6%; }
+.personal-tool-panel--search .personal-tool-owner { top:88.6%; }
+.personal-tool-panel--upload .personal-tool-owner { top:4.4%; }
 
 /* Search sheet only: "תיק מס׳" label with the large archive number below it. */
 .personal-tool-file-label {
-  position:absolute; right:4.3%; top:6.4%; font-size:2.964cqw; font-weight:500; line-height:1.5;
+  position:absolute; left:18.0%; top:4.4%; font-size:2.33cqw; font-weight:500; line-height:1.5;
 }
 .personal-tool-code {
-  position:absolute; right:16%; top:4.4%;
+  position:absolute; left:3.0%; top:4.0%;
   font-family:var(--font-mandatory); font-weight:700; font-variation-settings:"wght" 700,"wdth" 36;
-  font-size:11.858cqw; line-height:1; opacity:.8;
+  font-size:9.317cqw; line-height:1; opacity:.8;
 }
 
 /* Title — "בקשת אחזור:" / "הוספת פריטים". SundayMono Medium 50 / 1.2. It sits
    well clear of the number above it (fixed %; the sheet never resizes, so the
    gap is identical whether peeking or open). */
 .personal-tool-card h2 {
-  position:absolute; top:22.3%; right:18%; margin:0;
-  font-size:4.941cqw; font-weight:500; line-height:1.2;
+  position:absolute; top:20.8%; right:20%; width:60%; margin:0; text-align:center;
+  font-size:3.882cqw; font-weight:500; line-height:1.2;
 }
-.personal-tool-panel--upload .personal-tool-card h2 { right:17%; }
+.personal-tool-panel--upload .personal-tool-card h2 { right:20%; }
 
 /* Field box — bordered, split into a tall query row and a shorter format row,
    with a thin rule under each field label. */
 .personal-tool-grid {
-  position:absolute; left:17.3%; right:17.2%; top:31.9%; bottom:22.3%;
+  position:absolute; left:20.9%; right:20.9%; top:30.5%; bottom:20.8%;
   border:1.5px solid var(--ink); display:grid; grid-template-rows:54.8fr 45.2fr;
 }
+.personal-tool-panel--upload .personal-tool-grid { left:16.5%; right:16.5%; }
 .personal-tool-field { position:relative; display:block; }
 .personal-tool-field + .personal-tool-field { border-top:1.5px solid var(--ink); }
 .personal-tool-field::after {
   content:""; position:absolute; left:0; right:0; top:23.4%; border-top:1px solid var(--ink);
 }
 .personal-tool-field span {
-  position:absolute; top:6%; right:2.2%; font-size:2.964cqw; font-weight:500; line-height:1.5;
+  position:absolute; top:6%; right:2.2%; font-size:2.33cqw; font-weight:500; line-height:1.5;
 }
 .personal-tool-field textarea,
 .personal-tool-field input {
   position:absolute; left:0; right:0; top:26%; bottom:0; width:100%;
   border:0; outline:0; resize:none; padding:0.8cqw 2.2% 2%;
   background:transparent; color:var(--ink);
-  font:500 2.964cqw/1.4 var(--font-main); direction:rtl;
+  font:500 2.33cqw/1.5 var(--font-main); direction:rtl;
 }
 
 /* Top-left action stamp (search magnifier / add +) and bottom-left back arrow. */
@@ -5435,10 +5700,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position:absolute; border:0; padding:0; background:none; cursor:pointer;
 }
 .personal-tool-icon img { display:block; width:100%; height:100%; object-fit:contain; }
-.personal-tool-icon--search { left:4.6%; top:5.1%; width:13.4%; aspect-ratio:1; }
-.personal-tool-icon--add    { left:3.7%; top:4.1%; width:15.4%; aspect-ratio:1; }
+.personal-tool-icon--search { right:3.0%; left:auto; top:4.4%; width:12.42%; aspect-ratio:1; }
+.personal-tool-icon--add    { left:2.2%; top:2.0%; width:12.42%; aspect-ratio:1; }
 .personal-tool-back {
-  position:absolute; left:3.2%; bottom:8%; width:8.5%; aspect-ratio:1;
+  position:absolute; left:3.0%; bottom:3.1%; width:8.39%; aspect-ratio:1;
   border:0; padding:0; background:none; cursor:pointer;
 }
 .personal-tool-back img { display:block; width:100%; height:100%; object-fit:contain; }
@@ -5452,4 +5717,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 @media (prefers-reduced-motion: reduce) {
   .archive-pile.is-spread .pile-item,
   .personal-tool-card { transition:none; }
+  .archive-box:not(.is-tool-open)
+    .personal-tool-panel[aria-hidden="true"]
+    .personal-tool-card:hover { translate:0 0; }
+}
+
+/* Figma 465:5711 — one shared viewport paper layer for the complete
+   questionnaire flow, from registration through stamping instructions.
+   Kept last so it replaces only each screen's base layer; screen-specific
+   shades, cards and animated children remain unchanged above it. */
+:is(
+  #screen-questions,
+  #screen-legacy,
+  #screen-stack,
+  #screen-cards,
+  #screen-camera,
+  #screen-envelope
+).flow-paper-screen {
+  background-color: #FCF6ED;
+  background-image: var(--flow-paper-tex);
+  background-size: cover;
+  background-position: center 39%;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
 }

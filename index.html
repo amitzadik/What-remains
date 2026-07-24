@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=48" />
+  <link rel="stylesheet" href="style.css?v=56" />
 </head>
 <body dir="rtl">
 
-  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=35" title="מה שישאר — עמוד הבית"></iframe>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=40" title="מה שישאר — עמוד הבית"></iframe>
 
   <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
   <section id="screen-landing" class="screen" aria-label="הארכיון">
@@ -23,7 +23,7 @@
   </section>
 
   <!-- ============== SCREEN: QUESTIONS (register card + 1-7) ============== -->
-  <section id="screen-questions" class="screen">
+  <section id="screen-questions" class="screen flow-paper-screen">
     <div class="question-name-ghost" id="question-name-ghost" aria-hidden="true"></div>
     <div class="question-memory-trace" id="question-memory-trace" aria-hidden="true"></div>
     <div class="qform-stage qform-stage--register">
@@ -116,9 +116,7 @@
   </section>
 
   <!-- ============== SCREEN: LEGACY QUESTION ============== -->
-  <section id="screen-legacy" class="screen">
-    <div class="question-memory-trace legacy-memory-trace" id="legacy-memory-trace" aria-hidden="true"></div>
-    <div class="legacy-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+  <section id="screen-legacy" class="screen flow-paper-screen">
     <div class="qform-stage">
     <div class="qform-sheet qform-sheet--active">
     <article class="qform">
@@ -171,7 +169,7 @@
   </section>
 
   <!-- ============== SCREEN: STACK FORMATION — 7 questions + legacy ============== -->
-  <section id="screen-stack" class="screen" aria-label="יצירת ערימת הזיכרונות">
+  <section id="screen-stack" class="screen flow-paper-screen" aria-label="יצירת ערימת הזיכרונות">
     <div class="stack-transition-shade" aria-hidden="true"></div>
     <div class="question-memory-trace stack-memory-trace" id="stack-memory-trace" aria-hidden="true"></div>
     <div class="legacy-memory-ack stack-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
@@ -181,7 +179,7 @@
   </section>
 
   <!-- ============== SCREEN: CARDS — accumulated memory traces before preserving ============== -->
-  <section id="screen-cards" class="screen">
+  <section id="screen-cards" class="screen flow-paper-screen">
     <div class="question-memory-trace cards-memory-trace" id="cards-memory-trace" aria-hidden="true"></div>
     <div class="cards-wrap" id="cards-wrap">
       <div class="cards-scene" id="cards-scene">
@@ -195,7 +193,7 @@
   </section>
 
   <!-- ============== SCREEN: CAMERA (depositor photo) ============== -->
-  <section id="screen-camera" class="screen">
+  <section id="screen-camera" class="screen flow-paper-screen">
     <div class="camera-screen-shade" aria-hidden="true"></div>
     <div class="question-memory-trace camera-memory-trace" id="camera-memory-trace" aria-hidden="true"></div>
     <div class="legacy-memory-ack camera-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
@@ -217,7 +215,7 @@
   </section>
 
   <!-- ============== SCREEN: ENVELOPE TRANSITION ============== -->
-  <section id="screen-envelope" class="screen">
+  <section id="screen-envelope" class="screen flow-paper-screen">
     <div class="stamp-instructions-shade" aria-hidden="true"></div>
     <div class="question-memory-trace stamp-instructions-trace" id="stamp-instructions-trace" aria-hidden="true"></div>
     <div class="legacy-memory-ack stamp-instructions-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
@@ -251,7 +249,7 @@
 
       <section id="personal-search-panel" class="personal-tool-panel personal-tool-panel--search" aria-hidden="true">
         <form id="personal-search-form" class="personal-tool-card">
-          <button class="personal-tool-icon personal-tool-icon--search" type="submit" aria-label="חיפוש"><img src="images/figma-archive-search-icon.png" alt=""></button>
+          <button class="personal-tool-icon personal-tool-icon--search" type="submit" aria-label="חיפוש"><img src="images/figma-archive-search-icon-v2.png" alt=""></button>
           <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-search-code"></strong>
           <h2>בקשת אחזור:</h2>
           <div class="personal-tool-grid">
@@ -260,20 +258,20 @@
           </div>
           <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
           <span class="personal-tool-owner" id="personal-search-owner"></span>
-          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/back-default.png" alt=""></button>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
         </form>
       </section>
 
       <section id="personal-upload-panel" class="personal-tool-panel personal-tool-panel--upload" aria-hidden="true">
         <form id="personal-upload-form" class="personal-tool-card">
-          <button class="personal-tool-icon personal-tool-icon--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon.png" alt=""></button>
+          <button class="personal-tool-icon personal-tool-icon--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon-v2.png" alt=""></button>
           <span class="personal-tool-owner" id="personal-upload-owner"></span>
           <h2>הוספת פריטים</h2>
           <div class="personal-tool-grid">
             <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה להוסיף?</span><textarea id="personal-upload-description" required></textarea></label>
             <label class="personal-tool-field"><span>סוג הפריט/ים</span><input id="personal-upload-format" type="text"></label>
           </div>
-          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/back-default.png" alt=""></button>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
         </form>
       </section>
 
@@ -375,7 +373,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=36"></script>
+  <script src="script.js?v=42"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

@@ -896,7 +896,6 @@
   const legacyDate    = document.getElementById("legacy-date");
   const legacyLines   = Array.from(document.querySelectorAll("#legacy-lines .line__text"));
   const btnLegacyNext = document.getElementById("btn-legacy-next");
-  const legacyMemoryTrace = document.getElementById("legacy-memory-trace");
   const legacyQText   = document.querySelector("#screen-legacy .qform-question-text");
   const LEGACY_QUESTION_TEXT = legacyQText ? legacyQText.textContent : "";
   let legacyTypewriterRun = 0;
@@ -973,7 +972,14 @@
   function initLegacy() {
     legacyName.textContent = state.name;
     legacyDate.textContent = state.date;
-    setMemoryTraceItems(legacyMemoryTrace, buildQuestionMemoryItems(questions.length));
+    // Carry the exact accumulated background node forward. Moving the existing
+    // element preserves its children, positions, layering and rendered state;
+    // nothing is cloned, rebuilt or reset between the typed sentence and the
+    // legacy question.
+    if (cardsMemoryTrace && screens.legacy && cardsMemoryTrace.parentNode !== screens.legacy) {
+      screens.legacy.insertBefore(cardsMemoryTrace, screens.legacy.firstChild);
+    }
+    if (cardsMemoryTrace) cardsMemoryTrace.classList.add("is-continuing");
     clearLegacyLines();
     btnLegacyNext.disabled = true;
     // Settle the legacy page onto the preserved background as a new layer,
@@ -1014,7 +1020,6 @@
     state.legacyText = txt;
     submitToSheet(); // all 12 fields are now filled — fire-and-forget
     initStackTransition();
-    showScreen("stack");
   });
 
   // ============================================================
@@ -1106,6 +1111,20 @@
     '</article>';
   }
 
+  function stackRegistrationFormHTML() {
+    return '<article class="qform qform--register stack-registration-form">' +
+      '<div class="register-head">' +
+        '<img src="images/next-default.png" alt="" width="105" height="105">' +
+        '<div class="register-title">פרטי המפקיד</div>' +
+      '</div>' +
+      '<div class="register-table">' +
+        '<div class="register-row"><span class="register-label">*שם מלא:</span><span class="register-input">' + esc(state.name) + '</span></div>' +
+        '<div class="register-row"><span class="register-label">*מייל:</span><span class="register-input">' + esc(state.email) + '</span></div>' +
+        '<div class="register-row"><span class="register-label">טלפון:</span><span class="register-input">' + esc(state.phone) + '</span></div>' +
+      '</div>' +
+    '</article>';
+  }
+
   const stackStage = document.getElementById("stack-transition-stage");
   const stackPile = document.getElementById("stack-transition-pile");
   const stackMemoryTrace = document.getElementById("stack-memory-trace");
@@ -1116,29 +1135,37 @@
     const run = ++stackTransitionRun;
     setMemoryTraceItems(stackMemoryTrace, buildQuestionMemoryItems(questions.length));
     stackStage.classList.remove("is-forming");
-    let sheets = '';
-    for (let i = 0; i < questions.length; i++) {
-      sheets += '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="' + i + '">' +
-        stackQuestionFormHTML(i) + '</div>';
-    }
-    sheets += '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
-      stackLegacyFormHTML() + '</div>';
+    const sheets =
+      '<div class="stack-transition-sheet stack-transition-sheet--registration" data-sheet="registration">' +
+        stackRegistrationFormHTML() + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="0">' +
+        stackQuestionFormHTML(0) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="1">' +
+        stackQuestionFormHTML(1) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="5">' +
+        stackQuestionFormHTML(5) + '</div>' +
+      '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
+        stackLegacyFormHTML() + '</div>';
     stackPile.innerHTML = sheets;
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (run === stackTransitionRun) stackStage.classList.add("is-forming");
     }));
 
-    window.setTimeout(() => {
-      if (run !== stackTransitionRun || !screens.stack.classList.contains("active")) return;
-      initCameraScreen();
-      showScreen("camera");
-    }, reduceMotion ? 200 : 4300);
+    initCameraScreen();
+    showScreen("camera");
   }
 
   let cardsCopyRun = 0;
 
   function initCards() {
+    // A restarted flow returns the same background node to its original screen
+    // before its next set of accumulated memories is rendered.
+    if (cardsMemoryTrace && screens.cards && cardsMemoryTrace.parentNode !== screens.cards) {
+      const cardsWrap = document.getElementById("cards-wrap");
+      screens.cards.insertBefore(cardsMemoryTrace, cardsWrap || screens.cards.firstChild);
+    }
+    if (cardsMemoryTrace) cardsMemoryTrace.classList.remove("is-continuing");
     if (cardsScene) {
       cardsScene.classList.remove("is-typing", "is-copy-done", "is-ack-visible", "is-ack-receding", "is-copy-visible");
     }
@@ -1268,11 +1295,8 @@
     // read as the next layer of one continuous physical animation.
     if (cameraStackPile && stackPile) cameraStackPile.innerHTML = stackPile.innerHTML;
     screens.camera.classList.remove("is-entering");
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (screens.camera.classList.contains("active")) {
-        screens.camera.classList.add("is-entering");
-      }
-    }));
+    void screens.camera.offsetWidth;
+    screens.camera.classList.add("is-entering");
     // Reflect the real deposit on the heritage document shown under the photo.
     if (cameraDocName) cameraDocName.textContent = state.name || "";
     if (cameraDocDate) cameraDocDate.textContent = state.date || "";
@@ -1438,6 +1462,7 @@
   let pileMedia = [];        // authoritative media {src, kind, own?} (drive + own photo)
   let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
   let pendingUploadMetadata = null;
+  let archiveTransitionRun = 0;
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1569,6 +1594,7 @@
     renderArchivePile();
     loadDrawerFiles(currentDrawerCode); // append this drawer's Drive materials
     showScreen("personal");
+    runArchiveOpeningTransition();
   }
 
   // Deterministic pseudo-random in [0,1) so each pile item keeps a stable
@@ -1612,6 +1638,30 @@
     '</article>';
   }
 
+  function archiveStampInstructionsHTML() {
+    return '<article class="archive-stamp-sheet">' +
+      '<div class="archive-stamp-code">' + esc(pileCodeLabel()) + '</div>' +
+      '<div class="archive-stamp-copy">' +
+        '<p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת שנמצאת על השולחן. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך לארכיון שיצרת.</p>' +
+        '<p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>' +
+        '<p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>' +
+      '</div>' +
+      '<img class="archive-stamp-next" src="images/next-default.png" alt="" aria-hidden="true">' +
+    '</article>';
+  }
+
+  function runArchiveOpeningTransition() {
+    if (!archiveBox) return;
+    const run = ++archiveTransitionRun;
+    archiveBox.classList.remove("is-archive-opening", "is-archive-open");
+    void archiveBox.offsetWidth;
+    archiveBox.classList.add("is-archive-opening");
+    window.setTimeout(() => {
+      if (run !== archiveTransitionRun || !screens.personal.classList.contains("active")) return;
+      archiveBox.classList.add("is-archive-open");
+    }, reduceMotion ? 0 : 450);
+  }
+
   function renderArchivePile() {
     if (!archivePile) return;
     const media = pileMedia.concat(pileLocalMedia);
@@ -1630,36 +1680,48 @@
       archiveBox.classList.toggle("is-owner", ownerView);
     }
 
-    // The document sheets form the back of the pile; the depositor's own
-    // photos/videos sit on top as the materials laid over the archive.
-    const items = [];
-    for (let i = 0; i < docCount; i++) items.push({ type: "doc", i: i });
-    media.forEach(m => items.push({ type: "media", m: m }));
-
-    // Keep the archive sheets at the same real responsive dimensions used by
-    // the questionnaire itself (1370×969 at the 1920×1080 Figma canvas).
-    const dw = Math.min(1370, window.innerWidth * 0.71354, window.innerHeight * 0.8972 * 1.41383);
-
+    // Figma 751:305, direct-layer order. Each visible material has one explicit
+    // destination and one matching source in the completed collection pile.
+    const sceneScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
     const docLayout = [
-      { x: 48, y: 77, r: -9.6, z: 36 },
-      { x: 47, y: 61, r: -0.4, z: 24 },
-      { x: 43, y: 50, r: -4.7, z: 20 },
-      { x: 52, y: 43, r: 5.1, z: 18 },
-      { x: 55, y: 36, r: -2.1, z: 16 },
-      { x: 44, y: 31, r: 2.6, z: 14 },
-      { x: 51, y: 25, r: 0.8, z: 12 },
-      { x: 50, y: 20, r: 11.3, z: 10 }
+      { cx: 934.797, cy: 704.129, w:1370, r: 19.590, z:1, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:977.000,cy:494.559,w:814,r:4.74} },
+      { cx: 751.834, cy: 718.204, w:1370, r: -3.569, z:2, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28} },
+      { cx:1127.374, cy: 804.483, w:1370, r: 10.919, z:3, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:905.421,cy:573.182,w:1370,r:5.95} },
+      { cx: 862.766, cy: 869.046, w:1370, r: -4.349, z:4, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40} }
     ];
+    const photoLayout = [
+      { cx:735.334, cy:873.046, w:1139.487, h:737.315, r:8.642, z:5,
+        from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png" }
+    ];
+    const instructionLayout = {
+      cx:1113.655, cy:1023.266, w:1243.756, r:6.032, z:6,
+      from:{cx:955.100,cy:671.164,w:1370,r:15.86}
+    };
+
+    const items = [];
+    if (docCount) docLayout.forEach((slot, i) => items.push({ type:"doc", i:slot.dataIndex, slot, seed:i }));
+    photoLayout.forEach((slot, i) => items.push({
+      type:"media",
+      m:media[i] || { src:slot.fallback, kind:"image", decorative:true },
+      mediaIndex:i,
+      slot,
+      seed:20 + i
+    }));
+    items.push({ type:"instructions", slot:instructionLayout, seed:40 });
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
       const el = document.createElement("div");
       if (it.type === "doc") {
         el.className = "pile-item pile-item--doc";
-        el.style.setProperty("--dw", dw + "px");
+        // Per-sheet width from its size multiplier, so every sheet is a
+        // different size (depth) while keeping the exact 1370×969 proportions.
+        const docSlot = it.slot;
+        const dwItem = docSlot.w * sceneScale;
+        el.style.setProperty("--dw", dwItem + "px");
         // Unitless scale factor for .pile-doc's transform: scale() needs a
         // number, and calc() cannot divide a length by a length.
-        el.style.setProperty("--pile-scale", (dw / 1370).toFixed(5));
+        el.style.setProperty("--pile-scale", (dwItem / 1370).toFixed(5));
         const form = it.i === questions.length
           ? archiveLegacyFormHTML(pileCardData)
           : cardFormHTML(it.i, pileCardData);
@@ -1669,14 +1731,17 @@
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
-      } else {
+      } else if (it.type === "media") {
         el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
         const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
         el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
-        el.style.setProperty("--w", (0.82 + pileRand(k + 41) * 0.5).toFixed(3));
+      } else {
+        el.className = "pile-item pile-item--instructions";
+        el.innerHTML = archiveStampInstructionsHTML();
+        el.style.setProperty("--iw", (it.slot.w * sceneScale).toFixed(2) + "px");
       }
-      el.classList.add("pile-item--breathing");
+      if (it.type !== "instructions") el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
       el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 37) * 2)).toFixed(2) + "px");
       el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 43) * 2)).toFixed(2) + "px");
@@ -1685,17 +1750,25 @@
       el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc") {
-        const slot = docLayout[it.i];
-        x = slot.x; y = slot.y; rot = slot.r; z = slot.z;
+        const slot = it.slot;
+        x = slot.cx; y = slot.cy; rot = slot.r; z = slot.z;
+        el.style.setProperty("--doc-opacity", slot.opacity);
+        el.style.setProperty("--doc-shadow", slot.shadow);
+      } else if (it.type === "media") {
+        const p = it.slot;
+        x = p.cx; y = p.cy; rot = p.r; z = p.z;
+        el.style.setProperty("--pw", (p.w * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--ph", (p.h * sceneScale).toFixed(2) + "px");
       } else {
-        const mediaIndex = k - docCount;
-        x = mediaIndex === 0 ? 66 : 50 + (pileRand(seed + 7) - 0.5) * 52;
-        y = mediaIndex === 0 ? 22 : 54 + (pileRand(seed + 13) - 0.5) * 45;
-        rot = mediaIndex === 0 ? -9.75 : (pileRand(seed + 1) - 0.5) * 16;
-        z = 70 + k;
+        x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
-      el.style.left = x + "%";
-      el.style.top = y + "%";
+      const from = it.slot.from;
+      el.style.setProperty("--from-x", ((from.cx - x) * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--from-y", ((from.cy - y) * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--from-r", from.r.toFixed(2) + "deg");
+      el.style.setProperty("--from-scale", (from.w / it.slot.w).toFixed(5));
+      el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
+      el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
       el.style.zIndex = String(z);
       archivePile.appendChild(el);
