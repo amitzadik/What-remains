@@ -188,9 +188,8 @@ button{font:inherit;color:inherit}
   padding:0;
   border:0;
   overflow:visible;
-  visibility:hidden;
   cursor:pointer;
-  pointer-events:auto;
+  pointer-events:none;
   background:transparent;
   box-shadow:none;
   transform:rotate(-15deg);
@@ -199,7 +198,7 @@ button{font:inherit;color:inherit}
 }
 .corner-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
 .corner-credit-slot:active:not(:disabled){transform:rotate(-15deg);border-color:transparent}
-.landing-v2.is-settled .corner-credit-slot{visibility:visible}
+.landing-v2.is-settled .corner-credit-slot{animation:none;pointer-events:auto;transform:rotate(-15deg)}
 .corner-credit-card{
   position:relative;
   display:block;
@@ -214,11 +213,7 @@ button{font:inherit;color:inherit}
   background-position:center;
   background-blend-mode:multiply;
   box-shadow:0 4px 4px rgba(0,0,0,.25);
-  translate:-72px -18px;
-  transition:translate 760ms cubic-bezier(.22,1,.36,1);
 }
-.landing-v2.is-card-entered .corner-credit-slot{visibility:visible}
-.landing-v2.is-credit-entered .corner-credit-card{translate:0 0}
 .landing-v2.is-credit-open .landing-v2__corner{z-index:31}
 .landing-v2.is-credit-open .landing-v2__pile{z-index:32}
 .landing-v2.is-credit-open .corner-credit-slot{
@@ -259,6 +254,7 @@ button{font:inherit;color:inherit}
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
 @keyframes corner-deal{0%{opacity:0;transform:translate3d(var(--deal-from-x,-46vw),var(--deal-from-y,0px),0) rotate(var(--deal-from-r,0deg))}55%{opacity:var(--rest-op,.8)}100%{opacity:var(--rest-op,.8);transform:translate3d(0,0,0) rotate(0deg)}}
+@keyframes credit-deal{from{transform:translate3d(-46vw,7px,0) rotate(-12.8deg)}to{transform:translate3d(0,0,0) rotate(-15deg)}}
 @keyframes paper-breathe-a{0%,100%{transform:translate3d(0,0,0) rotate(0)}48%{transform:translate3d(1.5px,-1px,0) rotate(.38deg)}}
 @keyframes paper-breathe-b{0%,100%{transform:translate3d(0,0,0) rotate(0)}54%{transform:translate3d(-1px,1.5px,0) rotate(-.42deg)}}
 
@@ -392,6 +388,8 @@ button{font:inherit;color:inherit}
    Fixed values, so the sequence is identical on every load. */
 .landing-v2.is-card-entered .corner-layer{animation:corner-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .corner-layer--photo{animation-delay:550ms}
+.landing-v2.is-card-entered .corner-credit-slot{animation:credit-deal 1.34s var(--ease-deal) 1200ms both}
+.landing-v2.is-card-entered.is-settled .corner-credit-slot{animation:none}
 .landing-v2.is-card-entered .pile-photo,.landing-v2.is-card-entered .pile-sheet{animation:pile-deal var(--deal-dur,1.3s) var(--ease-deal) both}
 .landing-v2.is-card-entered .pile-photo--1{animation-delay:2610ms}
 .landing-v2.is-card-entered .pile-photo--2{animation-delay:3100ms}
