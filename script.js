@@ -1165,8 +1165,8 @@
       if (run === stackTransitionRun) stackStage.classList.add("is-forming");
     }));
 
-    initCameraScreen();
     showScreen("camera");
+    initCameraScreen();
   }
 
   let cardsCopyRun = 0;
@@ -1312,6 +1312,55 @@
   const stampInstructionsPhoto = document.getElementById("stamp-instructions-photo-preview");
 
   let cameraStream = null;
+  let cameraSequenceRun = 0;
+
+  const CAMERA_PHASE = Object.freeze({
+    FORMS_MOVING_OUT: "formsMovingOut",
+    FORMS_FULLY_OUTSIDE: "formsFullyOutside",
+    SCREEN_FADING: "screenFading",
+    FADE_COMPLETE: "fadeComplete",
+    FORMS_ENTERING: "formsEntering",
+    FORMS_ENTERED: "formsEntered",
+    CAPTURING_IMAGE: "capturingImage",
+    CAPTURE_COMPLETE: "captureComplete",
+    FINAL_BROWN_SCREEN: "finalBrownScreen"
+  });
+
+  function setCameraPhase(phase) {
+    if (screens.camera) screens.camera.dataset.cameraPhase = phase;
+  }
+
+  function afterTwoFrames() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+  }
+
+  function waitForAnimation(element, animationName, fallbackMs) {
+    if (!element || reduceMotion) return afterTwoFrames();
+    return new Promise(resolve => {
+      let settled = false;
+      const finish = event => {
+        if (settled || (event && event.animationName !== animationName)) return;
+        settled = true;
+        element.removeEventListener("animationend", finish);
+        window.clearTimeout(fallback);
+        resolve();
+      };
+      const fallback = window.setTimeout(() => finish(), fallbackMs);
+      element.addEventListener("animationend", finish);
+    });
+  }
+
+  function formsAreOutsideViewport() {
+    if (!cameraStackPile) return false;
+    const sheets = Array.from(cameraStackPile.querySelectorAll(".stack-transition-sheet"));
+    return sheets.length > 0 && sheets.every(sheet => {
+      const rect = sheet.getBoundingClientRect();
+      return rect.right < 0 || rect.left > window.innerWidth ||
+        rect.bottom < 0 || rect.top > window.innerHeight;
+    });
+  }
 
   // Always release the camera (turns the webcam light off) on any exit
   function stopCameraStream() {
@@ -1322,6 +1371,7 @@
   }
 
   async function initCameraScreen() {
+    const run = ++cameraSequenceRun;
     // Accumulated family-memory background: the previous question traces sit
     // faintly underneath, with the photograph placed on top as the newest layer.
     setMemoryTraceItems(cameraMemoryTrace, buildQuestionMemoryItems(questions.length));
@@ -1329,9 +1379,8 @@
     // same generated sheets, dimensions and transforms makes the new photo
     // read as the next layer of one continuous physical animation.
     if (cameraStackPile && stackPile) cameraStackPile.innerHTML = stackPile.innerHTML;
-    screens.camera.classList.remove("is-entering");
-    void screens.camera.offsetWidth;
-    screens.camera.classList.add("is-entering");
+    screens.camera.classList.remove("is-fading", "is-entering", "is-ready");
+    setCameraPhase(CAMERA_PHASE.FORMS_MOVING_OUT);
     // Reflect the real deposit on the heritage document shown under the photo.
     if (cameraDocName) cameraDocName.textContent = state.name || "";
     if (cameraDocDate) cameraDocDate.textContent = state.date || "";
@@ -1346,28 +1395,70 @@
     cameraMsg.hidden = true;
     cameraMsg.textContent = "";
     if (cameraRetake) cameraRetake.hidden = true;
-    btnCameraNext.disabled = false; // photo is optional — continue always allowed
-    cameraShutter.disabled = false;
+    btnCameraNext.disabled = true;
+    cameraShutter.disabled = true;
     stopCameraStream();
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" }, audio: false
-      });
+    const startCamera = navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" }, audio: false
+    }).then(stream => {
+      if (run !== cameraSequenceRun) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      cameraStream = stream;
       cameraVideo.srcObject = cameraStream;
-    } catch (err) {
-      // Soft fallback — no camera / no permission: let the user continue
+    }).catch(() => {
+      if (run !== cameraSequenceRun) return;
       cameraVideo.hidden = true;
       cameraMsg.textContent = "אין גישה למצלמה";
       cameraMsg.hidden = false;
-      cameraShutter.disabled = true;
-      btnCameraNext.disabled = false;
+    });
+
+    // The DOM starts with every complete, 70%-scaled form physically beyond
+    // a viewport edge. Only after two painted frames and a bounds check may
+    // the background fade begin.
+    await afterTwoFrames();
+    if (run !== cameraSequenceRun) return;
+    if (!formsAreOutsideViewport()) {
+      screens.camera.classList.add("force-forms-outside");
+      await afterTwoFrames();
     }
+    if (run !== cameraSequenceRun || !formsAreOutsideViewport()) return;
+    setCameraPhase(CAMERA_PHASE.FORMS_FULLY_OUTSIDE);
+
+    setCameraPhase(CAMERA_PHASE.SCREEN_FADING);
+    screens.camera.classList.add("is-fading");
+    await waitForAnimation(
+      screens.camera.querySelector(".camera-screen-shade"),
+      "camera-shade-in",
+      1100
+    );
+    if (run !== cameraSequenceRun) return;
+    setCameraPhase(CAMERA_PHASE.FADE_COMPLETE);
+
+    setCameraPhase(CAMERA_PHASE.FORMS_ENTERING);
+    screens.camera.classList.add("is-entering");
+    await waitForAnimation(
+      screens.camera.querySelector(".camera-print"),
+      "camera-print-settle",
+      3900
+    );
+    if (run !== cameraSequenceRun) return;
+    setCameraPhase(CAMERA_PHASE.FORMS_ENTERED);
+    screens.camera.classList.add("is-ready");
+    await startCamera;
+    if (run !== cameraSequenceRun) return;
+    cameraShutter.disabled = !cameraStream;
   }
 
   cameraShutter.addEventListener("click", () => {
-    if (!cameraStream) return;
+    if (!cameraStream || screens.camera.dataset.cameraPhase !== CAMERA_PHASE.FORMS_ENTERED) return;
+    setCameraPhase(CAMERA_PHASE.CAPTURING_IMAGE);
     const w = cameraVideo.videoWidth, h = cameraVideo.videoHeight;
-    if (!w || !h) return;
+    if (!w || !h) {
+      setCameraPhase(CAMERA_PHASE.FORMS_ENTERED);
+      return;
+    }
     cameraCanvas.width = w;
     cameraCanvas.height = h;
     cameraCanvas.getContext("2d").drawImage(cameraVideo, 0, 0, w, h);
@@ -1377,6 +1468,7 @@
     cameraVideo.hidden = true;
     cameraPhoto.hidden = false;
     stopCameraStream();              // freeze + release the camera
+    setCameraPhase(CAMERA_PHASE.CAPTURE_COMPLETE);
     btnCameraNext.disabled = false;
     cameraShutter.disabled = true;
     if (cameraRetake) cameraRetake.hidden = false;
@@ -1441,10 +1533,13 @@
   }
 
   btnCameraNext.addEventListener("click", () => {
-    if (btnCameraNext.disabled) return;
+    if (btnCameraNext.disabled ||
+        screens.camera.dataset.cameraPhase !== CAMERA_PHASE.CAPTURE_COMPLETE ||
+        !state.photoDataUrl) return;
     uploadDepositorPhoto();
     stopCameraStream();
     initEnvelopeTransition();
+    setCameraPhase(CAMERA_PHASE.FINAL_BROWN_SCREEN);
     showScreen("envelope");
   });
 
