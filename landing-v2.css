@@ -227,7 +227,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-credit-open .landing-v2__pile{z-index:32}
 .landing-v2.is-credit-open .corner-credit-slot{
   cursor:default;
-  transform:translate(calc(50vw + 113px),calc(50vh - 135.5px)) rotate(-15deg);
+  transform:translate(calc(50vw + 113px),calc(50vh - 135.5px)) rotate(0deg);
 }
 .corner-credit-card__close{
   position:absolute;
@@ -462,7 +462,7 @@ button{font:inherit;color:inherit}
   /* The corner composition is authored on a 1920×1080 canvas and scaled as a
      unit. Pull the credit sheet to that canvas centre so its visual position
      remains the viewport centre after the parent scale is applied. */
-  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1073px,404.5px) rotate(-15deg)}
+  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1073px,404.5px) rotate(0deg)}
 }
 
 @media (max-width:900px){
