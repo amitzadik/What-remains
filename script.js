@@ -1556,7 +1556,6 @@
       } else {
         // No archive to spread into — never let the measurement go stale.
         pendingStackSource = null;
-        pendingDepartingHTML = "";
         showScreen("landing");
       }
     });
@@ -1594,7 +1593,8 @@
   ["images/figma-archive-search-card-v2.jpg",
    "images/figma-archive-add-card-v2.jpg",
    "images/figma-personal-archive-background.jpg",
-   "images/figma-stamp-background.jpg"].forEach(src => {
+   "images/figma-stamp-background.jpg",
+   "images/paperboard-texture.jpg"].forEach(src => {
     const im = new Image();
     im.src = src;
     if (im.decode) im.decode().catch(() => {});
@@ -1620,20 +1620,18 @@
   // of the motion live in that space, the spread stays correct at any viewport
   // size and survives a later re-render.
   //
-  // Papers that continue: the answer sheets the archive shows (questions 1, 2
-  // and 6 plus the legacy page), the portrait, and the stamping instructions.
-  // The rest of the stack has no place in the archive, so it is cloned into the
-  // archive and dissolves outward — the pile empties instead of being cut away.
-  const ARCHIVE_CONTINUING_SHEETS = { "sheet:0": 1, "sheet:1": 1, "sheet:5": 1, "sheet:legacy": 1 };
+  // EVERY sheet in the stack is measured and every one of them travels. Six take
+  // the places Figma 751:305 gives them (the answer sheets for questions 1, 2
+  // and 6, the legacy page, the portrait and the stamping instructions); the
+  // other five have no place in that composition, so they are carried off the
+  // surface instead — still the same sheets, still moving, never faded out.
   let pendingStackSource = null;      // measured geometry, awaiting the next open
-  let pendingDepartingHTML = "";
   let stackSourceGeometry = null;     // geometry in use by the current spread
-  let stackDepartingHTML = "";
   let archivePhase = "idle";          // "stack" → "spreading" → "open"
   let pendingPileRender = false;      // a re-render asked for mid-spread
   // Longest delay + duration in the spread table below. Used only to size the
   // guard timer, never as the thing that decides the papers have landed.
-  const ARCHIVE_SPREAD_MS = 1280;
+  const ARCHIVE_SPREAD_MS = 1440;
 
   function archiveSceneScale() {
     return Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
@@ -1676,25 +1674,19 @@
 
   function captureStackSource() {
     pendingStackSource = null;
-    pendingDepartingHTML = "";
     if (!stampInstructionsPile) return;
     const geo = {};
-    const leaving = [];
+    // Every sheet on the stack, without exception — each one is a paper that
+    // has to travel, so each one needs its true starting geometry.
     stampInstructionsPile.querySelectorAll(".stack-transition-sheet").forEach(sheet => {
-      const key = "sheet:" + (sheet.dataset.sheet || "");
-      if (ARCHIVE_CONTINUING_SHEETS[key]) {
-        const m = measureArchiveSource(sheet);
-        if (m) geo[key] = m;
-      } else {
-        leaving.push(sheet.outerHTML);
-      }
+      const m = measureArchiveSource(sheet);
+      if (m) geo["sheet:" + (sheet.dataset.sheet || "")] = m;
     });
     const photo = measureArchiveSource(document.querySelector(".stamp-instructions-photo"));
     if (photo) geo.photo = photo;
     const instructions = measureArchiveSource(envelopeTransition);
     if (instructions) geo.instructions = instructions;
     pendingStackSource = geo;
-    pendingDepartingHTML = leaving.join("");
   }
 
   function setArchivePhase(phase) {
@@ -1860,9 +1852,7 @@
     // (no screen fade) and keeps the stamping surface under the papers — both
     // are what make the swap invisible and the papers read as the same papers.
     stackSourceGeometry = pendingStackSource;
-    stackDepartingHTML = pendingDepartingHTML;
     pendingStackSource = null;
-    pendingDepartingHTML = "";
     if (screens.personal) screens.personal.classList.toggle("is-from-stack", !!stackSourceGeometry);
 
     pendingPileRender = false;
@@ -1952,10 +1942,11 @@
     archiveBox.classList.remove("is-archive-spreading");
     archiveBox.classList.add("is-archive-open");
     setArchivePhase("open");
-    // The emptied stack is scaffolding — drop it once the archive is standing.
-    stackDepartingHTML = "";
-    const departing = archivePile ? archivePile.querySelector(".archive-departing-pile") : null;
-    if (departing) departing.remove();
+    // The sheets that travelled off the surface have finished travelling; they
+    // are outside the frame now, so the DOM can let them go.
+    if (archivePile) {
+      archivePile.querySelectorAll(".pile-item--exit").forEach(el => el.remove());
+    }
     if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
   }
 
@@ -1980,6 +1971,13 @@
     // Figma 751:305, direct-layer order. Each visible material has one explicit
     // destination and one matching source in the completed collection pile.
     //
+    // Every centre and rotation below is read straight off the node. Each paper
+    // is authored there as a portrait frame turned about -90°, so its landscape
+    // rotation is (figma angle + 90): 751:192 -109.59 → -19.59, 751:217 -86.43
+    // → 3.57, 751:242 -100.92 → -10.92, 751:267 -85.65 → 4.35, 751:291 -98.64 →
+    // -8.64, 751:294 -96.03 → -6.03. Centres are the rotation wrapper's AABB
+    // centre (left + w/2, top + h/2).
+    //
     // `src` names the stack sheet this paper IS (measured live, see
     // captureStackSource); `from` is the fallback source used when the archive
     // is opened without coming through the stack — a drawer browsed from the
@@ -2001,29 +1999,53 @@
     const E_RELEASE = "cubic-bezier(0.4, 0.05, 0.16, 1)";
     const sceneScale = archiveSceneScale();
     const docLayout = [
-      { cx: 934.797, cy: 704.129, w:1370, r: 19.590, z:2, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+      { cx: 934.797, cy: 704.129, w:1370, r:-19.590, z:2, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:0", from:{cx:977.000,cy:494.559,w:814,r:4.74},
-        spread:{ delay:380, dur:900, ease:E_SETTLE, arc:-1, over:-0.5 } },
-      { cx: 751.834, cy: 718.204, w:1370, r: -3.569, z:3, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+        spread:{ delay:520, dur:920, ease:E_SETTLE, arc:-1, over:-0.5 } },
+      { cx: 751.834, cy: 718.205, w:1370, r:  3.570, z:3, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:1", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28},
-        spread:{ delay:300, dur:900, ease:E_GLIDE, arc:1, over:0.45 } },
-      { cx:1127.374, cy: 804.483, w:1370, r: 10.919, z:7, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+        spread:{ delay:450, dur:900, ease:E_GLIDE, arc:1, over:0.45 } },
+      { cx:1127.374, cy: 804.483, w:1370, r:-10.920, z:7, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:5", from:{cx:905.421,cy:573.182,w:1370,r:5.95},
-        spread:{ delay:215, dur:860, ease:E_RELEASE, arc:-1, over:-0.35 } },
-      { cx: 862.766, cy: 869.046, w:1370, r: -4.349, z:9, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)",
+        spread:{ delay:250, dur:880, ease:E_RELEASE, arc:-1, over:-0.35 } },
+      { cx: 862.766, cy: 869.046, w:1370, r:  4.350, z:9, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)",
         src:"sheet:legacy", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40},
-        spread:{ delay:155, dur:940, ease:E_DRIFT, arc:1, over:0.4 } }
+        spread:{ delay:150, dur:940, ease:E_DRIFT, arc:1, over:0.4 } }
     ];
     const photoLayout = [
-      { cx:735.334, cy:873.046, w:1139.487, h:737.315, r:8.642, z:10,
+      { cx:735.338, cy:873.050, w:1139.487, h:737.315, r:-8.640, z:10,
         src:"photo", from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png",
         spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 } }
     ];
     const instructionLayout = {
-      cx:1113.655, cy:1023.266, w:1243.756, r:6.032, z:20,
+      cx:1113.655, cy:1023.765, w:1243.756, r:-6.030, z:20,
       src:"instructions", from:{cx:955.100,cy:671.164,w:1370,r:15.86},
       spread:{ delay:0, dur:980, ease:E_SETTLE, arc:1, over:0.5 }
     };
+
+    // The five stack sheets Figma 751:305 gives no place to. They are papers
+    // like any other and they animate like any other — same keyframes, same
+    // stagger, their own destination each — but their destination is off the
+    // archive surface, carried out past the edge they already lean towards.
+    // They are never faded and never cut: the composition that remains is
+    // exactly the Figma one because these have physically left it.
+    const exitLayout = [
+      { sheet:"6",            cx: 470, cy:-820, w:1370, r:-24, z:8, dataIndex:6, opacity:.72,
+        shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:883.200,cy:475.200,w:1370,r:15.86},
+        spread:{ delay:200, dur:860, ease:E_GLIDE, arc:1, over:0 } },
+      { sheet:"4",            cx: -700, cy:1180, w:1370, r: 21, z:6, dataIndex:4, opacity:.72,
+        shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:787.200,cy:669.600,w:1370,r:-10.96},
+        spread:{ delay:300, dur:840, ease:E_DRIFT, arc:-1, over:0 } },
+      { sheet:"3",            cx:2760, cy: 960, w:1370, r:-26, z:5, dataIndex:3, opacity:.72,
+        shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:1305.600,cy:604.800,w:1370,r:12.94},
+        spread:{ delay:350, dur:880, ease:E_RELEASE, arc:1, over:0 } },
+      { sheet:"2",            cx:-820, cy: 240, w:1370, r: 17, z:4, dataIndex:2, opacity:.72,
+        shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:595.200,cy:550.800,w:1370,r:-3.39},
+        spread:{ delay:400, dur:860, ease:E_SETTLE, arc:-1, over:0 } },
+      { sheet:"registration", cx: 960, cy:1900, w:1370, r: 11, z:1, dataIndex:"registration", opacity:.72,
+        shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:960.000,cy:540.000,w:1370,r:4.74},
+        spread:{ delay:580, dur:840, ease:E_GLIDE, arc:1, over:0 } }
+    ];
 
     const items = [];
     if (docCount) docLayout.forEach((slot, i) => items.push({ type:"doc", i:slot.dataIndex, slot, seed:i }));
@@ -2035,6 +2057,15 @@
       seed:20 + i
     }));
     items.push({ type:"instructions", slot:instructionLayout, seed:40 });
+    // Only when there really is a stack behind us: these papers exist to carry
+    // the rest of that stack away. Opened from the landing there is no stack, so
+    // there is nothing extra on screen that needs carrying.
+    if (stackSourceGeometry && docCount && archivePhase !== "open") {
+      exitLayout.forEach((slot, i) => {
+        slot.src = "sheet:" + slot.sheet;
+        items.push({ type:"exit", i:slot.dataIndex, slot, seed:60 + i });
+      });
+    }
 
     // The paper that lands last ends the spread — its animationend is what
     // hands the archive over to the user (see runArchiveOpeningTransition).
@@ -2044,7 +2075,7 @@
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
       const el = document.createElement("div");
-      if (it.type === "doc") {
+      if (it.type === "doc" || it.type === "exit") {
         el.className = "pile-item pile-item--doc";
         // Per-sheet width from its size multiplier, so every sheet is a
         // different size (depth) while keeping the exact 1370×969 proportions.
@@ -2054,12 +2085,21 @@
         // Unitless scale factor for .pile-doc's transform: scale() needs a
         // number, and calc() cannot divide a length by a length.
         el.style.setProperty("--pile-scale", (dwItem / 1370).toFixed(5));
-        const form = it.i === questions.length
-          ? archiveLegacyFormHTML(pileCardData)
-          : cardFormHTML(it.i, pileCardData);
+        // The leaving sheets carry the very form they carried in the stack —
+        // same component, same content, so nothing about a paper changes as it
+        // travels. They are decoration on their way out: inert and unannounced.
+        const form = it.i === "registration"
+          ? stackRegistrationFormHTML()
+          : (it.i === questions.length
+              ? archiveLegacyFormHTML(pileCardData)
+              : cardFormHTML(it.i, pileCardData));
         el.innerHTML = '<div class="pile-doc">' + form + "</div>";
+        if (it.type === "exit") {
+          el.classList.add("pile-item--exit");
+          el.setAttribute("aria-hidden", "true");
+        }
         // Decorative "next" arrow tucked into a corner of some sheets (Figma).
-        if (pileRand(it.i + 200) > 0.45) {
+        if (it.type === "doc" && pileRand(it.i + 200) > 0.45) {
           el.insertAdjacentHTML("beforeend",
             '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
@@ -2073,7 +2113,7 @@
         el.innerHTML = archiveStampInstructionsHTML();
         el.style.setProperty("--iw", (it.slot.w * sceneScale).toFixed(2) + "px");
       }
-      if (it.type !== "instructions") el.classList.add("pile-item--breathing");
+      if (it.type !== "instructions" && it.type !== "exit") el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
       el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 37) * 2)).toFixed(2) + "px");
       el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 43) * 2)).toFixed(2) + "px");
@@ -2081,7 +2121,7 @@
       el.style.setProperty("--breathe-duration", (6 + pileRand(seed + 53) * 4).toFixed(2) + "s");
       el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
-      if (it.type === "doc") {
+      if (it.type === "doc" || it.type === "exit") {
         const slot = it.slot;
         x = slot.cx; y = slot.cy; rot = slot.r; z = slot.z;
         el.style.setProperty("--doc-opacity", slot.opacity);
@@ -2124,19 +2164,6 @@
       el.style.zIndex = String(z);
       archivePile.appendChild(el);
     });
-
-    // The sheets that never had a place in the archive: cloned in at the exact
-    // positions they held in the stack, so the pile is still whole on the first
-    // frame, then slipping outward and away while the keepers spread. Appended
-    // last so the pile items keep their nth-child positions; z-index:auto on the
-    // wrapper lets each clone keep its own depth among them.
-    if (stackDepartingHTML && archivePhase !== "open") {
-      const departing = document.createElement("div");
-      departing.className = "stamp-instructions-pile archive-departing-pile";
-      departing.setAttribute("aria-hidden", "true");
-      departing.innerHTML = stackDepartingHTML;
-      archivePile.appendChild(departing);
-    }
   }
 
   function setPersonalToolText() {

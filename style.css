@@ -5401,38 +5401,32 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Nothing in the pile is grabbable until it has arrived. */
 .archive-box:not(.is-archive-open) .pile-item { pointer-events: none; }
 
-/* ---- the emptying stack ----
-   The sheets the archive has no place for. They are the real stack sheets,
-   cloned at their exact positions (the wrapper carries .stamp-instructions-pile
-   so every position, size and rotation resolves identically), so the pile is
-   still complete on the first frame of the archive. They then slide outward and
-   under, staggered against the papers that are leaving for their places — the
-   stack empties from the middle rather than being cut away. Removed from the
-   DOM once the spread finishes. */
-.archive-departing-pile {
+/* ---- the sheets the archive has no place for ----
+   Figma 751:305 composes six papers; the stack holds eleven. The other five are
+   not clones, ghosts or fades — they are ordinary .pile-item papers carrying
+   the very form they carried in the stack, running the very same spread
+   animation, with a destination of their own. That destination is simply past
+   the edge of the surface: they are carried out of frame rather than dissolved,
+   so the pile is whole on the first frame, every paper moves, and what is left
+   standing is exactly the Figma composition. Inert while they leave, and
+   dropped from the DOM once they have gone. */
+.pile-item--exit {
   pointer-events: none;
+  cursor: default;
 }
-.archive-departing-pile .stack-transition-sheet {
-  animation: archive-stack-depart var(--depart-dur, 720ms) cubic-bezier(0.32, 0, 0.26, 1) var(--depart-delay, 0ms) both;
-}
-@keyframes archive-stack-depart {
-  0%   { translate: 0 0; opacity: 1; }
-  100% { translate: var(--depart-x, 0vw) var(--depart-y, 5vh); opacity: 0; }
-}
-.archive-departing-pile .stack-transition-sheet[data-sheet="registration"] { --depart-x: 0vw;  --depart-y: 6vh; --depart-delay: 0ms;   --depart-dur: 760ms; }
-.archive-departing-pile .stack-transition-sheet[data-sheet="2"]            { --depart-x: -5vw; --depart-y: 4vh; --depart-delay: 90ms;  --depart-dur: 700ms; }
-.archive-departing-pile .stack-transition-sheet[data-sheet="3"]            { --depart-x: 5vw;  --depart-y: 5vh; --depart-delay: 170ms; --depart-dur: 740ms; }
-.archive-departing-pile .stack-transition-sheet[data-sheet="4"]            { --depart-x: -4vw; --depart-y: 7vh; --depart-delay: 260ms; --depart-dur: 690ms; }
-.archive-departing-pile .stack-transition-sheet[data-sheet="6"]            { --depart-x: -2vw; --depart-y: 5vh; --depart-delay: 340ms; --depart-dur: 720ms; }
 
 /* Photograph — thin equal matte border, archival tone, drop shadow.
-   Large, like the Figma, so the pile fills the frame and crops at edges. */
+   Large, like the Figma, so the pile fills the frame and crops at edges.
+   The matte is white: Figma 751:291 is `bg-black border-18 border-white`, and
+   the same print already wears a white matte on the stamping screen
+   (.stamp-instructions-photo). It used to turn black on arrival, which meant
+   the one paper the eye follows most changed as it travelled. */
 .pile-item--photo {
   width: var(--pw, 556px);
   height: var(--ph, 741px);
   box-sizing: border-box;
   padding: clamp(8px, 0.9375vw, 18px);
-  background: #000;
+  background: #fff;
   border: none;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -5773,6 +5767,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform-origin: center;
   background: #a1835a url("images/figma-archive-search-card-v2.jpg") center/cover no-repeat;
   box-shadow: 4px 4px 20px rgba(0,0,0,.25);
+  /* Blending boundary for the paper grain below: multiply must find the card's
+     own kraft as its backdrop and stop there, never the papers behind it. */
+  isolation: isolate;
   color: var(--ink);
   opacity: 1;
   pointer-events: auto;
@@ -5790,20 +5787,37 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
     translate 300ms cubic-bezier(0.22, 0.72, 0.34, 1);
 }
+/* Paper grain. One overlay per card, inset to the card box so it cannot reach
+   past the edge, and a child of the card so it turns and scales with it as one
+   object. Multiplied into the kraft underneath, kept faint so the base colour
+   is unchanged, and painted at z-index 0 — every printed field sits at z-index
+   1 above it, so nothing written on the card is darkened. The source is
+   2831×2000, several times the card's device pixels even at 2x, so the grain
+   stays sharp rather than resampling into mush. Shadows are untouched: they
+   belong to the card, and this is inside it. */
+.personal-tool-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: url("images/paperboard-texture.jpg") center / cover no-repeat;
+  mix-blend-mode: multiply;
+  opacity: .28;
+  pointer-events: none;
+}
+.personal-tool-card > * { z-index: 1; }
+
 /* The two kraft record sheets are part of the Figma composition but were never
-   in the central stack. They are not switched on at full opacity: they wait
-   below the fold while the papers start spreading, then rise into their resting
-   place on the same easing every other sheet uses, landing just as the last
-   paper settles. Nothing about their open/close motion changes. */
-.archive-box:not(.is-archive-spreading):not(.is-archive-open) .personal-tool-card { opacity: 0; }
-.archive-box:not(.is-archive-spreading):not(.is-archive-open) .personal-tool-panel--search .personal-tool-card { --tool-y: 88vh; }
-.archive-box:not(.is-archive-spreading):not(.is-archive-open) .personal-tool-panel--upload .personal-tool-card { --tool-y: 80vh; }
+   in the central stack, so they cannot travel out of it — but they must not
+   simply appear either. They wait entirely below the lower edge at full
+   opacity and are carried up into place on the same easing every other sheet
+   uses, arriving as the last papers settle: movement only, never a fade.
+   Nothing about their open/close motion changes. */
+.archive-box:not(.is-archive-spreading):not(.is-archive-open) .personal-tool-panel--search .personal-tool-card { --tool-y: 150vh; }
+.archive-box:not(.is-archive-spreading):not(.is-archive-open) .personal-tool-panel--upload .personal-tool-card { --tool-y: 142vh; }
 .archive-box:not(.is-archive-open) .personal-tool-card { pointer-events: none; }
 .archive-box.is-archive-spreading .personal-tool-card {
-  opacity: 1;
-  transition:
-    transform 760ms cubic-bezier(0.22, 1, 0.36, 1) 480ms,
-    opacity 420ms ease 480ms;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 420ms;
 }
 .archive-box.is-archive-open .personal-tool-card {
   opacity: 1;
@@ -5814,16 +5828,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
-   rotation, so both stay grabbable; horizontally both are centred. */
+   rotation, so both stay grabbable; horizontally both are centred.
+   Rotations are Figma 751:305 exactly. Both cards are authored there as a
+   716×1012 portrait frame turned about -90°, so the landscape angle is the
+   stated one plus 90: "בוט" (retrieval) -95.87 + 90 = -5.87deg, "הוספה" (add)
+   -81.78 + 90 = +8.22deg. They were previously the negatives of these — the
+   cards leaned the wrong way. Position, size, z-index and shadow unchanged. */
 .personal-tool-panel--search .personal-tool-card {
   --tool-x: -53px;
   --tool-y: 61.85vh;
-  --tool-rot: 5.87deg;
+  --tool-rot: -5.87deg;
 }
 .personal-tool-panel--upload .personal-tool-card {
   --tool-x: 48px;
   --tool-y: 51.9vh;
-  --tool-rot: -8.22deg;
+  --tool-rot: 8.22deg;
   background-image: url("images/figma-archive-add-card-v2.jpg");
 }
 /* Overview affordance: lift only the hovered kraft paper. `translate` is kept
@@ -5933,13 +5952,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
   /* Same stack → spreading → archive sequence, same single set of papers, but
      the journey collapses to one short positional move: no dealt-out stagger,
-     no curved paths, no departing clones left on screen. */
+     no curved paths, and the leaving sheets are placed off-surface at once. */
   .pile-item { transition: transform 220ms ease; }
   .archive-box.is-archive-spreading .pile-item {
     animation: none;
     transition: transform 220ms ease;
   }
-  .archive-departing-pile { display: none; }
   .archive-box.is-archive-spreading .drawer-header,
   .archive-box.is-archive-open .drawer-header,
   .archive-box.is-archive-open .pile-ctrl--close { transition: opacity 200ms ease; }
