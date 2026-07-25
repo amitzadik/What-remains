@@ -1546,10 +1546,19 @@
   if (btnEnvelopeNext) {
     btnEnvelopeNext.addEventListener("click", () => {
       if (btnEnvelopeNext.disabled) return;
+      btnEnvelopeNext.disabled = true;   // the spread cannot be triggered twice
+      // Measure the stack while it is still the thing on screen.
+      captureStackSource();
       renderLandingDrawers();
       const sess = getSession();
-      if (sess && sess.code) openOwnDrawer(sess);
-      else showScreen("landing");
+      if (sess && sess.code) {
+        openOwnDrawer(sess);
+      } else {
+        // No archive to spread into — never let the measurement go stale.
+        pendingStackSource = null;
+        pendingDepartingHTML = "";
+        showScreen("landing");
+      }
     });
   }
 
@@ -1579,7 +1588,13 @@
   // Pre-decode the large record-card textures (~12MP each). Otherwise the browser
   // decodes them lazily the first time the panel is shown, janking the main thread
   // and freezing the shared-element open animation for that first frame batch.
-  ["images/figma-archive-search-card.jpg", "images/figma-archive-add-card.jpg"].forEach(src => {
+  // The archive's own surface belongs in this list too: it is uncovered by the
+  // stack → archive spread, and decoding it on the first frame of that spread
+  // stalls rendering long enough to hold every paper still at the stack.
+  ["images/figma-archive-search-card-v2.jpg",
+   "images/figma-archive-add-card-v2.jpg",
+   "images/figma-personal-archive-background.jpg",
+   "images/figma-stamp-background.jpg"].forEach(src => {
     const im = new Image();
     im.src = src;
     if (im.decode) im.decode().catch(() => {});
@@ -1593,6 +1608,124 @@
   let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
   let pendingUploadMetadata = null;
   let archiveTransitionRun = 0;
+
+  // ============================================================
+  // Centred stack → personal archive (Figma 751:305)
+  // ============================================================
+  // The archive is not a second screen that fades in: it is the same sheets the
+  // user just watched gather into the middle of the stamping screen, carried
+  // outward to their places. Before the screen swaps we MEASURE each of those
+  // sheets (FLIP): its real on-screen centre, rotation and visual width, then
+  // express them in the archive's own 1920×1080 design space. Because both ends
+  // of the motion live in that space, the spread stays correct at any viewport
+  // size and survives a later re-render.
+  //
+  // Papers that continue: the answer sheets the archive shows (questions 1, 2
+  // and 6 plus the legacy page), the portrait, and the stamping instructions.
+  // The rest of the stack has no place in the archive, so it is cloned into the
+  // archive and dissolves outward — the pile empties instead of being cut away.
+  const ARCHIVE_CONTINUING_SHEETS = { "sheet:0": 1, "sheet:1": 1, "sheet:5": 1, "sheet:legacy": 1 };
+  let pendingStackSource = null;      // measured geometry, awaiting the next open
+  let pendingDepartingHTML = "";
+  let stackSourceGeometry = null;     // geometry in use by the current spread
+  let stackDepartingHTML = "";
+  let archivePhase = "idle";          // "stack" → "spreading" → "open"
+  let pendingPileRender = false;      // a re-render asked for mid-spread
+  // Longest delay + duration in the spread table below. Used only to size the
+  // guard timer, never as the thing that decides the papers have landed.
+  const ARCHIVE_SPREAD_MS = 1280;
+
+  function archiveSceneScale() {
+    return Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  }
+
+  // Visual rotation/scale of an element, however it was expressed: the `transform`
+  // matrix and the independent `rotate`/`scale` properties (the stack uses both).
+  function elVisualTransform(el) {
+    const cs = window.getComputedStyle(el);
+    let a = 1, b = 0;
+    const m = cs.transform;
+    if (m && m !== "none") {
+      const nums = m.slice(m.indexOf("(") + 1, -1).split(",").map(parseFloat);
+      if (nums.length >= 6 && !isNaN(nums[0]) && !isNaN(nums[1])) { a = nums[0]; b = nums[1]; }
+    }
+    let rot = Math.atan2(b, a) * 180 / Math.PI;
+    let scale = Math.hypot(a, b) || 1;
+    const ownRot = parseFloat(cs.rotate);
+    if (!isNaN(ownRot)) rot += ownRot;
+    const ownScale = parseFloat(cs.scale);
+    if (!isNaN(ownScale) && ownScale) scale *= ownScale;
+    return { rot, scale };
+  }
+
+  // One measured source, in 1920×1080 design units — the same units the archive
+  // destinations are written in, so the delta between them is scale-independent.
+  function measureArchiveSource(el) {
+    if (!el || !el.offsetWidth) return null;
+    const scale = archiveSceneScale();
+    if (!scale) return null;
+    const rect = el.getBoundingClientRect();
+    const t = elVisualTransform(el);
+    return {
+      cx: ((rect.left + rect.right) / 2 - window.innerWidth / 2) / scale + 960,
+      cy: ((rect.top + rect.bottom) / 2 - window.innerHeight / 2) / scale + 540,
+      w: (el.offsetWidth * t.scale) / scale,
+      r: t.rot
+    };
+  }
+
+  function captureStackSource() {
+    pendingStackSource = null;
+    pendingDepartingHTML = "";
+    if (!stampInstructionsPile) return;
+    const geo = {};
+    const leaving = [];
+    stampInstructionsPile.querySelectorAll(".stack-transition-sheet").forEach(sheet => {
+      const key = "sheet:" + (sheet.dataset.sheet || "");
+      if (ARCHIVE_CONTINUING_SHEETS[key]) {
+        const m = measureArchiveSource(sheet);
+        if (m) geo[key] = m;
+      } else {
+        leaving.push(sheet.outerHTML);
+      }
+    });
+    const photo = measureArchiveSource(document.querySelector(".stamp-instructions-photo"));
+    if (photo) geo.photo = photo;
+    const instructions = measureArchiveSource(envelopeTransition);
+    if (instructions) geo.instructions = instructions;
+    pendingStackSource = geo;
+    pendingDepartingHTML = leaving.join("");
+  }
+
+  function setArchivePhase(phase) {
+    archivePhase = phase;
+    if (archiveBox) archiveBox.dataset.archivePhase = phase;
+  }
+
+  // Resolves when the last paper has actually finished travelling. A CSS
+  // animation's clock does not start when the class is added — it starts on the
+  // first frame the browser manages to composite, and this screen's first frame
+  // is an expensive one (full-viewport paper textures). So the wait is on the
+  // animation's own `finished`, which is immune to that shift; a plain elapsed
+  // timer would hand the archive over mid-flight and snap the papers into place.
+  // The timeout is only a guard against an animation that never resolves.
+  function whenPapersHaveLanded(el) {
+    const guard = new Promise(resolve => window.setTimeout(resolve, ARCHIVE_SPREAD_MS + 2000));
+    if (!el || !el.getAnimations) return guard;
+    const running = el.getAnimations().filter(a => a.animationName === "archive-paper-spread");
+    if (!running.length) return guard;
+    return Promise.race([
+      Promise.all(running.map(a => a.finished)).catch(() => {}),
+      guard
+    ]);
+  }
+
+  // A re-render (an upload landing, a resize) must never restart a spread in
+  // flight: hold it until every paper has arrived, then rebuild once.
+  function requestArchivePileRender() {
+    if (archivePhase === "spreading") { pendingPileRender = true; return; }
+    renderArchivePile();
+  }
 
   // One reusable hidden file input drives all drawer uploads.
   const uploadInput = document.createElement("input");
@@ -1649,7 +1782,7 @@
   function showLocalPreview(file, dataUrl) {
     const isVideo = (file.type || "").indexOf("video/") === 0;
     pileLocalMedia.push({ src: dataUrl, kind: isVideo ? "video" : "image", uploading: true });
-    renderArchivePile();
+    requestArchivePileRender();
   }
 
   // Fetch the drawer's files via JSONP and render them into the folders.
@@ -1679,7 +1812,7 @@
     }));
     pileMedia = own.concat(driveMedia);
     pileLocalMedia = [];
-    renderArchivePile();
+    requestArchivePileRender();
   }
 
   // Open a depositor's personal archive as a scattered pile of THEIR own
@@ -1689,6 +1822,7 @@
   // never leak the logged-in user's answers into someone else's cards).
   function openDrawerInterior(viewer) {
     if (!viewer) return;
+    if (archivePhase === "spreading") return;   // one spread at a time
     if (activeDrawerEl) activeDrawerEl.classList.add("is-opened");
     // Owner view = logged-in session whose code matches this drawer's code.
     const _sess = getSession();
@@ -1721,6 +1855,18 @@
       pileMedia.push({ src: state.photoDataUrl, kind: "image", own: true });
     }
 
+    // Hand over whatever the stamping screen measured on its way out. Only that
+    // route arrives with a stack behind it, so only that route cuts straight in
+    // (no screen fade) and keeps the stamping surface under the papers — both
+    // are what make the swap invisible and the papers read as the same papers.
+    stackSourceGeometry = pendingStackSource;
+    stackDepartingHTML = pendingDepartingHTML;
+    pendingStackSource = null;
+    pendingDepartingHTML = "";
+    if (screens.personal) screens.personal.classList.toggle("is-from-stack", !!stackSourceGeometry);
+
+    pendingPileRender = false;
+    setArchivePhase("stack");
     renderArchivePile();
     loadDrawerFiles(currentDrawerCode); // append this drawer's Drive materials
     showScreen("personal");
@@ -1780,16 +1926,37 @@
     '</article>';
   }
 
+  // stack → spreading → personalArchive. The papers are already mounted at the
+  // stack's exact positions (renderArchivePile wrote every --from-* from the
+  // measurement), so one committed frame of "stack" is enough for the screen
+  // swap to be invisible; then they travel, staggered, to the Figma layout.
   function runArchiveOpeningTransition() {
     if (!archiveBox) return;
     const run = ++archiveTransitionRun;
-    archiveBox.classList.remove("is-archive-opening", "is-archive-open");
-    void archiveBox.offsetWidth;
-    archiveBox.classList.add("is-archive-opening");
-    window.setTimeout(() => {
-      if (run !== archiveTransitionRun || !screens.personal.classList.contains("active")) return;
-      archiveBox.classList.add("is-archive-open");
-    }, reduceMotion ? 0 : 450);
+    archiveBox.classList.remove("is-archive-spreading", "is-archive-open");
+    setArchivePhase("stack");
+    void archiveBox.offsetWidth;   // commit the stack frame before anything moves
+    const last = archivePile ? archivePile.querySelector('[data-spread-last="1"]') : null;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (run !== archiveTransitionRun) return;
+      setArchivePhase("spreading");
+      archiveBox.classList.add("is-archive-spreading");
+      if (reduceMotion) { finishArchiveSpread(run); return; }
+      // The last paper to land ends the phase — not a guessed clock.
+      whenPapersHaveLanded(last).then(() => finishArchiveSpread(run));
+    }));
+  }
+
+  function finishArchiveSpread(run) {
+    if (run !== archiveTransitionRun || !archiveBox) return;
+    archiveBox.classList.remove("is-archive-spreading");
+    archiveBox.classList.add("is-archive-open");
+    setArchivePhase("open");
+    // The emptied stack is scaffolding — drop it once the archive is standing.
+    stackDepartingHTML = "";
+    const departing = archivePile ? archivePile.querySelector(".archive-departing-pile") : null;
+    if (departing) departing.remove();
+    if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
   }
 
   function renderArchivePile() {
@@ -1812,20 +1979,50 @@
 
     // Figma 751:305, direct-layer order. Each visible material has one explicit
     // destination and one matching source in the completed collection pile.
-    const sceneScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    //
+    // `src` names the stack sheet this paper IS (measured live, see
+    // captureStackSource); `from` is the fallback source used when the archive
+    // is opened without coming through the stack — a drawer browsed from the
+    // landing, where there is no pile on screen to measure.
+    //
+    // `z` is the sheet's depth in the CENTRAL STACK, not its Figma index. The
+    // two orders happen to agree (0 < 1 < 5 < legacy < photo < instructions in
+    // both), so one set of values keeps the pile stacked correctly while the
+    // papers are still bunched in the middle AND lands on the Figma layering —
+    // no re-ordering mid-flight, no clipping as they slide past each other.
+    //
+    // `spread` is the hand-across-the-table motion, in the project's existing
+    // paper language (stack-sheet-arrive): the top of the pile leaves first,
+    // each paper gets its own duration, easing, curved path and small landing
+    // overshoot, and the starts overlap so several are always in the air.
+    const E_SETTLE  = "cubic-bezier(0.22, 0.04, 0.18, 1)";
+    const E_GLIDE   = "cubic-bezier(0.34, 0.02, 0.2, 1)";
+    const E_DRIFT   = "cubic-bezier(0.28, 0.08, 0.24, 1)";
+    const E_RELEASE = "cubic-bezier(0.4, 0.05, 0.16, 1)";
+    const sceneScale = archiveSceneScale();
     const docLayout = [
-      { cx: 934.797, cy: 704.129, w:1370, r: 19.590, z:1, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:977.000,cy:494.559,w:814,r:4.74} },
-      { cx: 751.834, cy: 718.204, w:1370, r: -3.569, z:2, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28} },
-      { cx:1127.374, cy: 804.483, w:1370, r: 10.919, z:3, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)", from:{cx:905.421,cy:573.182,w:1370,r:5.95} },
-      { cx: 862.766, cy: 869.046, w:1370, r: -4.349, z:4, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40} }
+      { cx: 934.797, cy: 704.129, w:1370, r: 19.590, z:2, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+        src:"sheet:0", from:{cx:977.000,cy:494.559,w:814,r:4.74},
+        spread:{ delay:380, dur:900, ease:E_SETTLE, arc:-1, over:-0.5 } },
+      { cx: 751.834, cy: 718.204, w:1370, r: -3.569, z:3, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+        src:"sheet:1", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28},
+        spread:{ delay:300, dur:900, ease:E_GLIDE, arc:1, over:0.45 } },
+      { cx:1127.374, cy: 804.483, w:1370, r: 10.919, z:7, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)",
+        src:"sheet:5", from:{cx:905.421,cy:573.182,w:1370,r:5.95},
+        spread:{ delay:215, dur:860, ease:E_RELEASE, arc:-1, over:-0.35 } },
+      { cx: 862.766, cy: 869.046, w:1370, r: -4.349, z:9, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)",
+        src:"sheet:legacy", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40},
+        spread:{ delay:155, dur:940, ease:E_DRIFT, arc:1, over:0.4 } }
     ];
     const photoLayout = [
-      { cx:735.334, cy:873.046, w:1139.487, h:737.315, r:8.642, z:5,
-        from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png" }
+      { cx:735.334, cy:873.046, w:1139.487, h:737.315, r:8.642, z:10,
+        src:"photo", from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png",
+        spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 } }
     ];
     const instructionLayout = {
-      cx:1113.655, cy:1023.266, w:1243.756, r:6.032, z:6,
-      from:{cx:955.100,cy:671.164,w:1370,r:15.86}
+      cx:1113.655, cy:1023.266, w:1243.756, r:6.032, z:20,
+      src:"instructions", from:{cx:955.100,cy:671.164,w:1370,r:15.86},
+      spread:{ delay:0, dur:980, ease:E_SETTLE, arc:1, over:0.5 }
     };
 
     const items = [];
@@ -1838,6 +2035,11 @@
       seed:20 + i
     }));
     items.push({ type:"instructions", slot:instructionLayout, seed:40 });
+
+    // The paper that lands last ends the spread — its animationend is what
+    // hands the archive over to the user (see runArchiveOpeningTransition).
+    const spreadEndsAt = items.reduce((end, it) =>
+      Math.max(end, it.slot.spread.delay + it.slot.spread.dur), 0);
 
     archivePile.innerHTML = "";
     items.forEach((it, k) => {
@@ -1892,17 +2094,49 @@
       } else {
         x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
-      const from = it.slot.from;
-      el.style.setProperty("--from-x", ((from.cx - x) * sceneScale).toFixed(2) + "px");
-      el.style.setProperty("--from-y", ((from.cy - y) * sceneScale).toFixed(2) + "px");
+      // Where this paper starts: its measured place in the stack the user is
+      // looking at, or the recorded pile position when there was no stack.
+      const measured = stackSourceGeometry && stackSourceGeometry[it.slot.src];
+      const from = measured || it.slot.from;
+      const fromDX = from.cx - x, fromDY = from.cy - y;
+      el.style.setProperty("--from-x", (fromDX * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--from-y", (fromDY * sceneScale).toFixed(2) + "px");
       el.style.setProperty("--from-r", from.r.toFixed(2) + "deg");
       el.style.setProperty("--from-scale", (from.w / it.slot.w).toFixed(5));
+
+      // Hands do not push papers along straight lines. Each sheet bows to one
+      // side of its own path — perpendicular to its travel, a tenth of the
+      // distance, alternating sign — and straightens as it settles.
+      const sp = it.slot.spread;
+      const len = Math.hypot(fromDX, fromDY) || 1;
+      const bow = Math.min(len * 0.11, 54) * sp.arc;
+      el.style.setProperty("--arc-x", ((-fromDY / len) * bow * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--arc-y", ((fromDX / len) * bow * sceneScale).toFixed(2) + "px");
+      el.style.setProperty("--spread-delay", sp.delay + "ms");
+      el.style.setProperty("--spread-dur", sp.dur + "ms");
+      el.style.setProperty("--spread-ease", sp.ease);
+      el.style.setProperty("--spread-over", sp.over + "deg");
+      if (sp.delay + sp.dur >= spreadEndsAt) el.dataset.spreadLast = "1";
+
       el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
       el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
       el.style.zIndex = String(z);
       archivePile.appendChild(el);
     });
+
+    // The sheets that never had a place in the archive: cloned in at the exact
+    // positions they held in the stack, so the pile is still whole on the first
+    // frame, then slipping outward and away while the keepers spread. Appended
+    // last so the pile items keep their nth-child positions; z-index:auto on the
+    // wrapper lets each clone keep its own depth among them.
+    if (stackDepartingHTML && archivePhase !== "open") {
+      const departing = document.createElement("div");
+      departing.className = "stamp-instructions-pile archive-departing-pile";
+      departing.setAttribute("aria-hidden", "true");
+      departing.innerHTML = stackDepartingHTML;
+      archivePile.appendChild(departing);
+    }
   }
 
   function setPersonalToolText() {
@@ -1924,6 +2158,7 @@
   // stacking order it started from. No second element, no layout swap.
   function openPersonalTool(kind) {
     if (!archiveBox) return;
+    if (archivePhase !== "open") return;
     if (archiveBox.classList.contains("is-tool-open")) return;
     setPersonalToolText();
 
@@ -1971,9 +2206,12 @@
   });
 
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
+  // Mid-spread the rebuild is deferred, so a resize can never restart the
+  // papers from the middle of the screen; the pile is re-measured once they
+  // have all arrived, and the destinations recompute from the new viewport.
   window.addEventListener("resize", () => {
     if (screens.personal && screens.personal.classList.contains("active")) {
-      renderArchivePile();
+      requestArchivePileRender();
     }
   });
 
@@ -1981,6 +2219,7 @@
   // item's edge nudges it ~18px out of the pile in that direction (toggle).
   if (archivePile) {
     archivePile.addEventListener("click", (e) => {
+      if (archivePhase !== "open") return;   // nothing is grabbable until it lands
       const item = e.target.closest(".pile-item");
       if (!item) return;
       const r = item.getBoundingClientRect();
