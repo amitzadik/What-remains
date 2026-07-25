@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שישאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=57" />
+  <link rel="stylesheet" href="style.css?v=58" />
 </head>
 <body dir="rtl">
 
@@ -104,7 +104,9 @@
 
       <!-- Floating action buttons: continue (bottom-left) + don't-know (bottom-right) -->
       <div class="qform-actions">
-        <button id="btn-dk-q" type="button" class="qform-dk-btn" aria-label="לא יודע/ת">לא יודע/ת</button>
+        <button id="btn-dk-q" type="button" class="img-btn qform-dk-btn" data-default="images/i-dont-know-default.png" data-hover="images/i-dont-know-hover.png" aria-label="לא יודע/ת">
+          <img src="images/i-dont-know-default.png" alt="">
+        </button>
         <button id="btn-next-q" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
           <img src="images/next-default.png" width="105" height="105">
         </button>

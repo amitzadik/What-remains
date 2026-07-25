@@ -4320,22 +4320,43 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .qform-img-btn:disabled img { opacity: 0.35; }
 #screen-questions .qform-img-btn:disabled img { opacity: 1; }
 
-/* "לא יודע/ת" — plain red bold text (Figma: 70px Bold, no box) */
+/* "לא יודע/ת" uses the same rectangular physical feedback as the account
+   logout stamp: no circular emboss layer, a restrained hover shift, and a
+   shallow rectangular inset on press. */
 .qform-dk-btn {
+  --emboss-radius: 0;
   background: none;
   border: none;
+  border-radius: 0;
   padding: 0;
   margin-inline-start: 0.876cqw;   /* align its right edge to the answer-text inset */
   cursor: pointer;
-  font-family: var(--font-main);
-  font-weight: var(--ts-redbold-weight);   /* שדות בולטים אדום — Bold */
-  font-size: clamp(24px, 5.11cqw, var(--ts-redbold-size));
-  line-height: var(--ts-redbold-lh);
-  letter-spacing: var(--ts-redbold-ls);
-  color: var(--stamp);
-  white-space: nowrap;
+  line-height: 0;
+  overflow: hidden;
+  transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease;
 }
-.qform-dk-btn:hover:not(:disabled) { opacity: 0.75; }
+.qform-dk-btn::before,
+.qform-dk-btn::after { content: none; }
+.qform-dk-btn:hover:not(:disabled) {
+  background: none;
+  border-color: transparent;
+  color: inherit;
+  opacity: 1;
+  transform: translateY(1px);
+  filter: saturate(1.04) brightness(.98);
+}
+.qform-dk-btn:active:not(:disabled),
+.qform-dk-btn.is-pressing:not(:disabled) {
+  transform: translateY(2px);
+  filter: saturate(1.08) brightness(.94);
+  box-shadow: inset 0 2px 4px rgba(195,66,55,.18);
+}
+.qform-dk-btn img {
+  display: block;
+  width: clamp(184px, 30.66cqw, 420px);
+  height: auto;
+  border-radius: 0;
+}
 .qform-dk-btn:disabled { cursor: not-allowed; opacity: 0.4; }
 
 /* Frozen sheets stay behind the live card as the accumulating memory pile. */
