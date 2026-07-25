@@ -295,6 +295,11 @@ button{font:inherit;color:inherit}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
 .pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
+/* Resting transition for the restored peek — the photos and back/middle sheets
+   slip back on pointer-leave using the same soft release as the front sheet. */
+.pile-photo,.pile-sheet--back,.pile-sheet--middle{
+  transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms;
+}
 
 @keyframes pile-deal{0%{opacity:0;--pdx:var(--deal-dx,-720px);--pdy:var(--deal-dy,0px);--pdr:var(--deal-dr,14deg)}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdy:0px;--pdr:0deg}}
 @keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
@@ -312,6 +317,20 @@ button{font:inherit;color:inherit}
   box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18);
   transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms,--ppr .42s var(--ease-uncover) 30ms,box-shadow .5s ease 30ms;
 }
+/* Restored peek: the papers under the front sheet nudge slightly outward on
+   hover — a small translate only, so each keeps its own rotation and scale.
+   Varied offsets read like a hand lightly rummaging the pile. */
+.landing-v2__pile:hover .pile-photo,
+.landing-v2__pile:hover .pile-sheet--back,
+.landing-v2__pile:hover .pile-sheet--middle{
+  transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms;
+}
+.landing-v2__pile:hover .pile-photo--1{--ppop:9px;--ppy:-5px}
+.landing-v2__pile:hover .pile-photo--2{--ppop:12px;--ppy:4px}
+.landing-v2__pile:hover .pile-photo--3{--ppop:7px;--ppy:-7px}
+.landing-v2__pile:hover .pile-photo--4{--ppop:13px;--ppy:5px}
+.landing-v2__pile:hover .pile-sheet--back{--ppop:10px;--ppy:6px}
+.landing-v2__pile:hover .pile-sheet--middle{--ppop:11px;--ppy:-4px}
 
 /* ===== inline archive search — replaces the intro copy while active ===== */
 .landing-v2__search{
