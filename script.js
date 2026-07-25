@@ -1145,15 +1145,18 @@
     const run = ++stackTransitionRun;
     setMemoryTraceItems(stackMemoryTrace, buildQuestionMemoryItems(questions.length));
     stackStage.classList.remove("is-forming");
+    // Every deposited paper collects into the stack: the registration form, all
+    // questions, and the legacy sheet — each animated by its data-sheet index.
+    let questionSheets = '';
+    for (let i = 0; i < questions.length; i++) {
+      questionSheets +=
+        '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="' + i + '">' +
+          stackQuestionFormHTML(i) + '</div>';
+    }
     const sheets =
       '<div class="stack-transition-sheet stack-transition-sheet--registration" data-sheet="registration">' +
         stackRegistrationFormHTML() + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="0">' +
-        stackQuestionFormHTML(0) + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="1">' +
-        stackQuestionFormHTML(1) + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="5">' +
-        stackQuestionFormHTML(5) + '</div>' +
+      questionSheets +
       '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
         stackLegacyFormHTML() + '</div>';
     stackPile.innerHTML = sheets;

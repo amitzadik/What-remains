@@ -2556,8 +2556,14 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-stack-pile .stack-transition-sheet[data-sheet="registration"] { --stack-x: 0vw;   --stack-y: 0vh;    --stack-rot: 4.74deg;   --stack-from-x: -71.13vw; --stack-from-y: 52.96vh;   --stack-from-rot: -16.91deg; --stack-z: 1; --stack-delay: 900ms;  --stack-dur: 692ms; }
 .camera-stack-pile .stack-transition-sheet[data-sheet="0"]            { --stack-x: -17vw; --stack-y: -10vh;  --stack-rot: -5.28deg;  --stack-from-x: -94.35vw; --stack-from-y: -77.70vh;  --stack-from-rot: 2.74deg;   --stack-z: 2; --stack-delay: 1068ms; --stack-dur: 788ms; }
 .camera-stack-pile .stack-transition-sheet[data-sheet="1"]            { --stack-x: 16vw;  --stack-y: -7vh;   --stack-rot: 5.95deg;   --stack-from-x: -79.48vw; --stack-from-y: 103.14vh;  --stack-from-rot: -7.06deg;  --stack-z: 3; --stack-delay: 1694ms; --stack-dur: 411ms; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="5"]            { --stack-x: 8vw;   --stack-y: -12vh;  --stack-rot: -18.4deg;  --stack-from-x: 89.04vw;  --stack-from-y: 40.32vh;   --stack-from-rot: -3.39deg;  --stack-z: 4; --stack-delay: 2838ms; --stack-dur: 689ms; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"]       { --stack-x: 2vw;   --stack-y: 3vh;    --stack-rot: 15.86deg;  --stack-from-x: -15.68vw; --stack-from-y: -112.13vh; --stack-from-rot: 0.73deg;   --stack-z: 5; --stack-delay: 3364ms; --stack-dur: 469ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="2"]            { --stack-x: -19vw; --stack-y: 1vh;    --stack-rot: -3.39deg;  --stack-from-x: 71.98vw;  --stack-from-y: 48.52vh;   --stack-from-rot: 5.60deg;   --stack-z: 4; --stack-delay: 1931ms; --stack-dur: 353ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="3"]            { --stack-x: 18vw;  --stack-y: 6vh;    --stack-rot: 12.94deg;  --stack-from-x: -80.63vw; --stack-from-y: -33.15vh;  --stack-from-rot: -3.05deg;  --stack-z: 5; --stack-delay: 2203ms; --stack-dur: 382ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="4"]            { --stack-x: -9vw;  --stack-y: 12vh;   --stack-rot: -10.96deg; --stack-from-x: 41.91vw;  --stack-from-y: -94.60vh;  --stack-from-rot: -3.96deg;  --stack-z: 6; --stack-delay: 2438ms; --stack-dur: 503ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="5"]            { --stack-x: 8vw;   --stack-y: -12vh;  --stack-rot: -18.4deg;  --stack-from-x: 89.04vw;  --stack-from-y: 40.32vh;   --stack-from-rot: -3.39deg;  --stack-z: 7; --stack-delay: 2838ms; --stack-dur: 689ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="6"]            { --stack-x: -4vw;  --stack-y: -6vh;   --stack-rot: 15.86deg;  --stack-from-x: -15.68vw; --stack-from-y: -112.13vh; --stack-from-rot: 0.73deg;   --stack-z: 8; --stack-delay: 3364ms; --stack-dur: 469ms; }
+/* Legacy (heritage) sheet — the app has one more paper than the prototype, so it
+   lands last, on top, in the same collection style (spring settle from off-screen). */
+.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"]       { --stack-x: 2vw;   --stack-y: 3vh;    --stack-rot: -3deg;     --stack-from-x: 6vw;      --stack-from-y: 80vh;      --stack-from-rot: 5deg;      --stack-z: 9; --stack-delay: 3620ms; --stack-dur: 500ms; }
 
 .camera-print {
   position: absolute;
@@ -2595,7 +2601,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Phase 3 — the camera print (Figma 758:329 "Frame 43") flies in last and is
    laid on top, matching the prototype's final member of the timeline. */
 #screen-camera.is-entering .camera-print {
-  animation: camera-print-settle 697ms var(--figma-paper-settle) 3970ms both;
+  animation: camera-print-settle 697ms var(--figma-paper-settle) 4260ms both;
 }
 
 /* Each sheet enters off-screen (its own direction) and travels to its fanned
