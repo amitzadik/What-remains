@@ -2476,9 +2476,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: rgba(19, 13, 0, 0.2);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 900ms ease;
 }
-#screen-camera.is-entering .camera-screen-shade { opacity: 1; }
+/* Phase 1 — the background darkening. Driven by a keyframe (not a transition)
+   so it reliably plays from 0 regardless of when the screen becomes active. It
+   sits beneath the papers (z-index 0 < the stage's 2), so only the background
+   darkens; the papers stay fully opaque above it. */
+#screen-camera.is-entering .camera-screen-shade { animation: camera-shade-in 900ms ease both; }
+@keyframes camera-shade-in { from { opacity: 0; } to { opacity: 1; } }
 
 .camera-memory-trace { z-index: 1; opacity: 1; }
 .camera-memory-ack { z-index: 1; top: 8.42vh; opacity: 0.05; }
@@ -2517,21 +2521,39 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: none;
 }
 .camera-stack-pile { position: absolute; inset: 0; }
+/* Card-sized exactly like the questionnaire form (same width, aspect ratio and
+   inline-size container so its cqw typography matches), centred and at full
+   brightness. The darkening lives only on the shade beneath — never on the
+   papers. Scale is never touched: the sheets only translate + rotate. */
 .camera-stack-pile .stack-transition-sheet {
-  opacity: var(--stack-opacity);
-  transform: translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
-  transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+  --stack-x: 0%; --stack-y: 0%; --stack-rot: 0deg;
+  --stack-z: auto; --stack-delay: 0ms; --stack-dur: 900ms;
+  position: absolute;
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  height: auto;
+  aspect-ratio: 1370 / 969;
+  container-type: inline-size;
+  opacity: 1;
+  /* Opaque page backing under the translucent form paper, so each sheet keeps
+     the exact brightness it had in the questionnaire (form paper over cream)
+     and the darkened background never bleeds through the 0.56α paper. */
+  background-color: var(--form-page-bg);
+  z-index: var(--stack-z);
+  transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot));
+  transform-origin: center;
+  transition: none;
 }
-/* Match the wider, messier landing spots the gathering animation ends on, so
-   the pile stays put (no tightening snap) as the camera screen takes over. */
-.camera-stack-pile .stack-transition-sheet[data-sheet="0"] { --stack-x: -17%; --stack-y: -10%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="1"] { --stack-x: 16%; --stack-y: -7%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="2"] { --stack-x: -19%; --stack-y: 1%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="3"] { --stack-x: 18%; --stack-y: 6%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="4"] { --stack-x: -9%; --stack-y: 12%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="5"] { --stack-x: 8%; --stack-y: -12%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="6"] { --stack-x: -4%; --stack-y: -6%; }
-.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] { --stack-x: 2%; --stack-y: 3%; }
+/* Figma 480:8478 — final stacked composition. The heritage form (the last one
+   the depositor saw) rests on top nearly straight; the earlier forms fan loosely
+   behind it. Back sheets settle first, the top sheet last. Fixed, same every run. */
+.camera-stack-pile .stack-transition-sheet[data-sheet="registration"] { --stack-x: 5%;   --stack-y: -8%; --stack-rot: 4deg;    --stack-z: 1; --stack-delay: 950ms;  --stack-dur: 840ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="0"]            { --stack-x: -12%; --stack-y: -6%; --stack-rot: -5.5deg; --stack-z: 2; --stack-delay: 1080ms; --stack-dur: 860ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="1"]            { --stack-x: 10%;  --stack-y: -2%; --stack-rot: 6deg;    --stack-z: 3; --stack-delay: 1210ms; --stack-dur: 840ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="5"]            { --stack-x: -7%;  --stack-y: 1%;  --stack-rot: -6.5deg; --stack-z: 4; --stack-delay: 1340ms; --stack-dur: 880ms; }
+.camera-stack-pile .stack-transition-sheet[data-sheet="legacy"]       { --stack-x: 2%;   --stack-y: 4%;  --stack-rot: 2.5deg;  --stack-z: 5; --stack-delay: 1470ms; --stack-dur: 900ms; }
 
 .camera-print {
   position: absolute;
@@ -2557,31 +2579,28 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   will-change: translate, rotate;
 }
 
-/* Figma 758:329 — one 2929.965ms collection timeline.  Visibility comes
-   exclusively from opaque papers travelling in from beyond the viewport. */
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="registration"] {
-  animation: figma-758-registration-move 2929.965ms linear both,
-             figma-758-registration-turn 2929.965ms linear both;
+/* Figma 480:8478 — Phase 2. Only after the shade has fully darkened (Phase 1,
+   900ms) do the papers move from the questionnaire's centred position out into
+   the stacked composition. Transform only: no scale, no opacity, no fade, and
+   no remount — the very same sheets simply travel, staggered back-to-front. */
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet {
+  animation: camera-stack-form var(--stack-dur) var(--figma-paper-settle) var(--stack-delay) both;
 }
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="0"] {
-  animation: figma-758-q11-move 2929.965ms linear both,
-             figma-758-q11-turn 2929.965ms linear both;
-}
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="1"] {
-  animation: figma-758-q12-move 2929.965ms linear both,
-             figma-758-q12-turn 2929.965ms linear both;
-}
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="5"] {
-  animation: figma-758-q16-move 2929.965ms linear both,
-             figma-758-q16-turn 2929.965ms linear both;
-}
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] {
-  animation: figma-758-q17-move 2929.965ms linear both,
-             figma-758-q17-turn 2929.965ms linear both;
-}
+/* Phase 3 — once the stack has settled the camera print is laid on top and the
+   camera screen proper takes over. */
 #screen-camera.is-entering .camera-print {
-  animation: figma-758-camera-move 2929.965ms linear both,
-             figma-758-camera-turn 2929.965ms linear both;
+  animation: camera-print-settle 900ms var(--figma-paper-settle) 2450ms both;
+}
+
+/* Continuity: the first frame is the centred questionnaire card (translate 0,
+   rotate 0); the sheet then travels to its fanned resting spot. No scale. */
+@keyframes camera-stack-form {
+  from { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)); }
+}
+@keyframes camera-print-settle {
+  from { opacity: 0; translate: 6vw 8vh; rotate: -3deg; }
+  to   { opacity: 1; translate: 0 0; rotate: -10.77deg; }
 }
 
 @keyframes figma-758-registration-move {
