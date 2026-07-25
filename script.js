@@ -1414,7 +1414,7 @@
       cameraMsg.hidden = false;
     });
 
-    // The DOM starts with every complete, 70%-scaled form physically beyond
+    // The DOM starts with every complete, 80%-scaled form physically beyond
     // a viewport edge. Only after two painted frames and a bounds check may
     // the background fade begin.
     await afterTwoFrames();

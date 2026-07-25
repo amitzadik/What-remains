@@ -2521,7 +2521,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: none;
 }
 .camera-stack-pile { position: absolute; inset: 0; }
-/* Existing website forms, uniformly reduced to 70%. Their visual styles stay
+/* Existing website forms, uniformly reduced to 80%. Their visual styles stay
    untouched; the wrapper owns only position, rotation and the uniform scale. */
 .camera-stack-pile .stack-transition-sheet {
   --stack-x: 0%; --stack-y: 0%; --stack-rot: 0deg;
@@ -2541,7 +2541,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
      and the darkened background never bleeds through the 0.56α paper. */
   background-color: var(--form-page-bg);
   z-index: var(--stack-z);
-  transform: translate(-50%, -50%) translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(.7);
+  transform: translate(-50%, -50%) translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(.8);
   transform-origin: center;
   transition: none;
 }
@@ -2607,10 +2607,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* Each sheet enters off-screen and travels to its fanned resting spot while
-   retaining the required uniform 70% scale throughout the whole movement. */
+   retaining the required uniform 80% scale throughout the whole movement. */
 @keyframes camera-stack-form {
-  from { transform: translate(-50%, -50%) translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(.7); }
-  to   { transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(.7); }
+  from { transform: translate(-50%, -50%) translate(var(--stack-from-x), var(--stack-from-y)) rotate(var(--stack-from-rot)) scale(.8); }
+  to   { transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(.8); }
 }
 @keyframes camera-print-settle {
   from { translate: 94.05vw 68.94vh; rotate: -1.49deg; }
@@ -2758,7 +2758,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     translate: 0 0;
   }
   #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet {
-    transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(.7);
+    transform: translate(-50%, -50%) translate(var(--stack-x), var(--stack-y)) rotate(var(--stack-rot)) scale(.8);
   }
   .camera-print { opacity: 1; transform: none; rotate: -10.77deg; }
 }
@@ -3942,7 +3942,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   z-index: var(--stamp-z);
   opacity: 1;
   background-color: var(--form-page-bg);
-  transform: translate(-50%, -50%) translate(var(--stamp-x), var(--stamp-y)) rotate(var(--stamp-rot)) scale(.7);
+  transform: translate(-50%, -50%) translate(var(--stamp-x), var(--stamp-y)) rotate(var(--stamp-rot)) scale(.8);
   transform-origin: center;
 }
 .stamp-instructions-pile .stack-transition-sheet[data-sheet="registration"] { --stamp-x: 0vw;   --stamp-y: 0vh;   --stamp-rot: 4.74deg;   --stamp-z: 1; }
