@@ -3927,44 +3927,47 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .stamp-instructions-pile { position: absolute; inset: 0; }
 .stamp-instructions-pile .stack-transition-sheet {
+  --stamp-x: 0vw;
+  --stamp-y: 0vh;
+  --stamp-rot: 0deg;
+  --stamp-z: auto;
+  position: absolute;
   inset: auto;
-  opacity: .8;
-  transform: none;
+  left: 50%;
+  top: 50%;
+  width: min(71.354vw, calc(89.72vh * 1.41383), 1370px);
+  height: auto;
+  aspect-ratio: 1370 / 969;
+  container-type: inline-size;
+  z-index: var(--stamp-z);
+  opacity: 1;
+  background-color: var(--form-page-bg);
+  transform: translate(-50%, -50%) translate(var(--stamp-x), var(--stamp-y)) rotate(var(--stamp-rot)) scale(.7);
+  transform-origin: center;
 }
-.stamp-instructions-pile .stack-transition-sheet[data-sheet="registration"] {
-  z-index: 1; left: 29.6875%; top: 19.08%; width: 42.396%;
-  aspect-ratio: 814 / 577; rotate: 4.74deg;
-}
-.stamp-instructions-pile .stack-transition-sheet[data-sheet="0"] {
-  z-index: 2; opacity: .9; left: 20.82%; top: 4.91%; width: 71.354%;
-  aspect-ratio: 1370 / 969; rotate: -5.28deg;
-}
-.stamp-instructions-pile .stack-transition-sheet[data-sheet="1"] {
-  z-index: 3; opacity: .9; left: 11.48%; top: 8.211%; width: 71.354%;
-  aspect-ratio: 1370 / 969; rotate: 5.95deg;
-}
-.stamp-instructions-pile .stack-transition-sheet[data-sheet="5"] {
-  z-index: 4; opacity: .9; left: 18.395%; top: 12.454%; width: 71.354%;
-  aspect-ratio: 1370 / 969; rotate: -18.4deg;
-}
-.stamp-instructions-pile .stack-transition-sheet[data-sheet="legacy"] {
-  z-index: 5; opacity: .9; left: 14.068%; top: 17.284%; width: 71.354%;
-  aspect-ratio: 1370 / 969; rotate: 15.86deg;
-}
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="registration"] { --stamp-x: 0vw;   --stamp-y: 0vh;   --stamp-rot: 4.74deg;   --stamp-z: 1; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="0"]            { --stamp-x: -17vw; --stamp-y: -10vh; --stamp-rot: -5.28deg;  --stamp-z: 2; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="1"]            { --stamp-x: 16vw;  --stamp-y: -7vh;  --stamp-rot: 5.95deg;   --stamp-z: 3; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="2"]            { --stamp-x: -19vw; --stamp-y: 1vh;   --stamp-rot: -3.39deg;  --stamp-z: 4; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="3"]            { --stamp-x: 18vw;  --stamp-y: 6vh;   --stamp-rot: 12.94deg;  --stamp-z: 5; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="4"]            { --stamp-x: -9vw;  --stamp-y: 12vh;  --stamp-rot: -10.96deg; --stamp-z: 6; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="5"]            { --stamp-x: 8vw;   --stamp-y: -12vh; --stamp-rot: -18.4deg;  --stamp-z: 7; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="6"]            { --stamp-x: -4vw;  --stamp-y: -6vh;  --stamp-rot: 15.86deg;  --stamp-z: 8; }
+.stamp-instructions-pile .stack-transition-sheet[data-sheet="legacy"]       { --stamp-x: 2vw;   --stamp-y: 3vh;   --stamp-rot: -3deg;     --stamp-z: 9; }
 .stamp-instructions-pile .stack-transition-sheet .qform {
   width: 100%;
   height: 100%;
 }
 .stamp-instructions-photo {
   position: absolute;
-  z-index: 6;
+  z-index: 10;
   left: 19.206%;
   top: 22.578%;
   width: 59.348%;
   height: auto;
   aspect-ratio: 1139.487 / 737.315;
   box-sizing: border-box;
-  padding: clamp(8px, 1.31cqw, 18px);
+  padding: clamp(8px, 0.9375vw, 18px);
   background: #fff;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
   rotate: -10.77deg;
@@ -3972,7 +3975,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stamp-instructions-photo::before {
   content: "";
   position: absolute;
-  inset: clamp(8px, 1.31cqw, 18px);
+  inset: clamp(8px, 0.9375vw, 18px);
   background: #000;
 }
 .stamp-instructions-photo img {
