@@ -3029,7 +3029,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   width: 100%;
   max-width: none;
   min-width: 0;
-  font-size: clamp(20px, 4.38cqw, 60px);
+  /* Legacy question typography reduced 10% (matches the main questionnaire). */
+  font-size: calc(clamp(20px, 4.38cqw, 60px) * 0.9);
   white-space: nowrap;
   text-wrap: nowrap;
 }
@@ -4231,7 +4232,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: flex-start;
   text-align: right;
   font-family: var(--font-main);
-  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
+  /* Question typography reduced 10% (proportional across all sizes). */
+  font-size: calc(clamp(20px, 4.38cqw, var(--ts-question-size)) * 0.9);
   font-weight: var(--ts-question-weight);   /* שאלות — Medium */
   color: var(--ink);
   line-height: var(--ts-question-lh);
@@ -4264,7 +4266,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   align-items: flex-end;
   font-family: var(--font-main);
-  font-size: clamp(20px, 4.38cqw, var(--ts-question-size));
+  /* Answer typography reduced 10% (proportional across all sizes). */
+  font-size: calc(clamp(20px, 4.38cqw, var(--ts-question-size)) * 0.9);
   font-weight: var(--ts-question-weight);   /* שאלות — Medium (answer text) */
   line-height: var(--ts-question-lh);
   letter-spacing: var(--ts-question-ls);
