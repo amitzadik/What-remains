@@ -188,18 +188,18 @@ button{font:inherit;color:inherit}
   padding:0;
   border:0;
   overflow:visible;
-  visibility:hidden;
   cursor:pointer;
   pointer-events:auto;
   background:transparent;
   box-shadow:none;
-  transform:rotate(-15deg);
+  /* Hidden state = off-screen transform only (kept mounted, no opacity/visibility
+     hiding it in place). It enters from the left like the other corner papers. */
+  transform:translate(-48vw,24px) rotate(-15deg);
   transform-origin:center;
   transition:transform 760ms cubic-bezier(.22,1,.36,1);
 }
 .corner-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
 .corner-credit-slot:active:not(:disabled){transform:rotate(-15deg);border-color:transparent}
-.landing-v2.is-settled .corner-credit-slot{visibility:visible}
 .corner-credit-card{
   position:relative;
   display:block;
@@ -214,11 +214,14 @@ button{font:inherit;color:inherit}
   background-position:center;
   background-blend-mode:multiply;
   box-shadow:0 4px 4px rgba(0,0,0,.25);
-  translate:-72px -18px;
+  /* Inner card rests flush; its translate is reserved for the hover peek only.
+     Entrance + open both live on the outer .corner-credit-slot transform. */
+  translate:0 0;
   transition:translate 300ms cubic-bezier(.22,.72,.34,1);
 }
-.landing-v2.is-card-entered .corner-credit-slot{visibility:visible}
-.landing-v2.is-credit-entered .corner-credit-card{translate:0 0}
+/* Entrance: off-screen -> resting position in the top-left cluster, in the
+   one-by-one sequence (is-credit-entered fires ~2s after the pile begins). */
+.landing-v2.is-credit-entered .corner-credit-slot{transform:rotate(-15deg)}
 .landing-v2.is-credit-entered .corner-credit-slot:hover .corner-credit-card,
 .landing-v2.is-credit-entered .corner-credit-slot:focus-visible .corner-credit-card{translate:20px 16px}
 .landing-v2.is-credit-open .landing-v2__corner{z-index:31}
@@ -296,6 +299,11 @@ button{font:inherit;color:inherit}
 .pile-plus{display:block;width:204px;height:204px;flex:0 0 auto}
 .pile-plus img{display:block;width:100%;height:100%;object-fit:contain}
 .pile-label{font-size:40px;font-weight:500;line-height:.96;white-space:nowrap}
+/* Resting transition for the restored peek — the photos and back/middle sheets
+   slip back on pointer-leave using the same soft release as the front sheet. */
+.pile-photo,.pile-sheet--back,.pile-sheet--middle{
+  transition:--ppop .56s var(--ease-release) 70ms,--ppy .56s var(--ease-release) 70ms;
+}
 
 @keyframes pile-deal{0%{opacity:0;--pdx:var(--deal-dx,-720px);--pdy:var(--deal-dy,0px);--pdr:var(--deal-dr,14deg)}55%{opacity:var(--rest-op,1)}100%{opacity:var(--rest-op,1);--pdx:0px;--pdy:0px;--pdr:0deg}}
 @keyframes pile-breathe{0%,100%{--pbx:0px;--pby:0px;--pbr:0deg}50%{--pbx:var(--bx-to);--pby:var(--by-to);--pbr:var(--br-to)}}
@@ -313,6 +321,20 @@ button{font:inherit;color:inherit}
   box-shadow:0 -4px 10px rgba(0,0,0,.20),5px 6px 15px rgba(0,0,0,.18);
   transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms,--ppr .42s var(--ease-uncover) 30ms,box-shadow .5s ease 30ms;
 }
+/* Restored peek: the papers under the front sheet nudge slightly outward on
+   hover — a small translate only, so each keeps its own rotation and scale.
+   Varied offsets read like a hand lightly rummaging the pile. */
+.landing-v2__pile:hover .pile-photo,
+.landing-v2__pile:hover .pile-sheet--back,
+.landing-v2__pile:hover .pile-sheet--middle{
+  transition:--ppop .42s var(--ease-uncover) 30ms,--ppy .42s var(--ease-uncover) 30ms;
+}
+.landing-v2__pile:hover .pile-photo--1{--ppop:9px;--ppy:-5px}
+.landing-v2__pile:hover .pile-photo--2{--ppop:12px;--ppy:4px}
+.landing-v2__pile:hover .pile-photo--3{--ppop:7px;--ppy:-7px}
+.landing-v2__pile:hover .pile-photo--4{--ppop:13px;--ppy:5px}
+.landing-v2__pile:hover .pile-sheet--back{--ppop:10px;--ppy:6px}
+.landing-v2__pile:hover .pile-sheet--middle{--ppop:11px;--ppy:-4px}
 
 /* ===== inline archive search — replaces the intro copy while active ===== */
 .landing-v2__search{
@@ -443,5 +465,5 @@ button{font:inherit;color:inherit}
   .landing-v2__wordmark,.landing-v2__copy{transition:none!important}
   .corner-layer{opacity:var(--rest-op,.8)!important;animation:none!important}
   .pile-photo,.pile-sheet{opacity:var(--rest-op,1)!important;animation:none!important;--pdx:0px;--pdy:0px;--pdr:0deg}
-  .pile-sheet--front,.corner-credit-card{transition:none}
+  .pile-sheet--front,.corner-credit-card,.corner-credit-slot{transition:none}
 }
