@@ -192,7 +192,9 @@ button{font:inherit;color:inherit}
   pointer-events:none;
   background:transparent;
   box-shadow:none;
-  transform:rotate(-15deg);
+  /* Hidden until its entrance: start off-screen (matches credit-deal's `from`),
+     so it is not shown at rest before the deal-in animation runs. */
+  transform:translate3d(-46vw,7px,0) rotate(-12.8deg);
   transform-origin:center;
   transition:transform 760ms cubic-bezier(.22,1,.36,1);
 }
@@ -213,7 +215,14 @@ button{font:inherit;color:inherit}
   background-position:center;
   background-blend-mode:multiply;
   box-shadow:0 4px 4px rgba(0,0,0,.25);
+  translate:0 0;
+  transition:translate 300ms cubic-bezier(.22,.72,.34,1);
 }
+/* Subtle hover peek — only after the paper has settled and never while the
+   centre view is open. Small translate only: it exposes the card a little,
+   without triggering the full centre animation or resizing/rotating it. */
+.landing-v2.is-settled:not(.is-credit-open) .corner-credit-slot:hover .corner-credit-card,
+.landing-v2.is-settled:not(.is-credit-open) .corner-credit-slot:focus-visible .corner-credit-card{translate:20px 16px}
 .landing-v2.is-credit-open .landing-v2__corner{z-index:31}
 .landing-v2.is-credit-open .landing-v2__pile{z-index:32}
 .landing-v2.is-credit-open .corner-credit-slot{
