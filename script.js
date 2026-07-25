@@ -1145,15 +1145,14 @@
     const run = ++stackTransitionRun;
     setMemoryTraceItems(stackMemoryTrace, buildQuestionMemoryItems(questions.length));
     stackStage.classList.remove("is-forming");
+    const questionSheets = questions.map((_, index) =>
+      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="' + index + '">' +
+        stackQuestionFormHTML(index) + '</div>'
+    ).join('');
     const sheets =
       '<div class="stack-transition-sheet stack-transition-sheet--registration" data-sheet="registration">' +
         stackRegistrationFormHTML() + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="0">' +
-        stackQuestionFormHTML(0) + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="1">' +
-        stackQuestionFormHTML(1) + '</div>' +
-      '<div class="stack-transition-sheet stack-transition-sheet--question" data-sheet="5">' +
-        stackQuestionFormHTML(5) + '</div>' +
+      questionSheets +
       '<div class="stack-transition-sheet stack-transition-sheet--legacy" data-sheet="legacy">' +
         stackLegacyFormHTML() + '</div>';
     stackPile.innerHTML = sheets;

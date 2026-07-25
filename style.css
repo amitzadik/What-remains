@@ -2557,90 +2557,132 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   will-change: translate, rotate;
 }
 
-/* Figma 758:329 — one 2929.965ms collection timeline.  Visibility comes
+/* Figma 758:329 — one 3767.439ms collection timeline. Visibility comes
    exclusively from opaque papers travelling in from beyond the viewport. */
 #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="registration"] {
-  animation: figma-758-registration-move 2929.965ms linear both,
-             figma-758-registration-turn 2929.965ms linear both;
+  animation: figma-758-registration-move 3767.439ms linear both,
+             figma-758-registration-turn 3767.439ms linear both;
 }
 #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="0"] {
-  animation: figma-758-q11-move 2929.965ms linear both,
-             figma-758-q11-turn 2929.965ms linear both;
+  animation: figma-758-q11-move 3767.439ms linear both,
+             figma-758-q11-turn 3767.439ms linear both;
 }
 #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="1"] {
-  animation: figma-758-q12-move 2929.965ms linear both,
-             figma-758-q12-turn 2929.965ms linear both;
+  animation: figma-758-q12-move 3767.439ms linear both,
+             figma-758-q12-turn 3767.439ms linear both;
 }
-#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="5"] {
-  animation: figma-758-q16-move 2929.965ms linear both,
-             figma-758-q16-turn 2929.965ms linear both;
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="2"] {
+  animation: figma-758-q13-move 3767.439ms linear both,
+             figma-758-q13-turn 3767.439ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="3"] {
+  animation: figma-758-q14-move 3767.439ms linear both,
+             figma-758-q14-turn 3767.439ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="4"] {
+  animation: figma-758-q15-move 3767.439ms linear both,
+             figma-758-q15-turn 3767.439ms linear both;
+}
+#screen-camera.is-entering .camera-stack-pile .stack-transition-sheet:is([data-sheet="5"], [data-sheet="6"]) {
+  animation: figma-758-q16-move 3767.439ms linear both,
+             figma-758-q16-turn 3767.439ms linear both;
 }
 #screen-camera.is-entering .camera-stack-pile .stack-transition-sheet[data-sheet="legacy"] {
-  animation: figma-758-q17-move 2929.965ms linear both,
-             figma-758-q17-turn 2929.965ms linear both;
+  animation: figma-758-q17-move 3767.439ms linear both,
+             figma-758-q17-turn 3767.439ms linear both;
 }
 #screen-camera.is-entering .camera-print {
-  animation: figma-758-camera-move 2929.965ms linear both,
-             figma-758-camera-turn 2929.965ms linear both;
+  animation: figma-758-camera-move 3767.439ms linear both,
+             figma-758-camera-turn 3767.439ms linear both;
 }
 
 @keyframes figma-758-registration-move {
-  0% { animation-timing-function: var(--figma-paper-settle); translate: -71.127vw 52.957vh; }
-  23.751%, 100% { translate: 0 0; }
+  0% { animation-timing-function: var(--figma-paper-settle); translate: -1365.639px 571.939px; }
+  18.472%, 100% { translate: 0 0; }
 }
 @keyframes figma-758-registration-turn {
-  0% { animation-timing-function: var(--figma-paper-settle); rotate: -16.91deg; }
-  23.631%, 100% { rotate: 4.74deg; }
+  0% { animation-timing-function: var(--figma-paper-settle); rotate: -18.926deg; }
+  18.378%, 100% { rotate: 2.769deg; }
 }
 @keyframes figma-758-q11-move {
-  0%, 5.726% { translate: -94.353vw -77.699vh; }
-  5.726% { animation-timing-function: var(--figma-paper-settle); }
-  32.629%, 100% { translate: 0 0; }
+  0%, 4.452% { visibility: hidden; translate: -1811.581px -839.154px; }
+  4.453% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  25.376%, 100% { translate: 0 0; }
 }
 @keyframes figma-758-q11-turn {
-  0%, 5.63% { rotate: 2.74deg; }
-  5.63% { animation-timing-function: var(--figma-paper-settle); }
-  32.738%, 100% { rotate: -5.28deg; }
+  0%, 4.378% { rotate: .003deg; }
+  4.378% { animation-timing-function: var(--figma-paper-settle); }
+  25.461%, 100% { rotate: -7.997deg; }
 }
 @keyframes figma-758-q12-move {
-  0%, 27.099% { translate: -79.479vw 103.143vh; }
-  27.099% { animation-timing-function: var(--figma-paper-settle); }
-  41.124%, 100% { translate: 0 0; }
+  0%, 21.074% { visibility: hidden; translate: -1526.001px 1113.944px; }
+  21.075% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  31.982%, 100% { translate: 0 0; }
 }
 @keyframes figma-758-q12-turn {
-  0%, 27.133% { rotate: -7.06deg; }
-  27.133% { animation-timing-function: var(--figma-paper-settle); }
-  41.161%, 100% { rotate: 5.95deg; }
+  0%, 21.102% { rotate: .001deg; }
+  21.102% { animation-timing-function: var(--figma-paper-settle); }
+  32.011%, 100% { rotate: 13.032deg; }
+}
+@keyframes figma-758-q13-move {
+  0%, 27.392% { visibility: hidden; translate: 1382px 524px; }
+  27.393% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  36.755%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q13-turn {
+  0%, 27.366% { rotate: -.003deg; }
+  27.366% { animation-timing-function: var(--figma-paper-settle); }
+  36.755%, 100% { rotate: -8.963deg; }
+}
+@keyframes figma-758-q14-move {
+  0%, 34.585% { visibility: hidden; translate: -1548px -358px; }
+  34.586% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  44.729%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q14-turn {
+  0%, 34.586% { rotate: .004deg; }
+  34.586% { animation-timing-function: var(--figma-paper-settle); }
+  44.74%, 100% { rotate: 16.004deg; }
+}
+@keyframes figma-758-q15-move {
+  0%, 40.822% { visibility: hidden; translate: 804.622px -1021.665px; }
+  40.823% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  54.193%, 100% { translate: 0 0; }
+}
+@keyframes figma-758-q15-turn {
+  0%, 40.93% { rotate: .002deg; }
+  40.93% { animation-timing-function: var(--figma-paper-settle); }
+  54.148%, 100% { rotate: -6.998deg; }
 }
 @keyframes figma-758-q16-move {
-  0%, 32.629% { translate: 89.035vw 40.321vh; }
-  32.629% { animation-timing-function: var(--figma-paper-settle); }
-  56.145%, 100% { translate: 0 0; }
+  0%, 51.436% { visibility: hidden; translate: 1709.472px 435.464px; }
+  51.437% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  69.726%, 100% { translate: 0 0; }
 }
 @keyframes figma-758-q16-turn {
-  0%, 32.629% { rotate: -3.39deg; }
-  32.629% { animation-timing-function: var(--figma-paper-settle); }
-  56.209%, 100% { rotate: -18.4deg; }
+  0%, 51.437% { rotate: .003deg; }
+  51.437% { animation-timing-function: var(--figma-paper-settle); }
+  69.776%, 100% { rotate: -14.997deg; }
 }
 @keyframes figma-758-q17-move {
-  0%, 47.261% { translate: -15.677vw -112.13vh; }
-  47.261% { animation-timing-function: var(--figma-paper-settle); }
-  63.284%, 100% { translate: 0 0; }
+  0%, 65.389% { visibility: hidden; translate: -301px -1211px; }
+  65.39% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  77.852%, 100% { translate: -8.918px -67.187px; }
 }
 @keyframes figma-758-q17-turn {
-  0%, 52.899% { rotate: .73deg; }
-  52.899% { animation-timing-function: var(--figma-paper-settle); }
-  63.284%, 100% { rotate: 15.86deg; }
+  0%, 65.39% { rotate: -.002deg; }
+  65.39% { animation-timing-function: var(--figma-paper-settle); }
+  77.852%, 100% { rotate: 15.109deg; }
 }
 @keyframes figma-758-camera-move {
-  0%, 57.816% { translate: 94.054vw 68.939vh; }
-  57.816% { animation-timing-function: var(--figma-paper-settle); }
-  89.293%, 100% { translate: 0 0; }
+  0%, 81.493% { visibility: hidden; translate: 1805.834px 744.546px; }
+  81.494% { visibility: visible; animation-timing-function: var(--figma-paper-settle); }
+  99.985%, 100% { translate: 0 0; }
 }
 @keyframes figma-758-camera-turn {
-  0%, 57.816% { rotate: -1.49deg; }
-  57.816% { animation-timing-function: var(--figma-paper-settle); }
-  89.318%, 100% { rotate: -10.77deg; }
+  0%, 81.494% { rotate: -1.488deg; }
+  81.494% { animation-timing-function: var(--figma-paper-settle); }
+  100% { rotate: -10.756deg; }
 }
 
 .camera-area {
