@@ -2805,6 +2805,9 @@
     if (!archiveBox) return;
     if (archivePhase !== "open") return;
     if (archiveBox.classList.contains("is-tool-open")) return;
+    // A new retrieval sheet is always a fresh bot session. Do not depend on
+    // which control dismissed the previous result to release its request lock.
+    if (kind === "search") resetArchiveBot(true);
     setPersonalToolText();
 
     archiveBox.classList.add("is-tool-open", "is-tool-" + kind);
@@ -3034,15 +3037,27 @@
     }, reduceMotion ? 0 : 600);
   }
 
-  function closeArchiveBot() {
-    if (botState === "initial") return false;
+  function resetArchiveBot(clearFields) {
     botRequestRun++;              // any in-flight search is no longer wanted
     botRequestPending = false;
     setBotState("initial");
-    const queryField = document.getElementById("personal-search-query");
-    const formatField = document.getElementById("personal-search-format");
-    if (queryField) queryField.value = "";
-    if (formatField) formatField.value = "";
+    if (archiveBotAnswer) archiveBotAnswer.textContent = "";
+    if (clearFields) {
+      const queryField = document.getElementById("personal-search-query");
+      const formatField = document.getElementById("personal-search-format");
+      if (queryField) queryField.value = "";
+      if (formatField) formatField.value = "";
+    }
+    if (personalSearchStatus) personalSearchStatus.textContent = "";
+  }
+
+  function closeArchiveBot() {
+    const wasActive = botState !== "initial" ||
+      (archiveBot && archiveBot.getAttribute("aria-hidden") !== "true") ||
+      (archiveBox && archiveBox.dataset.botState &&
+       archiveBox.dataset.botState !== "initial");
+    if (!wasActive) return false;
+    resetArchiveBot(true);
     return true;
   }
 
