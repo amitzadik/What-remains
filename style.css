@@ -6164,7 +6164,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    changes transforms and which record is on the desk.
 
      initial   507:382  — the search sheet, already the archive's own UI
-     searching 884:134  — the pile is rummaged through (see archive-rummage)
+     searching 884:134  — the desk is searched and cleared (see archive-sweep)
      found     578:273  — record 639:97,  638x902 authored, -84.29deg
      notFound  635:2730 — record 769:140, 650.345x919.476 authored, -92.16deg
 
@@ -6177,9 +6177,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .archive-bot {
   position: absolute;
   inset: 0;
-  /* Above the tool panels (261-265) and the archive's own close chrome (400),
-     alongside the upload confirmation. */
-  z-index: 500;
+  /* No stacking context of its own: its scrim (490) and its records (520) take
+     their own levels in the archive box, above the tool panels (261-265) and
+     the archive's own close chrome (400). That is what lets the pile sit
+     between them in the found state, so the print the answer was drawn from is
+     read at full strength while the desk behind it is dimmed. */
+  z-index: auto;
   visibility: hidden;
   pointer-events: none;
 }
@@ -6192,10 +6195,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Figma draws the archive's own close above the records and their scrim
    (578:360/361, 635:2818, 844:1285) — and on the found record, which has no
    control of its own, it is the way that record is put down. So while any
-   overlay is up, the close chrome sits above it rather than under it. */
-.archive-box[data-bot-state="found"] .pile-ctrl--close,
-.archive-box[data-bot-state="notFound"] .pile-ctrl--close,
-.archive-box.is-upload-success .pile-ctrl--close { z-index: 600; }
+   overlay is up, the close chrome sits above it rather than under it.
+   Two classes on the control, so this still wins while the retrieval sheet is
+   open — which it now stays for, since a search no longer closes it. */
+.archive-box[data-bot-state="found"] .pile-ctrl.pile-ctrl--close,
+.archive-box[data-bot-state="notFound"] .pile-ctrl.pile-ctrl--close,
+.archive-box.is-upload-success .pile-ctrl.pile-ctrl--close { z-index: 600; }
 
 /* Figma 578:273 / 635:2730: bg-[rgba(19,13,0,0.3)] over the whole frame. */
 .archive-bot-scrim {
@@ -6217,6 +6222,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    `.archive-box.is-archive-open .personal-tool-card`, which would otherwise
    hand them the peeking sheets' opacity and timing. */
 .archive-box .archive-bot .archive-bot-card {
+  /* Above the scrim (490) and above the pile's found-state level (505), so the
+     record is always the top layer of its own frame. */
+  z-index: 520;
   background-image: url("images/figma-archive-add-card-v2.jpg");
   box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.25);
   cursor: default;
@@ -6339,45 +6347,103 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .archive-bot-back img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
-/* ---- the rummage, Figma 884:134 --------------------------------------
-   Someone going through the papers on the table. It runs on the archive's OWN
-   papers and photographs — the same elements, in the same places, at the same
-   sizes, rotations and depths — so nothing is duplicated and the pile stays the
-   pile. It takes over `translate`/`rotate`, the two properties the resting
-   breath already uses, leaving the pile's own `transform` (position, angle,
-   scale) untouched: dimensions, aspect ratios, textures, shadows and z-index
-   are all outside this animation's reach.
+/* ---- the search sweep, Figma 884:134 ---------------------------------
+   The archive being searched and cleared away. It runs on the archive's OWN
+   papers, photographs and documents — the same elements, at the same sizes,
+   rotations, textures, shadows and depths — so nothing is duplicated and no
+   second pile is left standing underneath. It uses `translate`/`rotate` only,
+   leaving each paper's `transform` (its place on the desk, its angle, its
+   scale) untouched, and it never returns to where it started: every phase runs
+   from the values script.js pins at that instant (--sweep-from-*) to a
+   destination it aims at then (--sweep-*), so a change of phase re-aims the
+   movement rather than rewinding it.
 
-   Each paper is handled on its own: its own direction and distance, its own
-   duration, its own moment. Movement occupies about the first third of a long
-   cycle and the rest is stillness, so at any instant only a few papers are in
-   motion while the others lie where they were. The durations are all different,
-   so the set never falls back into step with itself. */
-@keyframes archive-rummage {
-  0%   { translate: 0 0; rotate: 0deg; }
-  5%   { translate: calc(var(--rummage-x, 0px) * 0.62) calc(var(--rummage-y, 0px) * 0.62);
-         rotate: calc(var(--rummage-r, 0deg) * 0.45); }
-  9.5% { translate: var(--rummage-x, 0px) var(--rummage-y, 0px); rotate: var(--rummage-r, 0deg); }
-  14%  { translate: var(--rummage-x, 0px) var(--rummage-y, 0px); rotate: var(--rummage-r, 0deg); }
-  20%  { translate: 0 0; rotate: 0deg; }
-  100% { translate: 0 0; rotate: 0deg; }
+   Three phases, three NAMES, because a differently named keyframe set is what
+   makes a phase change restart from the pinned position instead of resuming
+   somewhere the element has already been:
+     is-sweeping        the desk begins to clear, each item on its own clock
+     is-sweep-clearing  the answer is in; what is not part of it finishes leaving
+     is-sweep-keeping   the prints the answer was drawn from go to their place
+   and one more for coming back, which happens only when the archive is closed:
+     is-sweep-returning
+   All four fill `both`, so an item holds its destination and can never fall
+   back to the pile — and the papers still leave by moving, never by fading. */
+@keyframes archive-sweep {
+  from { translate: var(--sweep-from-x, 0px) var(--sweep-from-y, 0px);
+         rotate: var(--sweep-from-r, 0deg); }
+  to   { translate: var(--sweep-x, 0px) var(--sweep-y, 0px);
+         rotate: var(--sweep-r, 0deg); }
 }
-.archive-box[data-bot-state="searching"] .pile-item--breathing {
-  animation: archive-rummage var(--rummage-duration, 12s)
-             cubic-bezier(0.3, 0.05, 0.2, 1) var(--rummage-delay, 0s) infinite;
+@keyframes archive-sweep-clear {
+  from { translate: var(--sweep-from-x, 0px) var(--sweep-from-y, 0px);
+         rotate: var(--sweep-from-r, 0deg); }
+  to   { translate: var(--sweep-x, 0px) var(--sweep-y, 0px);
+         rotate: var(--sweep-r, 0deg); }
 }
-/* Leaving the searching state, the papers that are still out are set back down
-   rather than snapped: script.js pins their current offset, flips this on, and
-   releases it. */
-.archive-box[data-bot-settling="1"] .pile-item--breathing {
-  animation: none;
-  transition:
-    translate 560ms cubic-bezier(0.22, 1, 0.36, 1),
-    rotate 560ms cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes archive-sweep-keep {
+  from { translate: var(--sweep-from-x, 0px) var(--sweep-from-y, 0px);
+         rotate: var(--sweep-from-r, 0deg); }
+  to   { translate: var(--sweep-x, 0px) var(--sweep-y, 0px);
+         rotate: var(--sweep-r, 0deg); }
 }
+@keyframes archive-sweep-return {
+  from { translate: var(--sweep-from-x, 0px) var(--sweep-from-y, 0px);
+         rotate: var(--sweep-from-r, 0deg); }
+  to   { translate: 0 0; rotate: 0deg; }
+}
+/* Two classes, so these outrank `.pile-item--breathing`'s resting animation and
+   take the two properties it uses cleanly over from it. */
+.archive-pile .pile-item.is-sweeping,
+.personal-tool-card.is-sweeping {
+  /* Slow to leave and gathering speed — the desk opening out, not scattering. */
+  animation: archive-sweep var(--sweep-dur, 7s) cubic-bezier(0.44, 0.02, 0.72, 1)
+             var(--sweep-delay, 0ms) both;
+  will-change: translate, rotate;
+}
+.archive-pile .pile-item.is-sweep-clearing,
+.personal-tool-card.is-sweep-clearing {
+  animation: archive-sweep-clear var(--sweep-dur, 800ms) cubic-bezier(0.4, 0, 0.85, 1)
+             var(--sweep-delay, 0ms) both;
+  will-change: translate, rotate;
+}
+.archive-pile .pile-item.is-sweep-keeping {
+  animation: archive-sweep-keep var(--sweep-dur, 820ms) cubic-bezier(0.22, 1, 0.36, 1)
+             var(--sweep-delay, 0ms) both;
+  will-change: translate, rotate;
+}
+.archive-pile .pile-item.is-sweep-returning,
+.personal-tool-card.is-sweep-returning {
+  animation: archive-sweep-return var(--sweep-dur, 700ms) cubic-bezier(0.22, 1, 0.36, 1)
+             var(--sweep-delay, 0ms) both;
+}
+/* Nothing on the moving desk is grabbable while it is being searched: the pile
+   items keep their look and their shadow, they simply cannot be nudged, and the
+   retrieval sheet cannot be typed into or submitted a second time as it leaves.
+   It is the same mounted sheet throughout — never swapped, never re-created. */
+.archive-box.is-bot-sweep .pile-item,
+.archive-box.is-bot-sweep .personal-tool-card { pointer-events: none; }
+
+/* The record and its scrim are two layers of ONE frame rather than a lid over
+   the desk. `.archive-bot` raises no stacking context of its own now, so the
+   pile can sit BETWEEN them, and in the found state the print the answer was
+   drawn from is read at full strength with the record laid down above it. */
+.archive-bot-scrim { z-index: 490; }
+.archive-box[data-bot-state="found"] .archive-pile { z-index: 505; }
+
 @media (prefers-reduced-motion: reduce) {
-  .archive-box[data-bot-state="searching"] .pile-item--breathing,
-  .archive-box[data-bot-settling="1"] .pile-item--breathing { animation: none; transition: none; }
+  /* Same sequence, same destinations, no journey: every item is placed where
+     the phase sends it. Papers still LEAVE the frame — they are never left
+     sitting in the background of a result. */
+  .archive-pile .pile-item.is-sweeping,
+  .archive-pile .pile-item.is-sweep-clearing,
+  .archive-pile .pile-item.is-sweep-keeping,
+  .archive-pile .pile-item.is-sweep-returning,
+  .personal-tool-card.is-sweeping,
+  .personal-tool-card.is-sweep-clearing,
+  .personal-tool-card.is-sweep-returning {
+    animation-duration: 1ms;
+    animation-delay: 0s;
+  }
   .archive-bot-card, .archive-bot-scrim { transition: none; }
   .archive-bot[aria-hidden="true"] .archive-bot-card { transform: none; }
 }
