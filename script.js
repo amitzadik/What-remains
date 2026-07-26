@@ -3127,24 +3127,75 @@
     return { dx: Math.cos(dir), dy: Math.sin(dir) };
   }
 
-  // Aim one element at one destination and hand it to one of the sweep
-  // animations. The measured `from` is written back as the phase's starting
-  // point, so the movement continues from what the element is showing rather
-  // than from anywhere it has already been; and because each phase is a
-  // differently NAMED keyframe set, swapping the class restarts the animation
-  // at that pinned position instead of resuming the previous one.
-  function driveSweep(el, cls, from, to, durMs, delayMs) {
-    el.style.setProperty("--sweep-from-x", from.x.toFixed(2) + "px");
-    el.style.setProperty("--sweep-from-y", from.y.toFixed(2) + "px");
-    el.style.setProperty("--sweep-from-r", from.r.toFixed(2) + "deg");
-    el.style.setProperty("--sweep-x", to.x.toFixed(2) + "px");
-    el.style.setProperty("--sweep-y", to.y.toFixed(2) + "px");
-    el.style.setProperty("--sweep-r", to.r.toFixed(2) + "deg");
-    el.style.setProperty("--sweep-dur", Math.round(durMs) + "ms");
-    el.style.setProperty("--sweep-delay", Math.round(delayMs) + "ms");
-    el.classList.remove("is-sweeping", "is-sweep-clearing",
-                        "is-sweep-keeping", "is-sweep-returning");
-    el.classList.add(cls);
+  // The four curves the archive already deals its papers on when it opens
+  // (renderArchivePile's E_SETTLE / E_GLIDE / E_DRIFT / E_RELEASE). The search
+  // is the same hand moving the same papers, so it moves them on the same
+  // curves — only outward, past the edge, instead of inward to a place.
+  const SWEEP_EASES = [
+    "cubic-bezier(0.22, 0.04, 0.18, 1)",
+    "cubic-bezier(0.34, 0.02, 0.2, 1)",
+    "cubic-bezier(0.28, 0.08, 0.24, 1)",
+    "cubic-bezier(0.4, 0.05, 0.16, 1)"
+  ];
+  const sweepAnimations = new WeakMap();     // element → the journey it is on
+
+  function cancelSweep(el) {
+    const a = sweepAnimations.get(el);
+    if (a) { a.cancel(); sweepAnimations.delete(el); }
+  }
+
+  // One paper, one journey, in the archive's own paper language — the very
+  // motion the pile is dealt out on when it opens (archive-paper-spread +
+  // archive-paper-bow), run outward:
+  //   · it bows to one side of the straight line, a tenth of the distance,
+  //     alternating sign, and straightens again as it goes
+  //   · it overshoots its angle by a fraction of a degree near the end and
+  //     relaxes out of it
+  //   · it travels on its own curve, over its own time, after its own wait
+  // A paper that is LEAVING travels the whole way; one that is staying reaches
+  // its place at 74% and spends the rest settling into it, exactly as an
+  // arriving paper does.
+  //
+  // Driven from script rather than a CSS keyframe set because the path is
+  // computed here anyway, and because a web animation eases the WHOLE journey
+  // on one curve — a CSS keyframe set re-applies its timing function to every
+  // segment, which would put a stutter at each bend.
+  function driveSweep(el, from, to, opts) {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const bow = Math.min(len * 0.11, 54 * archiveSceneScale()) * (opts.arc || 0);
+    const bx = (-dy / len) * bow, by = (dx / len) * bow;
+    const at = (t, bowFactor) =>
+      (from.x + dx * t + bx * bowFactor).toFixed(2) + "px " +
+      (from.y + dy * t + by * bowFactor).toFixed(2) + "px";
+    const near = opts.land ? 1 : 0.74;
+    const frames = [
+      { offset: 0,    translate: at(0, 0),        rotate: from.r.toFixed(2) + "deg" },
+      { offset: 0.48, translate: at(0.48, 1),
+        rotate: (from.r + (to.r - from.r) * 0.48).toFixed(2) + "deg" },
+      { offset: 0.74, translate: at(near, 0.5),
+        rotate: (to.r + (opts.over || 0)).toFixed(2) + "deg" },
+      { offset: 1,    translate: at(1, 0),        rotate: to.r.toFixed(2) + "deg" }
+    ];
+    cancelSweep(el);
+    const anim = el.animate(frames, {
+      duration: reduceMotion ? 1 : Math.max(1, opts.dur),
+      delay: reduceMotion ? 0 : Math.max(0, opts.delay || 0),
+      easing: opts.ease || SWEEP_EASES[1],
+      fill: "both"                 // it holds where it arrived, and never falls back
+    });
+    sweepAnimations.set(el, anim);
+    return anim;
+  }
+
+  // The order the papers leave in: the top of the pile first, by tens of a
+  // second, which is the order the pile is dealt out in when it opens.
+  function sweepOrder(els) {
+    const rank = new Map();
+    els.slice()
+      .sort((a, b) => (Number(b.style.zIndex) || 0) - (Number(a.style.zIndex) || 0))
+      .forEach((el, k) => rank.set(el, k));
+    return rank;
   }
 
   // Click → the whole desk starts moving. Each paper leaves on a path of its
@@ -3160,37 +3211,41 @@
 
     const sheet = searchSheet();
     const papers = sweepPapers();
+    const rank = sweepOrder(papers);
     measureSweep(sheet ? papers.concat([sheet]) : papers).forEach((m, i) => {
       if (m.el === sheet) {
         // Up and away over the left shoulder of the desk — deliberately not the
-        // radial path the papers take, and slower, so it reads as its own object
-        // moving through the scene rather than one more sheet in the drift.
+        // radial path the papers take, so it reads as its own object moving
+        // through the scene rather than one more sheet in the spread.
         const dir = { dx: -0.42, dy: -0.91 };
-        const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
-        driveSweep(sheet, "is-sweeping", m.from, {
-          x: m.from.x + dir.dx * dist,
-          y: m.from.y + dir.dy * dist,
-          r: m.from.r - 11
-        }, 6400, 120);
+        const gone = sweepExitDistance(m.box, dir.dx, dir.dy);
+        driveSweep(sheet, m.from, {
+          x: m.from.x + dir.dx * gone,
+          y: m.from.y + dir.dy * gone,
+          r: m.from.r - 9
+        }, { dur: 2600, delay: 60, ease: SWEEP_EASES[1], arc: 1, over: -0.5 });
         return;
       }
       const seed = i * 7 + 3;
+      const k = rank.get(m.el) || 0;
       const dir = sweepDirection(m.box, seed, 1.15);
       const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
-      driveSweep(m.el, "is-sweeping", m.from, {
+      driveSweep(m.el, m.from, {
         x: m.from.x + dir.dx * dist,
         y: m.from.y + dir.dy * dist,
         // Its own angle is kept; it is only allowed the few degrees a paper
         // slid across a table turns by, so it stays recognisably itself.
         r: m.from.r + (pileRand(seed + 17) - 0.5) * 5
-      },
-      // Between four and nine seconds each, all different, so the set never
-      // falls into step: the first papers are off the desk while the last are
-      // still crossing it, and a long search keeps clearing the whole time.
-      (4200 + pileRand(seed + 19) * 5000),
-      // A golden-ratio walk over the pile index, so however many papers there
-      // are the starts are spread evenly instead of clumping into one heave.
-      (((i * 0.6180339887) % 1) * 1600));
+      }, {
+        // Its own curve, its own time, its own moment — the pile's four eases,
+        // durations that never coincide, and the top of the pile leaving first
+        // so the desk is seen to open out rather than blow apart.
+        ease: SWEEP_EASES[k % SWEEP_EASES.length],
+        dur: 1600 + pileRand(seed + 19) * 1500,
+        delay: k * 110 + pileRand(seed + 23) * 90,
+        arc: k % 2 ? 1 : -1,
+        over: (pileRand(seed + 29) - 0.5) * 1.1
+      });
     });
   }
 
@@ -3247,6 +3302,10 @@
     // Measured in one pass, before a single value is written, so every element
     // is aimed from the same instant of the sweep it is already running.
     const measured = measureSweep(sheet ? papers.concat([sheet]) : papers);
+    // Where the answer is about to be laid down, measured off the record itself
+    // so the prints sit behind THAT card wherever the viewport puts it. Read
+    // now, with the rest of the measurements, before anything is written.
+    const record = foundCardBox();
     let clearMs = 0;
     let kept = 0;
     const keepCount = keep.length;
@@ -3254,20 +3313,27 @@
     measured.forEach((m, i) => {
       const isSheet = m.el === sheet;
       if (!isSheet && keep.indexOf(m.el) >= 0) {
-        // The prints the answer was drawn from settle into the result
-        // composition: low on the frame, each in its own column, clear of the
-        // record laid down above them (578:273 sets the record high on the
-        // desk). They keep their size, matte, shadow, picture and angle — only
-        // their place changes, and it changes from where they have already
-        // travelled to, so they separate from the rest rather than reappearing.
+        // The prints the answer was drawn from come to rest BEHIND the record,
+        // fanned out from under it so each one reads around its edges — the
+        // answer on top, the material it was drawn from showing behind. They
+        // keep their size, matte, shadow, picture and angle; only their place
+        // changes, and it changes from where they have already travelled to,
+        // so they separate from the rest rather than reappearing.
         const b = m.box;
-        const edge = Math.min(b.w, b.h) * 0.035;
-        const column = b.w * (kept + 0.5) / keepCount;
-        const cx = sweepClamp(column, b.hw + edge, b.w - b.hw - edge);
-        const cy = sweepClamp(b.h - b.hh - edge, b.hh + edge, b.h - b.hh - edge);
-        driveSweep(m.el, "is-sweep-keeping", m.from,
+        const edge = Math.min(b.w, b.h) * 0.03;
+        const fanX = keepCount > 1
+          ? (kept - (keepCount - 1) / 2) * record.w * 0.9
+          : record.w * -0.18;
+        const fanY = record.h * (keepCount > 1 ? 0.26 : 0.44);
+        const cx = sweepClamp(record.cx + fanX, b.hw + edge, b.w - b.hw - edge);
+        const cy = sweepClamp(record.cy + fanY, b.hh + edge, b.h - b.hh - edge);
+        driveSweep(m.el, m.from,
           { x: m.from.x + (cx - b.cx), y: m.from.y + (cy - b.cy), r: m.from.r },
-          820 + kept * 90, 80 + kept * 80);
+          // Laid down, not slid: it arrives at 74% and settles out of a small
+          // overshoot, the way every paper in this archive arrives.
+          { dur: 900 + kept * 110, delay: 90 + kept * 90,
+            ease: SWEEP_EASES[kept % SWEEP_EASES.length],
+            arc: kept % 2 ? -1 : 1, over: kept % 2 ? 0.6 : -0.6, land: true });
         kept++;
         return;
       }
@@ -3281,33 +3347,41 @@
       const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
       const delay = isSheet ? 0 : (i % 4) * 80;
       const dur = isSheet ? 900 : 900 + (i % 5) * 130;
-      driveSweep(m.el, "is-sweep-clearing", m.from, {
+      driveSweep(m.el, m.from, {
         x: m.from.x + dir.dx * dist,
         y: m.from.y + dir.dy * dist,
         r: m.from.r + (isSheet ? -5 : (pileRand(i * 5 + 31) - 0.5) * 6)
-      }, dur, delay);
+      }, { dur: dur, delay: delay, ease: SWEEP_EASES[i % SWEEP_EASES.length],
+           arc: i % 2 ? 1 : -1, over: 0 });
       clearMs = Math.max(clearMs, delay + dur);
     });
 
     return clearMs;
   }
+
+  // The record's own box on the desk. It is measured while still hidden, so it
+  // sits a hair high and a hair small (the aria-hidden transform lifts it 2.2%
+  // and scales it 0.985) — far inside the tolerance of "behind this card".
+  function foundCardBox() {
+    const card = archiveBot && archiveBot.querySelector(".archive-bot-card--found");
+    const frame = archiveBox.getBoundingClientRect();
+    if (!card) return { cx: frame.width / 2, cy: frame.height * 0.42,
+                        w: frame.width * 0.47, h: frame.height * 0.59 };
+    const r = card.getBoundingClientRect();
+    return {
+      cx: r.left + r.width / 2 - frame.left,
+      cy: r.top + r.height / 2 - frame.top,
+      w: r.width, h: r.height
+    };
+  }
   function sweepClamp(v, lo, hi) {
     return lo > hi ? (lo + hi) / 2 : Math.min(Math.max(v, lo), hi);
-  }
-
-  const SWEEP_VARS = ["--sweep-from-x", "--sweep-from-y", "--sweep-from-r",
-                      "--sweep-x", "--sweep-y", "--sweep-r",
-                      "--sweep-dur", "--sweep-delay"];
-  function clearSweepStyles(el) {
-    el.classList.remove("is-sweeping", "is-sweep-clearing",
-                        "is-sweep-keeping", "is-sweep-returning");
-    SWEEP_VARS.forEach(p => el.style.removeProperty(p));
   }
 
   // A sweep abandoned rather than played home: the desk itself is being rebuilt
   // (another drawer is opening), so the papers currently travelling are about to
   // stop existing. The retrieval sheet is NOT rebuilt — it is mounted once for
-  // the life of the screen — so it is the one thing that has to be cleaned by
+  // the life of the screen — so it is the one thing that has to be released by
   // hand before the next drawer inherits it.
   function cancelArchiveSweep() {
     archiveSweepPhase = "";
@@ -3315,7 +3389,7 @@
     if (archiveBox) archiveBox.classList.remove("is-bot-sweep");
     if (personalSearchPanel) personalSearchPanel.inert = false;
     const sheet = searchSheet();
-    if (sheet) clearSweepStyles(sheet);
+    if (sheet) cancelSweep(sheet);
   }
 
   // Closing the result — or going back to ask about something else — is the one
@@ -3332,16 +3406,15 @@
     const papers = sweepPapers();
     const sheet = searchSheet();
     const returning = sheet ? papers.concat([sheet]) : papers;
-    // Released from where they actually ended up — off the frame, or settled in
-    // the result — and carried home from there, never snapped back.
+    // Released from where they actually ended up — off the frame, or settled
+    // behind the record — and carried home from there, never snapped back. Same
+    // paper language once more, so the archive re-forms the way it was dealt.
     measureSweep(returning).forEach((m, i) => {
-      m.el.style.setProperty("--sweep-from-x", m.from.x.toFixed(2) + "px");
-      m.el.style.setProperty("--sweep-from-y", m.from.y.toFixed(2) + "px");
-      m.el.style.setProperty("--sweep-from-r", m.from.r.toFixed(2) + "deg");
-      m.el.style.setProperty("--sweep-dur", (620 + (i % 4) * 110) + "ms");
-      m.el.style.setProperty("--sweep-delay", ((i % 5) * 45) + "ms");
-      m.el.classList.remove("is-sweeping", "is-sweep-clearing", "is-sweep-keeping");
-      m.el.classList.add("is-sweep-returning");
+      driveSweep(m.el, m.from, { x: 0, y: 0, r: 0 }, {
+        dur: 700 + (i % 4) * 130, delay: (i % 5) * 55,
+        ease: SWEEP_EASES[i % SWEEP_EASES.length],
+        arc: i % 2 ? -1 : 1, over: 0, land: true
+      });
     });
     // The sheet goes back down and the pile closes up behind it — the ordinary
     // close motion this archive has always used.
@@ -3350,7 +3423,8 @@
     window.setTimeout(() => {
       if (run !== archiveSweepRun) return;
       archiveSweepPhase = "";
-      returning.forEach(clearSweepStyles);
+      // Released to the pile's own resting breath, which is where they now are.
+      returning.forEach(cancelSweep);
       // A rebuild asked for while the archive was being searched was held so
       // the pile could not remount mid-sequence. It is safe now.
       if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
