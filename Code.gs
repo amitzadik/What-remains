@@ -35,11 +35,16 @@ function doPost(e) {
     var bytes = Utilities.base64Decode(data.data || "");
     var blob = Utilities.newBlob(bytes, data.mimeType || "application/octet-stream", data.filename || "file");
     var newFile = folder.createFile(blob);
+    var descriptionDocument = createDescriptionDocument_(folder, data.description, newFile);
     // Make it viewable by anyone with the link so the archive can show it.
     try { newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (shareErr) {}
     var item = appendArchiveItem_(upCode, newFile, data);
     return ContentService.createTextOutput(JSON.stringify({
-      ok: true, id: newFile.getId(), name: newFile.getName(), item: item
+      ok: true,
+      id: newFile.getId(),
+      name: newFile.getName(),
+      descriptionDocumentId: descriptionDocument ? descriptionDocument.getId() : "",
+      item: item
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -104,6 +109,9 @@ function doGet(e) {
     var files = [];
     while (it.hasNext()) {
       var fl = it.next();
+      // Description documents are searchable archive content, but they are a
+      // companion to an uploaded material and must not appear as a second card.
+      if (fl.getDescription() === ARCHIVE_DESCRIPTION_DOC_MARKER) continue;
       var mime = fl.getMimeType();
       var type = mime.indexOf("image/") === 0 ? "image"
                : mime.indexOf("video/") === 0 ? "video" : "other";
@@ -159,6 +167,31 @@ function doGet(e) {
 var ARCHIVE_SHEET_NAME = "ArchiveItems";
 var ARCHIVE_HEADERS = ["id", "code", "fileId", "fileName", "mimeType", "type",
                        "description", "createdAt", "width", "height"];
+var ARCHIVE_DESCRIPTION_DOC_MARKER = "what-remains-upload-description";
+
+// Create one searchable Google Docs companion for every uploaded material.
+// Its title comes from the user's description and its body contains the full,
+// unmodified description. Keeping this as a separate document means the
+// archivist can read descriptions alongside answers and all other materials.
+function createDescriptionDocument_(folder, description, uploadedFile) {
+  var fullDescription = String(description || "").trim();
+  if (!fullDescription) return null;
+
+  // Drive accepts long titles, but a concise single-line title remains usable
+  // in the archive. The complete text is always preserved inside the document.
+  var title = fullDescription.replace(/\s+/g, " ").trim();
+  if (title.length > 120) title = title.slice(0, 117).trim() + "...";
+  if (!title) title = String(uploadedFile.getName() || "תיאור חומר");
+
+  var doc = DocumentApp.create(title);
+  doc.getBody().setText(fullDescription);
+  doc.saveAndClose();
+
+  var docFile = DriveApp.getFileById(doc.getId());
+  docFile.moveTo(folder);
+  docFile.setDescription(ARCHIVE_DESCRIPTION_DOC_MARKER);
+  return docFile;
+}
 
 function getOrCreateArchiveSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();

@@ -1765,6 +1765,7 @@
   // shared slot any more.
   const uploadInput = document.createElement("input");
   uploadInput.type = "file";
+  uploadInput.multiple = true;
   uploadInput.style.display = "none";
   document.body.appendChild(uploadInput);
   uploadInput.addEventListener("change", () => {
