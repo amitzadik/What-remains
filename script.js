@@ -3113,15 +3113,14 @@
   // The arrow is the bot's input control. Handle it explicitly as well as the
   // form submit event so returning from a previous result can never leave the
   // browser with a visually active arrow that no longer sends a request.
-  const personalSearchSubmit = personalSearchForm
-    ? personalSearchForm.querySelector(".personal-tool-submit")
-    : null;
-  if (personalSearchSubmit) {
-    personalSearchSubmit.addEventListener("click", (e) => {
+  if (personalSearchForm) {
+    personalSearchForm.addEventListener("click", (e) => {
+      const submitControl = e.target.closest(".personal-tool-submit");
+      if (!submitControl || !personalSearchForm.contains(submitControl)) return;
       e.preventDefault();
-      e.stopPropagation();
+      e.stopImmediatePropagation();
       submitPersonalSearchForm();
-    });
+    }, true);
   }
 
   // The not-found record's arrow: back to the archive to ask about something
