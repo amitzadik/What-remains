@@ -476,14 +476,7 @@
     }
     if (action === "drawer") {
       const sess = getSession();
-      if (sess && sess.code) {
-        // Remove the landing iframe from the top layer before any drawer work.
-        // openDrawerInterior also confirms this state at the end, but waiting
-        // until then can leave the personal archive mounted underneath the
-        // homepage if rendering or data preparation takes time.
-        showScreen("personal");
-        openOwnDrawer(sess);
-      }
+      if (sess && sess.code) openOwnDrawer(sess);
     }
     // Open a specific archive drawer chosen from the landing-v2 inline search.
     // Reuses the same open-by-code path as the archive wall (owner unlocks,
@@ -3094,10 +3087,8 @@
     if (e.key === "Escape") closeArchiveBot();
   });
 
-  // Development handle for previewing both outcomes without touching the UI.
-  // Nothing in the interface exposes it; it is the mock's console front door.
+  // Development handle for inspecting the live archive-bot UI state.
   window.whatRemainsArchiveBot = {
-    mock: ARCHIVE_BOT_MOCK,
     state: () => botState,
     setState: setBotState,
     ask: (q) => submitArchiveSearch(q || "בדיקה", "")
