@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>גלויה — מה שנשאר</title>
+<style>
+/* ============================================================
+   Postcard — print template
+   Source: Figma "פגמר" · node 873:147 ("A5 - 3")
+   Frame is 595 × 420 Figma px and prints on an exact A5 landscape page (210 × 148 mm).
+   Every number below is the Figma number, verbatim, expressed in --u.
+============================================================ */
+
+/* Fonts — same files and weight mapping as the project's style.css */
+@font-face { font-family: "SundayMono"; src: url("fonts/SundayMono-Regular.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: block; }
+
+:root {
+  --ink: #3E3626;                                  /* Figma style: ink */
+  --font-main: "SundayMono", "Courier New", Courier, monospace;
+}
+
+/* --u = one Figma pixel.
+   On screen it is 1px, so the card is 595 × 420 — the Figma canvas at 100%,
+   directly comparable side by side.
+   In print it becomes 1pt, so the card is exactly 210 × 148 mm. */
+.pc {
+  --u: 1px;
+  position: relative;
+  width:  calc(var(--u) * 595);
+  height: calc(var(--u) * 420);
+  background: #ffffff;
+  color: var(--ink);
+  overflow: hidden;
+
+  /* Figma draws type with grayscale antialiasing; a browser's default
+     subpixel rendering thickens the stems and reads a weight heavier.
+     font-synthesis also stops a faux-bold if a real face ever misses. */
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Photographs (873:162) ----------
+   Figma nests the rotations: an outer 257×381 box centres a 381×257
+   coordinate space rotated −90°, and each photo is centred inside its own
+   bounding box and rotated again. Net angles end up +16.25° and −11.47°.
+   The nesting is kept as-is so the geometry stays pixel-exact. */
+.pc-photos {
+  position: absolute;
+  left: calc(var(--u) * 20);
+  top:  calc(var(--u) * 19);
+  width:  calc(var(--u) * 257);
+  height: calc(var(--u) * 381);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pc-photos__rot   { flex: none; transform: rotate(-90deg); }
+.pc-photos__space {
+  position: relative;
+  width:  calc(var(--u) * 381);
+  height: calc(var(--u) * 257);
+}
+
+.pc-photo-box { position: absolute; display: flex; align-items: center; justify-content: center; }
+
+.pc-photo-box--a {                                  /* 873:163 */
+  left: calc(var(--u) * 21.45);
+  top:  calc(var(--u) * 42);
+  width:  calc(var(--u) * 366.546);
+  height: calc(var(--u) * 304);
+}
+.pc-photo-box--b {                                  /* 873:164 */
+  left: calc(var(--u) * 0.2);
+  top:  calc(var(--u) * -9);
+  width:  calc(var(--u) * 203.805);
+  height: calc(var(--u) * 156.935);
+}
+
+.pc-photo-box--a .pc-photo-rot { flex: none; transform: rotate(106.25deg); }
+.pc-photo-box--b .pc-photo-rot { flex: none; transform: rotate(78.53deg); }
+
+.pc-photo { position: relative; opacity: 0.8; }
+.pc-photo--a { width: calc(var(--u) * 224.437); height: calc(var(--u) * 316.384); }
+.pc-photo--b { width: calc(var(--u) * 123);     height: calc(var(--u) * 183); }
+
+.pc-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  pointer-events: none;
+}
+/* Both photos arrive from the bot. Until one does — or if it fails to load —
+   the box still holds its exact place, rotation and size. */
+.pc-photo.is-empty { background: #EFEAE0; }
+.pc-photo.is-empty img { display: none; }
+
+/* ---------- Text column ----------
+   Both blocks are right-anchored 30u from the card edge, which is the same
+   box Figma describes as left:calc(50% + 267.5u) with translateX(-100%). */
+.pc-title,
+.pc-body {
+  position: absolute;
+  right: calc(var(--u) * 30);
+  margin: 0;
+  text-align: right;
+  word-break: break-word;
+  font-family: var(--font-main);
+  color: var(--ink);
+}
+
+.pc-title {                                         /* 873:160 — style "שדות למילוי" */
+  top:    calc(var(--u) * 59);
+  width:  calc(var(--u) * 157);
+  height: calc(var(--u) * 54);
+  font-weight: 400;
+  font-size: calc(var(--u) * 18);
+  line-height: normal;
+}
+
+.pc-body {                                          /* 873:161 — style "גלויה טקסט רץ" */
+  top:    calc(var(--u) * 121);
+  width:  calc(var(--u) * 188);
+  height: calc(var(--u) * 239);
+  font-weight: 400;
+  font-size: calc(var(--u) * 10);
+  line-height: calc(var(--u) * 11);
+  text-indent: calc(var(--u) * 15);
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+/* ---------- Screen preview only ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: #E8E3D8;
+  font-family: var(--font-main);
+  color: var(--ink);
+}
+.pc { box-shadow: 0 2px 24px rgba(62, 54, 38, 0.18); }
+
+/* ---------- Print ---------- */
+@page { size: 210mm 148mm; margin: 0; }
+
+@media print {
+  html, body { margin: 0; padding: 0; background: #fff; display: block; }
+  .pc {
+    /* Exact physical page size. Use the page height as the scale reference so
+       the full Figma composition fits without browser auto-scaling or clipping. */
+    --u: calc(148mm / 420);
+    width: 210mm;
+    height: 148mm;
+    box-shadow: none;
+    /* Photo tones must not be dropped by the browser's ink-saving default */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- A5 - 3 · Figma 873:147 -->
+<article class="pc" id="postcard">
+
+  <div class="pc-photos">
+    <div class="pc-photos__rot">
+      <div class="pc-photos__space">
+
+        <div class="pc-photo-box pc-photo-box--a">
+          <div class="pc-photo-rot">
+            <div class="pc-photo pc-photo--a is-empty">   <!-- 873:163 -->
+              <img id="pc-photo-a" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pc-photo-box pc-photo-box--b">
+          <div class="pc-photo-rot">
+            <div class="pc-photo pc-photo--b is-empty">   <!-- 873:164 -->
+              <img id="pc-photo-b" alt="" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <p class="pc-title" id="pc-title">השאלה שנשאלה</p>
+  <p class="pc-body"  id="pc-body">תשובה קצרה של עד פסקה אחת על המידע המבוקש.</p>
+
+</article>
+
+<script>
+(function () {
+  "use strict";
+
+  var els = {
+    title:  document.getElementById("pc-title"),
+    body:   document.getElementById("pc-body"),
+    photoA: document.getElementById("pc-photo-a"),
+    photoB: document.getElementById("pc-photo-b")
+  };
+
+  // Chrome treats every file:// document as its own origin and blocks
+  // @font-face loads across it, so opening this file by double-clicking can
+  // silently fall back to Courier New — which reads noticeably heavier.
+  function reportFont() {
+    var ok = document.fonts.check('400 18pt "SundayMono"');
+    console.log(ok
+      ? "SundayMono loaded — weights are the real ones."
+      : "SundayMono did NOT load. Falling back to Courier New. Serve over http:// instead of opening the file directly.");
+  }
+  if (document.fonts) document.fonts.ready.then(reportFont);
+
+  // A slot that has no photo — or whose photo fails to load — keeps its exact
+  // box instead of collapsing, so the layout never shifts.
+  [els.photoA, els.photoB].forEach(function (img) {
+    img.addEventListener("error", function () {
+      img.parentNode.classList.add("is-empty");
+    });
+    img.addEventListener("load", function () {
+      img.parentNode.classList.remove("is-empty");
+    });
+  });
+
+  function setPhoto(img, src) {
+    if (src) img.src = src;
+    else { img.removeAttribute("src"); img.parentNode.classList.add("is-empty"); }
+  }
+
+  // The bot's answer is variable length. The design allows one paragraph;
+  // if a longer one arrives, step the size down rather than clip it.
+  function fitBody() {
+    var el = els.body;
+    var base = 10;                       // Figma size, in --u
+    var min = 7.5;
+    for (var size = base; size >= min; size -= 0.25) {
+      el.style.fontSize   = "calc(var(--u) * " + size + ")";
+      el.style.lineHeight = "calc(var(--u) * " + (size * 1.1) + ")";
+      if (el.scrollHeight <= el.clientHeight) return;
+    }
+  }
+
+  /**
+   * Return the two most relevant images supplied by the bot.
+   * Expected item shape: { src: string, relevanceScore?: number }.
+   * If the array is already ranked, equal/missing scores preserve its order.
+   */
+  function selectTopTwoImages(images) {
+    if (!Array.isArray(images)) return [];
+
+    return images
+      .map(function (image, index) {
+        if (typeof image === "string") {
+          return { src: image, relevanceScore: 0, originalIndex: index };
+        }
+        return {
+          src: image && (image.src || image.url),
+          relevanceScore: Number(image && image.relevanceScore) || 0,
+          originalIndex: index
+        };
+      })
+      .filter(function (image) { return Boolean(image.src); })
+      .sort(function (a, b) {
+        return (b.relevanceScore - a.relevanceScore) || (a.originalIndex - b.originalIndex);
+      })
+      .slice(0, 2);
+  }
+
+  /**
+   * Fill the A5 print template with one result coming from the bot.
+   * The user's question is always used as the printed title.
+   * The two most relevant images are selected from data.images.
+   *
+   * @param {{
+   *   question?: string,
+   *   answer?: string,
+   *   images?: Array<string|{src?:string,url?:string,relevanceScore?:number}>,
+   *   title?: string,
+   *   body?: string,
+   *   photoA?: string,
+   *   photoB?: string
+   * }} data
+   */
+  function renderPostcard(data) {
+    data = data || {};
+
+    // question/answer are the preferred bot-integration fields.
+    // title/body remain supported for backwards compatibility.
+    var question = data.question != null ? data.question : data.title;
+    var answer = data.answer != null ? data.answer : data.body;
+    var selectedImages = selectTopTwoImages(data.images);
+    var photoA = selectedImages[0] ? selectedImages[0].src : data.photoA;
+    var photoB = selectedImages[1] ? selectedImages[1].src : data.photoB;
+
+    if (question != null) els.title.textContent = question;
+    if (answer != null) els.body.textContent = answer;
+    setPhoto(els.photoA, photoA || "");
+    setPhoto(els.photoB, photoB || "");
+
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBody);
+    else fitBody();
+  }
+
+  // Also fillable straight from a link for quick testing, e.g.
+  // postcard.html?question=...&answer=...&photoA=...&photoB=...
+  var p = new URLSearchParams(window.location.search);
+  var fromUrl = {};
+  ["question", "answer", "title", "body", "photoA", "photoB"].forEach(function (k) {
+    if (p.has(k)) fromUrl[k] = p.get(k);
+  });
+
+  window.renderPostcard = renderPostcard;
+  renderPostcard(fromUrl);
+})();
+</script>
+
+</body>
+</html>

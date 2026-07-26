@@ -6412,3 +6412,21 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background-repeat: no-repeat;
   background-blend-mode: normal;
 }
+
+/* ============================================================
+   The printed record — postcard.html (Figma 873:147)
+   ============================================================
+   The postcard is printed from its own document, so it is mounted at its exact
+   design size (595x420, the Figma canvas at 1:1) and moved out of sight rather
+   than hidden: a display:none frame has no layout and does not print. Nothing
+   about the archive screen reaches the printer, and nothing about the postcard
+   reaches the screen. */
+.postcard-print {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 595px;
+  height: 420px;
+  border: 0;
+  pointer-events: none;
+}

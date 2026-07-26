@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שנשאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=69" />
+  <link rel="stylesheet" href="style.css?v=70" />
 </head>
 <body dir="rtl">
 
@@ -434,7 +434,15 @@
     </div>
   </div>
 
-  <script src="script.js?v=57"></script>
+  <!-- The printed record — Figma 873:147 "A5 - 3", postcard.html.
+       The postcard is its own document, mounted here so that what reaches the
+       printer is the postcard alone and the archive screen takes no part in it.
+       It is loaded with the page so its font is ready and a retrieval never
+       waits on it. Filled and printed by script.js from the search result. -->
+  <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=1"
+          title="גלויה להדפסה" aria-hidden="true" tabindex="-1"></iframe>
+
+  <script src="script.js?v=58"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

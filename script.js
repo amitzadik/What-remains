@@ -3497,6 +3497,70 @@
     return out;
   }
 
+  // ============================================================
+  // The printed record — Figma 873:147, postcard.html
+  // ============================================================
+  // The found record tells the depositor to take the findings from the printer,
+  // and this is what puts them there: one postcard per retrieval that found
+  // something. It is its own document in a frame of its own, so what reaches
+  // the printer is the postcard and nothing else of this screen.
+  //
+  // Everything on it comes from the SAME response the record on screen is
+  // written from. The search is never run a second time, the archivist is never
+  // asked again, and the answer is never regenerated for printing.
+  const postcardFrame = document.getElementById("postcard-print");
+
+  function postcardWindow() {
+    const frame = postcardFrame && postcardFrame.contentWindow;
+    return (frame && typeof frame.renderPostcard === "function") ? frame : null;
+  }
+
+  // The picture each matching print is actually showing. Not the file name the
+  // archivist returned — that is a Drive name, not something a page can draw —
+  // but the URL the paper on the desk is already displaying, taken in the order
+  // the archivist ranked them, so the postcard prints the same two pictures the
+  // answer was drawn from.
+  function postcardImages(keepEls) {
+    return (keepEls || [])
+      .map(el => { const img = el.querySelector("img"); return img ? (img.currentSrc || img.src) : ""; })
+      .filter(Boolean)
+      .slice(0, 2);
+  }
+
+  // Filled the moment the answer lands, so its pictures are decoded by the time
+  // the record is laid down and the print itself never waits on them.
+  function fillArchivePostcard(question, result, keepEls) {
+    const frame = postcardWindow();
+    if (!frame) return;
+    frame.renderPostcard({
+      question: String(question || ""),
+      answer: String(result.answer || ""),
+      images: postcardImages(keepEls)
+    });
+  }
+
+  function printArchivePostcard() {
+    const frame = postcardWindow();
+    const doc = postcardFrame && postcardFrame.contentDocument;
+    if (!frame || !doc) return;
+    // A picture that has not decoded prints blank, so the page is handed over
+    // once its own images are settled — measured, not guessed at — and after a
+    // second and a half regardless, so a slow one can never hold up the print.
+    const pending = Array.from(doc.images)
+      .filter(img => img.getAttribute("src") && !img.complete)
+      .map(img => new Promise(done => {
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      }));
+    Promise.race([
+      Promise.all(pending),
+      new Promise(done => window.setTimeout(done, 1500))
+    ]).then(() => {
+      try { frame.focus(); frame.print(); }
+      catch (error) { console.error("Printing the archive postcard failed:", error); }
+    });
+  }
+
   // A Drive reference in any of the shapes this project handles them in:
   // /file/d/<id>/view, ?id=<id>, /thumbnail?id=<id>.
   function driveFileId(value) {
@@ -3703,14 +3767,14 @@
     searchArchive(request)
       .then(result => {
         if (run !== botRequestRun) return;        // superseded or dismissed
-        finishArchiveSearch(result, run);
+        finishArchiveSearch(result, run, query);
       })
       .catch(error => {
         if (run !== botRequestRun) return;
         console.error("Archive search failed:", error);
         // Nothing was retrieved, so this is the archive's own empty answer —
         // the same record, not a technical error screen.
-        finishArchiveSearch({ status: "notFound", images: [] }, run);
+        finishArchiveSearch({ status: "notFound", images: [] }, run, query);
       });
   }
 
@@ -3718,15 +3782,22 @@
   // of the answer carry on out of the frame, the ones that are travel to their
   // place in it, and the record is laid down only once the frame is clear of
   // everything else. There is no state in between that puts anything back.
-  function finishArchiveSearch(result, run) {
+  function finishArchiveSearch(result, run, question) {
     botRequestPending = false;
-    const keep = result.status === "found"
-      ? matchedPileItems(result.images, result.answer) : [];
+    const found = result.status === "found";
+    // ONE result object, read once. The record on screen, the prints kept on
+    // the desk and the postcard that goes to the printer are all written from
+    // this — there is no second search and no second answer anywhere below.
+    const keep = found ? matchedPileItems(result.images, result.answer) : [];
     const clearMs = resolveArchiveSweep(keep);
     renderArchiveBotResult(result);
+    if (found) fillArchivePostcard(question, result, keep);
     window.setTimeout(() => {
       if (run !== botRequestRun) return;          // dismissed while clearing
-      setBotState(result.status === "found" ? "found" : "notFound");
+      setBotState(found ? "found" : "notFound");
+      // The record says the findings are at the printer, so they are sent as it
+      // is laid down. Nothing is asked of the depositor to make it happen.
+      if (found) printArchivePostcard();
     }, reduceMotion ? 30 : clearMs + 80);
   }
 
