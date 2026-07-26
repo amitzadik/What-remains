@@ -24,7 +24,11 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // File upload: store the file inside the drawer's own Drive folder (by code).
+  // File upload: store the file inside the drawer's own Drive folder (by code)
+  // and record ONE archive item for it. Every upload creates a new Drive file
+  // and a new row — nothing is ever keyed by file type, so a second photo never
+  // lands on top of the first, and each row carries the description that was
+  // written for that exact file.
   if (data.action === "upload") {
     var upCode = String(data.code || "").padStart(4, "0");
     var folder = getOrCreateCodeFolder_(upCode);
@@ -33,8 +37,9 @@ function doPost(e) {
     var newFile = folder.createFile(blob);
     // Make it viewable by anyone with the link so the archive can show it.
     try { newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (shareErr) {}
+    var item = appendArchiveItem_(upCode, newFile, data);
     return ContentService.createTextOutput(JSON.stringify({
-      ok: true, id: newFile.getId(), name: newFile.getName()
+      ok: true, id: newFile.getId(), name: newFile.getName(), item: item
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -85,11 +90,16 @@ function doGet(e) {
     return ContentService.createTextOutput(loginOut).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // List the files in a drawer's Drive folder (for the gallery), classified
-  // into image / video / other by MIME type.
+  // List a drawer's archive items. The Drive folder stays the source of truth
+  // for WHICH files exist (so nothing a user ever uploaded can be lost by a
+  // missing row); the ArchiveItems sheet supplies each file's own description,
+  // creation time and pixel size, joined on the Drive file id. Files that
+  // predate the sheet simply come back with an empty description instead of
+  // being dropped. Sorted oldest-first so every surface shows one order.
   if (p.action === "files") {
     var fCode = String(p.code || "").padStart(4, "0");
     var fFolder = getOrCreateCodeFolder_(fCode);
+    var meta = readArchiveItemsByFileId_(fCode);
     var it = fFolder.getFiles();
     var files = [];
     while (it.hasNext()) {
@@ -97,9 +107,26 @@ function doGet(e) {
       var mime = fl.getMimeType();
       var type = mime.indexOf("image/") === 0 ? "image"
                : mime.indexOf("video/") === 0 ? "video" : "other";
-      files.push({ id: fl.getId(), name: fl.getName(), mime: mime, type: type });
+      var fileId = fl.getId();
+      var row = meta[fileId] || null;
+      files.push({
+        id: (row && row.id) || fileId,   // stable per uploaded file
+        fileId: fileId,
+        name: fl.getName(),
+        mime: mime,
+        type: type,
+        description: row ? row.description : "",
+        createdAt: row && row.createdAt
+          ? row.createdAt
+          : toIso_(fl.getDateCreated()),
+        width: row ? row.width : 0,
+        height: row ? row.height : 0
+      });
     }
-    var filesOut = JSON.stringify({ ok: true, files: files });
+    files.sort(function(a, b) {
+      return a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0;
+    });
+    var filesOut = JSON.stringify({ ok: true, files: files, items: files });
     if (p.callback) {
       return ContentService.createTextOutput(p.callback + "(" + filesOut + ")")
         .setMimeType(ContentService.MimeType.JAVASCRIPT);
@@ -120,6 +147,80 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// Archive items — one row per uploaded file
+// ============================================================
+// The personal archive is a LIST, never a set of type-keyed slots: a drawer can
+// hold any number of photos, scans, notes or recordings, and each one owns its
+// own description. Every upload appends a row here; no row is ever overwritten,
+// and no row is keyed by anything but the one Drive file it was written for.
+var ARCHIVE_SHEET_NAME = "ArchiveItems";
+var ARCHIVE_HEADERS = ["id", "code", "fileId", "fileName", "mimeType", "type",
+                       "description", "createdAt", "width", "height"];
+
+function getOrCreateArchiveSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(ARCHIVE_SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(ARCHIVE_SHEET_NAME);
+    sh.appendRow(ARCHIVE_HEADERS);
+  }
+  return sh;
+}
+
+function toIso_(d) {
+  try { return (d instanceof Date) ? d.toISOString() : String(d || ""); }
+  catch (e) { return ""; }
+}
+
+function appendArchiveItem_(code, file, data) {
+  var item = {
+    id: file.getId(),                    // unique + stable: one Drive file, one item
+    code: code,
+    fileId: file.getId(),
+    fileName: String(data.filename || file.getName() || ""),
+    mimeType: String(data.mimeType || file.getMimeType() || ""),
+    type: String(data.mimeType || "").indexOf("image/") === 0 ? "image"
+        : String(data.mimeType || "").indexOf("video/") === 0 ? "video" : "other",
+    description: String(data.description || ""),
+    createdAt: toIso_(new Date()),
+    width: Number(data.width) || 0,
+    height: Number(data.height) || 0
+  };
+  try {
+    getOrCreateArchiveSheet_().appendRow([
+      item.id, item.code, item.fileId, item.fileName, item.mimeType, item.type,
+      item.description, item.createdAt, item.width, item.height
+    ]);
+  } catch (err) { /* the file itself is already safe in Drive */ }
+  return item;
+}
+
+// Every archive item for one drawer, indexed by the Drive file it describes.
+function readArchiveItemsByFileId_(code) {
+  var byFileId = {};
+  try {
+    var values = getOrCreateArchiveSheet_().getDataRange().getValues();
+    for (var i = 1; i < values.length; i++) {
+      var row = values[i];
+      if (String(row[1] || "").padStart(4, "0") !== code) continue;
+      var fileId = String(row[2] || "");
+      if (!fileId) continue;
+      byFileId[fileId] = {
+        id: String(row[0] || fileId),
+        fileName: String(row[3] || ""),
+        mimeType: String(row[4] || ""),
+        type: String(row[5] || ""),
+        description: String(row[6] || ""),
+        createdAt: toIso_(row[7]),
+        width: Number(row[8]) || 0,
+        height: Number(row[9]) || 0
+      };
+    }
+  } catch (err) { /* no sheet yet — every file simply has no description */ }
+  return byFileId;
 }
 
 // Returns the Drive subfolder for a drawer's 4-digit code, creating it under

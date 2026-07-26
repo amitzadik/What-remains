@@ -77,7 +77,9 @@
     answers: [],
     dontKnow: [],
     legacyText: "",
-    photoDataUrl: "",    // depositor photo (session only, not persisted)
+    photoDataUrl: "",    // depositor photo, until its Drive copy comes back
+    photoWidth: 0,       // its true pixel size, for proportional layout
+    photoHeight: 0,
     userCode: "",
     submitted: false,    // guards against a double webhook submission
     frozenCount: 0,      // stacked (frozen) sheets behind the live question
@@ -1045,6 +1047,13 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  // esc() is written for text nodes and leaves quotes alone, which is not safe
+  // inside a double-quoted attribute — a description is the depositor's own
+  // free text and may contain anything.
+  function escAttr(s) {
+    return esc(s).replace(/"/g, "&quot;");
+  }
+
   // The five ruled answer lines, filled with the user's answer (split by
   // newline). When the question was skipped ("לא יודע/ת"), the answer area
   // stays blank — the empty ruled lines are the record that it went unanswered.
@@ -1464,6 +1473,10 @@
     cameraCanvas.getContext("2d").drawImage(cameraVideo, 0, 0, w, h);
     const dataUrl = cameraCanvas.toDataURL("image/jpeg", 0.85);
     state.photoDataUrl = dataUrl;
+    // The camera frame is already upright pixels (no EXIF tag on a canvas
+    // capture); record its size so the archive lays it out at its true ratio.
+    state.photoWidth = w;
+    state.photoHeight = h;
     cameraPhoto.src = dataUrl;
     cameraVideo.hidden = true;
     cameraPhoto.hidden = false;
@@ -1481,8 +1494,11 @@
     });
   }
 
-  // Upload the depositor's registration photo into their drawer's Drive
-  // folder (so it persists like any other uploaded file, not just in-session).
+  // Upload the depositor's registration photo into their drawer's Drive folder
+  // (so it persists like any other uploaded file, not just in-session). It is
+  // an archive item like every other: its own record, its own description.
+  const DEPOSITOR_PHOTO_NAME = "depositor-photo.jpg";
+  const DEPOSITOR_PHOTO_DESCRIPTION = "דיוקן שצולם בעת ההפקדה";
   function uploadDepositorPhoto() {
     if (!state.photoDataUrl || !state.userCode || !SHEET_WEBHOOK_URL) return;
     const dataUrl = state.photoDataUrl;
@@ -1497,8 +1513,11 @@
         body: JSON.stringify({
           action: "upload",
           code: state.userCode,
-          filename: "depositor-photo.jpg",
+          filename: DEPOSITOR_PHOTO_NAME,
           mimeType: mime,
+          description: DEPOSITOR_PHOTO_DESCRIPTION,
+          width: state.photoWidth || 0,
+          height: state.photoHeight || 0,
           data: base64
         })
       });
@@ -1602,10 +1621,18 @@
 
   // Personal-archive state. The scattered pile is built from THIS depositor's
   // own materials: their answered question cards plus their photos/videos.
+  //
+  // The archive is a LIST of items, not a set of slots keyed by file type. Each
+  // item is one uploaded file with its own id, url, filename, type, description,
+  // timestamp and (for images) pixel size — so a drawer can hold any number of
+  // photos, and each photo keeps the description that was written for it.
+  //
+  //   ArchiveItem = { id, fileUrl, fileName, fileType, mimeType,
+  //                   description, createdAt, width, height, own?, uploading? }
   let currentDrawerCode = "";
-  let pileCardData = null;   // the 7 question cards' data for the open drawer
-  let pileMedia = [];        // authoritative media {src, kind, own?} (drive + own photo)
-  let pileLocalMedia = [];   // optimistic just-picked uploads, until Drive reloads
+  let pileCardData = null;      // the 7 question cards' data for the open drawer
+  let archiveItems = [];        // saved items for this drawer (backend + own photo)
+  let pendingArchiveItems = []; // optimistic just-uploaded items, until the reload
   let pendingUploadMetadata = null;
   let archiveTransitionRun = 0;
 
@@ -1720,29 +1747,194 @@
   }
 
   // One reusable hidden file input drives all drawer uploads.
+  //
+  // The description is bound to the file HERE, at the moment the file is
+  // chosen, and then travels down the upload chain as an argument. It used to
+  // be read off a module-level `pendingUploadMetadata` at POST time, several
+  // async hops later — so a second pick starting before the first POST landed
+  // could hand its description to the wrong file. Nothing downstream reads the
+  // shared slot any more.
   const uploadInput = document.createElement("input");
   uploadInput.type = "file";
   uploadInput.style.display = "none";
   document.body.appendChild(uploadInput);
   uploadInput.addEventListener("change", () => {
     const file = uploadInput.files && uploadInput.files[0];
+    const meta = pendingUploadMetadata || { description: "", format: "" };
+    pendingUploadMetadata = null;
     uploadInput.value = ""; // let the same file be re-picked later
     if (file && currentDrawerCode) {
       closePersonalTool();
-      uploadFileToDrawer(file, currentDrawerCode);
+      // One file, one archive item, carrying the description written for it.
+      uploadFileToDrawer(file, currentDrawerCode, meta);
     }
   });
 
-  // Upload a file into the drawer's Drive folder (fire-and-forget POST, like
-  // submitToSheet — the response isn't CORS-readable), then refresh the
-  // gallery via the JSONP "files" listing.
-  function uploadFileToDrawer(file, code) {
+  // A locally-minted id for an item that has not been saved yet. Once the
+  // backend listing comes back the saved record replaces it, keyed by Drive id.
+  let localItemSeq = 0;
+  function newLocalItemId() {
+    return "local-" + Date.now().toString(36) + "-" + (++localItemSeq);
+  }
+
+  // ---- EXIF orientation -------------------------------------------------
+  // Phone photos carry an orientation tag instead of rotated pixels. Only the
+  // images whose metadata actually asks for a correction are re-encoded; an
+  // already-upright file is uploaded byte-for-byte as the user chose it.
+
+  // Reads the orientation tag AND the stored (unrotated) pixel size from the
+  // SOF header. The stored size is what tells us, further down, whether the
+  // browser's decoder already honoured the tag — without it we would have to
+  // guess, and guessing wrong rotates a photograph twice.
+  function readJpegMeta(buffer) {
+    const meta = { orientation: 1, width: 0, height: 0 };
+    try {
+      const view = new DataView(buffer);
+      if (view.byteLength < 4 || view.getUint16(0) !== 0xFFD8) return meta;
+      let offset = 2;
+      while (offset + 4 <= view.byteLength) {
+        const marker = view.getUint16(offset);
+        if ((marker & 0xFF00) !== 0xFF00) break;
+        const size = view.getUint16(offset + 2);
+        if (!size) break;
+        if (marker === 0xFFE1 && view.getUint32(offset + 4) === 0x45786966) {   // "Exif"
+          const tiff = offset + 10;
+          const little = view.getUint16(tiff) === 0x4949;
+          const ifd = tiff + view.getUint32(tiff + 4, little);
+          const count = view.getUint16(ifd, little);
+          for (let i = 0; i < count; i++) {
+            const entry = ifd + 2 + i * 12;
+            if (view.getUint16(entry, little) === 0x0112) {                     // Orientation
+              meta.orientation = view.getUint16(entry + 8, little) || 1;
+              break;
+            }
+          }
+        } else if (marker >= 0xFFC0 && marker <= 0xFFCF &&
+                   marker !== 0xFFC4 && marker !== 0xFFC8 && marker !== 0xFFCC) {
+          meta.height = view.getUint16(offset + 5);   // SOFn: precision, height, width
+          meta.width  = view.getUint16(offset + 7);
+          break;                                      // SOF follows APP1; done
+        }
+        offset += 2 + size;
+      }
+    } catch (err) { /* unreadable metadata — treat as upright */ }
+    return meta;
+  }
+
+  // Decode an image with its EXIF orientation already applied, so the bitmap's
+  // width/height are the dimensions the user actually sees.
+  function decodeUpright(file) {
+    if (window.createImageBitmap) {
+      return createImageBitmap(file, { imageOrientation: "from-image" })
+        .catch(() => decodeUprightViaImg(file));
+    }
+    return decodeUprightViaImg(file);
+  }
+
+  // Fallback for browsers without createImageBitmap's imageOrientation option.
+  // An <img> has applied the tag itself for years, so this is normally upright
+  // too; where it is not, prepareUpload detects it from the stored dimensions.
+  function decodeUprightViaImg(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode failed")); };
+      img.src = url;
+    });
+  }
+
+  // Draw `source` upright on a canvas. `orientation` is only applied when the
+  // source still needs it (the createImageBitmap path has already applied it).
+  function drawUpright(source, orientation, applyTransform) {
+    const w = source.naturalWidth || source.width;
+    const h = source.naturalHeight || source.height;
+    const swap = applyTransform && orientation >= 5 && orientation <= 8;
+    const canvas = document.createElement("canvas");
+    canvas.width = swap ? h : w;
+    canvas.height = swap ? w : h;
+    const ctx = canvas.getContext("2d");
+    if (applyTransform) {
+      switch (orientation) {
+        case 2: ctx.transform(-1, 0, 0, 1, w, 0); break;
+        case 3: ctx.transform(-1, 0, 0, -1, w, h); break;
+        case 4: ctx.transform(1, 0, 0, -1, 0, h); break;
+        case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
+        case 6: ctx.transform(0, 1, -1, 0, h, 0); break;
+        case 7: ctx.transform(0, -1, -1, 0, h, w); break;
+        case 8: ctx.transform(0, -1, 1, 0, 0, w); break;
+      }
+    }
+    ctx.drawImage(source, 0, 0);
+    return canvas;
+  }
+
+  // Resolve to { dataUrl, mimeType, filename, width, height } for one picked
+  // file. Non-images and upright images pass through untouched — only their
+  // pixel size is measured, so the archive can lay them out at their true
+  // proportions.
+  function prepareUpload(file) {
+    const asIs = (extra) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(Object.assign({
+        dataUrl: String(reader.result || ""),
+        mimeType: file.type || "application/octet-stream",
+        filename: file.name || "file",
+        width: 0, height: 0
+      }, extra || {}));
+      reader.onerror = () => reject(new Error("read failed"));
+      reader.readAsDataURL(file);
+    });
+
+    if ((file.type || "").indexOf("image/") !== 0) return asIs();
+
+    return file.arrayBuffer().then(buffer => {
+      const meta = readJpegMeta(buffer);
+      return decodeUpright(file).then(source => {
+        const dw = source.naturalWidth || source.width;
+        const dh = source.naturalHeight || source.height;
+
+        // No tag, or a tag that asks for nothing: the file is already upright.
+        // Upload the user's own bytes, untouched — only measure them.
+        if (meta.orientation <= 1) {
+          if (source.close) source.close();
+          return asIs({ width: dw, height: dh });
+        }
+
+        // Every decoder in use applies the tag itself, so `source` is normally
+        // already upright and only needs re-encoding to make that permanent.
+        // The one case we can PROVE otherwise is a quarter-turn tag that came
+        // back with the stored dimensions unswapped — then, and only then, is
+        // the rotation ours to apply. Anything we cannot prove is left alone,
+        // because rotating an upright photograph is the worse failure.
+        const quarterTurn = meta.orientation >= 5 && meta.orientation <= 8;
+        const decoderIgnoredTag = quarterTurn && !!meta.width && !!meta.height &&
+                                  dw === meta.width && dh === meta.height;
+        const canvas = drawUpright(source, meta.orientation, decoderIgnoredTag);
+        if (source.close) source.close();
+        return {
+          dataUrl: canvas.toDataURL("image/jpeg", 0.92),
+          mimeType: "image/jpeg",
+          filename: file.name || "file",
+          width: canvas.width,
+          height: canvas.height
+        };
+      });
+    }).catch(() => asIs());
+  }
+
+  // Upload one file into the drawer's Drive folder (fire-and-forget POST, like
+  // submitToSheet — the response isn't CORS-readable), then refresh the archive
+  // via the JSONP "files" listing. One call = one new archive item; an upload
+  // never touches an item that already exists.
+  function uploadFileToDrawer(file, code, meta) {
     if (!SHEET_WEBHOOK_URL) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = String(reader.result || "");
-      // Optimistic: show the picked file on the page immediately.
-      showLocalPreview(file, dataUrl);
+    const description = (meta && meta.description) || "";
+    const format = (meta && meta.format) || "";
+    prepareUpload(file).then(prepared => {
+      const dataUrl = prepared.dataUrl;
+      // Optimistic: show this file, with its own description, straight away.
+      showLocalItem(prepared, description);
       const comma = dataUrl.indexOf(",");
       const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
       try {
@@ -1753,37 +1945,48 @@
           body: JSON.stringify({
             action: "upload",
             code: code,
-            filename: file.name || "file",
-            mimeType: file.type || "application/octet-stream",
-            description: pendingUploadMetadata ? pendingUploadMetadata.description : "",
-            requestedFormat: pendingUploadMetadata ? pendingUploadMetadata.format : "",
+            filename: prepared.filename,
+            mimeType: prepared.mimeType,
+            description: description,
+            requestedFormat: format,
+            width: prepared.width,
+            height: prepared.height,
             data: base64
           })
         });
       } catch (err) { /* לא חוסם */ }
-      pendingUploadMetadata = null;
       // No readable response — give Drive a moment, then reload the listing.
       setTimeout(() => loadDrawerFiles(code), 4000);
-    };
-    reader.onerror = () => loadDrawerFiles(code);
-    reader.readAsDataURL(file);
+    }).catch(() => loadDrawerFiles(code));
   }
 
-  // Drop a just-picked file straight onto the pile (before the Drive
-  // round-trip finishes), dimmed until the pile reloads from Drive.
-  function showLocalPreview(file, dataUrl) {
-    const isVideo = (file.type || "").indexOf("video/") === 0;
-    pileLocalMedia.push({ src: dataUrl, kind: isVideo ? "video" : "image", uploading: true });
+  // Drop a just-uploaded file straight onto the pile (before the Drive
+  // round-trip finishes), dimmed until the archive reloads from the backend.
+  // Append semantics: previous items + this one, never a replacement.
+  function showLocalItem(prepared, description) {
+    pendingArchiveItems = pendingArchiveItems.concat([{
+      id: newLocalItemId(),
+      fileUrl: prepared.dataUrl,
+      fileName: prepared.filename,
+      fileType: (prepared.mimeType || "").indexOf("video/") === 0 ? "video"
+              : (prepared.mimeType || "").indexOf("image/") === 0 ? "image" : "other",
+      mimeType: prepared.mimeType,
+      description: description,
+      createdAt: new Date().toISOString(),
+      width: prepared.width,
+      height: prepared.height,
+      uploading: true
+    }]);
     requestArchivePileRender();
   }
 
-  // Fetch the drawer's files via JSONP and render them into the folders.
+  // Fetch the drawer's archive items via JSONP and render them.
   function loadDrawerFiles(code) {
     if (!code || !SHEET_WEBHOOK_URL) return;
     const cbName = "__wrFilesCb" + Date.now();
     let s;
     window[cbName] = function(res) {
-      renderDrawerFiles((res && res.files) ? res.files : []);
+      renderDrawerFiles((res && (res.items || res.files)) ? (res.items || res.files) : []);
       delete window[cbName];
       if (s && s.remove) s.remove();
     };
@@ -1794,16 +1997,47 @@
     document.body.appendChild(s);
   }
 
-  function renderDrawerFiles(files) {
-    // Rebuild the pile media from Drive, keeping the session-only own photo
-    // (marked own) at the front. Drive thumbnails work for videos too.
-    const own = pileMedia.filter(m => m.own);
-    const driveMedia = (files || []).map(f => ({
-      src: "https://drive.google.com/thumbnail?id=" + f.id + "&sz=w1000",
-      kind: f.type
-    }));
-    pileMedia = own.concat(driveMedia);
-    pileLocalMedia = [];
+  // One backend record → one archive item. Records saved before this change
+  // carry no description, createdAt or pixel size; they are normalized here
+  // rather than skipped, so nothing a user ever uploaded disappears.
+  function normalizeArchiveItem(rec) {
+    const fileId = String(rec.fileId || rec.id || "");
+    return {
+      id: String(rec.id || fileId),
+      fileUrl: "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000",
+      fileName: String(rec.name || rec.fileName || ""),
+      fileType: rec.type || ((rec.mime || "").indexOf("video/") === 0 ? "video"
+                          : (rec.mime || "").indexOf("image/") === 0 ? "image" : "other"),
+      mimeType: String(rec.mime || rec.mimeType || ""),
+      description: String(rec.description || ""),
+      createdAt: String(rec.createdAt || ""),
+      width: Number(rec.width) || 0,
+      height: Number(rec.height) || 0
+    };
+  }
+
+  function renderDrawerFiles(records) {
+    const saved = (records || []).map(normalizeArchiveItem);
+    // The session-only registration portrait is kept in front until the copy
+    // uploaded to Drive comes back, so it is never shown twice.
+    const savedNames = saved.map(x => x.fileName);
+    const own = archiveItems.filter(m => m.own && savedNames.indexOf(m.fileName) < 0);
+    archiveItems = own.concat(saved);
+    // An optimistic item is dropped once ITS saved record has arrived — matched
+    // one-for-one, so two uploads of the same file with the same description do
+    // not cancel each other. The rest stay on the pile: an upload still in
+    // flight must never blink out of the archive.
+    const unclaimed = saved.slice();
+    pendingArchiveItems = pendingArchiveItems.filter(p => {
+      const idx = unclaimed.findIndex(s =>
+        s.fileName === p.fileName && s.description === p.description);
+      if (idx < 0) return true;
+      // The saved record IS the paper already on the desk; it takes over that
+      // paper's identity rather than arriving as a new one.
+      if (arrivedItemIds) arrivedItemIds.add(unclaimed[idx].id);
+      unclaimed.splice(idx, 1);
+      return false;
+    });
     requestArchivePileRender();
   }
 
@@ -1838,13 +2072,25 @@
       legacyText: viewer.isUser ? state.legacyText : (viewer.archive || "")
     };
 
-    // Seed the pile media with the depositor's own portrait — the photo taken
-    // after the questions (session state, not persisted). Show it on the
-    // owner's own drawer, whether resolved as the live drawer or a DB echo.
-    pileMedia = [];
-    pileLocalMedia = [];
+    // Seed the archive with the depositor's own portrait — the photo taken
+    // after the questions. It is uploaded to Drive at registration and comes
+    // back as a normal archive item; this session copy only bridges the gap
+    // until that listing arrives (see renderDrawerFiles, which drops it then).
+    archiveItems = [];
+    pendingArchiveItems = [];
     if ((viewer.isUser || ownerView) && state.photoDataUrl) {
-      pileMedia.push({ src: state.photoDataUrl, kind: "image", own: true });
+      archiveItems.push({
+        id: "own-portrait",
+        fileUrl: state.photoDataUrl,
+        fileName: DEPOSITOR_PHOTO_NAME,
+        fileType: "image",
+        mimeType: "image/jpeg",
+        description: DEPOSITOR_PHOTO_DESCRIPTION,
+        createdAt: new Date(0).toISOString(),   // taken before anything uploaded
+        width: state.photoWidth || 0,
+        height: state.photoHeight || 0,
+        own: true
+      });
     }
 
     // Hand over whatever the stamping screen measured on its way out. Only that
@@ -1856,6 +2102,7 @@
     if (screens.personal) screens.personal.classList.toggle("is-from-stack", !!stackSourceGeometry);
 
     pendingPileRender = false;
+    arrivedItemIds = null;   // a freshly opened drawer arrives whole, not "new"
     setArchivePhase("stack");
     renderArchivePile();
     loadDrawerFiles(currentDrawerCode); // append this drawer's Drive materials
@@ -1950,9 +2197,23 @@
     if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
   }
 
+  // Every item this drawer holds, in one consistent order — oldest first — used
+  // by both the scattered pile and anything else that lists the archive.
+  function sortedArchiveItems() {
+    return archiveItems.concat(pendingArchiveItems)
+      .slice()
+      .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+  }
+
+  // Which archive items were already on the desk at the last render. A rebuild
+  // must never look like the archive starting over: everything that was here
+  // stays, and only a genuinely new print is animated in.
+  let arrivedItemIds = null;
+
   function renderArchivePile() {
     if (!archivePile) return;
-    const media = pileMedia.concat(pileLocalMedia);
+    const media = sortedArchiveItems();
+    const nextArrivedItemIds = new Set();
     // Every personal archive begins with the seven answers, the legacy page,
     // and the portrait taken afterwards (when it is available).
     const docCount = pileCardData ? questions.length + 1 : 0;
@@ -2039,14 +2300,115 @@
                add:   {cx: 700.00, cy:1480.00, r: 4.10},   // no slot in 508:553
                lead:80, dur:920 } }
     ];
-    const photoLayout = [
-      { cx:735.338, cy:873.050, w:1139.487, h:737.315, r:-8.640, z:10,
-        src:"photo", from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png",
-        spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 },
-        open:{ search:{cx:1433.03, cy: 841.58, r: 28.78},  // 507:494 "IMG_6898 2"
-               add:   {cx:1319.74, cy: 444.24, r:  9.75},  // 508:554 "IMG_6898 1"
-               lead:40, dur:860 } }
-    ];
+    // The print from Figma 751:291 — the first photograph's place on the desk,
+    // and the one paper of the set that is FLIP-linked to the portrait measured
+    // on the stamping screen (`src:"photo"`).
+    const firstPhotoSlot = () => ({
+      cx:735.338, cy:873.050, w:1139.487, h:737.315, r:-8.640, z:10,
+      src:"photo", from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png",
+      spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 },
+      open:{ search:{cx:1433.03, cy: 841.58, r: 28.78},  // 507:494 "IMG_6898 2"
+             add:   {cx:1319.74, cy: 444.24, r:  9.75},  // 508:554 "IMG_6898 1"
+             lead:40, dur:860 } });
+
+    // Figma composes ONE print, because the drawer it was drawn from held one.
+    // A drawer holds as many as its depositor puts in it, so every further
+    // photograph gets a place of its own on the same desk rather than taking
+    // the first one's: laid around the pile on a golden-angle ring, each with
+    // its own size, rotation, depth and travel. Deterministic in the item's
+    // index, so a print keeps its place across re-renders and reloads.
+    // The ring sits high on the desk: the stamping sheet fills the lower middle
+    // (its own Figma place, untouched), and a print whose description landed
+    // under it would be a description the page does not actually show. Above it
+    // the prints lie over the question sheets, where both read.
+    const PHOTO_EASES = [E_GLIDE, E_SETTLE, E_DRIFT, E_RELEASE];
+    function extraPhotoSlot(index) {
+      const seed = 300 + index * 13;
+      const angle = (index * 137.508 + 26) * Math.PI / 180;   // golden angle
+      const rx = 520 + pileRand(seed) * 230;
+      const ry = 190 + pileRand(seed + 1) * 130;
+      const cx = 960 + Math.cos(angle) * rx;
+      const cy = 430 + Math.sin(angle) * ry;
+      const r  = (pileRand(seed + 2) - 0.5) * 32;
+      // Carried out past its own resting place when a tool sheet comes forward,
+      // in the same direction it already leans — the scatter the frame shows.
+      const outward = (factor) => ({
+        cx: 960 + (cx - 960) * factor,
+        cy: 430 + (cy - 430) * factor,
+        r: r * 1.35
+      });
+      return {
+        // Above the first print, always below the stamping sheet (z 20), so a
+        // drawer with many prints never buries the instructions.
+        cx: cx, cy: cy, r: r, z: 11 + Math.min(index, 8),
+        // A print that arrives after the spread has nothing measured behind it;
+        // it comes from where the stack stood, like every other late paper.
+        from: { cx: 960 + (pileRand(seed + 3) - 0.5) * 260,
+                cy: 560 + (pileRand(seed + 4) - 0.5) * 180,
+                w: 620, r: (pileRand(seed + 5) - 0.5) * 30 },
+        // Well under the Figma print, so the composition it was drawn for still
+        // reads as the composition and the question sheets stay visible behind;
+        // varied a little so the desk is a scatter, not a grid.
+        area: 1139.487 * 737.315 * (0.19 + pileRand(seed + 6) * 0.09),
+        w: 470, h: 313,   // replaced per item by its true proportions
+        spread: { delay: 90 + (index % 5) * 60, dur: 860 + (index % 3) * 40,
+                  ease: PHOTO_EASES[index % PHOTO_EASES.length],
+                  arc: index % 2 ? 1 : -1, over: (pileRand(seed + 7) - 0.5) * 0.9 },
+        open: { search: outward(1.85), add: outward(2.1), lead: 40 + (index % 4) * 30, dur: 860 }
+      };
+    }
+
+    // One slot per archive item — never one slot re-used by whichever file
+    // happened to arrive last.
+    function buildPhotoSlots(count) {
+      const slots = [firstPhotoSlot()];
+      for (let i = 1; i < count; i++) slots.push(extraPhotoSlot(i));
+      return slots;
+    }
+
+    // The frame this item is laid in, at ITS OWN proportions. The archive
+    // decides how big a print is; the picture decides its shape. Portrait stays
+    // portrait, landscape stays landscape, and nothing is squeezed to fit a
+    // rectangle drawn before the picture existed. Items whose pixel size we do
+    // not know (uploaded before this was recorded) keep the design frame and
+    // are letterboxed inside it by object-fit: contain — never cropped.
+    const PHOTO_MAX_W = 1240, PHOTO_MAX_H = 880;
+    function photoFrameSize(item, slot) {
+      const ratio = (item.width > 0 && item.height > 0) ? item.width / item.height : 0;
+      if (!ratio) return { w: slot.w, h: slot.h };
+      const area = slot.area || (1139.487 * 737.315);
+      let w = Math.sqrt(area * ratio), h = Math.sqrt(area / ratio);
+      // Scale down proportionally if the frame would outgrow the desk. Both
+      // dimensions move by the same factor, so the ratio is untouched.
+      const fit = Math.min(1, PHOTO_MAX_W / w, PHOTO_MAX_H / h);
+      return { w: w * fit, h: h * fit };
+    }
+
+    // A print laid out at its own proportions can reach further than the
+    // landscape one Figma drew — a tall portrait most of all. The desk does crop
+    // its outer papers, but a picture that is mostly off it is not a picture the
+    // archive is showing, so each print's centre is pulled back until no more
+    // than a tenth of it hangs over an edge — the description under it included,
+    // since a description that has slid off the desk is not a description the
+    // page is showing. The frame is moved, never resized unevenly: proportions
+    // are already settled by the time this runs.
+    const PHOTO_OVERHANG = 0.1;
+    function clampPhotoCentre(x, y, w, h, rot, hasCaption) {
+      const rad = Math.abs(rot * Math.PI / 180);
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      // The whole paper: the picture, its matte, and the description under it.
+      const boxW = w * 1.04;
+      const boxH = h * 1.04 + (hasCaption ? w * 0.2 : 0);
+      const halfW = (boxW * cos + boxH * sin) / 2;
+      const halfH = (boxW * sin + boxH * cos) / 2;
+      const insetX = halfW * (1 - 2 * PHOTO_OVERHANG);
+      const insetY = halfH * (1 - 2 * PHOTO_OVERHANG);
+      const clamp = (v, lo, hi) => lo > hi ? (lo + hi) / 2 : Math.min(Math.max(v, lo), hi);
+      return {
+        x: clamp(x, insetX, 1920 - insetX),
+        y: clamp(y, insetY, 1080 - insetY)
+      };
+    }
     const instructionLayout = {
       cx:1113.655, cy:1023.765, w:1243.756, r:-6.030, z:20,
       src:"instructions", from:{cx:955.100,cy:671.164,w:1370,r:15.86},
@@ -2082,9 +2444,12 @@
 
     const items = [];
     if (docCount) docLayout.forEach((slot, i) => items.push({ type:"doc", i:slot.dataIndex, slot, seed:i }));
-    photoLayout.forEach((slot, i) => items.push({
+    // One visual item per archive item, in the archive's own order. An empty
+    // drawer still shows the Figma print, as decoration, exactly as before.
+    buildPhotoSlots(Math.max(media.length, 1)).forEach((slot, i) => items.push({
       type:"media",
-      m:media[i] || { src:slot.fallback, kind:"image", decorative:true },
+      m: media[i] || { id:"placeholder", fileUrl:slot.fallback, fileType:"image",
+                       description:"", decorative:true },
       mediaIndex:i,
       slot,
       seed:20 + i
@@ -2139,8 +2504,24 @@
       } else if (it.type === "media") {
         el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
-        const badge = it.m.kind === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
-        el.innerHTML = '<img loading="lazy" alt="" src="' + it.m.src + '">' + badge;
+        // Stable per-item identity: this element IS this archive item, across
+        // every re-render, so an upload adds a paper instead of recycling one.
+        el.dataset.archiveItem = it.m.id || ("media-" + it.mediaIndex);
+        const badge = it.m.fileType === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
+        const desc = String(it.m.description || "").trim();
+        // The description sits on the print it was written for, under it — the
+        // archive never collects the descriptions somewhere else and hopes the
+        // order still lines up.
+        el.innerHTML =
+          '<div class="pile-photo-frame">' +
+            '<img loading="lazy" alt="' + escAttr(desc) + '" src="' + escAttr(it.m.fileUrl) + '">' +
+            badge +
+          '</div>' +
+          (desc ? '<div class="pile-photo-caption">' + esc(desc) + '</div>' : '');
+        if (arrivedItemIds && !arrivedItemIds.has(el.dataset.archiveItem)) {
+          el.classList.add("is-new-item");   // only the new print is announced
+        }
+        nextArrivedItemIds.add(el.dataset.archiveItem);
       } else {
         el.className = "pile-item pile-item--instructions";
         el.innerHTML = archiveStampInstructionsHTML();
@@ -2161,9 +2542,16 @@
         el.style.setProperty("--doc-shadow", slot.shadow);
       } else if (it.type === "media") {
         const p = it.slot;
-        x = p.cx; y = p.cy; rot = p.r; z = p.z;
-        el.style.setProperty("--pw", (p.w * sceneScale).toFixed(2) + "px");
-        el.style.setProperty("--ph", (p.h * sceneScale).toFixed(2) + "px");
+        rot = p.r; z = p.z;
+        // The slot's width becomes this picture's own width, so the FLIP scale
+        // below (--from-scale) is measured against the frame actually rendered.
+        const size = photoFrameSize(it.m, p);
+        p.w = size.w; p.h = size.h;
+        const centre = clampPhotoCentre(p.cx, p.cy, size.w, size.h, p.r,
+                                        !!String(it.m.description || "").trim());
+        x = p.cx = centre.x; y = p.cy = centre.y;
+        el.style.setProperty("--pw", (size.w * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--par", size.w.toFixed(3) + " / " + size.h.toFixed(3));
       } else {
         x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
@@ -2213,6 +2601,7 @@
       el.style.zIndex = String(z);
       archivePile.appendChild(el);
     });
+    arrivedItemIds = nextArrivedItemIds;
   }
 
   function setPersonalToolText() {
@@ -2339,10 +2728,16 @@
 
   if (personalUploadForm) personalUploadForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const description = document.getElementById("personal-upload-description").value.trim();
-    const format = document.getElementById("personal-upload-format").value.trim();
+    const descriptionField = document.getElementById("personal-upload-description");
+    const formatField = document.getElementById("personal-upload-format");
+    const description = descriptionField.value.trim();
+    const format = formatField.value.trim();
     if (!description) return;
     pendingUploadMetadata = { description: description, format: format };
+    // Emptied now that it has been handed to this upload, so the next file is
+    // never offered the previous file's description.
+    descriptionField.value = "";
+    formatField.value = "";
     uploadInput.accept = "image/*,video/*,.pdf,.doc,.docx,.txt,audio/*";
     uploadInput.click();
   });

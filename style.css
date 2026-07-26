@@ -5424,27 +5424,74 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* Photograph — thin equal matte border, archival tone, drop shadow.
-   Large, like the Figma, so the pile fills the frame and crops at edges.
+   Large, like the Figma, so the pile fills the frame.
    The matte is white: Figma 751:291 is `bg-black border-18 border-white`, and
    the same print already wears a white matte on the stamping screen
    (.stamp-instructions-photo). It used to turn black on arrival, which meant
-   the one paper the eye follows most changed as it travelled. */
+   the one paper the eye follows most changed as it travelled.
+
+   The frame takes the PICTURE's own proportions (--par, written per item by
+   renderArchivePile from its recorded pixel size), and the picture is contained
+   inside it rather than cropped to fill it. A portrait photograph is laid in a
+   portrait frame, a landscape one in a landscape frame; both are scaled, never
+   stretched, squeezed, cut or turned. Where the pixel size was never recorded
+   the frame keeps its drawn proportions and `contain` letterboxes the picture
+   inside it — margins on the matte, but the whole picture, in its own shape. */
 .pile-item--photo {
   width: var(--pw, 556px);
-  height: var(--ph, 741px);
   box-sizing: border-box;
   padding: clamp(8px, 0.9375vw, 18px);
   background: #fff;
   border: none;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+.pile-photo-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--par, 1139.487 / 737.315);
   overflow: hidden;
 }
 .pile-item--photo img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  /* Respect the orientation a phone recorded in the file's own metadata, for
+     any picture that reaches the page without having been normalized. */
+  image-orientation: from-image;
   filter: saturate(0.9) contrast(0.96);
+}
+
+/* The description belongs to the print it was written for, so it is printed on
+   the same paper, directly under the picture. */
+.pile-photo-caption {
+  margin-top: 0.5em;
+  font-family: var(--font-main);
+  font-size: calc(var(--pw, 556px) * 0.042);
+  line-height: 1.35;
+  color: var(--ink);
+  direction: rtl;
+  text-align: right;
+  /* Long descriptions must not grow the paper past its place on the desk. */
+  max-height: 4.05em;
+  overflow: hidden;
+}
+
+/* A print that has just been added settles onto the pile; the ones already
+   there are untouched — no rebuild, no re-entry, nothing removed. */
+.pile-item--photo.is-new-item .pile-photo-frame,
+.pile-item--photo.is-new-item .pile-photo-caption {
+  animation: pile-photo-arrive 520ms cubic-bezier(0.22, 0.04, 0.18, 1) both;
+}
+@keyframes pile-photo-arrive {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pile-item--photo.is-new-item .pile-photo-frame,
+  .pile-item--photo.is-new-item .pile-photo-caption { animation: none; }
 }
 
 .pile-item--instructions {
