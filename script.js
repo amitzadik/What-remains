@@ -2979,6 +2979,7 @@
   const archiveBotAnswer = document.getElementById("archive-bot-answer-text");
   let botState = "initial";
   let botRequestRun = 0;
+  let botRequestPending = false;
 
   function setBotState(next) {
     botState = next;
@@ -3034,14 +3035,20 @@
   }
 
   function closeArchiveBot() {
-    if (botState !== "found" && botState !== "notFound") return false;
+    if (botState === "initial") return false;
     botRequestRun++;              // any in-flight search is no longer wanted
+    botRequestPending = false;
     setBotState("initial");
+    const queryField = document.getElementById("personal-search-query");
+    const formatField = document.getElementById("personal-search-format");
+    if (queryField) queryField.value = "";
+    if (formatField) formatField.value = "";
     return true;
   }
 
   function submitArchiveSearch(query, format) {
-    if (!query) return;
+    if (!query || botRequestPending) return;
+    botRequestPending = true;
     const run = ++botRequestRun;
     const request = { code: currentDrawerCode, query: query, format: format };
     // Kept so anything already listening to the archive's search keeps working.
@@ -3051,12 +3058,14 @@
     searchArchive(request)
       .then(result => {
         if (run !== botRequestRun) return;        // superseded or dismissed
+        botRequestPending = false;
         settleRummagedPapers();
         renderArchiveBotResult(result);
         setBotState(result.status === "found" ? "found" : "notFound");
       })
       .catch(error => {
         if (run !== botRequestRun) return;
+        botRequestPending = false;
         console.error("Archive search failed:", error);
         settleRummagedPapers();
         renderArchiveBotResult({ status: "notFound" });
@@ -3064,8 +3073,8 @@
       });
   }
 
-  if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+  function submitPersonalSearchForm() {
+    if (botRequestPending) return;
     const queryField = document.getElementById("personal-search-query");
     const formatField = document.getElementById("personal-search-format");
     const query = queryField.value.trim();
@@ -3073,7 +3082,26 @@
     if (!query) return;
     if (personalSearchStatus) personalSearchStatus.textContent = "";
     submitArchiveSearch(query, format);
+  }
+
+  if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitPersonalSearchForm();
   });
+
+  // The arrow is the bot's input control. Handle it explicitly as well as the
+  // form submit event so returning from a previous result can never leave the
+  // browser with a visually active arrow that no longer sends a request.
+  const personalSearchSubmit = personalSearchForm
+    ? personalSearchForm.querySelector(".personal-tool-submit")
+    : null;
+  if (personalSearchSubmit) {
+    personalSearchSubmit.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      submitPersonalSearchForm();
+    });
+  }
 
   // The not-found record's arrow: back to the archive to ask about something
   // else. The found record has no control of its own in Figma — it is put down
