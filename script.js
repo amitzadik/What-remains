@@ -2996,6 +2996,15 @@
   function setBotState(next) {
     botState = next;
     const showing = next === "found" || next === "notFound";
+    // Searching and result states own the desk. Normalize the tool sheets here
+    // as well as at submit time so no stale open-panel class can cover either
+    // the rummage animation or the returned record.
+    if (next !== "initial" && archiveBox) {
+      archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
+      if (archivePile) archivePile.classList.remove("is-spread");
+      if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
+      if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
+    }
     if (archiveBot) {
       archiveBot.dataset.botState = next;
       archiveBot.setAttribute("aria-hidden", showing ? "false" : "true");
@@ -3073,12 +3082,15 @@
   function submitArchiveSearch(query, format) {
     if (!query || botRequestPending) return;
     botRequestPending = true;
-    const run = ++botRequestRun;
     const request = { code: currentDrawerCode, query: query, format: format };
     // Kept so anything already listening to the archive's search keeps working.
     window.dispatchEvent(new CustomEvent("whatremains:archive-search", { detail: request }));
     closePersonalTool();          // the sheet goes back so the pile can be seen
     setBotState("searching");
+    // Mint the request token only after every synchronous UI transition above.
+    // A listener reacting to the submit event cannot invalidate the request
+    // before it has even started.
+    const run = ++botRequestRun;
     searchArchive(request)
       .then(result => {
         if (run !== botRequestRun) return;        // superseded or dismissed
