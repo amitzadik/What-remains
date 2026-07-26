@@ -101,6 +101,8 @@ button{font:inherit;color:inherit}
 .icon-btn.img-btn:hover:not(:disabled){transform:translateY(2px) scale(.98)}
 .icon-btn.img-btn:active:not(:disabled),
 .icon-btn.img-btn.is-pressing:not(:disabled){transform:translateY(4px) scale(.95)}
+.icon-btn:disabled{cursor:not-allowed}
+.icon-btn:disabled img{opacity:.35}
 
 .landing-v2__copy{
   position:absolute;

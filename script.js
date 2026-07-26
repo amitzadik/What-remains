@@ -312,10 +312,20 @@
   // True while viewing a drawer the logged-in user owns (gates the edit UI)
   let ownerView = false;
 
-  // The old in-page header stamps were removed; the new landing (landing-v2)
-  // owns login/my-drawer entry, so there is no in-page auth chrome to sync.
-  // Kept as a stable no-op hook for the existing call sites.
-  function updateHeaderAuthState() {}
+  // The landing lives in an iframe, so keep its personal-drawer control in
+  // sync with the parent session. It is available only to a signed-in owner.
+  window.getWhatRemainsAuthState = () => ({ loggedIn: isLoggedIn() });
+  function updateHeaderAuthState() {
+    try {
+      const landingWindow = figmaLanding && figmaLanding.contentWindow;
+      if (landingWindow && typeof landingWindow.setWhatRemainsDrawerEnabled === "function") {
+        landingWindow.setWhatRemainsDrawerEnabled(isLoggedIn());
+      }
+    } catch (_) {
+      // A cross-origin design preview cannot share the signed-in state.
+    }
+  }
+  if (figmaLanding) figmaLanding.addEventListener("load", updateHeaderAuthState);
 
   // --- Login modal ---
   const loginModal       = document.getElementById("login-modal");
@@ -467,7 +477,6 @@
     if (action === "drawer") {
       const sess = getSession();
       if (sess && sess.code) openOwnDrawer(sess);
-      else openLoginModal();
     }
     // Open a specific archive drawer chosen from the landing-v2 inline search.
     // Reuses the same open-by-code path as the archive wall (owner unlocks,

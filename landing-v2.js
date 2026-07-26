@@ -118,6 +118,20 @@
     window.parent.postMessage({ source: 'what-remains-landing', action, payload }, '*');
   }
 
+  const myDrawerButton = screen.querySelector('[aria-label="המגירה שלי"]');
+  function setDrawerEnabled(enabled) {
+    if (myDrawerButton) myDrawerButton.disabled = !enabled;
+  }
+  window.setWhatRemainsDrawerEnabled = setDrawerEnabled;
+  try {
+    const authState = typeof window.parent.getWhatRemainsAuthState === 'function'
+      ? window.parent.getWhatRemainsAuthState()
+      : null;
+    setDrawerEnabled(!!(authState && authState.loggedIn));
+  } catch (_) {
+    setDrawerEnabled(false);
+  }
+
   // Same-origin bridge to the archive's single search source of truth. Returns
   // an array of matches, or null when the direct call isn't available (e.g. a
   // cross-origin preview) so the UI can show a "connecting" state.
@@ -279,5 +293,5 @@
   document.getElementById('landing-v2-add')?.addEventListener('click', () => sendAction('create'));
   screen.querySelector('[aria-label="חיפוש"]')?.addEventListener('click', toggleSearch);
   screen.querySelector('[aria-label="התחברות"]')?.addEventListener('click', () => sendAction('login'));
-  screen.querySelector('[aria-label="המגירה שלי"]')?.addEventListener('click', () => sendAction('drawer'));
+  myDrawerButton?.addEventListener('click', () => sendAction('drawer'));
 })();
