@@ -180,11 +180,13 @@ button{font:inherit;color:inherit}
 }
 .corner-credit-slot{
   position:absolute;
-  /* 20px up and 20px left of its Figma placement (-420 / -84), in the same
+  /* 60px up and 60px left of its Figma placement (-420 / -84), in the same
      1920×1080 canvas units the rest of the corner composition is authored in,
-     so the nudge scales with the group. */
-  left:-440px;
-  top:-104px;
+     so the nudge scales with the group. Its resting centre is therefore
+     (-480 + 307, -144 + 219.5) = (-173, 75.5) — the number the two
+     is-credit-open rules below undo to bring the sheet to the centre. */
+  left:-480px;
+  top:-144px;
   /* Topmost of the three sheets peeking out of the corner: above the paper (2)
      and the photograph (3), where it used to sit underneath both. */
   z-index:4;
@@ -199,13 +201,13 @@ button{font:inherit;color:inherit}
   box-shadow:none;
   /* Hidden until its entrance: start off-screen (matches credit-deal's `from`),
      so it is not shown at rest before the deal-in animation runs. */
-  transform:translate3d(-46vw,7px,0) rotate(-12.8deg);
+  transform:translate3d(-46vw,7px,0) rotate(-17.8deg);
   transform-origin:center;
   transition:transform 760ms cubic-bezier(.22,1,.36,1);
 }
 .corner-credit-slot:hover:not(:disabled){color:var(--ink);border-color:transparent}
-.corner-credit-slot:active:not(:disabled){transform:rotate(-15deg);border-color:transparent}
-.landing-v2.is-settled .corner-credit-slot{animation:none;pointer-events:auto;transform:rotate(-15deg)}
+.corner-credit-slot:active:not(:disabled){transform:rotate(-20deg);border-color:transparent}
+.landing-v2.is-settled .corner-credit-slot{animation:none;pointer-events:auto;transform:rotate(-20deg)}
 .corner-credit-card{
   position:relative;
   display:block;
@@ -232,7 +234,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-credit-open .landing-v2__pile{z-index:32}
 .landing-v2.is-credit-open .corner-credit-slot{
   cursor:default;
-  transform:translate(calc(50vw + 113px),calc(50vh - 135.5px)) rotate(0deg);
+  transform:translate(calc(50vw + 173px),calc(50vh - 75.5px)) rotate(0deg);
 }
 .corner-credit-card__close{
   position:absolute;
@@ -268,7 +270,7 @@ button{font:inherit;color:inherit}
 /* Each photo enters along its own slightly different path (per-layer
    --deal-from-* below) and straightens as it lands — no two identical. */
 @keyframes corner-deal{0%{opacity:0;transform:translate3d(var(--deal-from-x,-46vw),var(--deal-from-y,0px),0) rotate(var(--deal-from-r,0deg))}55%{opacity:var(--rest-op,.8)}100%{opacity:var(--rest-op,.8);transform:translate3d(0,0,0) rotate(0deg)}}
-@keyframes credit-deal{from{transform:translate3d(-46vw,7px,0) rotate(-12.8deg)}to{transform:translate3d(0,0,0) rotate(-15deg)}}
+@keyframes credit-deal{from{transform:translate3d(-46vw,7px,0) rotate(-17.8deg)}to{transform:translate3d(0,0,0) rotate(-20deg)}}
 @keyframes paper-breathe-a{0%,100%{transform:translate3d(0,0,0) rotate(0)}48%{transform:translate3d(1.5px,-1px,0) rotate(.38deg)}}
 @keyframes paper-breathe-b{0%,100%{transform:translate3d(0,0,0) rotate(0)}54%{transform:translate3d(-1px,1.5px,0) rotate(-.42deg)}}
 
@@ -467,7 +469,7 @@ button{font:inherit;color:inherit}
   /* The corner composition is authored on a 1920×1080 canvas and scaled as a
      unit. Pull the credit sheet to that canvas centre so its visual position
      remains the viewport centre after the parent scale is applied. */
-  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1073px,404.5px) rotate(0deg)}
+  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1133px,464.5px) rotate(0deg)}
 }
 
 @media (max-width:900px){
