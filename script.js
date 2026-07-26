@@ -2827,7 +2827,10 @@
   }
 
   function closePersonalTool() {
-    if (!archiveBox || !archiveBox.classList.contains("is-tool-open")) return false;
+    if (!archiveBox) return false;
+    const wasOpen = archiveBox.classList.contains("is-tool-open") ||
+      (personalSearchPanel && personalSearchPanel.getAttribute("aria-hidden") === "false") ||
+      (personalUploadPanel && personalUploadPanel.getAttribute("aria-hidden") === "false");
     // Reverse the identical motion: drop the state classes and the same
     // transition carries the sheet back to its exact pile-peek position.
     archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
@@ -2835,7 +2838,7 @@
     if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
     if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
     if (personalSearchStatus) personalSearchStatus.textContent = "";
-    return true;
+    return wasOpen;
   }
 
   // ============================================================
@@ -3119,7 +3122,10 @@
       if (!submitControl || !personalSearchForm.contains(submitControl)) return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      submitPersonalSearchForm();
+      // Finish the click before changing the sheet state. This prevents the
+      // closed-sheet opener from seeing the same click and reopening the form
+      // over the searching/result UI.
+      window.setTimeout(submitPersonalSearchForm, 0);
     }, true);
   }
 
