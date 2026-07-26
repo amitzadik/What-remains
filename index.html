@@ -209,11 +209,13 @@
         <img id="camera-photo" hidden alt="">
         <div id="camera-msg" class="camera-msg" hidden></div>
       </div>
-      <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
-      <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
-        <img src="images/next-default.png" width="160" height="160" alt="">
-      </button>
     </div>
+    <!-- The print is a photograph, not a control panel: the shutter and the
+         continue stamp sit on the screen around it, not on the paper. -->
+    <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
+    <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+      <img src="images/next-default.png" width="160" height="160" alt="">
+    </button>
   </section>
 
   <!-- ============== SCREEN: ENVELOPE TRANSITION ============== -->
@@ -234,10 +236,11 @@
         <p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>
         <p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>
       </div>
-      <button id="btn-envelope-next" type="button" class="img-btn stamp-instructions-next" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
-        <img src="images/next-default.png" width="160" height="160" alt="">
-      </button>
     </article>
+    <!-- Off the instructions sheet, onto the screen — the sheet is a document. -->
+    <button id="btn-envelope-next" type="button" class="img-btn stamp-instructions-next" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+      <img src="images/next-default.png" width="160" height="160" alt="">
+    </button>
   </section>
 
   <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
@@ -251,7 +254,6 @@
 
       <section id="personal-search-panel" class="personal-tool-panel personal-tool-panel--search" aria-hidden="true">
         <form id="personal-search-form" class="personal-tool-card">
-          <button class="personal-tool-icon personal-tool-icon--search" type="submit" aria-label="חיפוש"><img src="images/figma-archive-search-icon-v2.png" alt=""></button>
           <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-search-code"></strong>
           <h2>בקשת אחזור:</h2>
           <div class="personal-tool-grid">
@@ -260,20 +262,17 @@
           </div>
           <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
           <span class="personal-tool-owner" id="personal-search-owner"></span>
-          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
         </form>
       </section>
 
       <section id="personal-upload-panel" class="personal-tool-panel personal-tool-panel--upload" aria-hidden="true">
         <form id="personal-upload-form" class="personal-tool-card">
-          <button class="personal-tool-icon personal-tool-icon--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon-v2.png" alt=""></button>
           <span class="personal-tool-owner" id="personal-upload-owner"></span>
           <h2>הוספת פריטים</h2>
           <div class="personal-tool-grid">
             <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה להוסיף?</span><textarea id="personal-upload-description" required></textarea></label>
             <label class="personal-tool-field"><span>סוג הפריט/ים</span><input id="personal-upload-format" type="text"></label>
           </div>
-          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
         </form>
       </section>
 
@@ -287,9 +286,6 @@
         <div class="personal-tool-card upload-success-card">
           <span class="personal-tool-owner upload-success-owner" id="upload-success-owner"></span>
           <h2 id="upload-success-title" class="upload-success-title">החומרים נוספו בהצלחה!</h2>
-          <button id="btn-upload-success-done" type="button" class="img-btn upload-success-done" data-default="images/back-default.png" data-hover="images/back-hover.png" aria-label="חזרה לארכיון">
-            <img src="images/back-default.png" width="160" height="160" alt="">
-          </button>
         </div>
       </section>
 
@@ -325,11 +321,6 @@
           <h2 class="archive-bot-title" id="archive-bot-empty-title">לא נמצאו תשובות לשאלתך</h2>
           <p class="archive-bot-subtitle">חזור אחורה ליצירת בקשה בנושא אחר</p>
           <span class="archive-bot-owner" id="archive-bot-empty-owner"></span>
-          <button id="btn-archive-bot-back" type="button" class="img-btn archive-bot-back"
-                  data-default="images/back-default.png" data-hover="images/back-hover.png"
-                  aria-label="חזרה ליצירת בקשה בנושא אחר">
-            <img src="images/back-default.png" width="146" height="146" alt="">
-          </button>
         </div>
       </section>
 

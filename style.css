@@ -2708,11 +2708,16 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .camera-msg[hidden] { display: none; }
 
+/* Shutter and continue stamp — screen chrome, not print furniture.
+   They used to be children of .camera-print, positioned against the paper; the
+   print is a photograph and carries nothing now, so both are children of the
+   screen and are placed against its frame instead. Same artwork, same size,
+   same behaviour — only the thing they are pinned to has changed. */
 .camera-shutter {
   position: absolute;
-  z-index: 3;
+  z-index: 30;
   left: 50%;
-  bottom: 5.1%;
+  bottom: 2.4%;
   width: clamp(42px, 3.646vw, 70px);
   height: clamp(42px, 3.646vw, 70px);
   transform: translateX(-50%) rotate(10.94deg);
@@ -2733,9 +2738,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 .camera-next-stamp {
   position: absolute;
-  left: 1.27%;
-  bottom: 1.95%;
-  z-index: 3;
+  left: clamp(20px, 2.083vw, 40px);      /* same inset as the archive chrome */
+  bottom: clamp(20px, 2.083vw, 40px);
+  z-index: 30;
   border: 0;
   background: none;
   padding: 0;
@@ -4070,11 +4075,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translateY(-50%) rotate(6.18deg) scaleX(.72);
   transform-origin: center;
 }
+/* Off the instructions sheet, onto the screen — same reason as the camera's. */
 .stamp-instructions-next {
   position: absolute;
-  z-index: 3;
-  left: 3.24%;
-  bottom: 4.23%;
+  z-index: 30;
+  left: clamp(20px, 2.083vw, 40px);      /* same inset as the archive chrome */
+  bottom: clamp(20px, 2.083vw, 40px);
   width: clamp(72px, 8.333vw, 160px);
   height: clamp(72px, 8.333vw, 160px);
 }
@@ -5549,14 +5555,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   filter: blur(3px);
   mix-blend-mode: multiply;
 }
-.archive-stamp-next {
-  position: absolute;
-  z-index: 3;
-  left: 3.24%;
-  bottom: 4.23%;
-  width: 12.86%;
-  height: auto;
-}
 .pile-item.is-uploading { opacity: 0.6; }
 .pile-play {
   position: absolute;
@@ -5620,19 +5618,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* Decorative "next" arrow tucked into a corner of some question sheets, like
    the Figma. Purely visual — it inherits the sheet's own scatter rotation and
    sits into the paper (multiply) with a slight natural tilt. */
-.pile-doc-next {
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  width: clamp(40px, 7vw, 74px);
-  height: auto;
-  opacity: 0.8;
-  mix-blend-mode: multiply;
-  transform: rotate(-7deg);
-  pointer-events: none;
-  z-index: 3;
-}
-
 /* Kraft "envelope" cards — the add + archive controls, now part of the
    scattered pile (Figma). Same kraft paperboard as the screen, a large faint
    drawer-code number printed diagonally across, and the existing icon centred
@@ -5953,9 +5938,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* A closed sheet is a single click target: its own controls stay inert so a
    click on it can only mean "bring me forward", never "type / submit". */
 .personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field textarea,
-.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field input,
-.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-icon,
-.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-back {
+.personal-tool-panel[aria-hidden="true"] .personal-tool-card .personal-tool-field input {
   pointer-events: none;
 }
 /* ===== Tool sheet internals — matched to Figma 702:467 (search) and 702:484
@@ -6014,18 +5997,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font:500 2.33cqw/1.5 var(--font-main); direction:rtl;
 }
 
-/* Top-left action stamp (search magnifier / add +) and bottom-left back arrow. */
-.personal-tool-icon {
-  position:absolute; border:0; padding:0; background:none; cursor:pointer;
-}
-.personal-tool-icon img { display:block; width:100%; height:100%; object-fit:contain; }
-.personal-tool-icon--search { right:3.0%; left:auto; top:4.4%; width:12.42%; aspect-ratio:1; }
-.personal-tool-icon--add    { left:2.2%; top:2.0%; width:12.42%; aspect-ratio:1; }
-.personal-tool-back {
-  position:absolute; left:3.0%; bottom:3.1%; width:8.39%; aspect-ratio:1;
-  border:0; padding:0; background:none; cursor:pointer;
-}
-.personal-tool-back img { display:block; width:100%; height:100%; object-fit:contain; }
 
 /* ============================================================
    Upload confirmation — Figma 844:1282 "הוספת חומרים בהצלחה"
@@ -6129,21 +6100,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   text-align: right;
   direction: rtl;
 }
-
-/* The one control on the record — Figma 844:1331 `back-default 1`, 160 square,
-   top-right. Closing and continuing are the same gesture here, as drawn. */
-.upload-success-done {
-  position: absolute;
-  left: 81.742%;
-  top: 3.063%;
-  width: 15.810%;
-  aspect-ratio: 1;
-  border: 0;
-  padding: 0;
-  background: none;
-  cursor: pointer;
-}
-.upload-success-done img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
 @media (prefers-reduced-motion: reduce) {
   .upload-success-card,
@@ -6314,25 +6270,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   left: 19.744%; top: 4.453%; width: 13.331%;
   font-size: 3.2628cqw; line-height: 1.5;
 }
-.archive-bot-card--empty .archive-bot-title {                 /* 769:142 */
-  left: 17.469%; top: 22.751%; width: 69.570%;
+/* 769:142 / 769:154. Figma places these against a back arrow filling the middle
+   of the record; with the arrow gone that middle is a hole, so the two lines
+   move down together to sit centred between the file number above them and the
+   name below. Their sizes and the gap between them are Figma's exactly — only
+   the pair's position on the sheet changed (+18.753 points, which centres a
+   block of 16.993). */
+.archive-bot-card--empty .archive-bot-title {
+  left: 17.469%; top: 41.504%; width: 69.570%;
   font-size: 5.4379cqw;
 }
-.archive-bot-card--empty .archive-bot-subtitle {              /* 769:154 */
-  left: 20.240%; top: 32.824%; width: 66.610%;
+.archive-bot-card--empty .archive-bot-subtitle {
+  left: 20.240%; top: 51.577%; width: 66.610%;
   font-size: 3.2628cqw; line-height: 1.5;
 }
 .archive-bot-card--empty .archive-bot-owner {                 /* 769:144 */
   left: 79.097%; top: 88.981%; width: 17.742%;
   font-size: 3.2628cqw; line-height: 1.5;
 }
-.archive-bot-back {                                           /* 878:165 */
-  position: absolute;
-  left: 44.951%; top: 47.059%; width: 15.884%;
-  aspect-ratio: 1;
-  border: 0; padding: 0; background: none; cursor: pointer;
-}
-.archive-bot-back img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
 /* ---- the rummage, Figma 884:134 --------------------------------------
    Someone going through the papers on the table. It runs on the archive's OWN
