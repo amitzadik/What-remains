@@ -2256,6 +2256,7 @@
         '<p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>' +
         '<p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>' +
       '</div>' +
+      '<img class="archive-stamp-next" src="images/next-default.png" alt="" aria-hidden="true">' +
     '</article>';
   }
 
@@ -2629,6 +2630,11 @@
           el.classList.add("pile-item--exit");
           el.setAttribute("aria-hidden", "true");
         }
+        // Decorative "next" arrow tucked into a corner of some sheets (Figma).
+        if (it.type === "doc" && pileRand(it.i + 200) > 0.45) {
+          el.insertAdjacentHTML("beforeend",
+            '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
+        }
       } else if (it.type === "media") {
         el.className = "pile-item pile-item--photo";
         if (it.m.uploading) el.classList.add("is-uploading");
@@ -2821,6 +2827,7 @@
   // dismissing it only takes the record away again.
   const uploadSuccess = document.getElementById("upload-success");
   const uploadSuccessOwner = document.getElementById("upload-success-owner");
+  const btnUploadSuccessDone = document.getElementById("btn-upload-success-done");
 
   function openUploadSuccess() {
     if (!uploadSuccess) return;
@@ -2845,8 +2852,13 @@
     return true;
   }
 
-  // The record carries no control of its own: it is put down with the
-  // archive's close, or with Escape.
+  if (btnUploadSuccessDone) {
+    btnUploadSuccessDone.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeUploadSuccess();
+    });
+  }
+  // The record is modal while it is up, so Escape puts it down too.
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeUploadSuccess();
   });
@@ -2867,25 +2879,9 @@
   wireToolOpen(personalSearchForm, personalSearchPanel, "search", null);
   wireToolOpen(personalUploadForm, personalUploadPanel, "upload", () => ownerView && !!currentDrawerCode);
 
-  // The sheets carry no controls of their own any more — they are records to
-  // be filled in, not panels. What the stamp and the back arrow used to do now
-  // comes from the interface around them: the field submits the sheet, and the
-  // archive's own close (or Escape) puts it back on the pile.
-  ["personal-search-query", "personal-search-format",
-   "personal-upload-description", "personal-upload-format"].forEach(id => {
-    const field = document.getElementById(id);
-    if (!field) return;
-    field.addEventListener("keydown", (e) => {
-      // Enter files the request. Shift+Enter still opens a line in the textarea,
-      // so a multi-line answer is never cut short by submitting.
-      if (e.key !== "Enter" || e.shiftKey) return;
-      e.preventDefault();
-      const form = field.closest("form");
-      if (form) form.requestSubmit();
-    });
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closePersonalTool();
+  // Back arrow on each open sheet closes it (returns it to the pile).
+  document.querySelectorAll(".personal-tool-back").forEach((btn) => {
+    btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closePersonalTool(); });
   });
 
   // Re-scatter/re-scale the pile on resize while the personal screen is open.
@@ -3066,9 +3062,16 @@
     submitArchiveSearch(query, format);
   });
 
-  // Neither record carries a control of its own. Both are put down with the
-  // archive's own close, or with Escape — which is also what returns the
-  // not-found record to the archive so another question can be asked.
+  // The not-found record's arrow: back to the archive to ask about something
+  // else. The found record has no control of its own in Figma — it is put down
+  // with the archive's own close, or Escape.
+  const btnArchiveBotBack = document.getElementById("btn-archive-bot-back");
+  if (btnArchiveBotBack) {
+    btnArchiveBotBack.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeArchiveBot();
+    });
+  }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeArchiveBot();
   });
