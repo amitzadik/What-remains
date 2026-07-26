@@ -293,6 +293,46 @@
         </div>
       </section>
 
+      <!-- Archivist bot results. One section, two records, four states — the
+           state lives on #archive-bot's data-bot-state and on .archive-box
+           (which is what drives the pile's rummaging). The pile itself is never
+           duplicated or replaced; it stays mounted behind these.
+             initial   — nothing here is shown, the search sheet is the UI
+             searching — Figma 884:134, the pile is rummaged through
+             found     — Figma 578:273, card 639:97
+             notFound  — Figma 635:2730, card 769:140 -->
+      <section id="archive-bot" class="archive-bot" data-bot-state="initial" aria-hidden="true">
+        <div class="archive-bot-scrim"></div>
+
+        <div class="personal-tool-card archive-bot-card archive-bot-card--found"
+             role="dialog" aria-modal="true" aria-labelledby="archive-bot-found-title" tabindex="-1">
+          <span class="archive-bot-owner" id="archive-bot-found-owner"></span>
+          <span class="archive-bot-file-label">תיק מס׳</span>
+          <span class="archive-bot-code" id="archive-bot-found-code"></span>
+          <h2 class="archive-bot-title" id="archive-bot-found-title">מהמידע בתיק זה נמצא ש</h2>
+          <div class="archive-bot-answer">
+            <!-- The bot's answer. The ONLY dynamic text on this card; written by
+                 renderArchiveBotResult from the search result. -->
+            <p id="archive-bot-answer-text"></p>
+            <p>קח את הממצאים מהמדפסת.</p>
+          </div>
+        </div>
+
+        <div class="personal-tool-card archive-bot-card archive-bot-card--empty"
+             role="dialog" aria-modal="true" aria-labelledby="archive-bot-empty-title" tabindex="-1">
+          <span class="archive-bot-file-label">תיק מס׳</span>
+          <span class="archive-bot-code" id="archive-bot-empty-code"></span>
+          <h2 class="archive-bot-title" id="archive-bot-empty-title">לא נמצאו תשובות לשאלתך</h2>
+          <p class="archive-bot-subtitle">חזור אחורה ליצירת בקשה בנושא אחר</p>
+          <span class="archive-bot-owner" id="archive-bot-empty-owner"></span>
+          <button id="btn-archive-bot-back" type="button" class="img-btn archive-bot-back"
+                  data-default="images/back-default.png" data-hover="images/back-hover.png"
+                  aria-label="חזרה ליצירת בקשה בנושא אחר">
+            <img src="images/back-default.png" width="146" height="146" alt="">
+          </button>
+        </div>
+      </section>
+
       <!-- Close: small fixed top-right chrome. Add + archive are relocated into
            the scattered pile as kraft "envelope" cards by renderArchivePile(). -->
       <button id="btn-personal-restart" type="button" class="img-btn pile-ctrl pile-ctrl--close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה">

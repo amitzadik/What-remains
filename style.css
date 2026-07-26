@@ -6151,6 +6151,232 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .upload-success[aria-hidden="true"] .upload-success-card { transform: none; }
 }
 
+/* ============================================================
+   Archivist bot — Figma 507:382 / 884:134 / 578:273 / 635:2730
+   ============================================================
+   Four states of ONE screen. Nothing here is a second archive: the pile, the
+   photographs and the tool sheets stay mounted throughout and the state only
+   changes transforms and which record is on the desk.
+
+     initial   507:382  — the search sheet, already the archive's own UI
+     searching 884:134  — the pile is rummaged through (see archive-rummage)
+     found     578:273  — record 639:97,  638x902 authored, -84.29deg
+     notFound  635:2730 — record 769:140, 650.345x919.476 authored, -92.16deg
+
+   Both records are authored portrait and turned about -90deg, so on screen they
+   are landscape sheets at (figma angle + 90): +5.71deg and -2.16deg. Every
+   inner position is that node's own local coordinate carried through the -90deg
+   — a portrait point (x,y) lands at (H/2 + y - H/2, W/2 - (x - W/2)) in the
+   landscape sheet — then written as a percentage of that sheet, and type in cqw
+   against the same sheet. So each record holds its Figma layout at any size. */
+.archive-bot {
+  position: absolute;
+  inset: 0;
+  /* Above the tool panels (261-265) and the archive's own close chrome (400),
+     alongside the upload confirmation. */
+  z-index: 500;
+  visibility: hidden;
+  pointer-events: none;
+}
+.archive-bot[aria-hidden="false"] {
+  visibility: visible;
+  pointer-events: auto;
+}
+.archive-bot-card:focus { outline: none; }
+
+/* Figma draws the archive's own close above the records and their scrim
+   (578:360/361, 635:2818, 844:1285) — and on the found record, which has no
+   control of its own, it is the way that record is put down. So while any
+   overlay is up, the close chrome sits above it rather than under it. */
+.archive-box[data-bot-state="found"] .pile-ctrl--close,
+.archive-box[data-bot-state="notFound"] .pile-ctrl--close,
+.archive-box.is-upload-success .pile-ctrl--close { z-index: 600; }
+
+/* Figma 578:273 / 635:2730: bg-[rgba(19,13,0,0.3)] over the whole frame. */
+.archive-bot-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(19, 13, 0, 0.3);
+  opacity: 0;
+  transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.archive-bot[aria-hidden="false"] .archive-bot-scrim { opacity: 1; }
+
+/* Only the record belonging to the current state is on the desk. */
+.archive-bot-card { visibility: hidden; }
+.archive-bot[data-bot-state="found"] .archive-bot-card--found,
+.archive-bot[data-bot-state="notFound"] .archive-bot-card--empty { visibility: visible; }
+
+/* Both records share the kraft, grain, shadow and container of the tool sheets;
+   each states its own size, angle and place. Scoped past
+   `.archive-box.is-archive-open .personal-tool-card`, which would otherwise
+   hand them the peeking sheets' opacity and timing. */
+.archive-box .archive-bot .archive-bot-card {
+  background-image: url("images/figma-archive-add-card-v2.jpg");
+  box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.25);
+  cursor: default;
+  opacity: 1;
+  pointer-events: auto;
+  /* Set down on the desk from a little above and a hair large, on the paper
+     easing the rest of the archive already moves on. Movement, not a fade. */
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms linear;
+}
+/* 639:97 — sheet 902x638 on screen; wrapper centre (923.502, 391.291). */
+.archive-box .archive-bot .archive-bot-card--found {
+  --bot-sheet: min(46.979vw, 59.074vh * 1.41379, 902px);
+  --tool-rot: 5.71deg;
+  --tool-x: calc(var(--bot-sheet) * -0.040463);
+  --tool-y: calc(var(--bot-sheet) * -0.164866);
+  width: var(--bot-sheet);
+  aspect-ratio: 902 / 638;
+}
+/* 769:140 — sheet 919.476x650.345; wrapper centre (960.111, 539.872). */
+.archive-box .archive-bot .archive-bot-card--empty {
+  --bot-sheet: min(47.889vw, 60.217vh * 1.41382, 919.476px);
+  --tool-rot: -2.16deg;
+  --tool-x: calc(var(--bot-sheet) *  0.000121);
+  --tool-y: calc(var(--bot-sheet) * -0.000140);
+  width: var(--bot-sheet);
+  aspect-ratio: 919.476 / 650.345;
+}
+.archive-bot[aria-hidden="true"] .archive-bot-card {
+  transform:
+    translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y) - 2.2%))
+    rotate(var(--tool-rot))
+    scale(0.985);
+  opacity: 0;
+}
+
+/* ---- record internals ------------------------------------------------
+   Percentages of each record's own sheet; type in cqw against the same sheet
+   (found 1cqw = 9.02 Figma px, notFound 1cqw = 9.19476). */
+.archive-bot-card .archive-bot-owner,
+.archive-bot-card .archive-bot-file-label,
+.archive-bot-card .archive-bot-subtitle,
+.archive-bot-card .archive-bot-answer {
+  position: absolute;
+  font-weight: 500;
+  direction: rtl;
+  text-align: right;
+  margin: 0;
+}
+.archive-bot-card .archive-bot-code {
+  position: absolute;
+  font-family: var(--font-mandatory);
+  font-weight: 700;
+  font-variation-settings: "wght" 700, "wdth" 36;
+  opacity: .8;
+  direction: rtl;
+  text-align: right;
+}
+/* Two classes, so these outrank the shared `.personal-tool-card h2`. */
+.archive-bot-card .archive-bot-title {
+  position: absolute;
+  margin: 0;
+  right: auto;
+  font-weight: 500;
+  line-height: 1.2;
+  direction: rtl;
+  text-align: right;
+}
+
+/* --- found, 639:97 (sheet 902x638) --- */
+.archive-bot-card--found .archive-bot-owner {                 /* 639:107 */
+  left: 3.106%; top: 4.390%; width: 23.767%;
+  font-size: 3.3259cqw; line-height: 1.5; text-indent: 6.652cqw;
+}
+.archive-bot-card--found .archive-bot-file-label {            /* 639:108 */
+  left: 82.262%; top: 4.390%; width: 19.967%;
+  font-size: 3.3259cqw; line-height: 1.5; text-indent: 6.652cqw;
+}
+.archive-bot-card--found .archive-bot-code {                  /* 639:106 */
+  left: 63.858%; top: 7.994%; width: 15.140%;
+  font-size: 13.3038cqw; line-height: 5.5432cqw; rotate: -0.65deg;
+}
+.archive-bot-card--found .archive-bot-title {                 /* 639:109 */
+  left: 20.503%; top: 24.824%; width: 68.061%;
+  font-size: 5.5432cqw;
+}
+.archive-bot-card--found .archive-bot-answer {                /* 639:110 */
+  left: 11.515%; top: 46.066%; width: 76.045%;
+  font-size: 3.3259cqw; line-height: 1.5;
+}
+.archive-bot-card--found .archive-bot-answer p { margin: 0; }
+
+/* --- notFound, 769:140 (sheet 919.476x650.345) --- */
+.archive-bot-card--empty .archive-bot-code {                  /* 769:141 */
+  left: 3.051%; top: 8.173%; width: 14.852%;
+  font-size: 13.0511cqw; line-height: 5.4379cqw; rotate: -0.65deg;
+}
+.archive-bot-card--empty .archive-bot-file-label {            /* 769:143 */
+  left: 19.744%; top: 4.453%; width: 13.331%;
+  font-size: 3.2628cqw; line-height: 1.5;
+}
+.archive-bot-card--empty .archive-bot-title {                 /* 769:142 */
+  left: 17.469%; top: 22.751%; width: 69.570%;
+  font-size: 5.4379cqw;
+}
+.archive-bot-card--empty .archive-bot-subtitle {              /* 769:154 */
+  left: 20.240%; top: 32.824%; width: 66.610%;
+  font-size: 3.2628cqw; line-height: 1.5;
+}
+.archive-bot-card--empty .archive-bot-owner {                 /* 769:144 */
+  left: 79.097%; top: 88.981%; width: 17.742%;
+  font-size: 3.2628cqw; line-height: 1.5;
+}
+.archive-bot-back {                                           /* 878:165 */
+  position: absolute;
+  left: 44.951%; top: 47.059%; width: 15.884%;
+  aspect-ratio: 1;
+  border: 0; padding: 0; background: none; cursor: pointer;
+}
+.archive-bot-back img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* ---- the rummage, Figma 884:134 --------------------------------------
+   Someone going through the papers on the table. It runs on the archive's OWN
+   papers and photographs — the same elements, in the same places, at the same
+   sizes, rotations and depths — so nothing is duplicated and the pile stays the
+   pile. It takes over `translate`/`rotate`, the two properties the resting
+   breath already uses, leaving the pile's own `transform` (position, angle,
+   scale) untouched: dimensions, aspect ratios, textures, shadows and z-index
+   are all outside this animation's reach.
+
+   Each paper is handled on its own: its own direction and distance, its own
+   duration, its own moment. Movement occupies about the first third of a long
+   cycle and the rest is stillness, so at any instant only a few papers are in
+   motion while the others lie where they were. The durations are all different,
+   so the set never falls back into step with itself. */
+@keyframes archive-rummage {
+  0%   { translate: 0 0; rotate: 0deg; }
+  5%   { translate: calc(var(--rummage-x, 0px) * 0.62) calc(var(--rummage-y, 0px) * 0.62);
+         rotate: calc(var(--rummage-r, 0deg) * 0.45); }
+  9.5% { translate: var(--rummage-x, 0px) var(--rummage-y, 0px); rotate: var(--rummage-r, 0deg); }
+  14%  { translate: var(--rummage-x, 0px) var(--rummage-y, 0px); rotate: var(--rummage-r, 0deg); }
+  20%  { translate: 0 0; rotate: 0deg; }
+  100% { translate: 0 0; rotate: 0deg; }
+}
+.archive-box[data-bot-state="searching"] .pile-item--breathing {
+  animation: archive-rummage var(--rummage-duration, 12s)
+             cubic-bezier(0.3, 0.05, 0.2, 1) var(--rummage-delay, 0s) infinite;
+}
+/* Leaving the searching state, the papers that are still out are set back down
+   rather than snapped: script.js pins their current offset, flips this on, and
+   releases it. */
+.archive-box[data-bot-settling="1"] .pile-item--breathing {
+  animation: none;
+  transition:
+    translate 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    rotate 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .archive-box[data-bot-state="searching"] .pile-item--breathing,
+  .archive-box[data-bot-settling="1"] .pile-item--breathing { animation: none; transition: none; }
+  .archive-bot-card, .archive-bot-scrim { transition: none; }
+  .archive-bot[aria-hidden="true"] .archive-bot-card { transform: none; }
+}
+
 .personal-tool-status {
   position:absolute; right:17.3%; bottom:13%; margin:0; color:var(--stamp); font-size:2.1cqw;
 }

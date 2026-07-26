@@ -2193,6 +2193,10 @@
     // user has since opened; the file itself is unaffected and still arrives.
     failUploadBatch(activeUploadBatch);
     closeUploadSuccess();
+    // A search belongs to the drawer it was asked of; opening another one puts
+    // the archivist back to the beginning rather than carrying a result over.
+    botRequestRun++;
+    setBotState("initial");
 
     pendingPileRender = false;
     arrivedItemIds = null;   // a freshly opened drawer arrives whole, not "new"
@@ -2738,6 +2742,29 @@
         el.style.setProperty("--pile-move-delay", op.lead + "ms");
       }
 
+      // How THIS paper is handled while the archive is being searched. Each one
+      // is drawn a direction and a distance of its own from its own seed: some
+      // are slid outward from the middle of the desk, some nudged across it,
+      // and none of them travel the same way or for the same length of time.
+      // Distances are in scene pixels, so a paper moves the same amount
+      // relative to the composition at any viewport.
+      const rgOut = pileRand(seed + 67) > 0.45;     // slid outward, or across
+      const rgDist = (11 + pileRand(seed + 71) * 25) * sceneScale;
+      const rgDir = rgOut
+        ? Math.atan2(y - 850, x - 960) + (pileRand(seed + 73) - 0.5) * 0.9
+        : pileRand(seed + 61) * Math.PI * 2;
+      el.style.setProperty("--rummage-x", (Math.cos(rgDir) * rgDist).toFixed(2) + "px");
+      el.style.setProperty("--rummage-y", (Math.sin(rgDir) * rgDist).toFixed(2) + "px");
+      el.style.setProperty("--rummage-r", ((pileRand(seed + 79) - 0.5) * 3.2).toFixed(2) + "deg");
+      el.style.setProperty("--rummage-duration", (9 + pileRand(seed + 83) * 7).toFixed(2) + "s");
+      // When this paper is first picked up. Purely random starts clump — six of
+      // seven papers would lift together and the desk would heave rather than
+      // be searched. A golden-ratio walk over the pile index spreads the starts
+      // evenly however many papers there are, and the jitter keeps the spacing
+      // from reading as a rhythm.
+      const rgStart = (((k * 0.6180339887) % 1) * 9 + pileRand(seed + 89) * 1.2).toFixed(2);
+      el.style.setProperty("--rummage-delay", rgStart + "s");
+
       el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
       el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
       el.style.setProperty("--rot", rot.toFixed(2) + "deg");
@@ -2808,6 +2835,7 @@
       uploadSuccessOwner.textContent = pileCardData ? (pileCardData.name || "") : "";
     }
     uploadSuccess.setAttribute("aria-hidden", "false");
+    if (archiveBox) archiveBox.classList.add("is-upload-success");
     // Focus the record itself, not its arrow: a screen reader announces the
     // dialog and Escape has somewhere to land, while the arrow keeps its focus
     // ring for the Tab that actually reaches it — the design stays as drawn.
@@ -2820,6 +2848,7 @@
   function closeUploadSuccess() {
     if (!uploadSuccess || uploadSuccess.getAttribute("aria-hidden") === "true") return false;
     uploadSuccess.setAttribute("aria-hidden", "true");
+    if (archiveBox) archiveBox.classList.remove("is-upload-success");
     return true;
   }
 
@@ -2900,16 +2929,161 @@
     }, { passive: true });
   }
 
+  // ============================================================
+  // Archivist bot — the four states of the archive screen
+  // ============================================================
+  // Figma 507:382 (initial) / 884:134 (searching) / 578:273 (found) /
+  // 635:2730 (notFound). One screen, one pile, one set of papers: the state
+  // only changes transforms and which record is on the desk.
+  //
+  //   ArchiveSearchResult = { status: "found", answer: string }
+  //                       | { status: "notFound" }
+
+  // ------------------------------------------------------------------
+  // MOCK — the only place that pretends to be the bot.
+  // Replace searchArchive() with the real call and delete the block below;
+  // nothing else in the UI knows where the answer came from.
+  // ------------------------------------------------------------------
+  const ARCHIVE_BOT_MOCK = {
+    // "alternate" walks found → notFound → found …, so both outcomes are
+    // reachable just by asking twice. Set to "found" / "notFound" to pin one.
+    outcome: "alternate",
+    thinkingMs: 3200,
+    answer: "הוא אהב לשתות יין מגיל צעיר כיוון שסבו עבד ביקב ובבית תמיד היה יין."
+  };
+  let mockOutcomeFlip = 0;
+
+  // The one seam between this UI and a future bot. Takes the submitted
+  // request, resolves to an ArchiveSearchResult. No network, no endpoint, no
+  // archive access logic — when the bot is real, this body is what changes.
+  function searchArchive(request) {
+    return new Promise(resolve => {
+      window.setTimeout(() => {
+        const pick = ARCHIVE_BOT_MOCK.outcome === "alternate"
+          ? (mockOutcomeFlip++ % 2 === 0 ? "found" : "notFound")
+          : ARCHIVE_BOT_MOCK.outcome;
+        resolve(pick === "found"
+          ? { status: "found", answer: ARCHIVE_BOT_MOCK.answer }
+          : { status: "notFound" });
+      }, ARCHIVE_BOT_MOCK.thinkingMs);
+    });
+  }
+  // ---------------------------- end MOCK ----------------------------
+
+  const archiveBot = document.getElementById("archive-bot");
+  const archiveBotAnswer = document.getElementById("archive-bot-answer-text");
+  let botState = "initial";
+  let botRequestRun = 0;
+
+  function setBotState(next) {
+    botState = next;
+    const showing = next === "found" || next === "notFound";
+    if (archiveBot) {
+      archiveBot.dataset.botState = next;
+      archiveBot.setAttribute("aria-hidden", showing ? "false" : "true");
+    }
+    // The pile reads the state too — this is what starts and stops the rummage.
+    if (archiveBox) archiveBox.dataset.botState = next;
+    if (showing) {
+      const card = archiveBot.querySelector(
+        next === "found" ? ".archive-bot-card--found" : ".archive-bot-card--empty");
+      if (card) {
+        window.setTimeout(() => card.focus({ preventScroll: true }), reduceMotion ? 0 : 440);
+      }
+    }
+  }
+
+  // Fill the record with this drawer's own details and the result's answer.
+  // The answer is the only text here that comes from the search.
+  function renderArchiveBotResult(result) {
+    const code = pileCodeLabel();
+    const owner = pileCardData ? (pileCardData.name || "") : "";
+    ["archive-bot-found-code", "archive-bot-empty-code"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = code;
+    });
+    ["archive-bot-found-owner", "archive-bot-empty-owner"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = owner;
+    });
+    if (result.status === "found" && archiveBotAnswer) {
+      archiveBotAnswer.textContent = result.answer || "";
+    }
+  }
+
+  // Leaving the searching state, papers still lifted are set back down instead
+  // of snapping home: pin where each one actually is, drop the animation, then
+  // release them so the transition carries them to rest.
+  function settleRummagedPapers() {
+    if (!archiveBox || !archivePile) return;
+    const moved = Array.from(archivePile.querySelectorAll(".pile-item--breathing"));
+    moved.forEach(el => {
+      const cs = window.getComputedStyle(el);
+      el.style.translate = cs.translate === "none" ? "0px 0px" : cs.translate;
+      el.style.rotate = cs.rotate === "none" ? "0deg" : cs.rotate;
+    });
+    archiveBox.dataset.botSettling = "1";
+    void archivePile.offsetWidth;              // commit the pinned offsets
+    moved.forEach(el => { el.style.translate = ""; el.style.rotate = ""; });
+    window.setTimeout(() => {
+      if (archiveBox.dataset.botSettling === "1") delete archiveBox.dataset.botSettling;
+    }, reduceMotion ? 0 : 600);
+  }
+
+  function closeArchiveBot() {
+    if (botState !== "found" && botState !== "notFound") return false;
+    botRequestRun++;              // any in-flight search is no longer wanted
+    setBotState("initial");
+    return true;
+  }
+
+  function submitArchiveSearch(query, format) {
+    if (!query) return;
+    const run = ++botRequestRun;
+    const request = { code: currentDrawerCode, query: query, format: format };
+    // Kept so anything already listening to the archive's search keeps working.
+    window.dispatchEvent(new CustomEvent("whatremains:archive-search", { detail: request }));
+    closePersonalTool();          // the sheet goes back so the pile can be seen
+    setBotState("searching");
+    searchArchive(request).then(result => {
+      if (run !== botRequestRun) return;        // superseded or dismissed
+      settleRummagedPapers();
+      renderArchiveBotResult(result);
+      setBotState(result.status === "found" ? "found" : "notFound");
+    });
+  }
+
   if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const query = document.getElementById("personal-search-query").value.trim();
-    const format = document.getElementById("personal-search-format").value.trim();
+    const queryField = document.getElementById("personal-search-query");
+    const formatField = document.getElementById("personal-search-format");
+    const query = queryField.value.trim();
+    const format = formatField.value.trim();
     if (!query) return;
-    window.dispatchEvent(new CustomEvent("whatremains:archive-search", {
-      detail: { code: currentDrawerCode, query: query, format: format }
-    }));
-    if (personalSearchStatus) personalSearchStatus.textContent = "הבקשה התקבלה";
+    if (personalSearchStatus) personalSearchStatus.textContent = "";
+    submitArchiveSearch(query, format);
   });
+
+  // The not-found record's arrow: back to the archive to ask about something
+  // else. The found record has no control of its own in Figma — it is put down
+  // with the archive's own close, or Escape.
+  const btnArchiveBotBack = document.getElementById("btn-archive-bot-back");
+  if (btnArchiveBotBack) {
+    btnArchiveBotBack.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeArchiveBot();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeArchiveBot();
+  });
+
+  // Development handle for previewing both outcomes without touching the UI.
+  // Nothing in the interface exposes it; it is the mock's console front door.
+  window.whatRemainsArchiveBot = {
+    mock: ARCHIVE_BOT_MOCK,
+    state: () => botState,
+    setState: setBotState,
+    ask: (q) => submitArchiveSearch(q || "בדיקה", "")
+  };
 
   if (personalUploadForm) personalUploadForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -2930,6 +3104,7 @@
   // Bottom-right: back to the archive; re-lock so re-entry needs the code
   btnPersonalRestart.addEventListener("click", () => {
     if (closeUploadSuccess()) return;
+    if (closeArchiveBot()) return;
     if (closePersonalTool()) return;
     activeViewer = null;
     showScreen("landing");
