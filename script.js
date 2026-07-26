@@ -476,7 +476,14 @@
     }
     if (action === "drawer") {
       const sess = getSession();
-      if (sess && sess.code) openOwnDrawer(sess);
+      if (sess && sess.code) {
+        // Remove the landing iframe from the top layer before any drawer work.
+        // openDrawerInterior also confirms this state at the end, but waiting
+        // until then can leave the personal archive mounted underneath the
+        // homepage if rendering or data preparation takes time.
+        showScreen("personal");
+        openOwnDrawer(sess);
+      }
     }
     // Open a specific archive drawer chosen from the landing-v2 inline search.
     // Reuses the same open-by-code path as the archive wall (owner unlocks,
