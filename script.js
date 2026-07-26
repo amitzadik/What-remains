@@ -370,7 +370,13 @@
       if (s && s.remove) s.remove();
       btnSubmitLogin.disabled = false;
     }
-    const timer = setTimeout(() => { cleanup(); loginErr.textContent = "שגיאת תקשורת, נסו שוב"; }, 10000);
+    // Apps Script can need more than ten seconds on a cold start. Do not report
+    // a false communication failure while the valid login response is still
+    // on its way.
+    const timer = setTimeout(() => {
+      cleanup();
+      loginErr.textContent = "שגיאת תקשורת, נסו שוב";
+    }, 30000);
     window[cbName] = function(data) {
       clearTimeout(timer);
       if (data && data.ok) {
