@@ -5910,6 +5910,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   --tool-x: -53px;
   --tool-y: 61.85vh;
   --tool-rot: -5.87deg;
+  box-shadow: 4px -4px 20px rgba(0,0,0,.25);
 }
 .personal-tool-panel--upload .personal-tool-card {
   --tool-x: 48px;
@@ -5982,22 +5983,29 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-size:9.317cqw; line-height:1; opacity:.8;
 }
 
-/* Title — "בקשת אחזור:" / "הוספת פריטים". SundayMono Medium 50 / 1.2. It sits
-   well clear of the number above it (fixed %; the sheet never resizes, so the
-   gap is identical whether peeking or open). */
+/* Titles — Figma 893:191 / 893:180. Both source cards are portrait frames
+   rotated 90deg in the composition, so their portrait y-coordinate becomes
+   the landscape x-coordinate here. */
 .personal-tool-card h2 {
-  position:absolute; top:20.8%; right:20%; width:60%; margin:0; text-align:center;
+  position:absolute; margin:0;
   font-size:3.882cqw; font-weight:500; line-height:1.2;
 }
-.personal-tool-panel--upload .personal-tool-card h2 { right:20%; }
+.personal-tool-panel--search .personal-tool-card h2 {
+  left:62.25%; top:4.05%; width:33.42%; text-align:right;
+}
+.personal-tool-panel--upload .personal-tool-card h2 {
+  left:58.12%; top:4.27%; width:36.39%; text-align:right;
+}
 
 /* Field box — bordered, split into a tall query row and a shorter format row,
    with a thin rule under each field label. */
 .personal-tool-grid {
-  position:absolute; left:20.9%; right:20.9%; top:30.5%; bottom:20.8%;
+  position:absolute; left:20.9%; right:20.9%; top:31.28%; bottom:20.8%;
   border:1.5px solid var(--ink); display:grid; grid-template-rows:54.8fr 45.2fr;
 }
-.personal-tool-panel--upload .personal-tool-grid { left:16.5%; right:16.5%; }
+.personal-tool-panel--upload .personal-tool-grid {
+  left:16.5%; right:16.5%; top:31.09%; bottom:20.87%;
+}
 .personal-tool-field { position:relative; display:block; }
 .personal-tool-field + .personal-tool-field { border-top:1.5px solid var(--ink); }
 .personal-tool-field::after {
@@ -6014,15 +6022,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font:500 2.33cqw/1.5 var(--font-main); direction:rtl;
 }
 
-/* Top-left action stamp (search magnifier / add +) and bottom-left back arrow. */
+/* Top-left add stamp and bottom-left back arrow. Figma's redesigned retrieval
+   sheet has no separate magnifier stamp. */
 .personal-tool-icon {
   position:absolute; border:0; padding:0; background:none; cursor:pointer;
 }
 .personal-tool-icon img { display:block; width:100%; height:100%; object-fit:contain; }
-.personal-tool-icon--search { right:3.0%; left:auto; top:4.4%; width:12.42%; aspect-ratio:1; }
-.personal-tool-icon--add    { left:2.2%; top:2.0%; width:12.42%; aspect-ratio:1; }
+.personal-tool-icon--add { left:1.78%; top:1.54%; width:15.81%; aspect-ratio:1; }
 .personal-tool-back {
-  position:absolute; left:3.0%; bottom:3.1%; width:8.39%; aspect-ratio:1;
+  position:absolute; left:2.81%; bottom:3.92%; width:10.67%; aspect-ratio:1;
   border:0; padding:0; background:none; cursor:pointer;
 }
 .personal-tool-back img { display:block; width:100%; height:100%; object-fit:contain; }
