@@ -109,7 +109,7 @@ button{font:inherit;color:inherit}
 
 .landing-v2__copy{
   position:absolute;
-  top:calc(50% - 319px);
+  top:calc(50% - 259px);
   /* Right edge aligned with the rightmost point of "המגירה שלי": the nav's
      right inset plus the login button and the gap before the drawer button. */
   left:auto;
@@ -474,7 +474,7 @@ button{font:inherit;color:inherit}
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2{--home-nav-right:1.67vw;--home-nav-icon:4.69vw;--home-nav-gap:1.67vw}
   .landing-v2__nav{top:2.96vh}
-  .landing-v2__copy{top:calc(18.61vh + 20px);left:auto;right:calc(var(--home-nav-right) + var(--home-nav-icon) + var(--home-nav-gap));width:37.792vw}
+  .landing-v2__copy{top:calc(18.61vh + 80px);left:auto;right:calc(var(--home-nav-right) + var(--home-nav-icon) + var(--home-nav-gap));width:37.792vw}
   .landing-v2__search{top:18.61vh;right:28vw;width:47.24vw}
   .landing-v2__search-input{font-size:3vw}
   .landing-v2__result{font-size:1.9vw}
@@ -491,7 +491,7 @@ button{font:inherit;color:inherit}
 @media (max-width:900px){
   .landing-v2{--home-nav-right:18px;--home-nav-icon:58px;--home-nav-gap:12px}
   .landing-v2__nav{top:18px}
-  .landing-v2__copy{top:calc(15vh + 20px);left:auto;right:calc(var(--home-nav-right) + var(--home-nav-icon) + var(--home-nav-gap));width:calc(100vw - var(--home-nav-right) - var(--home-nav-icon) - var(--home-nav-gap) - 7vw)}.landing-v2__copy p:not(.landing-v2__title){text-indent:0}
+  .landing-v2__copy{top:calc(15vh + 80px);left:auto;right:calc(var(--home-nav-right) + var(--home-nav-icon) + var(--home-nav-gap));width:calc(100vw - var(--home-nav-right) - var(--home-nav-icon) - var(--home-nav-gap) - 7vw)}.landing-v2__copy p:not(.landing-v2__title){text-indent:0}
   .landing-v2__search{top:15vh;right:7vw;width:82vw}
   .landing-v2__pile{transform:scale(.72);transform-origin:left bottom;left:-48px;bottom:-4px}
 }
