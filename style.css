@@ -5423,24 +5423,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   cursor: default;
 }
 
-/* Photograph — thin equal matte border, archival tone, drop shadow.
-   Large, like the Figma, so the pile fills the frame.
-   The matte is white: Figma 751:291 is `bg-black border-18 border-white`, and
-   the same print already wears a white matte on the stamping screen
-   (.stamp-instructions-photo). It used to turn black on arrival, which meant
-   the one paper the eye follows most changed as it travelled.
+/* Photograph — Figma 480:8191 (and 751:291): `bg-black border-18 border-white`.
+   A thin white matte of ONE thickness, the same on every print whatever size
+   that print is (--matte, written per render as 18 design units), wrapped round
+   a black frame. The matte is a border, not a mount the picture floats in: the
+   print is the picture, edge to edge, with 18 units of white around it.
 
-   The frame takes the PICTURE's own proportions (--par, written per item by
-   renderArchivePile from its recorded pixel size), and the picture is contained
-   inside it rather than cropped to fill it. A portrait photograph is laid in a
-   portrait frame, a landscape one in a landscape frame; both are scaled, never
-   stretched, squeezed, cut or turned. Where the pixel size was never recorded
-   the frame keeps its drawn proportions and `contain` letterboxes the picture
-   inside it — margins on the matte, but the whole picture, in its own shape. */
+   The frame takes the PICTURE's own proportions (--par), and the picture is
+   contained inside it rather than cropped to fill it. A portrait photograph is
+   laid in a portrait frame, a landscape one in a landscape frame; both are
+   scaled, never stretched, squeezed, cut or turned. The proportions come from
+   the file's recorded pixel size, and where that was never recorded the image
+   reports its own on load (see learnPhotoSize) — so a frame that does not fit
+   its picture corrects itself rather than standing there half empty. The black
+   fill is what shows in the sliver before that lands, never a field of white. */
 .pile-item--photo {
   width: var(--pw, 556px);
   box-sizing: border-box;
-  padding: clamp(8px, 0.9375vw, 18px);
+  padding: var(--matte, 13.5px);
   background: #fff;
   border: none;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -5449,6 +5449,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: relative;
   width: 100%;
   aspect-ratio: var(--par, 1139.487 / 737.315);
+  background: #000;
   overflow: hidden;
 }
 .pile-item--photo img {
@@ -5467,7 +5468,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* The description belongs to the print it was written for, so it is printed on
    the same paper, directly under the picture. */
 .pile-photo-caption {
-  margin-top: 0.5em;
+  margin-top: var(--matte, 13.5px);
   font-family: var(--font-main);
   font-size: calc(var(--pw, 556px) * 0.042);
   line-height: 1.35;

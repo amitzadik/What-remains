@@ -2197,11 +2197,35 @@
     if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
   }
 
+  // Proportions an image reported for itself once it had loaded, kept by item id
+  // so a reload from the backend does not throw the measurement away. The
+  // recorded pixel size is authoritative when there is one; this fills the gap
+  // for everything uploaded before that was recorded.
+  const learnedPhotoSizes = Object.create(null);
+  let learnPhotoRender = 0;
+
+  // An image knows its own shape. Take it, and rebuild the pile once so the
+  // frame matches the picture instead of the drawn placeholder ratio.
+  function learnPhotoSize(id, width, height) {
+    if (!id || !width || !height) return;
+    const known = learnedPhotoSizes[id];
+    if (known && known.width === width && known.height === height) return;
+    learnedPhotoSizes[id] = { width: width, height: height };
+    // Several prints usually land together — coalesce them into one rebuild.
+    window.clearTimeout(learnPhotoRender);
+    learnPhotoRender = window.setTimeout(requestArchivePileRender, 40);
+  }
+
   // Every item this drawer holds, in one consistent order — oldest first — used
   // by both the scattered pile and anything else that lists the archive.
   function sortedArchiveItems() {
     return archiveItems.concat(pendingArchiveItems)
-      .slice()
+      .map(item => {
+        const learned = learnedPhotoSizes[item.id];
+        return (learned && !(item.width > 0 && item.height > 0))
+          ? Object.assign({}, item, learned)
+          : item;
+      })
       .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
   }
 
@@ -2212,7 +2236,13 @@
 
   function renderArchivePile() {
     if (!archivePile) return;
-    const media = sortedArchiveItems();
+    // The pile is a desk of photographs. A document the depositor filed —
+    // a Google Doc, a PDF, a recording — is kept in the drawer and listed by
+    // the backend, but it is not a print and has no print's place here; Drive
+    // renders it as a page of grey text that reads as a blank sheet. Only the
+    // pictures (and the videos, which are shown as their own frame) are laid out.
+    const media = sortedArchiveItems().filter(
+      it => it.fileType === "image" || it.fileType === "video");
     const nextArrivedItemIds = new Set();
     // Every personal archive begins with the seven answers, the legacy page,
     // and the portrait taken afterwards (when it is available).
@@ -2372,6 +2402,9 @@
     // rectangle drawn before the picture existed. Items whose pixel size we do
     // not know (uploaded before this was recorded) keep the design frame and
     // are letterboxed inside it by object-fit: contain — never cropped.
+    // Figma 480:8191: `border-18`. The same 18 on 751:291, the pile's own
+    // print — the matte is one thickness across the whole archive.
+    const PHOTO_MATTE = 18;
     const PHOTO_MAX_W = 1240, PHOTO_MAX_H = 880;
     function photoFrameSize(item, slot) {
       const ratio = (item.width > 0 && item.height > 0) ? item.width / item.height : 0;
@@ -2396,9 +2429,13 @@
     function clampPhotoCentre(x, y, w, h, rot, hasCaption) {
       const rad = Math.abs(rot * Math.PI / 180);
       const cos = Math.cos(rad), sin = Math.sin(rad);
-      // The whole paper: the picture, its matte, and the description under it.
-      const boxW = w * 1.04;
-      const boxH = h * 1.04 + (hasCaption ? w * 0.2 : 0);
+      // The whole paper, as the CSS builds it: `w` is the border-box width, so
+      // the picture inside it is (w - 2 matte) across and keeps its ratio from
+      // there; then the matte again below it, and the description under that.
+      const boxW = w;
+      const frameH = h * Math.max(w - 2 * PHOTO_MATTE, 1) / w;
+      const boxH = frameH + 2 * PHOTO_MATTE +
+                   (hasCaption ? PHOTO_MATTE + w * 0.114 : 0);   // ~2 caption lines
       const halfW = (boxW * cos + boxH * sin) / 2;
       const halfH = (boxW * sin + boxH * cos) / 2;
       const insetX = halfW * (1 - 2 * PHOTO_OVERHANG);
@@ -2518,6 +2555,14 @@
             badge +
           '</div>' +
           (desc ? '<div class="pile-photo-caption">' + esc(desc) + '</div>' : '');
+        // A picture whose pixel size was never recorded reports it here, the
+        // moment it decodes, and the pile is rebuilt around its true shape.
+        if (!(it.m.width > 0 && it.m.height > 0) && !it.m.decorative) {
+          const img = el.querySelector("img");
+          const measure = () => learnPhotoSize(it.m.id, img.naturalWidth, img.naturalHeight);
+          if (img.complete && img.naturalWidth) measure();
+          else img.addEventListener("load", measure, { once: true });
+        }
         if (arrivedItemIds && !arrivedItemIds.has(el.dataset.archiveItem)) {
           el.classList.add("is-new-item");   // only the new print is announced
         }
@@ -2552,6 +2597,11 @@
         x = p.cx = centre.x; y = p.cy = centre.y;
         el.style.setProperty("--pw", (size.w * sceneScale).toFixed(2) + "px");
         el.style.setProperty("--par", size.w.toFixed(3) + " / " + size.h.toFixed(3));
+        // One matte thickness for every print, however big that print is —
+        // Figma 480:8191 / 751:291 both border it at 18. Scaled with the scene
+        // rather than the paper, so it never thickens on a large print or
+        // thins away to nothing on a small one.
+        el.style.setProperty("--matte", (PHOTO_MATTE * sceneScale).toFixed(2) + "px");
       } else {
         x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
