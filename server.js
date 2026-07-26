@@ -10,7 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
-app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   res.sendFile(process.cwd() + '/index.html');
