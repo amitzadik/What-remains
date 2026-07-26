@@ -180,13 +180,16 @@ button{font:inherit;color:inherit}
 }
 .corner-credit-slot{
   position:absolute;
-  /* 60px up and 60px left of its Figma placement (-420 / -84), in the same
-     1920×1080 canvas units the rest of the corner composition is authored in,
-     so the nudge scales with the group. Its resting centre is therefore
-     (-480 + 307, -144 + 219.5) = (-173, 75.5) — the number the two
+  /* Drawn well back into the corner from its Figma placement (-420 / -84), in
+     the same 1920×1080 canvas units the rest of the corner composition is
+     authored in, so the offset scales with the group. Only a small wedge of the
+     sheet stays on screen — it reaches roughly 70px along the top edge and 96px
+     down the left — which keeps it the topmost of the three corner sheets while
+     leaving the photograph and the paper beneath it visible. Its resting centre
+     is (-600 + 307, -250 + 219.5) = (-293, -30.5), the number the two
      is-credit-open rules below undo to bring the sheet to the centre. */
-  left:-480px;
-  top:-144px;
+  left:-600px;
+  top:-250px;
   /* Topmost of the three sheets peeking out of the corner: above the paper (2)
      and the photograph (3), where it used to sit underneath both. */
   z-index:4;
@@ -234,7 +237,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-credit-open .landing-v2__pile{z-index:32}
 .landing-v2.is-credit-open .corner-credit-slot{
   cursor:default;
-  transform:translate(calc(50vw + 173px),calc(50vh - 75.5px)) rotate(0deg);
+  transform:translate(calc(50vw + 293px),calc(50vh + 30.5px)) rotate(0deg);
 }
 .corner-credit-card__close{
   position:absolute;
@@ -469,7 +472,7 @@ button{font:inherit;color:inherit}
   /* The corner composition is authored on a 1920×1080 canvas and scaled as a
      unit. Pull the credit sheet to that canvas centre so its visual position
      remains the viewport centre after the parent scale is applied. */
-  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1133px,464.5px) rotate(0deg)}
+  .landing-v2.is-credit-open .corner-credit-slot{transform:translate(1253px,570.5px) rotate(0deg)}
 }
 
 @media (max-width:900px){
