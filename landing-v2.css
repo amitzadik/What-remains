@@ -180,9 +180,14 @@ button{font:inherit;color:inherit}
 }
 .corner-credit-slot{
   position:absolute;
-  left:-420px;
-  top:-84px;
-  z-index:1;
+  /* 20px up and 20px left of its Figma placement (-420 / -84), in the same
+     1920×1080 canvas units the rest of the corner composition is authored in,
+     so the nudge scales with the group. */
+  left:-440px;
+  top:-104px;
+  /* Topmost of the three sheets peeking out of the corner: above the paper (2)
+     and the photograph (3), where it used to sit underneath both. */
+  z-index:4;
   width:614px;
   height:439px;
   padding:0;
