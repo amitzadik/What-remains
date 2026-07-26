@@ -3203,59 +3203,177 @@
   // has drifted to, and which pass across the desk it is on.
   const sweepTracks = new WeakMap();
 
-  // One pass across the desk: in past one edge, out past another, on a line
-  // that does not run through the middle every time. Both ends are well clear
-  // of the frame, so a paper is only ever seen crossing — never appearing or
-  // stopping at an edge.
-  function sweepCrossing(track, seed) {
-    const w = archiveBox.clientWidth, h = archiveBox.clientHeight;
-    const angle = pileRand(seed) * Math.PI * 2;
-    const dx = Math.cos(angle), dy = Math.sin(angle);
-    // Pushed off the centre line, perpendicular to travel, so the passes cover
-    // the desk instead of all running through the same point.
-    const off = (pileRand(seed + 1) - 0.5) * 0.55;
-    const cx = w / 2 - dy * off * w;
-    const cy = h / 2 + dx * off * h;
-    const reach = track.half + Math.hypot(w, h) * 0.62;
+  // ---- how a hand goes through a pile of paper -------------------------
+  // Almost everything is small. A sheet is lifted, slid an inch, turned a
+  // little and put down again — and then nothing happens to it at all while
+  // another one is picked up. Every second or third gesture a paper is pushed
+  // properly out of the way, and it is those pushes, not a flight, that take
+  // the desk apart over the length of a search. A paper that ends up off the
+  // table is brought back in and gone through again.
+  //
+  // Nothing here runs at a constant rate, nothing is the same size twice, and
+  // no two papers are moving to the same clock — which is the whole difference
+  // between someone searching and something animating.
+  function sweepGestureFor(track, frame, seed) {
+    const scale = archiveSceneScale();
+    const cx = track.base.x + track.pos.x, cy = track.base.y + track.pos.y;
+    const gone = cx + track.half <= 0 || cx - track.half >= frame.w ||
+                 cy + track.half <= 0 || cy - track.half >= frame.h;
+    const vx = cx - frame.w / 2, vy = cy - frame.h / 2;
+    const span = Math.hypot(vx, vy) || 1;
+    const outward = { x: vx / span, y: vy / span };
+
+    if (gone) {
+      // Off the table. It is picked up from whichever edge it went over and
+      // laid back down among the others — brought back, not re-created.
+      const angle = pileRand(seed + 3) * Math.PI * 2;
+      const reach = track.half + Math.hypot(frame.w, frame.h) * 0.52;
+      return {
+        // Set down just off that edge first. It is out of sight either way, so
+        // this is never seen as a jump — only the coming back in is seen.
+        jump: { x: frame.w / 2 + Math.cos(angle) * reach - track.base.x,
+                y: frame.h / 2 + Math.sin(angle) * reach - track.base.y },
+        to: { x: frame.w * (0.24 + pileRand(seed + 5) * 0.52) - track.base.x,
+              y: frame.h * (0.24 + pileRand(seed + 7) * 0.52) - track.base.y,
+              r: track.pos.r + (pileRand(seed + 9) - 0.5) * 14 },
+        dur: 780 + pileRand(seed + 11) * 460,
+        rest: 420 + pileRand(seed + 13) * 900,
+        arc: pileRand(seed + 15) > 0.5 ? 1 : -1,
+        over: (pileRand(seed + 17) - 0.5) * 1.4,
+        land: true
+      };
+    }
+
+    // Every second or third gesture, and never on a fixed count.
+    if (track.step % (2 + Math.floor(pileRand(seed + 19) * 2)) === 0) {
+      // Shoved out of the way, in roughly the direction it is already leaning.
+      const lean = (pileRand(seed + 21) - 0.5) * 1.5;
+      const cos = Math.cos(lean), sin = Math.sin(lean);
+      // A paper still in the middle of the desk is only moved aside; one that
+      // has already been worked out to the margin is pushed clean off it. So a
+      // sheet is handled where the searching is happening and disposed of once
+      // it is in the way, instead of every push being the same shove.
+      const margin = Math.min(span / (Math.hypot(frame.w, frame.h) / 2), 1.4);
+      // And the more often a sheet has been in the way, the less patiently it
+      // is moved — so nothing can be handled forever without being set aside.
+      track.shoves = (track.shoves || 0) + 1;
+      const patience = Math.min(track.shoves - 1, 4) * 110;
+      const dist = (300 + pileRand(seed + 23) * 380 + margin * 520 + patience) * scale;
+      return {
+        to: { x: track.pos.x + (outward.x * cos - outward.y * sin) * dist,
+              y: track.pos.y + (outward.x * sin + outward.y * cos) * dist,
+              r: track.pos.r + (pileRand(seed + 25) - 0.5) * 9 },
+        dur: 620 + pileRand(seed + 27) * 400,
+        rest: 380 + pileRand(seed + 29) * 1300,
+        arc: pileRand(seed + 31) > 0.5 ? 1 : -1,
+        over: (pileRand(seed + 33) - 0.5) * 1.2,
+        land: false
+      };
+    }
+
+    // A nudge: lifted, slid, turned, set down. Mostly wherever the hand happens
+    // to push it, leaning outward only enough that the pile keeps loosening.
+    const angle = pileRand(seed + 35) * Math.PI * 2;
+    const lean = 0.35;
+    const dx = Math.cos(angle) * (1 - lean) + outward.x * lean;
+    const dy = Math.sin(angle) * (1 - lean) + outward.y * lean;
+    const len = Math.hypot(dx, dy) || 1;
+    const dist = (26 + pileRand(seed + 37) * 98) * scale;
     return {
-      from: { x: cx - dx * reach - track.base.x, y: cy - dy * reach - track.base.y },
-      to:   { x: cx + dx * reach - track.base.x, y: cy + dy * reach - track.base.y }
+      to: { x: track.pos.x + (dx / len) * dist,
+            y: track.pos.y + (dy / len) * dist,
+            r: track.pos.r + (pileRand(seed + 39) - 0.5) * 4.4 },
+      dur: 240 + pileRand(seed + 41) * 330,
+      // The stillness matters as much as the movement: at any instant most of
+      // the desk is lying where it was and only a paper or two is being handled.
+      rest: 260 + pileRand(seed + 43) * 1250,
+      arc: pileRand(seed + 45) > 0.5 ? 1 : -1,
+      over: (pileRand(seed + 47) - 0.5) * 0.9,
+      land: true
     };
   }
 
-  // The archivist is still looking, so the desk keeps being gone through: as
-  // soon as a paper is off the frame it comes back in from another side and
-  // crosses again — a new line, a new speed, a new moment each time, and always
-  // a pass THROUGH rather than a return to where it was. This is the waiting
-  // state; it stops the moment the answer lands.
-  function sweepAgain(el, run) {
+  // One gesture, then the next, for as long as the archivist is still looking.
+  function sweepGesture(el, run, restBefore) {
     if (run !== archiveSweepRun || archiveSweepPhase !== "sweeping") return;
-    // With motion reduced there is no journey to repeat: the papers were placed
-    // off the frame at once and they stay there until there is an answer.
-    if (reduceMotion) return;
+    // With motion reduced there is no going-through to watch: the papers stay
+    // where they are until there is an answer, and are then placed off at once.
+    if (reduceMotion || !archiveBox) return;
     const track = sweepTracks.get(el);
-    if (!track || !archiveBox) return;
-    track.pass++;
-    const seed = track.seed + track.pass * 17;
-    const cross = sweepCrossing(track, seed);
-    const from = { x: cross.from.x, y: cross.from.y, r: track.rot };
-    track.rot += (pileRand(seed + 3) - 0.5) * 7;
-    const anim = driveSweep(el, from, { x: cross.to.x, y: cross.to.y, r: track.rot }, {
-      // A crossing is even-paced at both ends — a paper carried past, not dealt
-      // to a place — while it keeps the bow and the turn of every other journey.
-      ease: "cubic-bezier(0.42, 0.06, 0.58, 0.94)",
-      dur: 2000 + pileRand(seed + 5) * 1600,
-      // Off the frame while it waits its turn again, so the desk is never in
-      // step with itself and never empty for long.
-      delay: 140 + pileRand(seed + 7) * 900,
-      arc: track.pass % 2 ? 1 : -1,
-      over: (pileRand(seed + 11) - 0.5) * 1.2
+    if (!track) return;
+    track.step++;
+    const frame = { w: archiveBox.clientWidth, h: archiveBox.clientHeight };
+    const gesture = sweepGestureFor(track, frame, track.seed + track.step * 53);
+    const from = gesture.jump
+      ? { x: gesture.jump.x, y: gesture.jump.y, r: track.pos.r }
+      : { x: track.pos.x, y: track.pos.y, r: track.pos.r };
+    track.pos = { x: gesture.to.x, y: gesture.to.y, r: gesture.to.r };
+    const anim = driveSweep(el, from, gesture.to, {
+      ease: SWEEP_EASES[track.step % SWEEP_EASES.length],
+      dur: gesture.dur, delay: restBefore,
+      arc: gesture.arc, over: gesture.over, land: gesture.land
     });
-    anim.finished.then(() => sweepAgain(el, run)).catch(() => { /* re-aimed */ });
+    anim.finished.then(() => sweepGesture(el, run, gesture.rest))
+                 .catch(() => { /* re-aimed by the result */ });
   }
 
-  // Click → the whole desk starts moving. Each paper leaves on a path of its
-  // own and the retrieval sheet leaves on a path unlike any of them.
+  // The retrieval sheet is not a paper in the pile and it is not shoved aside.
+  // It is a large thing on the desk and it moves like one: long unhurried legs
+  // across the space, turning as it goes, leaning a little further out each
+  // time until it has wandered off the desk in its own time. It never comes
+  // back down to the place it was filled in.
+  function sweepSheetDrift(el, run, restBefore) {
+    if (run !== archiveSweepRun || archiveSweepPhase !== "sweeping") return;
+    if (reduceMotion || !archiveBox) return;
+    const track = sweepTracks.get(el);
+    if (!track) return;
+    const frame = { w: archiveBox.clientWidth, h: archiveBox.clientHeight };
+    const cx = track.base.x + track.pos.x, cy = track.base.y + track.pos.y;
+    if (cx + track.half <= 0 || cx - track.half >= frame.w ||
+        cy + track.half <= 0 || cy - track.half >= frame.h) return;   // gone, and it stays gone
+    track.step++;
+    const seed = track.seed + track.step * 37;
+    const vx = cx - frame.w / 2, vy = cy - frame.h / 2;
+    const span = Math.hypot(vx, vy) || 1;
+    // The lean outward comes on slowly and the legs are short, so it works its
+    // way around the desk over several of them rather than making for an edge.
+    const lean = Math.min(0.1 + track.step * 0.11, 0.75);
+    const angle = pileRand(seed) * Math.PI * 2;
+    let dx = Math.cos(angle) * (1 - lean) + (vx / span) * lean;
+    let dy = Math.sin(angle) * (1 - lean) + (vy / span) * lean;
+    // It may wander anywhere on the desk, but never on its way back: any part
+    // of a leg that points toward the place it was filled in is turned around.
+    // That is what keeps "it does not return to the bottom" true of every leg
+    // rather than only of where it happens to stop.
+    const hx = track.pos.x - track.home.x, hy = track.pos.y - track.home.y;
+    const gone = Math.hypot(hx, hy);
+    if (gone > 1) {
+      const away = (dx * hx + dy * hy) / gone;
+      if (away < 0) { dx -= 2 * away * (hx / gone); dy -= 2 * away * (hy / gone); }
+    }
+    const len = Math.hypot(dx, dy) || 1;
+    const dist = (190 + pileRand(seed + 3) * 300) * archiveSceneScale();
+    const from = { x: track.pos.x, y: track.pos.y, r: track.pos.r };
+    const to = { x: from.x + (dx / len) * dist,
+                 y: from.y + (dy / len) * dist,
+                 r: from.r + (pileRand(seed + 5) - 0.5) * 7 };
+    track.pos = to;
+    const anim = driveSweep(el, from, to, {
+      ease: SWEEP_EASES[(track.step + 1) % SWEEP_EASES.length],
+      dur: 1300 + pileRand(seed + 7) * 900,
+      delay: restBefore,
+      arc: track.step % 2 ? 1 : -1,
+      over: (pileRand(seed + 9) - 0.5) * 0.8,
+      land: true
+    });
+    anim.finished.then(() => sweepSheetDrift(el, run, 150 + pileRand(seed + 11) * 380))
+                 .catch(() => { /* re-aimed by the result */ });
+  }
+
+  // Click → the desk starts being gone through. Nothing is flung anywhere: the
+  // papers begin to be handled, a couple of them almost at once and the rest
+  // over the next second, and the retrieval sheet starts its own slow journey
+  // away from the place it was filled in.
   function beginArchiveSweep() {
     if (!archiveBox || !archivePile) return;
     archiveSweepPhase = "sweeping";
@@ -3269,50 +3387,41 @@
     const papers = sweepPapers();
     const rank = sweepOrder(papers);
     measureSweep(sheet ? papers.concat([sheet]) : papers).forEach((m, i) => {
-      if (m.el === sheet) {
-        // Up and away over the left shoulder of the desk — deliberately not the
-        // radial path the papers take, so it reads as its own object moving
-        // through the scene rather than one more sheet in the spread.
-        const dir = { dx: -0.42, dy: -0.91 };
-        const gone = sweepExitDistance(m.box, dir.dx, dir.dy);
-        driveSweep(sheet, m.from, {
-          x: m.from.x + dir.dx * gone,
-          y: m.from.y + dir.dy * gone,
-          r: m.from.r - 9
-        }, { dur: 2600, delay: 60, ease: SWEEP_EASES[1], arc: 1, over: -0.5 });
-        return;
-      }
-      const seed = i * 7 + 3;
-      const k = rank.get(m.el) || 0;
-      const dir = sweepDirection(m.box, seed, 1.15);
-      const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
-      // Its own angle is kept; it is only allowed the few degrees a paper slid
-      // across a table turns by, so it stays recognisably itself.
-      const rot = m.from.r + (pileRand(seed + 17) - 0.5) * 5;
-      // Everything a later pass needs: this paper's place with nothing
-      // translating it, so a crossing can be aimed in the frame's own terms.
+      const isSheet = m.el === sheet;
+      const k = isSheet ? 0 : (rank.get(m.el) || 0);
+      // Everything a gesture needs: this element's place with nothing
+      // translating it, so each push can be aimed in the desk's own terms, and
+      // where it has got to so far — which starts as exactly where it stands.
       sweepTracks.set(m.el, {
         base: { x: m.box.cx - m.from.x, y: m.box.cy - m.from.y },
-        half: m.box.half, seed: seed, rot: rot, pass: 0
+        half: m.box.half,
+        seed: (isSheet ? 977 : i * 7 + 3),
+        pos: { x: m.from.x, y: m.from.y, r: m.from.r },
+        // The place it stood when the arrow was clicked. The retrieval sheet is
+        // never allowed to travel back toward this.
+        home: { x: m.from.x, y: m.from.y },
+        step: 0
       });
-      const anim = driveSweep(m.el, m.from, {
-        x: m.from.x + dir.dx * dist,
-        y: m.from.y + dir.dy * dist,
-        r: rot
-      }, {
-        // Its own curve, its own time, its own moment — the pile's four eases,
-        // durations that never coincide, and the top of the pile leaving first
-        // so the desk is seen to open out rather than blow apart.
-        ease: SWEEP_EASES[k % SWEEP_EASES.length],
-        dur: 1600 + pileRand(seed + 19) * 1500,
-        delay: k * 110 + pileRand(seed + 23) * 90,
-        arc: k % 2 ? 1 : -1,
-        over: (pileRand(seed + 29) - 0.5) * 1.1
-      });
-      // Off the desk is not the end of it: while the archivist is still
-      // looking, this paper comes back in from another side and is gone through
-      // again, and again, until there is an answer.
-      anim.finished.then(() => sweepAgain(m.el, run)).catch(() => { /* re-aimed */ });
+      // Motion reduced: no going-through to watch, but the desk must still
+      // clear — the retrieval sheet above all, which may not simply sit at the
+      // bottom through the wait. One placement, off the frame, no journey.
+      if (reduceMotion) {
+        const dir = isSheet ? { dx: -0.42, dy: -0.91 }
+                            : sweepDirection(m.box, i * 7 + 3, 1.15);
+        const gone = sweepExitDistance(m.box, dir.dx, dir.dy);
+        driveSweep(m.el, m.from,
+          { x: m.from.x + dir.dx * gone, y: m.from.y + dir.dy * gone, r: m.from.r },
+          { dur: 1, delay: 0, ease: "linear", arc: 0, over: 0 });
+        return;
+      }
+      if (isSheet) {
+        sweepSheetDrift(m.el, run, 80);
+        return;
+      }
+      // The top of the pile is reached for first, by tens of a second, which is
+      // the order this archive already deals its papers in — and the hand is on
+      // the desk within a moment of the arrow, not after a pause.
+      sweepGesture(m.el, run, k * 120 + pileRand(i * 7 + 23) * 140);
     });
   }
 
