@@ -1998,29 +1998,62 @@
     const E_DRIFT   = "cubic-bezier(0.28, 0.08, 0.24, 1)";
     const E_RELEASE = "cubic-bezier(0.4, 0.05, 0.16, 1)";
     const sceneScale = archiveSceneScale();
+    // `open` is where this paper goes when a tool sheet is brought forward and
+    // the pile opens across the desk. Both destinations are explicit for every
+    // paper — `search` from Figma 507:382, `add` from Figma 508:553 — each read
+    // off that frame's rotation wrapper (AABB centre, angle + 90 for the sheets
+    // authored portrait). `lead` is how far ahead of the bottom sheet it starts
+    // and how long it takes; the top of the pile leaves first, by tens of a
+    // second, so the whole stack is seen to unfold.
+    //
+    // 507:382 has more materials scattered than this pile holds, so each paper
+    // takes the slot of its own kind: the question sheets and the stamping page
+    // take A6 slots 507:438 / 507:411 / 507:467 / 507:503 / 507:466, the print
+    // takes photo slot 507:494. 508:553 scatters only four, so two sheets have
+    // no counterpart there and are carried past the nearest free edge instead,
+    // cropped by it exactly as that frame crops its own outer papers — the
+    // composition that stays on screen is the frame's.
     const docLayout = [
       { cx: 934.797, cy: 704.129, w:1370, r:-19.590, z:2, dataIndex:0, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:0", from:{cx:977.000,cy:494.559,w:814,r:4.74},
-        spread:{ delay:520, dur:920, ease:E_SETTLE, arc:-1, over:-0.5 } },
+        spread:{ delay:520, dur:920, ease:E_SETTLE, arc:-1, over:-0.5 },
+        open:{ search:{cx: 364.05, cy: 112.56, r: 2.98},   // 507:438 "A6 - 3"
+               add:   {cx: 735.86, cy: 143.11, r: 2.32},   // 519:449
+               lead:200, dur:940 } },
       { cx: 751.834, cy: 718.205, w:1370, r:  3.570, z:3, dataIndex:1, opacity:.90, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:1", from:{cx:1084.747,cy:537.532,w:1370,r:-5.28},
-        spread:{ delay:450, dur:900, ease:E_GLIDE, arc:1, over:0.45 } },
+        spread:{ delay:450, dur:900, ease:E_GLIDE, arc:1, over:0.45 },
+        open:{ search:{cx:1039.51, cy: 249.66, r:-0.30},   // 507:411 "A6 - 7"
+               add:   {cx: 238.38, cy:1135.78, r:-9.62},   // 508:674 "A6 - 1"
+               lead:160, dur:900 } },
       { cx:1127.374, cy: 804.483, w:1370, r:-10.920, z:7, dataIndex:5, opacity:.80, shadow:"0 -4px 4px rgba(0,0,0,.25)",
         src:"sheet:5", from:{cx:905.421,cy:573.182,w:1370,r:5.95},
-        spread:{ delay:250, dur:880, ease:E_RELEASE, arc:-1, over:-0.35 } },
+        spread:{ delay:250, dur:880, ease:E_RELEASE, arc:-1, over:-0.35 },
+        open:{ search:{cx: 960.04, cy: 834.68, r:-1.30},   // 507:467 "A6 - 2"
+               add:   {cx:2100.00, cy: 900.00, r:-9.40},   // no slot in 508:553
+               lead:120, dur:880 } },
       { cx: 862.766, cy: 869.046, w:1370, r:  4.350, z:9, dataIndex:7, opacity:.90, shadow:"0 4px 5px rgba(0,0,0,.25)",
         src:"sheet:legacy", from:{cx:1038.191,cy:619.008,w:1370,r:-18.40},
-        spread:{ delay:150, dur:940, ease:E_DRIFT, arc:1, over:0.4 } }
+        spread:{ delay:150, dur:940, ease:E_DRIFT, arc:1, over:0.4 },
+        open:{ search:{cx:1409.32, cy:1408.14, r:-9.62},   // 507:503 "A6 - 1"
+               add:   {cx: 700.00, cy:1480.00, r: 4.10},   // no slot in 508:553
+               lead:80, dur:920 } }
     ];
     const photoLayout = [
       { cx:735.338, cy:873.050, w:1139.487, h:737.315, r:-8.640, z:10,
         src:"photo", from:{cx:938.504,cy:612.497,w:1139.487,r:-10.77}, fallback:"images/figma-photo-wide.png",
-        spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 } }
+        spread:{ delay:70, dur:900, ease:E_GLIDE, arc:-1, over:-0.45 },
+        open:{ search:{cx:1433.03, cy: 841.58, r: 28.78},  // 507:494 "IMG_6898 2"
+               add:   {cx:1319.74, cy: 444.24, r:  9.75},  // 508:554 "IMG_6898 1"
+               lead:40, dur:860 } }
     ];
     const instructionLayout = {
       cx:1113.655, cy:1023.765, w:1243.756, r:-6.030, z:20,
       src:"instructions", from:{cx:955.100,cy:671.164,w:1370,r:15.86},
-      spread:{ delay:0, dur:980, ease:E_SETTLE, arc:1, over:0.5 }
+      spread:{ delay:0, dur:980, ease:E_SETTLE, arc:1, over:0.5 },
+      open:{ search:{cx: -31.49, cy: 574.87, r:-2.88},     // 507:466
+             add:   {cx:1825.29, cy: 750.23, r:-5.10},     // 508:673
+             lead:0, dur:840 }
     };
 
     // The five stack sheets Figma 751:305 gives no place to. They are papers
@@ -2157,6 +2190,22 @@
       el.style.setProperty("--spread-ease", sp.ease);
       el.style.setProperty("--spread-over", sp.over + "deg");
       if (sp.delay + sp.dur >= spreadEndsAt) el.dataset.spreadLast = "1";
+
+      // Both tool-open destinations, written on every paper without exception —
+      // the pile can no longer contain a sheet that has nowhere to go. Deltas
+      // from this paper's own resting centre, in the same scaled pixels, so the
+      // scatter holds its Figma proportions at any viewport size.
+      const op = it.slot.open;
+      if (op) {
+        el.style.setProperty("--sx-search", ((op.search.cx - x) * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--sy-search", ((op.search.cy - y) * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--sr-search", op.search.r.toFixed(2) + "deg");
+        el.style.setProperty("--sx-add", ((op.add.cx - x) * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--sy-add", ((op.add.cy - y) * sceneScale).toFixed(2) + "px");
+        el.style.setProperty("--sr-add", op.add.r.toFixed(2) + "deg");
+        el.style.setProperty("--pile-move-dur", op.dur + "ms");
+        el.style.setProperty("--pile-move-delay", op.lead + "ms");
+      }
 
       el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
       el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";

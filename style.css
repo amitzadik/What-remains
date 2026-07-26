@@ -5336,7 +5336,15 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   position: absolute;
   transform: translate(calc(-50% + var(--nx, 0px)), calc(-50% + var(--ny, 0px))) rotate(var(--rot, 0deg));
   transform-origin: center;
-  transition: transform 1600ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Each sheet carries its own duration, easing and start offset (written by
+     renderArchivePile), so the pile opening across the desk and closing back up
+     are both a staggered set of individual movements rather than one block
+     shifting. Papers nearer the top of the pile lead by a few tens of a second —
+     enough to read as a stack unfolding, not as a queue. */
+  transition:
+    transform var(--pile-move-dur, 1600ms)
+              var(--pile-move-ease, cubic-bezier(0.22, 1, 0.36, 1))
+              var(--pile-move-delay, 0ms);
   cursor: pointer;
   will-change: transform;
 }
@@ -5715,21 +5723,37 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 /* Personal archive tools — the pile opens across the desk and a kraft
-   retrieval/upload record is placed above the depositor's real materials. */
+   retrieval/upload record is placed above the depositor's real materials.
+
+   Every paper in the pile is carried out, each to a destination of its own read
+   from the frame being opened: Figma 507:382 for the retrieval card, 508:553 for
+   the add card. The two frames scatter the desk differently, so each sheet holds
+   both destinations (--sx-search/--sy-search/--sr-search and the --*-add trio,
+   written by renderArchivePile in scaled pixels) and the open tool picks the set.
+
+   This used to be eight nth-child rules covering children 4..11. The pile is six
+   items, so children 1, 2 and 3 — all three question sheets — matched nothing,
+   fell back to the 0vw/0vh defaults and simply sat there while the sheets above
+   them moved. There is no positional fallback now: every sheet is written its own
+   pair of destinations, so none can be silently left behind. */
 .archive-pile.is-spread .pile-item {
-  transform: translate(calc(-50% + var(--nx, 0px) + var(--spread-x, 0vw)), calc(-50% + var(--ny, 0px) + var(--spread-y, 0vh))) rotate(var(--rot, 0deg));
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), opacity 450ms ease;
+  transform:
+    translate(
+      calc(-50% + var(--nx, 0px) + var(--spread-x, 0px)),
+      calc(-50% + var(--ny, 0px) + var(--spread-y, 0px))
+    )
+    rotate(var(--spread-r, var(--rot, 0deg)));
 }
-.archive-pile.is-spread .pile-item:nth-child(4)  { --spread-x:-34vw; --spread-y:25vh; }
-.archive-pile.is-spread .pile-item:nth-child(5)  { --spread-x:-39vw; --spread-y:-33vh; }
-.archive-pile.is-spread .pile-item:nth-child(6)  { --spread-x:37vw; --spread-y:-32vh; }
-.archive-pile.is-spread .pile-item:nth-child(7)  { --spread-x:40vw; --spread-y:22vh; }
-.archive-pile.is-spread .pile-item:nth-child(8)  { --spread-x:-22vw; --spread-y:-40vh; }
-.archive-pile.is-spread .pile-item:nth-child(9)  { --spread-x:25vw; --spread-y:38vh; }
-.archive-pile.is-spread .pile-item:nth-child(10) { --spread-x:-42vw; --spread-y:5vh; }
-.archive-pile.is-spread .pile-item:nth-child(11) { --spread-x:42vw; --spread-y:-4vh; }
-.archive-pile.is-spread .pile-item--photo { --spread-x:34vw; --spread-y:4vh; }
-.archive-pile.is-spread .pile-item--envelope { opacity: 0; pointer-events: none; }
+.archive-box.is-tool-search .archive-pile.is-spread .pile-item {
+  --spread-x: var(--sx-search, 0px);
+  --spread-y: var(--sy-search, 0px);
+  --spread-r: var(--sr-search, var(--rot, 0deg));
+}
+.archive-box.is-tool-upload .archive-pile.is-spread .pile-item {
+  --spread-x: var(--sx-add, 0px);
+  --spread-y: var(--sy-add, 0px);
+  --spread-r: var(--sr-add, var(--rot, 0deg));
+}
 
 .personal-tool-panel {
   position: absolute;
@@ -5853,9 +5877,27 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .personal-tool-card:hover {
   translate: 0 -16px;
 }
-/* Opened: the SAME sheet is pulled straight up to the centre — only --tool-y
-   changes (to 0); rotation, size and everything else are identical. */
-.personal-tool-panel[aria-hidden="false"] .personal-tool-card { --tool-x: 0px; --tool-y: 0vh; cursor: default; }
+/* Opened: the SAME sheet is pulled up to the place its own frame puts it.
+   Figma 507:382 lands the retrieval card on the middle of the desk at -2.16deg
+   (node 740:137, centre 959.94 / 537.85); Figma 508:553 lands the add card
+   up and to the right at +3.15deg (node 740:151, centre 1130.91 / 484.27).
+   Only position and angle differ — size, typography and layout are untouched,
+   so it is still one sheet being moved, not a second one being drawn. */
+.personal-tool-panel[aria-hidden="false"] .personal-tool-card { cursor: default; }
+/* Offsets are design pixels expressed the way the card's own width already is —
+   against min(vw/1920, vh/1080) — so the sheet keeps its Figma place on a
+   viewport that is not 16:9. min() for a positive offset, max() for a negative
+   one. Plain vh would drift ~5px on a 16:10 screen. */
+.personal-tool-panel--search[aria-hidden="false"] .personal-tool-card {
+  --tool-x: 0px;
+  --tool-y: max(-0.112vw, -0.199vh);          /* -2.15 design px */
+  --tool-rot: -2.16deg;
+}
+.personal-tool-panel--upload[aria-hidden="false"] .personal-tool-card {
+  --tool-x: min(8.902vw, 15.825vh);           /* +170.91 design px */
+  --tool-y: max(-2.903vw, -5.160vh);          /*  -55.73 design px */
+  --tool-rot: 3.15deg;
+}
 /* While one sheet is open, the other slides straight down, fully below. */
 .archive-box.is-tool-open .personal-tool-panel[aria-hidden="true"] .personal-tool-card {
   --tool-y: 132vh; pointer-events: none;
