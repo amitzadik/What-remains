@@ -3125,21 +3125,17 @@
     submitPersonalSearchForm();
   });
 
-  // The arrow is the bot's input control. Handle it explicitly as well as the
-  // form submit event so returning from a previous result can never leave the
-  // browser with a visually active arrow that no longer sends a request.
-  if (personalSearchForm) {
-    personalSearchForm.addEventListener("click", (e) => {
-      const submitControl = e.target.closest(".personal-tool-submit");
-      if (!submitControl || !personalSearchForm.contains(submitControl)) return;
+  // The visible arrow calls this directly from the markup. Keeping the native
+  // form submit listener above preserves keyboard submission, while the pointer
+  // path no longer depends on event delegation or listener ordering.
+  window.whatRemainsSubmitArchiveSearch = function(e) {
+    if (e) {
       e.preventDefault();
-      e.stopImmediatePropagation();
-      // Finish the click before changing the sheet state. This prevents the
-      // closed-sheet opener from seeing the same click and reopening the form
-      // over the searching/result UI.
-      window.setTimeout(submitPersonalSearchForm, 0);
-    }, true);
-  }
+      e.stopPropagation();
+    }
+    submitPersonalSearchForm();
+    return false;
+  };
 
   // The not-found record's arrow: back to the archive to ask about something
   // else. The found record has no control of its own in Figma — it is put down

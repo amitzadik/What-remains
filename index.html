@@ -260,7 +260,9 @@
           </div>
           <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
           <span class="personal-tool-owner" id="personal-search-owner"></span>
-          <button class="personal-tool-back personal-tool-submit" type="submit" aria-label="שליחת בקשת אחזור"><img src="images/figma-archive-back-v2.png" alt=""></button>
+          <button class="personal-tool-back personal-tool-submit" type="submit"
+                  aria-label="שליחת בקשת אחזור"
+                  onclick="return window.whatRemainsSubmitArchiveSearch(event)"><img src="images/figma-archive-back-v2.png" alt=""></button>
         </form>
       </section>
 
@@ -431,7 +433,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=54"></script>
+  <script src="script.js?v=55"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
