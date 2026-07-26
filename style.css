@@ -100,7 +100,7 @@
      own clamp()/vw and only consume the weight/line-height/tracking.
      Letter-spacing is in em so it tracks the responsive font-size.
   ============================================================ */
-  /* מה שישאר דף הנחיתה — Mandatory Variable, wght 816 / wdth 87 */
+  /* מה שנשאר דף הנחיתה — Mandatory Variable, wght 816 / wdth 87 */
   --ts-wordmark-family: var(--font-mandatory);
   --ts-wordmark-vsettings: "wght" 816, "wdth" 87;
   --ts-wordmark-size: 600px;

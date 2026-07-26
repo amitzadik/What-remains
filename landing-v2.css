@@ -105,10 +105,14 @@ button{font:inherit;color:inherit}
 .landing-v2__copy{
   position:absolute;
   top:calc(50% - 339px);
-  right:calc(50% - 420px);
-  left:auto;
+  /* Left edge flush with the drawer's. The pile sits at left:0 and its front
+     sheet (524x370 turned 10.4deg) reaches 24px in from that, so 24px is the
+     drawer's own left edge in this unscaled regime. */
+  left:24px;
+  right:auto;
   bottom:auto;
-  width:907px;
+  /* 907 x 0.8 — the block's footprint comes down with its type. */
+  width:725.6px;
   z-index:6;
   transform:none;
   text-align:right;
@@ -128,11 +132,16 @@ button{font:inherit;color:inherit}
 /* טקסט רץ עמוד בית — SundayMono Medium, letter-spacing -1% (shared).
    Title and body keep their own Figma line-heights (0.95 / 1.1) and sizes.
    Sizes are reduced 20% from the Figma baseline per request. */
-.landing-v2__copy p{margin:0 0 20px;font-weight:500;letter-spacing:-.01em}
-.landing-v2__title{font-size:clamp(32px,3.1667vw,60.8px);line-height:0.95;margin-bottom:16px!important}
+/* No indent on any line: `.landing-body p` in style.css sets 60px, which used
+   to reach these paragraphs and stagger every first line against the ones
+   under it. Scoped here so the other .landing-body users keep theirs.
+   Paragraph gap halved, 20 -> 10; line-height inside a paragraph is
+   untouched. */
+.landing-v2__copy p{margin:0 0 10px;font-weight:500;letter-spacing:-.01em;text-indent:0}
+.landing-v2__title{font-size:clamp(25.6px,2.5334vw,48.64px);line-height:0.95;margin-bottom:8px!important}
 /* First sentence bold (Figma) — beats the shared .landing-v2__copy p weight. */
 .landing-v2__copy p.landing-v2__title{font-weight:700}
-.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(20px,1.84vw,35.2px);line-height:1.1;text-indent:80px}
+.landing-v2__copy p:not(.landing-v2__title){font-size:clamp(16px,1.472vw,28.16px);line-height:1.1;text-indent:0}
 
 .typewriter-stable{position:relative}
 .typewriter-reserve{visibility:hidden;white-space:pre-wrap}
@@ -415,7 +424,7 @@ button{font:inherit;color:inherit}
 .landing-v2.is-revealed .landing-v2__copy{opacity:1}
 .landing-v2.is-searching .landing-v2__copy{opacity:0;pointer-events:none;transition:opacity .3s ease}
 .landing-v2.is-searching .landing-v2__search{opacity:1;pointer-events:auto}
-.landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(18px);transform:none;mix-blend-mode:multiply}
+.landing-v2.is-revealed .landing-v2__wordmark{top:12px;right:1.7vw;width:82.3vw;height:81.5vh;font-size:clamp(220px,26.04vw,500px);opacity:.08;filter:blur(10px);transform:none;mix-blend-mode:multiply}
 .landing-v2.is-revealed::after{opacity:.24}
 
 /* deal-in: corners first, then the pile builds up (front sheet lands last).
@@ -461,12 +470,14 @@ button{font:inherit;color:inherit}
 @media (min-width:901px) and (max-width:1600px){
   .landing-v2__nav{top:2.96vh;right:1.67vw;gap:1.67vw}
   .icon-btn{width:4.69vw;height:4.69vw}
-  .landing-v2__copy{top:18.61vh;right:28vw;width:47.24vw}
+  /* The pile is scaled by 100vw/1920 here, so its front sheet's 24px lands at
+     1.25vw — the drawer's left edge at any width in this range. */
+  .landing-v2__copy{top:18.61vh;left:1.25vw;right:auto;width:37.792vw}
   .landing-v2__search{top:18.61vh;right:28vw;width:47.24vw}
   .landing-v2__search-input{font-size:3vw}
   .landing-v2__result{font-size:1.9vw}
-  .landing-v2__title{font-size:3.168vw}
-  .landing-v2__copy p:not(.landing-v2__title){font-size:1.832vw;text-indent:4.17vw}
+  .landing-v2__title{font-size:2.5344vw}
+  .landing-v2__copy p:not(.landing-v2__title){font-size:1.4656vw;text-indent:0}
   .landing-v2__corner,.landing-v2__pile{scale:calc(100vw / 1920px);transform-origin:left top}
   .landing-v2__pile{transform-origin:left bottom;left:0;bottom:calc(-4px * (100vw / 1920px))}
   /* The corner composition is authored on a 1920×1080 canvas and scaled as a
@@ -477,7 +488,7 @@ button{font:inherit;color:inherit}
 
 @media (max-width:900px){
   .landing-v2__nav{top:18px;right:18px;gap:12px}.icon-btn{width:58px;height:58px}
-  .landing-v2__copy{top:15vh;right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:35px}
+  .landing-v2__copy{top:15vh;right:7vw;width:78vw}.landing-v2__copy p:not(.landing-v2__title){text-indent:0}
   .landing-v2__search{top:15vh;right:7vw;width:82vw}
   .landing-v2__pile{transform:scale(.72);transform-origin:left bottom;left:-48px;bottom:-4px}
 }
