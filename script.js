@@ -2939,36 +2939,30 @@
   //   ArchiveSearchResult = { status: "found", answer: string }
   //                       | { status: "notFound" }
 
-  // ------------------------------------------------------------------
-  // MOCK — the only place that pretends to be the bot.
-  // Replace searchArchive() with the real call and delete the block below;
-  // nothing else in the UI knows where the answer came from.
-  // ------------------------------------------------------------------
-  const ARCHIVE_BOT_MOCK = {
-    // "alternate" walks found → notFound → found …, so both outcomes are
-    // reachable just by asking twice. Set to "found" / "notFound" to pin one.
-    outcome: "alternate",
-    thinkingMs: 3200,
-    answer: "הוא אהב לשתות יין מגיל צעיר כיוון שסבו עבד ביקב ובבית תמיד היה יין."
-  };
-  let mockOutcomeFlip = 0;
-
-  // The one seam between this UI and a future bot. Takes the submitted
-  // request, resolves to an ArchiveSearchResult. No network, no endpoint, no
-  // archive access logic — when the bot is real, this body is what changes.
-  function searchArchive(request) {
-    return new Promise(resolve => {
-      window.setTimeout(() => {
-        const pick = ARCHIVE_BOT_MOCK.outcome === "alternate"
-          ? (mockOutcomeFlip++ % 2 === 0 ? "found" : "notFound")
-          : ARCHIVE_BOT_MOCK.outcome;
-        resolve(pick === "found"
-          ? { status: "found", answer: ARCHIVE_BOT_MOCK.answer }
-          : { status: "notFound" });
-      }, ARCHIVE_BOT_MOCK.thinkingMs);
+  // The UI talks only to the archive-scoped server endpoint. The archive code
+  // comes from the drawer already opened by the user; it is never requested a
+  // second time in the retrieval sheet.
+  async function searchArchive(request) {
+    const response = await fetch("/api/archive/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        archiveCode: request.code,
+        query: request.query,
+        format: request.format
+      })
     });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Archive retrieval failed.");
+    }
+
+    const answer = String(payload.onscreen_response || "").trim();
+    return payload.status === "found" && answer
+      ? { status: "found", answer: answer }
+      : { status: "notFound" };
   }
-  // ---------------------------- end MOCK ----------------------------
 
   const archiveBot = document.getElementById("archive-bot");
   const archiveBotAnswer = document.getElementById("archive-bot-answer-text");
@@ -3043,12 +3037,20 @@
     window.dispatchEvent(new CustomEvent("whatremains:archive-search", { detail: request }));
     closePersonalTool();          // the sheet goes back so the pile can be seen
     setBotState("searching");
-    searchArchive(request).then(result => {
-      if (run !== botRequestRun) return;        // superseded or dismissed
-      settleRummagedPapers();
-      renderArchiveBotResult(result);
-      setBotState(result.status === "found" ? "found" : "notFound");
-    });
+    searchArchive(request)
+      .then(result => {
+        if (run !== botRequestRun) return;        // superseded or dismissed
+        settleRummagedPapers();
+        renderArchiveBotResult(result);
+        setBotState(result.status === "found" ? "found" : "notFound");
+      })
+      .catch(error => {
+        if (run !== botRequestRun) return;
+        console.error("Archive search failed:", error);
+        settleRummagedPapers();
+        renderArchiveBotResult({ status: "notFound" });
+        setBotState("notFound");
+      });
   }
 
   if (personalSearchForm) personalSearchForm.addEventListener("submit", (e) => {

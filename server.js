@@ -35,7 +35,6 @@ async function checkAvailableModels() {
     console.error("נכשלה בדיקת מודלים:", err.message);
   }
 }
-checkAvailableModels();
 
 // Define JSON Schema so Gemini structures its response perfectly for your print template
 const responseSchema = {
@@ -44,6 +43,11 @@ const responseSchema = {
     onscreen_response: {
       type: SchemaType.STRING,
       description: "Full archival excerpt displayed to the user on screen."
+    },
+    status: {
+      type: SchemaType.STRING,
+      enum: ["found", "notFound"],
+      description: "Use found only when the archive contains material that answers the request; otherwise use notFound."
     },
     print_payload: {
       type: SchemaType.OBJECT,
@@ -66,7 +70,7 @@ const responseSchema = {
       description: "Must always be exactly: המידע נשלח להדפסה."
     }
   },
-  required: ["onscreen_response", "print_payload", "print_status_message"]
+  required: ["status", "onscreen_response", "print_payload", "print_status_message"]
 };
 
 // ----------------------------------------------------
@@ -74,10 +78,11 @@ const responseSchema = {
 // ----------------------------------------------------
 async function getFolderContents(archiveCode) {
   // Initialize Google Drive API (using service account credentials)
-  const auth = new google.auth.GoogleAuth({
-    keyFile: 'google-credentials.json',
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  });
+  const scopes = ['https://www.googleapis.com/auth/drive.readonly'];
+  const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  const auth = new google.auth.GoogleAuth(serviceAccountJson
+    ? { credentials: JSON.parse(serviceAccountJson), scopes }
+    : { keyFile: 'google-credentials.json', scopes });
   const drive = google.drive({ version: 'v3', auth });
 
   // Find folder matching the Archive Code
@@ -120,12 +125,20 @@ async function getFolderContents(archiveCode) {
 // ----------------------------------------------------
 // 2. Main Retrieval API Endpoint
 // ----------------------------------------------------
-app.post('/api/archive/search', async (req, res) => {
+export async function handleArchiveSearch(req, res) {
   try {
-    const { archiveCode, query } = req.body;
+    if (req.method && req.method !== "POST") {
+      res.setHeader("Allow", "POST");
+      return res.status(405).json({ error: "Method not allowed." });
+    }
+
+    const { archiveCode, query, format } = req.body || {};
 
     if (!archiveCode || !query) {
       return res.status(400).json({ error: "Missing archive code or search query." });
+    }
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({ error: "The archive search service is not configured." });
     }
 
     // Fetch ONLY the authenticated folder's content
@@ -204,6 +217,11 @@ Then retrieve and suggest the closest related materials that exist within the sa
 Never invent information.
 Never speculate.
 
+## RESPONSE STATUS
+Return status "found" only when the authenticated archive contains material
+that directly answers the retrieval request.
+Return status "notFound" when no such material exists.
+
 ## PRINT PREPARATION
 Each retrieval generates one printed archival record.
 Select:
@@ -256,6 +274,9 @@ ${JSON.stringify(folderData.imageFiles)}
 
 === USER RETRIEVAL REQUEST ===
 ${query}
+
+=== REQUESTED OUTPUT FORMAT ===
+${format || "Not specified"}
     `;
 
     const result = await model.generateContent(promptPayload);
@@ -268,6 +289,13 @@ ${query}
     console.error("Archival Retrieval Error:", error);
     res.status(500).json({ error: error.message || "Archive retrieval failed." });
   }
-});
+}
 
-app.listen(3000, () => console.log('Archive backend running on port 3000'));
+app.post('/api/archive/search', handleArchiveSearch);
+
+if (!process.env.VERCEL) {
+  checkAvailableModels();
+  app.listen(3000, () => console.log('Archive backend running on port 3000'));
+}
+
+export default app;
