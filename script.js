@@ -2888,8 +2888,9 @@
   wireToolOpen(personalSearchForm, personalSearchPanel, "search", null);
   wireToolOpen(personalUploadForm, personalUploadPanel, "upload", () => ownerView && !!currentDrawerCode);
 
-  // Back arrow on each open sheet closes it (returns it to the pile).
-  document.querySelectorAll(".personal-tool-back").forEach((btn) => {
+  // Back arrows close their sheets. The search sheet reuses the arrow as its
+  // submit control, so it is intentionally excluded from this close handler.
+  document.querySelectorAll(".personal-tool-back:not(.personal-tool-submit)").forEach((btn) => {
     btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closePersonalTool(); });
   });
 
