@@ -9,8 +9,12 @@ import { google } from 'googleapis';
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.'));
 app.use(express.static('public'));
-// Initialize Gemini API
+
+app.get('/', (req, res) => {
+  res.sendFile(process.cwd() + '/index.html');
+});// Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // הדפסת המודלים הזמינים בטרמינל
 async function checkAvailableModels() {
