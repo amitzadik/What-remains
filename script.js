@@ -1759,16 +1759,88 @@
   uploadInput.style.display = "none";
   document.body.appendChild(uploadInput);
   uploadInput.addEventListener("change", () => {
-    const file = uploadInput.files && uploadInput.files[0];
+    const files = Array.from(uploadInput.files || []);
     const meta = pendingUploadMetadata || { description: "", format: "" };
     pendingUploadMetadata = null;
     uploadInput.value = ""; // let the same file be re-picked later
-    if (file && currentDrawerCode) {
-      closePersonalTool();
-      // One file, one archive item, carrying the description written for it.
-      uploadFileToDrawer(file, currentDrawerCode, meta);
-    }
+    // Nothing chosen (the picker was dismissed) is not a batch and not a
+    // success — there is nothing to confirm.
+    if (!files.length || !currentDrawerCode) return;
+    closePersonalTool();
+    const batch = beginUploadBatch(files.length);
+    // One file, one archive item, carrying the description written for it.
+    files.forEach(file => uploadFileToDrawer(file, currentDrawerCode, meta, batch));
   });
+
+  // ---- upload batch -----------------------------------------------------
+  // What "the upload succeeded" actually means here. The POST is fire-and-
+  // forget into Apps Script and its response is not CORS-readable, so a
+  // resolved fetch proves only that the request left. The real proof is the
+  // file coming BACK in the drawer's listing: renderDrawerFiles already
+  // matches each optimistic item to the saved record that replaced it, and
+  // that match is what counts a file as done. So the window opens on the
+  // file's arrival in the archive, never on a timer.
+  //
+  // A batch is one trip through the picker. It is settled only when every file
+  // in it is confirmed; a single failure settles it as failed and it is never
+  // celebrated. Settling clears it, so one completed batch opens the window
+  // exactly once and the next batch starts clean.
+  let uploadBatchSeq = 0;
+  let activeUploadBatch = null;
+
+  function beginUploadBatch(expected) {
+    if (activeUploadBatch) window.clearTimeout(activeUploadBatch.guard);
+    const batch = {
+      id: ++uploadBatchSeq,
+      expected: expected,
+      confirmed: 0,
+      failed: false,
+      settled: false,
+      pending: new Set()   // ids of this batch's items still awaiting the backend
+    };
+    // An upload that never comes back must not leave the batch open forever:
+    // it is abandoned quietly (no window), so a later batch can still succeed.
+    batch.guard = window.setTimeout(() => failUploadBatch(batch), 90000);
+    activeUploadBatch = batch;
+    return batch;
+  }
+
+  function failUploadBatch(batch) {
+    if (!batch || batch.settled) return;
+    batch.failed = true;
+    settleUploadBatch(batch);
+  }
+
+  function settleUploadBatch(batch) {
+    batch.settled = true;
+    window.clearTimeout(batch.guard);
+    if (activeUploadBatch === batch) activeUploadBatch = null;
+  }
+
+  // Drive can take longer than the first 4-second look to publish a file, and
+  // one listing that came back too early must not be mistaken for a failure.
+  // While a batch still has files outstanding, keep asking — the batch's own
+  // guard is what eventually gives up, so this cannot poll forever.
+  let awaitUploadsTimer = 0;
+  function awaitRemainingUploads() {
+    const batch = activeUploadBatch;
+    window.clearTimeout(awaitUploadsTimer);
+    if (!batch || batch.settled || !batch.pending.size || !currentDrawerCode) return;
+    awaitUploadsTimer = window.setTimeout(() => {
+      if (activeUploadBatch === batch && !batch.settled) loadDrawerFiles(currentDrawerCode);
+    }, 3500);
+  }
+
+  // One file of a batch has been confirmed saved by the backend.
+  function confirmUploadBatchItem(id) {
+    const batch = activeUploadBatch;
+    if (!batch || batch.settled || !batch.pending.has(id)) return;
+    batch.pending.delete(id);
+    batch.confirmed++;
+    if (batch.failed || batch.confirmed < batch.expected) return;
+    settleUploadBatch(batch);
+    openUploadSuccess();   // every file in, and only now
+  }
 
   // A locally-minted id for an item that has not been saved yet. Once the
   // backend listing comes back the saved record replaces it, keyed by Drive id.
@@ -1927,14 +1999,17 @@
   // submitToSheet — the response isn't CORS-readable), then refresh the archive
   // via the JSONP "files" listing. One call = one new archive item; an upload
   // never touches an item that already exists.
-  function uploadFileToDrawer(file, code, meta) {
-    if (!SHEET_WEBHOOK_URL) return;
+  function uploadFileToDrawer(file, code, meta, batch) {
+    if (!SHEET_WEBHOOK_URL) { failUploadBatch(batch); return; }
     const description = (meta && meta.description) || "";
     const format = (meta && meta.format) || "";
     prepareUpload(file).then(prepared => {
       const dataUrl = prepared.dataUrl;
       // Optimistic: show this file, with its own description, straight away.
-      showLocalItem(prepared, description);
+      // Its id is what the batch waits on — the same id renderDrawerFiles
+      // retires once the backend hands the saved record back.
+      const localId = showLocalItem(prepared, description);
+      if (batch && !batch.settled) batch.pending.add(localId);
       const comma = dataUrl.indexOf(",");
       const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
       try {
@@ -1953,19 +2028,24 @@
             height: prepared.height,
             data: base64
           })
-        });
-      } catch (err) { /* לא חוסם */ }
+        // The request never leaving the browser is a failure outright; there is
+        // nothing to confirm and the batch must not celebrate.
+        }).catch(() => failUploadBatch(batch));
+      } catch (err) { failUploadBatch(batch); }
       // No readable response — give Drive a moment, then reload the listing.
+      // The listing is what confirms the file, and it keeps being asked for
+      // until this file is accounted for or the batch's guard gives up.
       setTimeout(() => loadDrawerFiles(code), 4000);
-    }).catch(() => loadDrawerFiles(code));
+    }).catch(() => { failUploadBatch(batch); loadDrawerFiles(code); });
   }
 
   // Drop a just-uploaded file straight onto the pile (before the Drive
   // round-trip finishes), dimmed until the archive reloads from the backend.
   // Append semantics: previous items + this one, never a replacement.
   function showLocalItem(prepared, description) {
+    const id = newLocalItemId();
     pendingArchiveItems = pendingArchiveItems.concat([{
-      id: newLocalItemId(),
+      id: id,
       fileUrl: prepared.dataUrl,
       fileName: prepared.filename,
       fileType: (prepared.mimeType || "").indexOf("video/") === 0 ? "video"
@@ -1978,6 +2058,7 @@
       uploading: true
     }]);
     requestArchivePileRender();
+    return id;
   }
 
   // Fetch the drawer's archive items via JSONP and render them.
@@ -2028,6 +2109,7 @@
     // not cancel each other. The rest stay on the pile: an upload still in
     // flight must never blink out of the archive.
     const unclaimed = saved.slice();
+    const confirmedIds = [];
     pendingArchiveItems = pendingArchiveItems.filter(p => {
       const idx = unclaimed.findIndex(s =>
         s.fileName === p.fileName && s.description === p.description);
@@ -2036,9 +2118,14 @@
       // paper's identity rather than arriving as a new one.
       if (arrivedItemIds) arrivedItemIds.add(unclaimed[idx].id);
       unclaimed.splice(idx, 1);
+      // This file is now in the archive for good — the one honest definition
+      // of "uploaded successfully" this backend can give us.
+      confirmedIds.push(p.id);
       return false;
     });
     requestArchivePileRender();
+    confirmedIds.forEach(confirmUploadBatchItem);
+    awaitRemainingUploads();
   }
 
   // Open a depositor's personal archive as a scattered pile of THEIR own
@@ -2100,6 +2187,12 @@
     stackSourceGeometry = pendingStackSource;
     pendingStackSource = null;
     if (screens.personal) screens.personal.classList.toggle("is-from-stack", !!stackSourceGeometry);
+
+    // An upload still in flight belongs to the drawer that was left behind.
+    // Abandon it rather than let its confirmation surface over a drawer the
+    // user has since opened; the file itself is unaffected and still arrives.
+    failUploadBatch(activeUploadBatch);
+    closeUploadSuccess();
 
     pendingPileRender = false;
     arrivedItemIds = null;   // a freshly opened drawer arrives whole, not "new"
@@ -2699,6 +2792,48 @@
     return true;
   }
 
+  // ============================================================
+  // Upload confirmation — Figma 844:1282
+  // ============================================================
+  // A record laid over the archive, never a screen of its own: the desk, the
+  // pile and the tool sheets stay mounted and untouched underneath, and
+  // dismissing it only takes the record away again.
+  const uploadSuccess = document.getElementById("upload-success");
+  const uploadSuccessOwner = document.getElementById("upload-success-owner");
+  const btnUploadSuccessDone = document.getElementById("btn-upload-success-done");
+
+  function openUploadSuccess() {
+    if (!uploadSuccess) return;
+    if (uploadSuccessOwner) {
+      uploadSuccessOwner.textContent = pileCardData ? (pileCardData.name || "") : "";
+    }
+    uploadSuccess.setAttribute("aria-hidden", "false");
+    // Focus the record itself, not its arrow: a screen reader announces the
+    // dialog and Escape has somewhere to land, while the arrow keeps its focus
+    // ring for the Tab that actually reaches it — the design stays as drawn.
+    window.setTimeout(() => uploadSuccess.focus({ preventScroll: true }),
+                      reduceMotion ? 0 : 440);
+  }
+
+  // Dismissing returns to the archive exactly as it was left: the uploaded
+  // files are already in it, nothing is reloaded, reset or re-fetched.
+  function closeUploadSuccess() {
+    if (!uploadSuccess || uploadSuccess.getAttribute("aria-hidden") === "true") return false;
+    uploadSuccess.setAttribute("aria-hidden", "true");
+    return true;
+  }
+
+  if (btnUploadSuccessDone) {
+    btnUploadSuccessDone.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeUploadSuccess();
+    });
+  }
+  // The record is modal while it is up, so Escape puts it down too.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeUploadSuccess();
+  });
+
   // Clicking a peeking tool sheet brings that exact sheet forward. Interior
   // controls are inert until it is open (see CSS), so a closed-sheet click can
   // only ever mean "open me".
@@ -2794,6 +2929,7 @@
 
   // Bottom-right: back to the archive; re-lock so re-entry needs the code
   btnPersonalRestart.addEventListener("click", () => {
+    if (closeUploadSuccess()) return;
     if (closePersonalTool()) return;
     activeViewer = null;
     showScreen("landing");

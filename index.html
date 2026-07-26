@@ -277,6 +277,22 @@
         </form>
       </section>
 
+      <!-- Upload confirmation (Figma 844:1282 "הוספת חומרים בהצלחה"). A kraft
+           record laid over the archive, not a new screen: the desk stays
+           mounted and untouched behind the scrim. Opened only once every file
+           of an upload batch is confirmed saved — see the upload batch in
+           script.js. -->
+      <section id="upload-success" class="upload-success" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="upload-success-title" tabindex="-1">
+        <div class="upload-success-scrim"></div>
+        <div class="personal-tool-card upload-success-card">
+          <span class="personal-tool-owner upload-success-owner" id="upload-success-owner"></span>
+          <h2 id="upload-success-title" class="upload-success-title">החומרים נוספו בהצלחה!</h2>
+          <button id="btn-upload-success-done" type="button" class="img-btn upload-success-done" data-default="images/back-default.png" data-hover="images/back-hover.png" aria-label="חזרה לארכיון">
+            <img src="images/back-default.png" width="160" height="160" alt="">
+          </button>
+        </div>
+      </section>
+
       <!-- Close: small fixed top-right chrome. Add + archive are relocated into
            the scattered pile as kraft "envelope" cards by renderArchivePile(). -->
       <button id="btn-personal-restart" type="button" class="img-btn pile-ctrl pile-ctrl--close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה">

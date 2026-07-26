@@ -6027,6 +6027,130 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .personal-tool-back img { display:block; width:100%; height:100%; object-fit:contain; }
 
+/* ============================================================
+   Upload confirmation — Figma 844:1282 "הוספת חומרים בהצלחה"
+   ============================================================
+   The archive is not left and not rebuilt: the desk stays exactly where it
+   was, a scrim is drawn over it, and one more kraft record — the same paper
+   as the retrieval and add sheets — is laid on top. Figma 844:1318 authors
+   that record portrait, 716×1012, turned -94.99°; on screen that is the same
+   1012×716 landscape sheet the other two cards are, at -4.99°.
+
+   Every inner position below is that node's own local coordinate carried
+   through the -90° the sheet is authored at (a portrait point (x,y) lands at
+   (506 + y - 506, 358 - (x - 358)) in the landscape sheet), then written as a
+   percentage of the 1012×716 sheet — so the card holds its Figma layout at
+   any viewport, exactly like the sheets it sits above. Type is in cqw against
+   this node's own 1012 sheet: 50px title = 4.941cqw, 30px name = 2.964cqw. */
+.upload-success {
+  position: absolute;
+  inset: 0;
+  /* Above the tool panels (261-265) and the archive's own close chrome (400). */
+  z-index: 500;
+  visibility: hidden;
+  pointer-events: none;
+}
+.upload-success[aria-hidden="false"] {
+  visibility: visible;
+  pointer-events: auto;
+}
+/* Focused only to seat the dialog for assistive tech and Escape — it is not a
+   control and must not draw a ring over the design. */
+.upload-success:focus { outline: none; }
+/* Figma 844:1282: bg-[rgba(19,13,0,0.3)] over the whole frame. */
+.upload-success-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(19, 13, 0, 0.3);
+  opacity: 0;
+  transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.upload-success[aria-hidden="false"] .upload-success-scrim { opacity: 1; }
+
+/* The record itself. It inherits the kraft, grain, shadow and sizing of
+   .personal-tool-card and overrides only what this node states differently:
+   its own rotation, its place on the desk, and its shadow.
+
+   Figma puts the sheet's rotation-wrapper centre at (960.21, 495.64) in the
+   1920×1080 frame — half a unit right of centre, 44.36 units above it. The
+   offset is written against the card's own width so it scales with the card
+   rather than drifting against it: 44.36 / 1012 = 4.3834%. */
+/* Scoped past `.archive-box.is-archive-open .personal-tool-card`, which would
+   otherwise hand this card the peeking sheets' opacity and timing. */
+.archive-box .upload-success .upload-success-card {
+  --tool-rot: -4.99deg;
+  --tool-x: calc(min(52.708vw, 66.296vh * 1.41341, 1012px) *  0.000208);
+  --tool-y: calc(min(52.708vw, 66.296vh * 1.41341, 1012px) * -0.043834);
+  background-image: url("images/figma-archive-add-card-v2.jpg");
+  box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.25);
+  cursor: default;
+  opacity: 1;
+  pointer-events: auto;
+  /* A record set down on the desk: it comes to rest from a little above and a
+     hair large, on the paper easing the rest of the archive already moves on.
+     Movement, not a fade — the sheet is opaque the whole way. */
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms linear;
+}
+.upload-success[aria-hidden="true"] .upload-success-card {
+  transform:
+    translate(calc(-50% + var(--tool-x)), calc(-50% + var(--tool-y) - 2.2%))
+    rotate(var(--tool-rot))
+    scale(0.985);
+  opacity: 0;
+}
+
+/* Title "החומרים נוספו בהצלחה!" — Figma 844:1319, SundayMono Medium 50 / 1.2.
+   Two classes, so it outranks the shared `.personal-tool-card h2` layout. */
+.upload-success-card .upload-success-title {
+  position: absolute;
+  left: 19.364%;
+  top: 46.229%;
+  right: auto;
+  width: 61.028%;
+  height: 9.474%;
+  margin: 0;
+  font-size: 4.941cqw;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: right;
+  direction: rtl;
+}
+
+/* Depositor name — Figma 844:1320, SundayMono Medium 30 / 45, top-left. */
+.upload-success-owner {
+  left: 2.223%;
+  right: auto;
+  top: 2.545%;
+  width: 16.120%;
+  font-size: 2.964cqw;
+  line-height: 1.5;
+  text-align: right;
+  direction: rtl;
+}
+
+/* The one control on the record — Figma 844:1331 `back-default 1`, 160 square,
+   top-right. Closing and continuing are the same gesture here, as drawn. */
+.upload-success-done {
+  position: absolute;
+  left: 81.742%;
+  top: 3.063%;
+  width: 15.810%;
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+.upload-success-done img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-success-card,
+  .upload-success-scrim { transition: none; }
+  .upload-success[aria-hidden="true"] .upload-success-card { transform: none; }
+}
+
 .personal-tool-status {
   position:absolute; right:17.3%; bottom:13%; margin:0; color:var(--stamp); font-size:2.1cqw;
 }
