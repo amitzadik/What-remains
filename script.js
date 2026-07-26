@@ -1114,11 +1114,9 @@
   }
 
   function stackQuestionFormHTML(i) {
-    const action = '<div class="stack-sheet-actions">' +
-      (state.dontKnow[i] ? '<span class="stack-sheet-dk">לא יודע/ת</span>' : '') +
-      '<img src="images/next-default.png" alt="" width="160" height="160">' +
-      '</div>';
-    return cardFormHTML(i).replace('</article>', action + '</article>');
+    // Once a completed form becomes part of a pile it is an archival document,
+    // not another copy of the questionnaire UI.
+    return cardFormHTML(i);
   }
 
   function stackLegacyFormHTML() {
@@ -1141,14 +1139,12 @@
           '<div class="qform-question-text">מה היית רוצה שהנכדים שלך ידעו עליך?</div></div>' +
         '<div class="qform-row qform-answer-row">' + answerRows + '</div>' +
       '</div>' +
-      '<div class="stack-sheet-actions"><img src="images/next-default.png" alt="" width="160" height="160"></div>' +
     '</article>';
   }
 
   function stackRegistrationFormHTML() {
     return '<article class="qform qform--register stack-registration-form">' +
       '<div class="register-head">' +
-        '<img src="images/next-default.png" alt="" width="105" height="105">' +
         '<div class="register-title">פרטי המפקיד</div>' +
       '</div>' +
       '<div class="register-table">' +
@@ -2645,11 +2641,6 @@
         if (it.type === "exit") {
           el.classList.add("pile-item--exit");
           el.setAttribute("aria-hidden", "true");
-        }
-        // Decorative "next" arrow tucked into a corner of some sheets (Figma).
-        if (it.type === "doc" && pileRand(it.i + 200) > 0.45) {
-          el.insertAdjacentHTML("beforeend",
-            '<img class="pile-doc-next" src="images/next-default.png" alt="" aria-hidden="true">');
         }
       } else if (it.type === "media") {
         el.className = "pile-item pile-item--photo";

@@ -3220,34 +3220,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .stack-transition-sheet--legacy .qform-header .qform-cell:nth-child(3) { width: 23.28%; }
 .stack-transition-sheet--legacy .qform-header .qform-cell:nth-child(4) { width: 26.08%; }
 
-.stack-sheet-actions {
-  position: absolute;
-  z-index: 3;
-  left: calc(100% * 85 / 1370);
-  right: calc(100% * 85 / 1370);
-  bottom: calc(100% * 100 / 1370);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  direction: rtl;
-}
-.stack-sheet-actions img {
-  display: block;
-  width: clamp(60px, 11.68cqw, 160px);
-  height: clamp(60px, 11.68cqw, 160px);
-  flex: 0 0 auto;
-}
-.stack-sheet-dk {
-  align-self: center;
-  font-family: var(--font-main);
-  font-size: clamp(24px, 5.11cqw, var(--ts-redbold-size));
-  font-weight: var(--ts-redbold-weight);   /* שדות בולטים אדום — Bold */
-  line-height: var(--ts-redbold-lh);
-  letter-spacing: var(--ts-redbold-ls);
-  color: var(--stamp);
-  white-space: nowrap;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .stack-transition-sheet,
   .stack-transition-stage.is-forming .stack-transition-sheet {
@@ -5603,8 +5575,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   opacity: var(--doc-opacity, 0.9);
 }
-.pile-item--doc .qform-dk-btn,
-.pile-item--doc .stack-sheet-dk {
+.pile-item--doc .qform-dk-btn {
   display: none !important;
 }
 .pile-item--doc .qform-label {
@@ -5615,22 +5586,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .pile-item--doc .qform-question-text,
 .pile-item--doc .answer-line {
   font-size: clamp(16.4px, 3.592cqw, 49.2px);
-}
-
-/* Decorative "next" arrow tucked into a corner of some question sheets, like
-   the Figma. Purely visual — it inherits the sheet's own scatter rotation and
-   sits into the paper (multiply) with a slight natural tilt. */
-.pile-doc-next {
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  width: clamp(40px, 7vw, 74px);
-  height: auto;
-  opacity: 0.8;
-  mix-blend-mode: multiply;
-  transform: rotate(-7deg);
-  pointer-events: none;
-  z-index: 3;
 }
 
 /* Kraft "envelope" cards — the add + archive controls, now part of the
