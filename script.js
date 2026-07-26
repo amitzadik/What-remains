@@ -3198,12 +3198,68 @@
     return rank;
   }
 
+  // What each paper needs to keep being aimed for the length of one search:
+  // where it sits with nothing translating it, how far it reaches, the angle it
+  // has drifted to, and which pass across the desk it is on.
+  const sweepTracks = new WeakMap();
+
+  // One pass across the desk: in past one edge, out past another, on a line
+  // that does not run through the middle every time. Both ends are well clear
+  // of the frame, so a paper is only ever seen crossing — never appearing or
+  // stopping at an edge.
+  function sweepCrossing(track, seed) {
+    const w = archiveBox.clientWidth, h = archiveBox.clientHeight;
+    const angle = pileRand(seed) * Math.PI * 2;
+    const dx = Math.cos(angle), dy = Math.sin(angle);
+    // Pushed off the centre line, perpendicular to travel, so the passes cover
+    // the desk instead of all running through the same point.
+    const off = (pileRand(seed + 1) - 0.5) * 0.55;
+    const cx = w / 2 - dy * off * w;
+    const cy = h / 2 + dx * off * h;
+    const reach = track.half + Math.hypot(w, h) * 0.62;
+    return {
+      from: { x: cx - dx * reach - track.base.x, y: cy - dy * reach - track.base.y },
+      to:   { x: cx + dx * reach - track.base.x, y: cy + dy * reach - track.base.y }
+    };
+  }
+
+  // The archivist is still looking, so the desk keeps being gone through: as
+  // soon as a paper is off the frame it comes back in from another side and
+  // crosses again — a new line, a new speed, a new moment each time, and always
+  // a pass THROUGH rather than a return to where it was. This is the waiting
+  // state; it stops the moment the answer lands.
+  function sweepAgain(el, run) {
+    if (run !== archiveSweepRun || archiveSweepPhase !== "sweeping") return;
+    // With motion reduced there is no journey to repeat: the papers were placed
+    // off the frame at once and they stay there until there is an answer.
+    if (reduceMotion) return;
+    const track = sweepTracks.get(el);
+    if (!track || !archiveBox) return;
+    track.pass++;
+    const seed = track.seed + track.pass * 17;
+    const cross = sweepCrossing(track, seed);
+    const from = { x: cross.from.x, y: cross.from.y, r: track.rot };
+    track.rot += (pileRand(seed + 3) - 0.5) * 7;
+    const anim = driveSweep(el, from, { x: cross.to.x, y: cross.to.y, r: track.rot }, {
+      // A crossing is even-paced at both ends — a paper carried past, not dealt
+      // to a place — while it keeps the bow and the turn of every other journey.
+      ease: "cubic-bezier(0.42, 0.06, 0.58, 0.94)",
+      dur: 2000 + pileRand(seed + 5) * 1600,
+      // Off the frame while it waits its turn again, so the desk is never in
+      // step with itself and never empty for long.
+      delay: 140 + pileRand(seed + 7) * 900,
+      arc: track.pass % 2 ? 1 : -1,
+      over: (pileRand(seed + 11) - 0.5) * 1.2
+    });
+    anim.finished.then(() => sweepAgain(el, run)).catch(() => { /* re-aimed */ });
+  }
+
   // Click → the whole desk starts moving. Each paper leaves on a path of its
   // own and the retrieval sheet leaves on a path unlike any of them.
   function beginArchiveSweep() {
     if (!archiveBox || !archivePile) return;
     archiveSweepPhase = "sweeping";
-    archiveSweepRun++;
+    const run = ++archiveSweepRun;
     archiveBox.classList.add("is-bot-sweep");
     // The sheet stays mounted and stays open — it is only taken out of the tab
     // order, which touches nothing about how it is drawn or where it is.
@@ -3230,12 +3286,19 @@
       const k = rank.get(m.el) || 0;
       const dir = sweepDirection(m.box, seed, 1.15);
       const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
-      driveSweep(m.el, m.from, {
+      // Its own angle is kept; it is only allowed the few degrees a paper slid
+      // across a table turns by, so it stays recognisably itself.
+      const rot = m.from.r + (pileRand(seed + 17) - 0.5) * 5;
+      // Everything a later pass needs: this paper's place with nothing
+      // translating it, so a crossing can be aimed in the frame's own terms.
+      sweepTracks.set(m.el, {
+        base: { x: m.box.cx - m.from.x, y: m.box.cy - m.from.y },
+        half: m.box.half, seed: seed, rot: rot, pass: 0
+      });
+      const anim = driveSweep(m.el, m.from, {
         x: m.from.x + dir.dx * dist,
         y: m.from.y + dir.dy * dist,
-        // Its own angle is kept; it is only allowed the few degrees a paper
-        // slid across a table turns by, so it stays recognisably itself.
-        r: m.from.r + (pileRand(seed + 17) - 0.5) * 5
+        r: rot
       }, {
         // Its own curve, its own time, its own moment — the pile's four eases,
         // durations that never coincide, and the top of the pile leaving first
@@ -3246,6 +3309,10 @@
         arc: k % 2 ? 1 : -1,
         over: (pileRand(seed + 29) - 0.5) * 1.1
       });
+      // Off the desk is not the end of it: while the archivist is still
+      // looking, this paper comes back in from another side and is gone through
+      // again, and again, until there is an answer.
+      anim.finished.then(() => sweepAgain(m.el, run)).catch(() => { /* re-aimed */ });
     });
   }
 
@@ -3253,33 +3320,71 @@
   // them by Drive file name or Drive link; each name is resolved to the paper
   // ALREADY on the desk, so what stays behind is the very element that has been
   // travelling since the arrow was clicked — never a fresh copy of it.
-  function matchedPileItems(images) {
-    if (!archivePile || !images || !images.length) return [];
-    const byId = Object.create(null), byName = Object.create(null);
+  // One key for a file however it is written: with or without its extension,
+  // wrapped in a Drive link or not, spaced, underscored or hyphenated. Both
+  // sides of the match are folded through this, so "IMG_6898 2.JPG",
+  // "img-6898-2" and ".../d/<id>/view?name=IMG_6898%202.jpg" all meet.
+  function sweepNameKey(value) {
+    const tail = String(value || "").split(/[\\/?#]/).filter(Boolean).pop() || "";
+    let s = tail;
+    try { s = decodeURIComponent(tail); } catch (e) { /* leave it as written */ }
+    return s.toLowerCase()
+      .replace(/\.[a-z0-9]{2,5}$/, "")
+      .replace(/[\s_\-–—]+/g, " ")
+      .replace(/[^0-9a-z֐-׿ ]+/g, "")
+      .trim();
+  }
+
+  function matchedPileItems(images, answer) {
+    if (!archivePile) return [];
     const mounted = Object.create(null);
     archivePile.querySelectorAll(".pile-item--photo[data-archive-item]")
       .forEach(el => { mounted[el.dataset.archiveItem] = el; });
+    const byId = Object.create(null), byName = Object.create(null);
+    const onDesk = [];
     sortedArchiveItems().forEach(item => {
       const el = mounted[item.id];
       if (!el) return;
+      onDesk.push({ item: item, el: el });
       if (item.id) byId[String(item.id).toLowerCase()] = el;
       const drive = driveFileId(item.fileUrl);
       if (drive) byId[drive.toLowerCase()] = el;
-      const name = String(item.fileName || "").trim().toLowerCase();
-      if (name) byName[name] = el;
+      const key = sweepNameKey(item.fileName);
+      if (key) byName[key] = el;
     });
+
     const out = [];
-    images.forEach(raw => {
+    const take = el => { if (el && out.indexOf(el) < 0) out.push(el); };
+    (images || []).forEach(raw => {
       const value = String(raw || "").trim();
       if (!value) return;
       const drive = driveFileId(value);
-      const base = value.split(/[\\/?#]/).filter(Boolean).pop();
-      const el = (drive && byId[drive.toLowerCase()]) ||
-                 byId[value.toLowerCase()] ||
-                 byName[value.toLowerCase()] ||
-                 (base ? byName[base.trim().toLowerCase()] : null);
-      if (el && out.indexOf(el) < 0) out.push(el);
+      const key = sweepNameKey(value);
+      let el = (drive && byId[drive.toLowerCase()]) ||
+               byId[value.toLowerCase()] ||
+               (key && byName[key]);
+      // The archivist sometimes answers with a name close to the file's rather
+      // than the file's: one containing the other is still that file.
+      if (!el && key) {
+        const near = Object.keys(byName).filter(k =>
+          k.length > 2 && (k.indexOf(key) >= 0 || key.indexOf(k) >= 0));
+        if (near.length === 1) el = byName[near[0]];
+      }
+      if (el) take(el);
+      else console.warn("Archive search named a file that is not on the desk:", value);
     });
+
+    // Nothing named, or nothing that could be found: read the answer itself. A
+    // print whose own description the answer quotes is material that answer was
+    // drawn from — the depositor wrote that description on that print.
+    if (!out.length && answer) {
+      const hay = String(answer).toLowerCase();
+      onDesk.forEach(entry => {
+        if (out.length >= 2) return;
+        const description = String(entry.item.description || "").trim().toLowerCase();
+        if (description.length >= 4 && hay.indexOf(description) >= 0) take(entry.el);
+      });
+    }
     return out;
   }
 
@@ -3296,6 +3401,10 @@
   // Returns how long until the frame holds nothing but the result.
   function resolveArchiveSweep(keepEls) {
     if (!archiveBox || !archivePile) return 0;
+    // The going-through stops here. Every chained pass checks this before it
+    // aims the next crossing, so no paper can wander back into the frame once
+    // the answer is being laid out.
+    archiveSweepPhase = "resolving";
     const keep = keepEls || [];
     const sheet = searchSheet();
     const papers = sweepPapers();
@@ -3323,23 +3432,34 @@
         const edge = Math.min(b.w, b.h) * 0.03;
         const fanX = keepCount > 1
           ? (kept - (keepCount - 1) / 2) * record.w * 0.9
-          : record.w * -0.18;
-        const fanY = record.h * (keepCount > 1 ? 0.26 : 0.44);
+          : record.w * -0.30;
+        const fanY = record.h * (keepCount > 1 ? 0.26 : 0.46);
         const cx = sweepClamp(record.cx + fanX, b.hw + edge, b.w - b.hw - edge);
         const cy = sweepClamp(record.cy + fanY, b.hh + edge, b.h - b.hh - edge);
         driveSweep(m.el, m.from,
           { x: m.from.x + (cx - b.cx), y: m.from.y + (cy - b.cy), r: m.from.r },
           // Laid down, not slid: it arrives at 74% and settles out of a small
-          // overshoot, the way every paper in this archive arrives.
+          // overshoot, the way every paper in this archive arrives. It may be
+          // off the frame when the answer lands, mid-pass — then this is the
+          // pass that brings it back in and puts it down for good.
           { dur: 900 + kept * 110, delay: 90 + kept * 90,
             ease: SWEEP_EASES[kept % SWEEP_EASES.length],
             arc: kept % 2 ? -1 : 1, over: kept % 2 ? 0.6 : -0.6, land: true });
+        // The record is laid over the prints once they are down, so what the
+        // reader sees settle is the answer and the material behind it.
+        clearMs = Math.max(clearMs, 990 + kept * 200);
         kept++;
         return;
       }
-      // Already off the frame: it stays off. Its sweep keeps filling forward,
-      // so it is never re-drawn anywhere and never comes back.
-      if (sweepIsOutside(m.box)) return;
+      // Already off the frame: it stays off, held exactly where it is. This has
+      // to REPLACE whatever it was running — a paper waiting off-frame for its
+      // next crossing would otherwise cross back into the finished result — and
+      // holding it in place is what stops it without snapping it anywhere.
+      if (sweepIsOutside(m.box)) {
+        driveSweep(m.el, m.from, m.from,
+          { dur: 1, delay: 0, ease: "linear", arc: 0, over: 0 });
+        return;
+      }
       // The retrieval sheet finishes its own journey on the same beat — it does
       // not stop where it is and it certainly does not come back down.
       const dir = isSheet ? { dx: -0.42, dy: -0.91 }
@@ -3397,7 +3517,7 @@
   // between the arrow and the result: the papers are released from wherever
   // they ended up and travel home, and the retrieval sheet is put back down.
   function endArchiveSweep() {
-    if (archiveSweepPhase !== "sweeping") return;
+    if (archiveSweepPhase !== "sweeping" && archiveSweepPhase !== "resolving") return;
     archiveSweepPhase = "returning";
     const run = ++archiveSweepRun;
     if (archiveBox) archiveBox.classList.remove("is-bot-sweep");
@@ -3491,7 +3611,8 @@
   // everything else. There is no state in between that puts anything back.
   function finishArchiveSearch(result, run) {
     botRequestPending = false;
-    const keep = result.status === "found" ? matchedPileItems(result.images) : [];
+    const keep = result.status === "found"
+      ? matchedPileItems(result.images, result.answer) : [];
     const clearMs = resolveArchiveSweep(keep);
     renderArchiveBotResult(result);
     window.setTimeout(() => {

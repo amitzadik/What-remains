@@ -60,7 +60,9 @@ const responseSchema = {
         images: {
           type: SchemaType.ARRAY,
           items: { type: SchemaType.STRING },
-          description: "Up to 2 selected image URLs or filenames. Empty array if none."
+          description: "Up to 2 image files that support the retrieved information, " +
+            "each given as the exact `name` string copied from AVAILABLE IMAGE FILES. " +
+            "Empty array only when the archive holds no image files."
         }
       },
       required: ["summary", "images"]
@@ -229,8 +231,19 @@ Select:
 - up to two relevant images
 If more than two relevant images exist:
 Select the two images that best support the retrieved information.
-If no relevant images exist:
-Print the summary without images.
+
+## NAMING THE IMAGES
+The images you select are not only printed: they are the materials the archive
+shows on screen beside the answer, so they must be named in a way the archive
+can find them again.
+Whenever status is "found", name the image files that support the retrieved
+information — up to two, the ones most closely related to it.
+Return each one as the exact "name" string given in AVAILABLE IMAGE FILES,
+copied character for character.
+Do not translate it, rewrite it, drop its extension, or replace it with a
+description, a caption or a link.
+Return an empty array only when AVAILABLE IMAGE FILES is empty.
+Never name a file that is not in that list.
 The printed summary should:
 - directly answer the retrieval request
 - be concise
