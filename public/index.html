@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>What Remains — Archival Retrieval System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Search Interface -->
+  <main class="archive-container">
+    <header class="archive-header">
+      <h1>מערכת אחזור ארכיונית</h1>
+    </header>
+
+    <section class="search-section">
+      <div class="input-group">
+        <label for="code-input">קוד ארכיון מאומת:</label>
+        <input type="text" id="code-input" placeholder="לדוגמה: ARC-0001">
+      </div>
+
+      <div class="input-group">
+        <label for="query-input">שאילתת אחזור:</label>
+        <input type="text" id="query-input" placeholder="הזן שאילתת אחזור...">
+      </div>
+
+      <button id="search-button">אחזר חומרים</button>
+    </section>
+
+    <!-- On-Screen Result Display -->
+    <section class="display-section">
+      <h2>תוצאת אחזור:</h2>
+      <div id="archive-display" class="archive-output">
+        ממתין להזנת שאילתא...
+      </div>
+      <div id="status-message" class="status-output"></div>
+    </section>
+  </main>
+
+  <!-- Hidden Print Template (Only rendered during window.print()) -->
+  <div id="print-template" class="print-card">
+    <div class="print-header">RECORD OF RETRIEVAL</div>
+    <div id="print-summary-placeholder" class="print-summary"></div>
+    <div id="print-images-placeholder" class="print-images"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
