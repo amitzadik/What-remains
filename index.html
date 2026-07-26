@@ -3,90 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מה שישאר — ארכיון הזיכרון</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>מה שנשאר — ארכיון הזיכרון</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css?v=68" />
 </head>
 <body dir="rtl">
 
-  <!-- ============== SCREEN: LANDING (intro + fork) ============== -->
-  <section id="screen-landing" class="screen active">
-    <!-- Cabinet wall (background) -->
-    <div class="landing-bg" id="landing-bg" aria-hidden="true"></div>
+  <iframe id="figma-landing" class="figma-landing" src="landing-v2.html?v=50" title="מה שנשאר — עמוד הבית"></iframe>
 
-    <!-- Centered logo (over cabinets, behind popup) -->
-    <img src="images/logo.png" alt="מה שישאר" class="landing-logo" id="landing-logo">
+  <!-- ============== SCREEN: ARCHIVE BROWSER ============== -->
+  <section id="screen-landing" class="screen" aria-label="הארכיון">
+    <div class="landing-bg" id="landing-bg"></div>
+    <input
+      type="text"
+      id="landing-search"
+      class="input-field landing-search"
+      placeholder="חיפוש לפי שם"
+    >
+  </section>
 
-    <!-- Invisible edge hover zones for auto-scroll -->
-    <div class="landing-scroll-zone landing-scroll-zone--left"  id="scroll-zone-left"  aria-hidden="true"></div>
-    <div class="landing-scroll-zone landing-scroll-zone--right" id="scroll-zone-right" aria-hidden="true"></div>
+  <!-- ============== SCREEN: QUESTIONS (register card + 1-7) ============== -->
+  <section id="screen-questions" class="screen flow-paper-screen">
+    <div class="question-name-ghost" id="question-name-ghost" aria-hidden="true"></div>
+    <div class="question-memory-trace" id="question-memory-trace" aria-hidden="true"></div>
+    <div class="qform-stage qform-stage--register">
 
-    <!-- Stamps (outside the popup — always visible, top-left) -->
-    <div class="landing-stamps">
-      <img
-        id="stamp-search"
-        class="landing-stamp"
-        src="images/search-default.png"
-        data-hover="images/search-hover.png"
-        alt="חיפוש בארכיון"
-      >
-      <img
-        id="stamp-add"
-        class="landing-stamp"
-        src="images/add-new-default.png"
-        data-hover="images/add-new-hover.png"
-        alt="הוסף לארכיון"
-      >
-    </div>
+    <!-- Register card — the first sheet of the pile -->
+    <div class="qform-sheet" id="register-sheet">
+    <article class="qform qform--register">
+      <div class="register-head">
+        <button id="btn-back-welcome" type="button" class="img-btn" data-default="images/back-default.png" data-hover="images/back-hover.png">
+          <img src="images/back-default.png" width="105" height="105">
+        </button>
+        <div class="register-title">פרטי המפקיד</div>
+      </div>
 
-    <!-- Popup card overlay (click outside to dismiss) -->
-    <div class="landing-card-overlay" id="landing-overlay">
-      <div class="landing-card" id="landing-card">
-        <div class="landing-card-inner" id="landing-card-inner">
-          <div class="landing-card-face landing-card-front">
-            <img src="images/logo.png" alt="" class="landing-card-logo">
-            <div class="landing-label">ברוכים הבאים לארכיון </div>
-
-            <div class="landing-body">
-              <p>כאן אתם בוחרים מה אתם משאירים לילדים, נכדים ונינים שלכם (או אלו שעתידים לבוא).</p>
-              <p>באפשרותכם לחפש מידע שאנשים השאירו עבורכם או להוסיף את המידע שאתם בוחרים להשאיר.</p>
-            </div>
-          </div>
-
-          <div class="landing-card-face landing-card-back">
-            <div class="landing-body">
-              <p>המידע שאתם מכניסים נעול בקוד אישי שיינתן לכם רק בעת הוספת המידע למאגר ויאפשר גישה לארגז שלכם.</p>
-            </div>
-          </div>
+      <div class="register-table">
+        <div class="register-row">
+          <label class="register-label" for="user-name"><span class="register-req">*</span>שם מלא:</label>
+          <input type="text" id="user-name" class="register-input">
+        </div>
+        <div class="register-row">
+          <label class="register-label" for="user-email"><span class="register-req">*</span>מייל:</label>
+          <input type="email" id="user-email" class="register-input input-ltr">
+        </div>
+        <div class="register-row">
+          <label class="register-label" for="user-phone">טלפון:</label>
+          <input type="tel" id="user-phone" class="register-input input-ltr">
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ============== SCREEN: REGISTER (name + email) ============== -->
-  <section id="screen-register" class="screen">
-    <div class="splash-wrap">
-      <div class="splash-title" style="font-size: 2rem;">פרטי המפקיד.ה</div>
-      <div class="splash-sub">למי שייכת הקופסא הזו?</div>
-
-      <div class="splash-form">
-        <label class="label">איך קוראים לך?</label>
-        <input type="text" id="user-name" class="input-field" placeholder="שם מלא">
-
-        <label class="label">כתובת מייל</label>
-        <input type="email" id="user-email" class="input-field input-ltr" placeholder="email@example.com">
+      <div class="qform-actions">
+        <button id="btn-deposit" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+          <img src="images/next-default.png" width="105" height="105">
+        </button>
       </div>
-
-      <div class="splash-buttons">
-        <button id="btn-deposit" type="button" disabled>המשך לשאלות</button>
-        <button id="btn-back-welcome" type="button" class="btn-secondary">חזרה</button>
-      </div>
+    </article>
     </div>
-  </section>
 
-  <!-- ============== SCREEN: QUESTIONS (1-7) ============== -->
-  <section id="screen-questions" class="screen">
-    <div class="qform-stage">
+    <div class="qform-sheet qform-sheet--active">
     <article class="qform">
+      <div class="qform-grid">
 
       <!-- Row 1: header — 4 cells with vertical dividers -->
       <div class="qform-row qform-header">
@@ -116,28 +93,36 @@
 
       <!-- Answer area: exactly 5 ruled lines -->
       <div class="qform-row qform-answer-row" id="lines">
-        <span class="qform-label">תשובה</span>
-        <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span></div>
+        <div class="answer-line"><span class="qform-label">תשובה</span><span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span></div>
       </div>
 
-      <!-- Last row: footer buttons with vertical divider -->
-      <div class="qform-row qform-footer">
-        <button id="btn-dk-q"   type="button" class="qform-btn qform-btn--dk">לא יודע/ת</button>
-        <button id="btn-next-q" type="button" class="qform-btn qform-btn--next" disabled>לשאלה הבאה</button>
+      </div><!-- /.qform-grid -->
+
+      <!-- Floating action buttons: continue (bottom-left) + don't-know (bottom-right) -->
+      <div class="qform-actions">
+        <button id="btn-dk-q" type="button" class="img-btn qform-dk-btn" data-default="images/i-dont-know-default.png" data-hover="images/i-dont-know-hover.png" aria-label="לא יודע/ת">
+          <img src="images/i-dont-know-default.png" alt="">
+        </button>
+        <button id="btn-next-q" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+          <img src="images/next-default.png" width="105" height="105">
+        </button>
       </div>
 
     </article>
     </div>
+    </div>
   </section>
 
   <!-- ============== SCREEN: LEGACY QUESTION ============== -->
-  <section id="screen-legacy" class="screen">
+  <section id="screen-legacy" class="screen flow-paper-screen">
     <div class="qform-stage">
+    <div class="qform-sheet qform-sheet--active">
     <article class="qform">
+      <div class="qform-grid">
 
       <div class="qform-row qform-header">
         <div class="qform-cell">
@@ -153,180 +138,305 @@
           <span class="qform-value" id="legacy-date"></span>
         </div>
         <div class="qform-cell qform-cell-num">
-          <span class="qform-label">סוג</span>
+          <span class="qform-label">סוג מסמך</span>
           <span class="qform-value qform-num">מורשת</span>
         </div>
       </div>
 
       <div class="qform-row qform-question-row">
         <span class="qform-label">שאלה</span>
-        <div class="qform-question-text">מה את.ה רוצה שהנכדים שלך ידעו עלייך?</div>
+        <div class="qform-question-text">מה היית רוצה שהנכדים שלך ידעו עליך?</div>
       </div>
 
       <!-- Answer area: exactly 5 ruled lines -->
       <div class="qform-row qform-answer-row" id="legacy-lines">
-        <span class="qform-label">תשובה</span>
-        <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span></div>
+        <div class="answer-line"><span class="qform-label">תשובה</span><span class="line__text" contenteditable="true" spellcheck="true" data-line="0"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="1"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="2"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="3"></span></div>
         <div class="answer-line"><span class="line__text" contenteditable="true" spellcheck="true" data-line="4"></span></div>
       </div>
 
-      <div class="qform-row qform-footer">
-        <button id="btn-legacy-next" type="button" class="qform-btn qform-btn--next" disabled>שלח</button>
+      </div><!-- /.qform-grid -->
+
+      <div class="qform-actions">
+        <button id="btn-legacy-next" type="button" class="img-btn qform-img-btn qform-actions__continue" data-default="images/next-default.png" data-hover="images/next-hover.png" disabled>
+          <img src="images/next-default.png" width="105" height="105">
+        </button>
       </div>
 
     </article>
     </div>
+    </div>
   </section>
 
-  <!-- ============== SCREEN: CARDS (stacked answer cards) ============== -->
-  <section id="screen-cards" class="screen">
-    <div class="cards-wrap">
-      <div class="cards-stack" id="cards-stack"></div>
-      <div class="cards-actions">
-        <button id="btn-cards-next" type="button">המשך</button>
+  <!-- ============== SCREEN: STACK FORMATION — 7 questions + legacy ============== -->
+  <section id="screen-stack" class="screen flow-paper-screen" aria-label="יצירת ערימת הזיכרונות">
+    <div class="stack-transition-shade" aria-hidden="true"></div>
+    <div class="question-memory-trace stack-memory-trace" id="stack-memory-trace" aria-hidden="true"></div>
+    <div class="legacy-memory-ack stack-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+    <div class="stack-transition-stage" id="stack-transition-stage" aria-live="polite">
+      <div class="stack-transition-pile" id="stack-transition-pile"></div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN: CARDS — accumulated memory traces before preserving ============== -->
+  <section id="screen-cards" class="screen flow-paper-screen">
+    <div class="question-memory-trace cards-memory-trace" id="cards-memory-trace" aria-hidden="true"></div>
+    <div class="cards-wrap" id="cards-wrap">
+      <div class="cards-scene" id="cards-scene">
+        <div class="cards-memory-ack" id="cards-memory-ack">הקדשת רגע לדור שקדם לך</div>
+        <div class="cards-memory-copy">
+          <p id="cards-blank-typewriter" data-text="מה שנשאר מאיתנו הוא לא רק מה שזוכרים עלינו,
+אלא גם מה שנבחר להשאיר לדורות הבאים."></p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============== SCREEN: ENVELOPE (cards slide into envelope) ============== -->
-  <section id="screen-envelope" class="screen">
-    <div class="env-wrap">
-      <div class="env-stage" id="env-stage">
-        <div class="env-back"></div>
-        <div class="env-cards" id="env-cards"></div>
-        <div class="env-flap"></div>
-        <div class="env-stamp" id="env-stamp">0/7</div>
+  <!-- ============== SCREEN: CAMERA (depositor photo) ============== -->
+  <section id="screen-camera" class="screen flow-paper-screen">
+    <div class="camera-screen-shade" aria-hidden="true"></div>
+    <div class="question-memory-trace camera-memory-trace" id="camera-memory-trace" aria-hidden="true"></div>
+    <div class="legacy-memory-ack camera-memory-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+    <div class="camera-stack-stage" aria-hidden="true">
+      <div class="camera-stack-pile" id="camera-stack-pile"></div>
+    </div>
+    <div class="camera-print">
+      <div class="camera-area">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <canvas id="camera-canvas" hidden></canvas>
+        <img id="camera-photo" hidden alt="">
+        <div id="camera-msg" class="camera-msg" hidden></div>
       </div>
-      <div class="env-actions">
-        <button id="btn-envelope-next" type="button" disabled>המשך</button>
-      </div>
+      <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
+      <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+        <img src="images/next-default.png" width="160" height="160" alt="">
+      </button>
     </div>
   </section>
 
-  <!-- ============== SCREEN: RECORD (text or audio) ============== -->
-  <section id="screen-record" class="screen">
-    <div class="record-wrap">
-      <div class="record-title">איך תרצה להשאיר את זה?</div>
-
-      <div class="record-options" id="record-options">
-        <button id="btn-record-text"  type="button" class="record-option">טקסט</button>
-        <button id="btn-record-audio" type="button" class="record-option">הקלטה</button>
-      </div>
-
-      <div class="record-panel" id="record-panel" hidden>
-        <button id="record-circle-btn" type="button" class="record-circle" aria-label="התחל או עצור הקלטה"></button>
-        <div class="record-status" id="record-status">לחץ להתחיל</div>
-        <div class="record-timer" id="record-timer">00:00</div>
-        <button id="btn-record-done" type="button" disabled>המשך</button>
+  <!-- ============== SCREEN: ENVELOPE TRANSITION ============== -->
+  <section id="screen-envelope" class="screen flow-paper-screen">
+    <div class="stamp-instructions-shade" aria-hidden="true"></div>
+    <div class="question-memory-trace stamp-instructions-trace" id="stamp-instructions-trace" aria-hidden="true"></div>
+    <div class="legacy-memory-ack stamp-instructions-ack" aria-hidden="true">הקדשת רגע לדור שקדם לך</div>
+    <div class="stamp-instructions-stack" aria-hidden="true">
+      <div class="stamp-instructions-pile" id="stamp-instructions-pile"></div>
+      <div class="stamp-instructions-photo">
+        <img id="stamp-instructions-photo-preview" hidden alt="">
       </div>
     </div>
-  </section>
-
-  <!-- ============== SCREEN: PRINT / ENVELOPE INSTRUCTIONS ============== -->
-  <section id="screen-print" class="screen">
-    <div class="print-instr-wrap">
-      <div class="print-instr-title">לפני שממשיכים</div>
-      <div class="print-instr-body">
-        הגלויה שלך מודפסת.<br>
-        קח אותה מהמדפסת.<br>
-        החתם אותה בחותמת שעל השולחן.<br>
-        הכנס אותה למעטפה.<br>
-        תן את המעטפה לאדם שאתה רוצה שיהיה חשוף למידע שאתה בוחר להכניס.
+    <article class="stamp-instructions-sheet" id="memory-envelope-transition">
+      <div class="stamp-instructions-code" id="stamp-instructions-code" aria-label="קוד הגישה"></div>
+      <div class="stamp-instructions-copy">
+        <p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת שנמצאת על השולחן. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך לארכיון שיצרת.</p>
+        <p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>
+        <p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>
       </div>
-      <div class="btn-group" style="justify-content: center; margin-top: 2rem;">
-        <button id="btn-to-archive" type="button">סיום</button>
-      </div>
-    </div>
+      <button id="btn-envelope-next" type="button" class="img-btn stamp-instructions-next" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+        <img src="images/next-default.png" width="160" height="160" alt="">
+      </button>
+    </article>
   </section>
 
   <!-- ============== SCREEN: PERSONAL ARCHIVE ============== -->
   <section id="screen-personal" class="screen">
-    <div class="archive-scroll">
-      <div class="drawer-page">
-        <div class="drawer-header">
-          <div class="drawer-name" id="p-name"></div>
-          <div class="drawer-code-label">קוד <span id="p-code"></span></div>
+    <div class="archive-box">
+      <!-- Depositor name plate, top-centre -->
+      <div class="drawer-header"><div class="drawer-name" id="p-name"></div></div>
+
+      <!-- The scattered pile of this depositor's own archive materials -->
+      <div class="archive-pile" id="archive-pile"></div>
+
+      <section id="personal-search-panel" class="personal-tool-panel personal-tool-panel--search" aria-hidden="true">
+        <form id="personal-search-form" class="personal-tool-card">
+          <button class="personal-tool-icon personal-tool-icon--search" type="submit" aria-label="חיפוש"><img src="images/figma-archive-search-icon-v2.png" alt=""></button>
+          <span class="personal-tool-file-label">תיק מס׳</span><strong class="personal-tool-code" id="personal-search-code"></strong>
+          <h2>בקשת אחזור:</h2>
+          <div class="personal-tool-grid">
+            <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה למצוא היום?</span><textarea id="personal-search-query" required></textarea></label>
+            <label class="personal-tool-field"><span>באיזה פורמט?</span><input id="personal-search-format" type="text"></label>
+          </div>
+          <p id="personal-search-status" class="personal-tool-status" aria-live="polite"></p>
+          <span class="personal-tool-owner" id="personal-search-owner"></span>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
+        </form>
+      </section>
+
+      <section id="personal-upload-panel" class="personal-tool-panel personal-tool-panel--upload" aria-hidden="true">
+        <form id="personal-upload-form" class="personal-tool-card">
+          <button class="personal-tool-icon personal-tool-icon--add" type="submit" aria-label="בחירת קובץ"><img src="images/figma-archive-add-icon-v2.png" alt=""></button>
+          <span class="personal-tool-owner" id="personal-upload-owner"></span>
+          <h2>הוספת פריטים</h2>
+          <div class="personal-tool-grid">
+            <label class="personal-tool-field personal-tool-field--large"><span>*מה תרצה להוסיף?</span><textarea id="personal-upload-description" required></textarea></label>
+            <label class="personal-tool-field"><span>סוג הפריט/ים</span><input id="personal-upload-format" type="text"></label>
+          </div>
+          <button class="personal-tool-back" type="button" aria-label="חזרה"><img src="images/figma-archive-back-v2.png" alt=""></button>
+        </form>
+      </section>
+
+      <!-- Upload confirmation (Figma 844:1282 "הוספת חומרים בהצלחה"). A kraft
+           record laid over the archive, not a new screen: the desk stays
+           mounted and untouched behind the scrim. Opened only once every file
+           of an upload batch is confirmed saved — see the upload batch in
+           script.js. -->
+      <section id="upload-success" class="upload-success" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="upload-success-title" tabindex="-1">
+        <div class="upload-success-scrim"></div>
+        <div class="personal-tool-card upload-success-card">
+          <span class="personal-tool-owner upload-success-owner" id="upload-success-owner"></span>
+          <h2 id="upload-success-title" class="upload-success-title">החומרים נוספו בהצלחה!</h2>
+          <button id="btn-upload-success-done" type="button" class="img-btn upload-success-done" data-default="images/back-default.png" data-hover="images/back-hover.png" aria-label="חזרה לארכיון">
+            <img src="images/back-default.png" width="160" height="160" alt="">
+          </button>
+        </div>
+      </section>
+
+      <!-- Archivist bot results. One section, two records, four states — the
+           state lives on #archive-bot's data-bot-state and on .archive-box
+           (which is what drives the pile's rummaging). The pile itself is never
+           duplicated or replaced; it stays mounted behind these.
+             initial   — nothing here is shown, the search sheet is the UI
+             searching — Figma 884:134, the pile is rummaged through
+             found     — Figma 578:273, card 639:97
+             notFound  — Figma 635:2730, card 769:140 -->
+      <section id="archive-bot" class="archive-bot" data-bot-state="initial" aria-hidden="true">
+        <div class="archive-bot-scrim"></div>
+
+        <div class="personal-tool-card archive-bot-card archive-bot-card--found"
+             role="dialog" aria-modal="true" aria-labelledby="archive-bot-found-title" tabindex="-1">
+          <span class="archive-bot-owner" id="archive-bot-found-owner"></span>
+          <span class="archive-bot-file-label">תיק מס׳</span>
+          <span class="archive-bot-code" id="archive-bot-found-code"></span>
+          <h2 class="archive-bot-title" id="archive-bot-found-title">מהמידע בתיק זה נמצא ש</h2>
+          <div class="archive-bot-answer">
+            <!-- The bot's answer. The ONLY dynamic text on this card; written by
+                 renderArchiveBotResult from the search result. -->
+            <p id="archive-bot-answer-text"></p>
+            <p>קח את הממצאים מהמדפסת.</p>
+          </div>
         </div>
 
-        <div class="drawer-section">
-          <div class="section-label">המורשת</div>
-          <div class="legacy-text" id="p-legacy"></div>
+        <div class="personal-tool-card archive-bot-card archive-bot-card--empty"
+             role="dialog" aria-modal="true" aria-labelledby="archive-bot-empty-title" tabindex="-1">
+          <span class="archive-bot-file-label">תיק מס׳</span>
+          <span class="archive-bot-code" id="archive-bot-empty-code"></span>
+          <h2 class="archive-bot-title" id="archive-bot-empty-title">לא נמצאו תשובות לשאלתך</h2>
+          <p class="archive-bot-subtitle">חזור אחורה ליצירת בקשה בנושא אחר</p>
+          <span class="archive-bot-owner" id="archive-bot-empty-owner"></span>
+          <button id="btn-archive-bot-back" type="button" class="img-btn archive-bot-back"
+                  data-default="images/back-default.png" data-hover="images/back-hover.png"
+                  aria-label="חזרה ליצירת בקשה בנושא אחר">
+            <img src="images/back-default.png" width="146" height="146" alt="">
+          </button>
         </div>
+      </section>
 
-        <div class="drawer-section">
-          <div class="section-label">תשובות לשבע השאלות</div>
-          <ol class="q-list" id="p-questions"></ol>
-        </div>
-
-        <div class="btn-group" style="justify-content: space-between;">
-          <button id="btn-personal-to-general" type="button">עיין בארכיון הכללי ←</button>
-          <button id="btn-personal-restart" type="button">להתחלה</button>
-        </div>
-      </div>
+      <!-- Close: small fixed top-right chrome. Add + archive are relocated into
+           the scattered pile as kraft "envelope" cards by renderArchivePile(). -->
+      <button id="btn-personal-restart" type="button" class="img-btn pile-ctrl pile-ctrl--close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה">
+        <img src="images/close-default.png" width="90" height="90" alt="">
+      </button>
     </div>
-  </section>
-
-  <!-- ============== SCREEN: GENERAL ARCHIVE ============== -->
-  <section id="screen-general" class="screen">
-
-    <!-- Phase A: cabinets on rails (same component as the landing wall) -->
-    <div class="archive-view archive-view--cabinets is-active" id="archive-view-cabinets">
-      <div class="archive-cabinets-top">
-        <div class="archive-title">ארכיון לנכדים</div>
-        <div class="archive-sub">בחר/י מדף כדי לראות את המגירות שלו</div>
-        <div class="archive-count" id="count-text"></div>
-      </div>
-      <button id="btn-general-restart" type="button" class="archive-restart">→ להשתתפות חדשה</button>
-
-      <!-- Cabinet wall — reuses the landing component styling -->
-      <div id="archive-wall" class="landing-bg"></div>
-
-      <!-- Edge auto-scroll zones -->
-      <div class="landing-scroll-zone landing-scroll-zone--left"  id="archive-scroll-zone-left"  aria-hidden="true"></div>
-      <div class="landing-scroll-zone landing-scroll-zone--right" id="archive-scroll-zone-right" aria-hidden="true"></div>
-    </div>
-
-    <!-- Phase B: cabinet detail — brass-plate drawers for the selected shelf -->
-    <div class="archive-view archive-view--detail" id="archive-view-detail">
-      <button id="btn-back-to-letters" type="button" class="archive-back-btn">← חזרה</button>
-      <div id="archive-detail-letter" class="archive-detail-letter">א-ב</div>
-      <div id="archive-detail-drawers" class="archive-detail-drawers"></div>
-    </div>
-
-    <!-- Legacy search elements kept hidden so existing wiring doesn't throw -->
-    <input type="hidden" id="drawer-search">
-    <span id="search-status" hidden></span>
-    <span id="archive-empty" hidden></span>
   </section>
 
   <!-- ============== MODAL: CODE ENTRY ============== -->
   <div id="code-modal" class="modal-overlay">
-    <div class="modal-content" id="code-modal-content">
-      <div class="title">הזן קוד (4 ספרות)</div>
-      <div class="label" id="code-target" style="margin-bottom: 1rem; color: var(--ink);"></div>
-      <input type="text" id="drawer-code-input" class="input-field input-ltr" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="text-align:center; font-size:2.5rem; letter-spacing:0.8rem; margin-bottom: 0;">
-      <div id="err-msg" style="color: var(--red); min-height: 1.5rem; padding-top: 0.5rem;"></div>
-      <div class="btn-group" style="justify-content:center; padding-top: 1rem;">
-        <button id="btn-submit-code" type="button">פתח</button>
-        <button id="btn-close-code" type="button">סגור</button>
+    <div class="modal-content modal-content--code" id="code-modal-content">
+      <div class="code-head">
+        <button id="btn-close-code" type="button" class="img-btn code-close" data-default="images/close-default.png" data-hover="images/close-hover.png">
+          <img src="images/close-default.png" width="44" height="44">
+        </button>
+        <div class="code-title">דרושה סיסמא</div>
       </div>
+      <div class="code-target" id="code-target"></div>
+
+      <div class="code-center">
+        <div class="code-boxes" id="code-boxes">
+          <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="ספרה 1">
+          <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="ספרה 2">
+          <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="ספרה 3">
+          <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="ספרה 4">
+        </div>
+        <div id="err-msg" class="code-err"></div>
+      </div>
+
+      <button id="btn-submit-code" type="button" class="img-btn popup-continue-btn" data-default="images/locked-default.png" data-hover="images/locked-hover.png">
+        <img src="images/locked-default.png" width="52" height="52">
+      </button>
+    </div>
+  </div>
+
+  <!-- ============== MODAL: LOGIN ============== -->
+  <div id="login-modal" class="modal-overlay">
+    <div class="login-flip" id="login-flip">
+      <!-- FRONT: login form -->
+      <div class="modal-content login-face" id="login-modal-content">
+        <button id="btn-close-login" type="button" class="img-btn code-close" data-default="images/close-default.png" data-hover="images/close-hover.png">
+          <img src="images/close-default.png" width="44" height="44">
+        </button>
+
+        <div class="login-title">התחברות למשתמש</div>
+
+        <div class="login-grid">
+          <div class="login-row">
+            <label class="login-label" for="login-email">כתובת מייל</label>
+            <input type="email" id="login-email" class="login-input input-ltr" autocomplete="email">
+          </div>
+          <div class="login-row">
+            <label class="login-label" for="login-code">סיסמא</label>
+            <input type="password" id="login-code" class="login-input input-ltr" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+          </div>
+        </div>
+
+        <div id="login-err" class="login-err"></div>
+
+        <div class="login-actions">
+          <!-- Submit: round lock button, same shape/size as the question back button -->
+          <button id="btn-submit-login" type="button" class="img-btn login-lock" data-default="images/locked-default.png" data-hover="images/locked-hover.png" aria-label="התחברות">
+            <img src="images/locked-default.png" width="105" height="105">
+          </button>
+        </div>
+      </div>
+
+      <!-- BACK: connected / logout card, revealed by the flip after login -->
+      <div class="modal-content login-face login-face-back" id="login-back-content">
+        <div class="account-line">מפקיד/ה מס׳ <span id="login-back-code"></span> מחובר/ת</div>
+        <button id="btn-back-logout" type="button" class="img-btn account-logout" data-default="images/logout-default.png" data-hover="images/logout-hover.png" aria-label="התנתקות">
+          <img src="images/logout-default.png" alt="" width="180" height="69">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== MODAL: ACCOUNT (logged-in) ============== -->
+  <div id="account-modal" class="modal-overlay">
+    <div class="modal-content" id="account-modal-content">
+      <div class="account-line">מפקיד/ה מס׳ <span id="account-code"></span> מחובר/ת</div>
+      <button id="btn-account-logout" type="button" class="img-btn account-logout" data-default="images/logout-default.png" data-hover="images/logout-hover.png" aria-label="התנתקות">
+        <img src="images/logout-default.png" alt="" width="180" height="69">
+      </button>
     </div>
   </div>
 
   <!-- ============== MODAL: DRAWER CONTENT ============== -->
   <div id="content-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 500px; text-align: right;">
+    <div class="modal-content" style="text-align: right;">
       <div class="label" id="content-name" style="margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem;"></div>
       <div class="serif-text" id="content-text" style="font-size: 1.8rem; line-height: 1.5; margin-bottom: 2rem; margin-top: 1rem;"></div>
-      <div style="text-align: left;">
-        <button id="btn-close-content" type="button">חזור לקיר</button>
-      </div>
+      <button id="btn-close-content" type="button" class="img-btn popup-close-btn" data-default="images/close-default.png" data-hover="images/close-hover.png">
+        <img src="images/close-default.png" width="52" height="52">
+      </button>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=47"></script>
+  <script>
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
+      window.handleWhatRemainsLandingAction(event.data.action, event.data.payload);
+    });
+  </script>
 </body>
 </html>
