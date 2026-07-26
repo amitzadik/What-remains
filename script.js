@@ -1667,6 +1667,9 @@
   let stackSourceGeometry = null;     // geometry in use by the current spread
   let archivePhase = "idle";          // "stack" → "spreading" → "open"
   let pendingPileRender = false;      // a re-render asked for mid-spread
+  // "" | "sweeping" | "returning" — the archivist bot's search sweep (below).
+  // Declared here because the pile's own rebuild guard has to see it.
+  let archiveSweepPhase = "";
   // Longest delay + duration in the spread table below. Used only to size the
   // guard timer, never as the thing that decides the papers have landed.
   const ARCHIVE_SPREAD_MS = 1440;
@@ -1752,8 +1755,11 @@
 
   // A re-render (an upload landing, a resize) must never restart a spread in
   // flight: hold it until every paper has arrived, then rebuild once.
+  // A search sweep holds a rebuild for the same reason: the papers travelling
+  // out of the frame ARE the pile, and rebuilding it would remount the archive
+  // in the middle of the sequence — the one thing the search must never do.
   function requestArchivePileRender() {
-    if (archivePhase === "spreading") { pendingPileRender = true; return; }
+    if (archivePhase === "spreading" || archiveSweepPhase) { pendingPileRender = true; return; }
     renderArchivePile();
   }
 
@@ -2207,7 +2213,11 @@
     closeUploadSuccess();
     // A search belongs to the drawer it was asked of; opening another one puts
     // the archivist back to the beginning rather than carrying a result over.
+    // The desk is rebuilt below, so a sweep in flight is abandoned outright
+    // instead of being played home on papers that are about to be replaced.
     botRequestRun++;
+    cancelArchiveSweep();
+    closePersonalTool();
     setBotState("initial");
 
     pendingPileRender = false;
@@ -2749,28 +2759,10 @@
         el.style.setProperty("--pile-move-delay", op.lead + "ms");
       }
 
-      // How THIS paper is handled while the archive is being searched. Each one
-      // is drawn a direction and a distance of its own from its own seed: some
-      // are slid outward from the middle of the desk, some nudged across it,
-      // and none of them travel the same way or for the same length of time.
-      // Distances are in scene pixels, so a paper moves the same amount
-      // relative to the composition at any viewport.
-      const rgOut = pileRand(seed + 67) > 0.45;     // slid outward, or across
-      const rgDist = (11 + pileRand(seed + 71) * 25) * sceneScale;
-      const rgDir = rgOut
-        ? Math.atan2(y - 850, x - 960) + (pileRand(seed + 73) - 0.5) * 0.9
-        : pileRand(seed + 61) * Math.PI * 2;
-      el.style.setProperty("--rummage-x", (Math.cos(rgDir) * rgDist).toFixed(2) + "px");
-      el.style.setProperty("--rummage-y", (Math.sin(rgDir) * rgDist).toFixed(2) + "px");
-      el.style.setProperty("--rummage-r", ((pileRand(seed + 79) - 0.5) * 3.2).toFixed(2) + "deg");
-      el.style.setProperty("--rummage-duration", (9 + pileRand(seed + 83) * 7).toFixed(2) + "s");
-      // When this paper is first picked up. Purely random starts clump — six of
-      // seven papers would lift together and the desk would heave rather than
-      // be searched. A golden-ratio walk over the pile index spreads the starts
-      // evenly however many papers there are, and the jitter keeps the spacing
-      // from reading as a rhythm.
-      const rgStart = (((k * 0.6180339887) % 1) * 9 + pileRand(seed + 89) * 1.2).toFixed(2);
-      el.style.setProperty("--rummage-delay", rgStart + "s");
+      // Nothing about the search is written here any more. A paper's search
+      // movement depends on where it actually IS when the arrow is clicked —
+      // which is its opened-tool position, not this resting one — so it is
+      // measured and aimed at that moment instead (see beginArchiveSweep).
 
       el.style.left = "calc(50% + " + ((x - 960) * sceneScale).toFixed(2) + "px)";
       el.style.top = "calc(50% + " + ((y - 540) * sceneScale).toFixed(2) + "px)";
@@ -2973,9 +2965,17 @@
     }
 
     const answer = String(payload.onscreen_response || "").trim();
+    // The archivist also names the materials the answer was drawn from (Drive
+    // file names or Drive links). Those names are what decides which prints
+    // stay on the desk when the search resolves, so they are carried through
+    // rather than dropped with the rest of the print payload.
+    const print = payload.print_payload || {};
+    const images = Array.isArray(print.images)
+      ? print.images.map(v => String(v || "").trim()).filter(Boolean)
+      : [];
     return payload.status === "found" && answer
-      ? { status: "found", answer: answer }
-      : { status: "notFound" };
+      ? { status: "found", answer: answer, images: images }
+      : { status: "notFound", images: [] };
   }
 
   const archiveBot = document.getElementById("archive-bot");
@@ -2987,20 +2987,19 @@
   function setBotState(next) {
     botState = next;
     const showing = next === "found" || next === "notFound";
-    // Searching and result states own the desk. Normalize the tool sheets here
-    // as well as at submit time so no stale open-panel class can cover either
-    // the rummage animation or the returned record.
-    if (next !== "initial" && archiveBox) {
-      archiveBox.classList.remove("is-tool-open", "is-tool-search", "is-tool-upload");
-      if (archivePile) archivePile.classList.remove("is-spread");
-      if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
-      if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
-    }
+    // Nothing is normalized here any more. The searching and result states are
+    // reached WITHOUT putting the retrieval sheet back down or un-spreading the
+    // pile: stripping `is-tool-open` / `is-spread` was what sent every paper
+    // home and the sheet back to the bottom of the screen the instant the arrow
+    // was clicked. The desk is left exactly as the user left it and the sweep
+    // (below) carries it on from there; it is put back only when the archive is
+    // closed, in endArchiveSweep.
     if (archiveBot) {
       archiveBot.dataset.botState = next;
       archiveBot.setAttribute("aria-hidden", showing ? "false" : "true");
     }
-    // The pile reads the state too — this is what starts and stops the rummage.
+    // The desk reads the state too — the found record's layering and the close
+    // chrome depend on it. The sweep itself is driven per element, not by this.
     if (archiveBox) archiveBox.dataset.botState = next;
     if (showing) {
       const card = archiveBot.querySelector(
@@ -3027,29 +3026,342 @@
     }
   }
 
-  // Leaving the searching state, papers still lifted are set back down instead
-  // of snapping home: pin where each one actually is, drop the animation, then
-  // release them so the transition carries them to rest.
-  function settleRummagedPapers() {
-    if (!archiveBox || !archivePile) return;
-    const moved = Array.from(archivePile.querySelectorAll(".pile-item--breathing"));
-    moved.forEach(el => {
+  // ============================================================
+  // The search sweep — one continuous movement, click to result
+  // ============================================================
+  // Clicking the arrow starts ONE journey and nothing interrupts it. Every
+  // paper, photograph and document already on the desk — the same elements, no
+  // copies, no second pile underneath — is given its own direction, distance,
+  // speed and moment and carried out of the frame. When the answer comes back
+  // the papers that are not part of it simply keep going from wherever they
+  // have reached, and the prints that ARE part of it break away and travel to
+  // their place in the result. No phase ever re-states a starting position:
+  // each one is pinned to what the element is showing at that instant and
+  // continues from there.
+  //
+  // Only the `translate` and `rotate` properties are used. The pile's own
+  // `transform` (its place on the desk, its angle, its scale) and everything
+  // that makes a paper that paper — width, aspect ratio, texture, matte,
+  // shadow, caption, z-index — are outside this animation's reach.
+  let archiveSweepRun = 0;
+
+  // Everything that moves during a search: the desk's own papers, and the
+  // retrieval sheet the user typed in — which is the mounted sheet itself, not
+  // a stand-in for it.
+  function sweepPapers() {
+    return archivePile ? Array.from(archivePile.querySelectorAll(".pile-item")) : [];
+  }
+  function searchSheet() {
+    return personalSearchPanel ? personalSearchPanel.querySelector(".personal-tool-card") : null;
+  }
+
+  // Everything a phase needs to know about an element, read in ONE pass before
+  // anything is written: where it is on screen right now (already including
+  // whatever the running animation has moved it by), how much of the frame it
+  // covers, and the exact translate/rotate it is painting at this instant.
+  // Measuring the whole set first keeps a phase change to a single layout.
+  function measureSweep(els) {
+    const frame = archiveBox.getBoundingClientRect();
+    return els.map(el => {
+      const r = el.getBoundingClientRect();
       const cs = window.getComputedStyle(el);
-      el.style.translate = cs.translate === "none" ? "0px 0px" : cs.translate;
-      el.style.rotate = cs.rotate === "none" ? "0deg" : cs.rotate;
+      let x = 0, y = 0, rot = 0;
+      if (cs.translate && cs.translate !== "none") {
+        const parts = cs.translate.trim().split(/\s+/);
+        x = parseFloat(parts[0]) || 0;
+        y = parts.length > 1 ? (parseFloat(parts[1]) || 0) : 0;
+      }
+      if (cs.rotate && cs.rotate !== "none") rot = parseFloat(cs.rotate) || 0;
+      return {
+        el: el,
+        from: { x: x, y: y, r: rot },
+        box: {
+          cx: r.left + r.width / 2 - frame.left,
+          cy: r.top + r.height / 2 - frame.top,
+          // Half the element's own diagonal, taken from its LAYOUT box. That
+          // covers the paper at any angle, and unlike the on-screen rectangle
+          // it does not shrink or grow while a transform is still settling —
+          // so a paper measured mid-transition is still aimed far enough out.
+          half: Math.hypot(el.offsetWidth, el.offsetHeight) / 2,
+          // The on-screen rectangle, used to place a print that STAYS: the
+          // result composition is judged by what is actually drawn.
+          hw: r.width / 2, hh: r.height / 2,
+          w: frame.width, h: frame.height
+        }
+      };
     });
-    archiveBox.dataset.botSettling = "1";
-    void archivePile.offsetWidth;              // commit the pinned offsets
-    moved.forEach(el => { el.style.translate = ""; el.style.rotate = ""; });
+  }
+
+  // How far this element still has to travel along (dx,dy) before it has left
+  // the frame. Leaving by any one side is enough, so the nearest exit wins, and
+  // a margin is added on top: an element can still be settling into place when
+  // it is measured, and past the edge distance costs nothing while a paper left
+  // grazing an edge would show.
+  function sweepExitDistance(b, dx, dy) {
+    let d = Infinity;
+    if (dx >  0.0001) d = Math.min(d, (b.w + b.half - b.cx) / dx);
+    if (dx < -0.0001) d = Math.min(d, (b.cx + b.half) / -dx);
+    if (dy >  0.0001) d = Math.min(d, (b.h + b.half - b.cy) / dy);
+    if (dy < -0.0001) d = Math.min(d, (b.cy + b.half) / -dy);
+    if (!isFinite(d)) d = Math.max(b.w, b.h);
+    return d + b.half * 0.5 + Math.max(b.w, b.h) * 0.25;
+  }
+
+  // Fully outside is judged on the same bound, so an item is only called gone
+  // when it is gone at any angle it may still turn to.
+  function sweepIsOutside(b) {
+    return b.cx + b.half <= 0 || b.cx - b.half >= b.w ||
+           b.cy + b.half <= 0 || b.cy - b.half >= b.h;
+  }
+
+  // The direction this element is carried in: outward from the middle of the
+  // desk, so the composition opens rather than drifting as one block, turned a
+  // little off the true radius per element. Something sitting on the centre has
+  // no outward to speak of, so it is given a direction of its own.
+  function sweepDirection(b, seed, jitter) {
+    const vx = b.cx - b.w / 2, vy = b.cy - b.h / 2;
+    const base = Math.hypot(vx, vy) > 40
+      ? Math.atan2(vy, vx)
+      : pileRand(seed + 11) * Math.PI * 2;
+    const dir = base + (pileRand(seed + 13) - 0.5) * jitter;
+    return { dx: Math.cos(dir), dy: Math.sin(dir) };
+  }
+
+  // Aim one element at one destination and hand it to one of the sweep
+  // animations. The measured `from` is written back as the phase's starting
+  // point, so the movement continues from what the element is showing rather
+  // than from anywhere it has already been; and because each phase is a
+  // differently NAMED keyframe set, swapping the class restarts the animation
+  // at that pinned position instead of resuming the previous one.
+  function driveSweep(el, cls, from, to, durMs, delayMs) {
+    el.style.setProperty("--sweep-from-x", from.x.toFixed(2) + "px");
+    el.style.setProperty("--sweep-from-y", from.y.toFixed(2) + "px");
+    el.style.setProperty("--sweep-from-r", from.r.toFixed(2) + "deg");
+    el.style.setProperty("--sweep-x", to.x.toFixed(2) + "px");
+    el.style.setProperty("--sweep-y", to.y.toFixed(2) + "px");
+    el.style.setProperty("--sweep-r", to.r.toFixed(2) + "deg");
+    el.style.setProperty("--sweep-dur", Math.round(durMs) + "ms");
+    el.style.setProperty("--sweep-delay", Math.round(delayMs) + "ms");
+    el.classList.remove("is-sweeping", "is-sweep-clearing",
+                        "is-sweep-keeping", "is-sweep-returning");
+    el.classList.add(cls);
+  }
+
+  // Click → the whole desk starts moving. Each paper leaves on a path of its
+  // own and the retrieval sheet leaves on a path unlike any of them.
+  function beginArchiveSweep() {
+    if (!archiveBox || !archivePile) return;
+    archiveSweepPhase = "sweeping";
+    archiveSweepRun++;
+    archiveBox.classList.add("is-bot-sweep");
+    // The sheet stays mounted and stays open — it is only taken out of the tab
+    // order, which touches nothing about how it is drawn or where it is.
+    if (personalSearchPanel) personalSearchPanel.inert = true;
+
+    const sheet = searchSheet();
+    const papers = sweepPapers();
+    measureSweep(sheet ? papers.concat([sheet]) : papers).forEach((m, i) => {
+      if (m.el === sheet) {
+        // Up and away over the left shoulder of the desk — deliberately not the
+        // radial path the papers take, and slower, so it reads as its own object
+        // moving through the scene rather than one more sheet in the drift.
+        const dir = { dx: -0.42, dy: -0.91 };
+        const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
+        driveSweep(sheet, "is-sweeping", m.from, {
+          x: m.from.x + dir.dx * dist,
+          y: m.from.y + dir.dy * dist,
+          r: m.from.r - 11
+        }, 6400, 120);
+        return;
+      }
+      const seed = i * 7 + 3;
+      const dir = sweepDirection(m.box, seed, 1.15);
+      const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
+      driveSweep(m.el, "is-sweeping", m.from, {
+        x: m.from.x + dir.dx * dist,
+        y: m.from.y + dir.dy * dist,
+        // Its own angle is kept; it is only allowed the few degrees a paper
+        // slid across a table turns by, so it stays recognisably itself.
+        r: m.from.r + (pileRand(seed + 17) - 0.5) * 5
+      },
+      // Between four and nine seconds each, all different, so the set never
+      // falls into step: the first papers are off the desk while the last are
+      // still crossing it, and a long search keeps clearing the whole time.
+      (4200 + pileRand(seed + 19) * 5000),
+      // A golden-ratio walk over the pile index, so however many papers there
+      // are the starts are spread evenly instead of clumping into one heave.
+      (((i * 0.6180339887) % 1) * 1600));
+    });
+  }
+
+  // Which prints on the desk the answer was drawn from. The archivist names
+  // them by Drive file name or Drive link; each name is resolved to the paper
+  // ALREADY on the desk, so what stays behind is the very element that has been
+  // travelling since the arrow was clicked — never a fresh copy of it.
+  function matchedPileItems(images) {
+    if (!archivePile || !images || !images.length) return [];
+    const byId = Object.create(null), byName = Object.create(null);
+    const mounted = Object.create(null);
+    archivePile.querySelectorAll(".pile-item--photo[data-archive-item]")
+      .forEach(el => { mounted[el.dataset.archiveItem] = el; });
+    sortedArchiveItems().forEach(item => {
+      const el = mounted[item.id];
+      if (!el) return;
+      if (item.id) byId[String(item.id).toLowerCase()] = el;
+      const drive = driveFileId(item.fileUrl);
+      if (drive) byId[drive.toLowerCase()] = el;
+      const name = String(item.fileName || "").trim().toLowerCase();
+      if (name) byName[name] = el;
+    });
+    const out = [];
+    images.forEach(raw => {
+      const value = String(raw || "").trim();
+      if (!value) return;
+      const drive = driveFileId(value);
+      const base = value.split(/[\\/?#]/).filter(Boolean).pop();
+      const el = (drive && byId[drive.toLowerCase()]) ||
+                 byId[value.toLowerCase()] ||
+                 byName[value.toLowerCase()] ||
+                 (base ? byName[base.trim().toLowerCase()] : null);
+      if (el && out.indexOf(el) < 0) out.push(el);
+    });
+    return out;
+  }
+
+  // A Drive reference in any of the shapes this project handles them in:
+  // /file/d/<id>/view, ?id=<id>, /thumbnail?id=<id>.
+  function driveFileId(value) {
+    const s = String(value || "");
+    const m = s.match(/\/d\/([A-Za-z0-9_-]{10,})/) || s.match(/[?&]id=([A-Za-z0-9_-]{10,})/);
+    return m ? m[1] : "";
+  }
+
+  // The answer has arrived. Everything that is not part of it finishes leaving,
+  // from wherever it is; the matching prints travel to the result composition.
+  // Returns how long until the frame holds nothing but the result.
+  function resolveArchiveSweep(keepEls) {
+    if (!archiveBox || !archivePile) return 0;
+    const keep = keepEls || [];
+    const sheet = searchSheet();
+    const papers = sweepPapers();
+    // Measured in one pass, before a single value is written, so every element
+    // is aimed from the same instant of the sweep it is already running.
+    const measured = measureSweep(sheet ? papers.concat([sheet]) : papers);
+    let clearMs = 0;
+    let kept = 0;
+    const keepCount = keep.length;
+
+    measured.forEach((m, i) => {
+      const isSheet = m.el === sheet;
+      if (!isSheet && keep.indexOf(m.el) >= 0) {
+        // The prints the answer was drawn from settle into the result
+        // composition: low on the frame, each in its own column, clear of the
+        // record laid down above them (578:273 sets the record high on the
+        // desk). They keep their size, matte, shadow, picture and angle — only
+        // their place changes, and it changes from where they have already
+        // travelled to, so they separate from the rest rather than reappearing.
+        const b = m.box;
+        const edge = Math.min(b.w, b.h) * 0.035;
+        const column = b.w * (kept + 0.5) / keepCount;
+        const cx = sweepClamp(column, b.hw + edge, b.w - b.hw - edge);
+        const cy = sweepClamp(b.h - b.hh - edge, b.hh + edge, b.h - b.hh - edge);
+        driveSweep(m.el, "is-sweep-keeping", m.from,
+          { x: m.from.x + (cx - b.cx), y: m.from.y + (cy - b.cy), r: m.from.r },
+          820 + kept * 90, 80 + kept * 80);
+        kept++;
+        return;
+      }
+      // Already off the frame: it stays off. Its sweep keeps filling forward,
+      // so it is never re-drawn anywhere and never comes back.
+      if (sweepIsOutside(m.box)) return;
+      // The retrieval sheet finishes its own journey on the same beat — it does
+      // not stop where it is and it certainly does not come back down.
+      const dir = isSheet ? { dx: -0.42, dy: -0.91 }
+                          : sweepDirection(m.box, i * 5 + 29, 0.5);
+      const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
+      const delay = isSheet ? 0 : (i % 4) * 80;
+      const dur = isSheet ? 900 : 900 + (i % 5) * 130;
+      driveSweep(m.el, "is-sweep-clearing", m.from, {
+        x: m.from.x + dir.dx * dist,
+        y: m.from.y + dir.dy * dist,
+        r: m.from.r + (isSheet ? -5 : (pileRand(i * 5 + 31) - 0.5) * 6)
+      }, dur, delay);
+      clearMs = Math.max(clearMs, delay + dur);
+    });
+
+    return clearMs;
+  }
+  function sweepClamp(v, lo, hi) {
+    return lo > hi ? (lo + hi) / 2 : Math.min(Math.max(v, lo), hi);
+  }
+
+  const SWEEP_VARS = ["--sweep-from-x", "--sweep-from-y", "--sweep-from-r",
+                      "--sweep-x", "--sweep-y", "--sweep-r",
+                      "--sweep-dur", "--sweep-delay"];
+  function clearSweepStyles(el) {
+    el.classList.remove("is-sweeping", "is-sweep-clearing",
+                        "is-sweep-keeping", "is-sweep-returning");
+    SWEEP_VARS.forEach(p => el.style.removeProperty(p));
+  }
+
+  // A sweep abandoned rather than played home: the desk itself is being rebuilt
+  // (another drawer is opening), so the papers currently travelling are about to
+  // stop existing. The retrieval sheet is NOT rebuilt — it is mounted once for
+  // the life of the screen — so it is the one thing that has to be cleaned by
+  // hand before the next drawer inherits it.
+  function cancelArchiveSweep() {
+    archiveSweepPhase = "";
+    archiveSweepRun++;
+    if (archiveBox) archiveBox.classList.remove("is-bot-sweep");
+    if (personalSearchPanel) personalSearchPanel.inert = false;
+    const sheet = searchSheet();
+    if (sheet) clearSweepStyles(sheet);
+  }
+
+  // Closing the result — or going back to ask about something else — is the one
+  // moment the archive is allowed to come back together. Nothing here can run
+  // between the arrow and the result: the papers are released from wherever
+  // they ended up and travel home, and the retrieval sheet is put back down.
+  function endArchiveSweep() {
+    if (archiveSweepPhase !== "sweeping") return;
+    archiveSweepPhase = "returning";
+    const run = ++archiveSweepRun;
+    if (archiveBox) archiveBox.classList.remove("is-bot-sweep");
+    if (personalSearchPanel) personalSearchPanel.inert = false;
+
+    const papers = sweepPapers();
+    const sheet = searchSheet();
+    const returning = sheet ? papers.concat([sheet]) : papers;
+    // Released from where they actually ended up — off the frame, or settled in
+    // the result — and carried home from there, never snapped back.
+    measureSweep(returning).forEach((m, i) => {
+      m.el.style.setProperty("--sweep-from-x", m.from.x.toFixed(2) + "px");
+      m.el.style.setProperty("--sweep-from-y", m.from.y.toFixed(2) + "px");
+      m.el.style.setProperty("--sweep-from-r", m.from.r.toFixed(2) + "deg");
+      m.el.style.setProperty("--sweep-dur", (620 + (i % 4) * 110) + "ms");
+      m.el.style.setProperty("--sweep-delay", ((i % 5) * 45) + "ms");
+      m.el.classList.remove("is-sweeping", "is-sweep-clearing", "is-sweep-keeping");
+      m.el.classList.add("is-sweep-returning");
+    });
+    // The sheet goes back down and the pile closes up behind it — the ordinary
+    // close motion this archive has always used.
+    closePersonalTool();
+
     window.setTimeout(() => {
-      if (archiveBox.dataset.botSettling === "1") delete archiveBox.dataset.botSettling;
-    }, reduceMotion ? 0 : 600);
+      if (run !== archiveSweepRun) return;
+      archiveSweepPhase = "";
+      returning.forEach(clearSweepStyles);
+      // A rebuild asked for while the archive was being searched was held so
+      // the pile could not remount mid-sequence. It is safe now.
+      if (pendingPileRender) { pendingPileRender = false; renderArchivePile(); }
+    }, reduceMotion ? 0 : 1150);
   }
 
   function resetArchiveBot(clearFields) {
     botRequestRun++;              // any in-flight search is no longer wanted
     botRequestPending = false;
     setBotState("initial");
+    endArchiveSweep();
     if (archiveBotAnswer) archiveBotAnswer.textContent = "";
     if (clearFields) {
       const queryField = document.getElementById("personal-search-query");
@@ -3076,8 +3388,11 @@
     const request = { code: currentDrawerCode, query: query, format: format };
     // Kept so anything already listening to the archive's search keeps working.
     window.dispatchEvent(new CustomEvent("whatremains:archive-search", { detail: request }));
-    closePersonalTool();          // the sheet goes back so the pile can be seen
+    // The retrieval sheet is NOT put back down and the pile is NOT closed up:
+    // the desk the user is looking at is the desk that starts moving.
+    if (personalSearchStatus) personalSearchStatus.textContent = "";
     setBotState("searching");
+    beginArchiveSweep();
     // Mint the request token only after every synchronous UI transition above.
     // A listener reacting to the submit event cannot invalidate the request
     // before it has even started.
@@ -3085,19 +3400,30 @@
     searchArchive(request)
       .then(result => {
         if (run !== botRequestRun) return;        // superseded or dismissed
-        botRequestPending = false;
-        settleRummagedPapers();
-        renderArchiveBotResult(result);
-        setBotState(result.status === "found" ? "found" : "notFound");
+        finishArchiveSearch(result, run);
       })
       .catch(error => {
         if (run !== botRequestRun) return;
-        botRequestPending = false;
         console.error("Archive search failed:", error);
-        settleRummagedPapers();
-        renderArchiveBotResult({ status: "notFound" });
-        setBotState("notFound");
+        // Nothing was retrieved, so this is the archive's own empty answer —
+        // the same record, not a technical error screen.
+        finishArchiveSearch({ status: "notFound", images: [] }, run);
       });
+  }
+
+  // The single handover from searching to result. The papers that are not part
+  // of the answer carry on out of the frame, the ones that are travel to their
+  // place in it, and the record is laid down only once the frame is clear of
+  // everything else. There is no state in between that puts anything back.
+  function finishArchiveSearch(result, run) {
+    botRequestPending = false;
+    const keep = result.status === "found" ? matchedPileItems(result.images) : [];
+    const clearMs = resolveArchiveSweep(keep);
+    renderArchiveBotResult(result);
+    window.setTimeout(() => {
+      if (run !== botRequestRun) return;          // dismissed while clearing
+      setBotState(result.status === "found" ? "found" : "notFound");
+    }, reduceMotion ? 30 : clearMs + 80);
   }
 
   function submitPersonalSearchForm() {

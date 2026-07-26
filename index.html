@@ -294,11 +294,14 @@
       </section>
 
       <!-- Archivist bot results. One section, two records, four states — the
-           state lives on #archive-bot's data-bot-state and on .archive-box
-           (which is what drives the pile's rummaging). The pile itself is never
-           duplicated or replaced; it stays mounted behind these.
+           state lives on #archive-bot's data-bot-state and on .archive-box.
+           One shared archive scene runs underneath all four: the pile and the
+           retrieval sheet stay mounted and keep their positions across every
+           state change, and the search sweep (script.js) moves those same
+           elements continuously from the click to the result. Nothing here is
+           a second archive and nothing remounts between states.
              initial   — nothing here is shown, the search sheet is the UI
-             searching — Figma 884:134, the pile is rummaged through
+             searching — Figma 884:134, the desk is searched and cleared away
              found     — Figma 578:273, card 639:97
              notFound  — Figma 635:2730, card 769:140 -->
       <section id="archive-bot" class="archive-bot" data-bot-state="initial" aria-hidden="true">
