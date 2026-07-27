@@ -299,6 +299,10 @@ button{font:inherit;color:inherit}
   height:445px;
   z-index:8;
   border:0;
+  box-shadow:none;
+  outline:none;
+  appearance:none;
+  -webkit-appearance:none;
   background:transparent;
   padding:0;
   cursor:pointer;
