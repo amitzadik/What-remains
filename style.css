@@ -1505,19 +1505,19 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .account-line {
   position: absolute;
   z-index: 2;
-  left: 24.2967%;                             /* 190 */
-  top: 37.1171%;                              /* 206 */
-  width: 51.2788%;                            /* 401 */
-  height: 25.9459%;                           /* 144 */
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   margin: 0;
   font-family: var(--font-main);
   font-weight: 700;
   font-size: 6.8031cqw;                       /* 53.2 — 30% smaller */
   line-height: .95;
-  text-align: right;
+  text-align: center;
+  text-indent: 0;
   color: var(--ink);
 }
 
