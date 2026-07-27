@@ -124,9 +124,23 @@
     if (q) drawers = drawers.filter(v => (v.name || "").includes(q));
     return drawers;
   }
-  // Exposed to the landing-v2 iframe (same-origin direct call, mirroring
-  // window.handleWhatRemainsLandingAction) so search runs without leaving it.
-  window.getArchiveMatches = getArchiveMatches;
+  // The landing search receives public names plus short-lived opaque handles.
+  // Passwords and record identifiers never cross into the landing iframe.
+  const landingArchiveHandles = new Map();
+  const landingHandleByArchive = new WeakMap();
+  function getLandingArchiveMatches(query) {
+    return getArchiveMatches(query).map((viewer) => {
+      let handle = landingHandleByArchive.get(viewer);
+      if (!handle) {
+        handle = crypto.randomUUID ? crypto.randomUUID() :
+          Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(16)).join("-");
+        landingHandleByArchive.set(viewer, handle);
+      }
+      landingArchiveHandles.set(handle, viewer);
+      return { name: String(viewer.name || ""), handle };
+    });
+  }
+  window.getLandingArchiveMatches = getLandingArchiveMatches;
 
   // The landing IS the archive: it shows the full drawer wall, filtered
   // live by the in-place search input when one is open.
@@ -498,8 +512,9 @@
     // Reuses the same open-by-code path as the archive wall (owner unlocks,
     // everyone else gets the code modal).
     if (action === "openDrawer") {
-      const code = payload && payload.code != null ? String(payload.code) : "";
-      const v = code ? getArchiveMatches("").find(x => x.code === code) : null;
+      const handle = payload && payload.handle != null ? String(payload.handle) : "";
+      const v = handle ? landingArchiveHandles.get(handle) : null;
+      landingArchiveHandles.delete(handle);
       if (v) openViewerDrawer(v, null);
     }
   };
