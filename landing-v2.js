@@ -132,14 +132,13 @@
     setDrawerEnabled(false);
   }
 
-  // Same-origin bridge to the archive's single search source of truth. Returns
-  // an array of matches, or null when the direct call isn't available (e.g. a
-  // cross-origin preview) so the UI can show a "connecting" state.
+  // Same-origin bridge to the archive's public search projection. Only owner
+  // names and short-lived opaque handles cross into this frame.
   function fetchMatches(query) {
     if (window.parent === window) return null;
     try {
-      if (typeof window.parent.getArchiveMatches === 'function') {
-        return window.parent.getArchiveMatches(query);
+      if (typeof window.parent.getLandingArchiveMatches === 'function') {
+        return window.parent.getLandingArchiveMatches(query);
       }
     } catch (_) {
       // Cross-origin preview: no direct access to the archive data.
@@ -150,30 +149,75 @@
   // ----- inline archive search (stays entirely inside landing-v2) -----
   const searchField = document.getElementById('landing-v2-search-input');
   const resultsList = document.getElementById('landing-v2-results');
-  let currentMatches = [];   // codes live here in JS, never in the DOM
   let searchDebounce = 0;
+  let resultSignature = '';
+  let shuffledMatches = [];
+  const cardSlots = [
+    { x: 14.2, y: 27.4, r: -7.92 },
+    { x: 37.4, y: 23.0, r:  6.06 },
+    { x: 58.3, y: 21.2, r: -7.22 },
+    { x: 78.2, y: 17.6, r:  7.19 },
+    { x: 34.5, y: 48.6, r: -22.04 },
+    { x: 55.2, y: 55.6, r: 15.06 },
+    { x: 74.1, y: 45.1, r: -19.43 },
+    { x: 36.2, y: 68.0, r: -7.71 },
+    { x: 59.9, y: 68.0, r:  8.80 },
+    { x: 81.5, y: 67.0, r:  7.17 }
+  ];
 
-  function escapeHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function shuffleOnce(items) {
+    const copy = items.slice();
+    const random = new Uint32Array(Math.max(copy.length, 1));
+    crypto.getRandomValues(random);
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = random[i] % (i + 1);
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function fittingSlotCount() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    if (width < 760 || height < 560) return 3;
+    if (width < 1050 || height < 700) return 5;
+    if (width < 1380 || height < 820) return 7;
+    return cardSlots.length;
   }
 
   function renderResults() {
     if (!resultsList) return;
-    const matches = fetchMatches(searchField ? searchField.value : '');
+    const query = searchField ? searchField.value.trim() : '';
+    const matches = fetchMatches(query);
+    resultsList.replaceChildren();
     if (matches === null) {
-      currentMatches = [];
-      resultsList.innerHTML = '<li class="landing-v2__results-note">מתחבר…</li>';
+      shuffledMatches = [];
+      resultSignature = '';
       return;
     }
-    currentMatches = matches;
-    if (!matches.length) {
-      resultsList.innerHTML = '<li class="landing-v2__results-note">לא נמצאו תוצאות</li>';
-      return;
+    const signature = query + '\u0000' + matches.map(v => v.handle).join('\u0001');
+    if (signature !== resultSignature) {
+      resultSignature = signature;
+      shuffledMatches = shuffleOnce(matches);
     }
-    resultsList.innerHTML = matches.map((v, i) => (
-      '<li><button type="button" class="landing-v2__result" data-index="' + i + '">' +
-      escapeHtml(v && v.name ? v.name : '(ללא שם)') + '</button></li>'
-    )).join('');
+    shuffledMatches.slice(0, fittingSlotCount()).forEach((archive, index) => {
+      const slot = cardSlots[index];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'landing-v2__result';
+      button.style.setProperty('--slot-x', slot.x + 'vw');
+      button.style.setProperty('--slot-y', slot.y + 'vh');
+      button.style.setProperty('--slot-r', slot.r + 'deg');
+      const name = document.createElement('span');
+      name.className = 'landing-v2__result-name';
+      name.textContent = archive.name;
+      button.appendChild(name);
+      button.addEventListener('click', () => {
+        sendAction('openDrawer', { handle: archive.handle });
+        closeSearch();
+      }, { once: true });
+      resultsList.appendChild(button);
+    });
   }
 
   function openSearch() {
@@ -187,7 +231,8 @@
   function closeSearch() {
     screen.classList.remove('is-searching');
     window.clearTimeout(searchDebounce);
-    currentMatches = [];
+    shuffledMatches = [];
+    resultSignature = '';
     if (resultsList) resultsList.innerHTML = '';
   }
   function toggleSearch() {
@@ -262,19 +307,9 @@
       if (e.key === 'Escape') closeSearch();
     });
   }
-  if (resultsList) {
-    resultsList.addEventListener('click', (e) => {
-      const btn = e.target.closest('.landing-v2__result');
-      if (!btn) return;
-      const v = currentMatches[parseInt(btn.getAttribute('data-index'), 10)];
-      if (v && v.code != null) {
-        // Opening a drawer is a distinct screen — this deliberately leaves
-        // landing-v2, reusing the archive wall's open-by-code path.
-        sendAction('openDrawer', { code: String(v.code) });
-        closeSearch();
-      }
-    });
-  }
+  window.addEventListener('resize', () => {
+    if (screen.classList.contains('is-searching')) renderResults();
+  });
 
   // Mirror the form stamp-button interaction inside the isolated landing
   // iframe, including the pressed state on touch screens.
