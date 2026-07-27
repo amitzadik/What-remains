@@ -5624,25 +5624,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   filter: saturate(0.9) contrast(0.96);
 }
 
-/* The description belongs to the print it was written for, so it is printed on
-   the same paper, directly under the picture. */
-.pile-photo-caption {
-  margin-top: var(--matte, 13.5px);
-  font-family: var(--font-main);
-  font-size: calc(var(--pw, 556px) * 0.042);
-  line-height: 1.35;
-  color: var(--ink);
-  direction: rtl;
-  text-align: right;
-  /* Long descriptions must not grow the paper past its place on the desk. */
-  max-height: 4.05em;
-  overflow: hidden;
-}
-
 /* A print that has just been added settles onto the pile; the ones already
    there are untouched — no rebuild, no re-entry, nothing removed. */
-.pile-item--photo.is-new-item .pile-photo-frame,
-.pile-item--photo.is-new-item .pile-photo-caption {
+.pile-item--photo.is-new-item .pile-photo-frame {
   animation: pile-photo-arrive 520ms cubic-bezier(0.22, 0.04, 0.18, 1) both;
 }
 @keyframes pile-photo-arrive {
@@ -5650,8 +5634,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   100% { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pile-item--photo.is-new-item .pile-photo-frame,
-  .pile-item--photo.is-new-item .pile-photo-caption { animation: none; }
+  .pile-item--photo.is-new-item .pile-photo-frame { animation: none; }
 }
 
 .pile-item--instructions {

@@ -2601,9 +2601,8 @@
     // its own size, rotation, depth and travel. Deterministic in the item's
     // index, so a print keeps its place across re-renders and reloads.
     // The ring sits high on the desk: the stamping sheet fills the lower middle
-    // (its own Figma place, untouched), and a print whose description landed
-    // under it would be a description the page does not actually show. Above it
-    // the prints lie over the question sheets, where both read.
+    // (its own Figma place, untouched). Above it the prints lie over the
+    // question sheets, where the archive composition remains readable.
     const PHOTO_EASES = [E_GLIDE, E_SETTLE, E_DRIFT, E_RELEASE];
     function extraPhotoSlot(index) {
       const seed = 300 + index * 13;
@@ -2674,21 +2673,18 @@
     // landscape one Figma drew — a tall portrait most of all. The desk does crop
     // its outer papers, but a picture that is mostly off it is not a picture the
     // archive is showing, so each print's centre is pulled back until no more
-    // than a tenth of it hangs over an edge — the description under it included,
-    // since a description that has slid off the desk is not a description the
-    // page is showing. The frame is moved, never resized unevenly: proportions
-    // are already settled by the time this runs.
+    // than a tenth of it hangs over an edge. The frame is moved, never resized
+    // unevenly: proportions are already settled by the time this runs.
     const PHOTO_OVERHANG = 0.1;
-    function clampPhotoCentre(x, y, w, h, rot, hasCaption) {
+    function clampPhotoCentre(x, y, w, h, rot) {
       const rad = Math.abs(rot * Math.PI / 180);
       const cos = Math.cos(rad), sin = Math.sin(rad);
       // The whole paper, as the CSS builds it: `w` is the border-box width, so
       // the picture inside it is (w - 2 matte) across and keeps its ratio from
-      // there; then the matte again below it, and the description under that.
+      // there; then the matte again below it.
       const boxW = w;
       const frameH = h * Math.max(w - 2 * PHOTO_MATTE, 1) / w;
-      const boxH = frameH + 2 * PHOTO_MATTE +
-                   (hasCaption ? PHOTO_MATTE + w * 0.114 : 0);   // ~2 caption lines
+      const boxH = frameH + 2 * PHOTO_MATTE;
       const halfW = (boxW * cos + boxH * sin) / 2;
       const halfH = (boxW * sin + boxH * cos) / 2;
       const insetX = halfW * (1 - 2 * PHOTO_OVERHANG);
@@ -2793,16 +2789,13 @@
         // every re-render, so an upload adds a paper instead of recycling one.
         el.dataset.archiveItem = it.m.id || ("media-" + it.mediaIndex);
         const badge = it.m.fileType === "video" ? '<span class="pile-play" aria-hidden="true"></span>' : "";
-        const desc = String(it.m.description || "").trim();
-        // The description sits on the print it was written for, under it — the
-        // archive never collects the descriptions somewhere else and hopes the
-        // order still lines up.
+        // Upload descriptions remain saved in their companion Google Docs and
+        // available to retrieval, but are not rendered on the archive print.
         el.innerHTML =
           '<div class="pile-photo-frame">' +
-            '<img loading="lazy" alt="' + escAttr(desc) + '" src="' + escAttr(it.m.fileUrl) + '">' +
+            '<img loading="lazy" alt="" src="' + escAttr(it.m.fileUrl) + '">' +
             badge +
-          '</div>' +
-          (desc ? '<div class="pile-photo-caption">' + esc(desc) + '</div>' : '');
+          '</div>';
         // A picture whose pixel size was never recorded reports it here, the
         // moment it decodes, and the pile is rebuilt around its true shape.
         if (!(it.m.width > 0 && it.m.height > 0) && !it.m.decorative) {
@@ -2840,8 +2833,7 @@
         // below (--from-scale) is measured against the frame actually rendered.
         const size = photoFrameSize(it.m, p);
         p.w = size.w; p.h = size.h;
-        const centre = clampPhotoCentre(p.cx, p.cy, size.w, size.h, p.r,
-                                        !!String(it.m.description || "").trim());
+        const centre = clampPhotoCentre(p.cx, p.cy, size.w, size.h, p.r);
         x = p.cx = centre.x; y = p.cy = centre.y;
         el.style.setProperty("--pw", (size.w * sceneScale).toFixed(2) + "px");
         el.style.setProperty("--par", size.w.toFixed(3) + " / " + size.h.toFixed(3));
