@@ -6132,10 +6132,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     filter 330ms ease,
     opacity 450ms ease;
 }
-.personal-tool-panel.is-near-brown,
-.personal-tool-panel:has(.interactive-brown-sheet:hover) {
-  z-index: 264;
-}
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred.
