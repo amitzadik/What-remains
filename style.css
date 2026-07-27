@@ -4063,9 +4063,9 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   overflow: hidden;
   direction: rtl;
   color: var(--ink);
+  /* The node's fill is this colour and nothing else — the paper comes from the
+     texture layer below (::before), not from a background image. */
   background-color: rgba(243, 232, 214, 0.95);
-  background-image: url("images/figma-question-background.jpg");
-  background-size: cover;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
   /* Placed onto the pile, not faded in: the sheet keeps its paper opacity and
      enters from a slightly offset position, rotating and settling as it lands
@@ -4076,6 +4076,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   transform: translate(-50%, -50%);
   transform-origin: center;
   will-change: translate, rotate;
+}
+/* 840:714 "Texturelabs_Paper_234M 3" — the grain of the paper, laid over the
+   whole composition rather than sitting behind it: 1478.134 x 986.192 turned
+   -1.68deg about (584.806, 468.614), at half strength and multiplied in. The
+   sheet turns and translates, which isolates the blend to this sheet alone, so
+   nothing behind it on the desk is touched. */
+.stamp-instructions-sheet::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  left: 45.7524%;                            /* 584.806 */
+  top: 50.4356%;                             /* 468.614 */
+  width: 115.6407%;                          /* 1478.134 */
+  height: 106.1408%;                         /*  986.192 */
+  transform: translate(-50%, -50%) rotate(-1.68deg);
+  transform-origin: center;
+  background: url("images/Texturelabs_Paper_234M.jpg") center / cover no-repeat;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 .stamp-instructions-sheet.is-visible {
   animation: figma-480-instructions-move 723.915ms linear both,
