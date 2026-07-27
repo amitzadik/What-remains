@@ -1322,6 +1322,7 @@
   const cameraDocLines = Array.from(document.querySelectorAll(".camera-document .line__text"));
   const cameraShutter = document.getElementById("camera-shutter");
   const cameraRetake  = document.getElementById("camera-retake");
+  const cameraDate    = document.getElementById("camera-date");
   const btnCameraNext = document.getElementById("btn-camera-next");
   const btnCameraBack = document.getElementById("btn-camera-back");
   const envelopeTransition = document.getElementById("memory-envelope-transition");
@@ -1390,6 +1391,38 @@
     }
   }
 
+  // The live half of the print (Figma 480:8191): the picture is the camera, the
+  // shutter is offered, and neither the retake nor the arrow on is there yet.
+  function showCameraLivePreview() {
+    cameraPhoto.hidden = true;
+    cameraPhoto.removeAttribute("src");
+    cameraVideo.hidden = false;
+    cameraMsg.hidden = true;
+    cameraMsg.textContent = "";
+    if (cameraRetake) cameraRetake.hidden = true;
+    btnCameraNext.disabled = true;
+    cameraShutter.disabled = true;
+    stopCameraStream();
+  }
+
+  function openCameraStream(run) {
+    return navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" }, audio: false
+    }).then(stream => {
+      if (run !== cameraSequenceRun) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      cameraStream = stream;
+      cameraVideo.srcObject = cameraStream;
+    }).catch(() => {
+      if (run !== cameraSequenceRun) return;
+      cameraVideo.hidden = true;
+      cameraMsg.textContent = "אין גישה למצלמה";
+      cameraMsg.hidden = false;
+    });
+  }
+
   async function initCameraScreen() {
     const run = ++cameraSequenceRun;
     // Accumulated family-memory background: the previous question traces sit
@@ -1408,31 +1441,12 @@
     cameraDocLines.forEach((line, index) => {
       line.textContent = legacyParts[index] || "";
     });
+    // The date is printed on the frame in both of its states (Figma 892:156 /
+    // 892:160), so it is written once, here, and never cleared.
+    if (cameraDate) cameraDate.textContent = state.date || "";
     // reset to live-preview state
-    cameraPhoto.hidden = true;
-    cameraPhoto.removeAttribute("src");
-    cameraVideo.hidden = false;
-    cameraMsg.hidden = true;
-    cameraMsg.textContent = "";
-    if (cameraRetake) cameraRetake.hidden = true;
-    btnCameraNext.disabled = true;
-    cameraShutter.disabled = true;
-    stopCameraStream();
-    const startCamera = navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" }, audio: false
-    }).then(stream => {
-      if (run !== cameraSequenceRun) {
-        stream.getTracks().forEach(track => track.stop());
-        return;
-      }
-      cameraStream = stream;
-      cameraVideo.srcObject = cameraStream;
-    }).catch(() => {
-      if (run !== cameraSequenceRun) return;
-      cameraVideo.hidden = true;
-      cameraMsg.textContent = "אין גישה למצלמה";
-      cameraMsg.hidden = false;
-    });
+    showCameraLivePreview();
+    const startCamera = openCameraStream(run);
 
     // The DOM starts with every complete, 80%-scaled form physically beyond
     // a viewport edge. Only after two painted frames and a bounds check may
@@ -1498,10 +1512,22 @@
     if (cameraRetake) cameraRetake.hidden = false;
   });
 
+  // "צילום מחדש" — the photograph just taken is discarded and the camera comes
+  // back. Only the print's own two states change: the papers behind it have
+  // already been laid, so the whole entry choreography is NOT played again and
+  // nothing else on the screen moves.
   if (cameraRetake) {
-    cameraRetake.addEventListener("click", () => {
+    cameraRetake.addEventListener("click", async () => {
+      if (screens.camera.dataset.cameraPhase !== CAMERA_PHASE.CAPTURE_COMPLETE) return;
       state.photoDataUrl = "";
-      initCameraScreen();
+      state.photoWidth = 0;
+      state.photoHeight = 0;
+      const run = ++cameraSequenceRun;
+      showCameraLivePreview();
+      setCameraPhase(CAMERA_PHASE.FORMS_ENTERED);
+      await openCameraStream(run);
+      if (run !== cameraSequenceRun) return;
+      cameraShutter.disabled = !cameraStream;
     });
   }
 

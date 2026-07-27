@@ -2682,9 +2682,13 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   height: 100%;
   overflow: hidden;
   background: #000;
+  /* The picture is the frame everything printed on it is measured against, so
+     it is also the query container: type below is stated in cqw and scales with
+     the print rather than with the page. 1cqw = 11.03487 Figma units. */
+  container-type: inline-size;
 }
 .camera-area video,
-.camera-area img {
+.camera-area #camera-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -2693,7 +2697,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   filter: none;
 }
 .camera-area video[hidden],
-.camera-area img[hidden] { display: none; }
+.camera-area #camera-photo[hidden] { display: none; }
 .camera-msg {
   position: absolute;
   inset: 0;
@@ -2708,46 +2712,128 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .camera-msg[hidden] { display: none; }
 
+/* ---- what is printed on the frame — Figma 480:8191 / 892:158 ----------
+   One print, two states. 480:8191 is the live camera: date and shutter.
+   892:158 is the photograph that was taken: date, "צילום מחדש" and the arrow on
+   to the envelope. Both are the same "Frame 43" — a black picture inside an
+   18-unit white border — so every coordinate here is the node's own, written as
+   a percentage of the PICTURE (1139.487 x 737.315 less that border = 1103.487 x
+   701.315). The composition then holds at any size the print is drawn at. */
+
+/* 892:156 / 892:160 — the date, printed on the frame in every state, live and
+   captured alike. Mandatory at the "Regular Condensed" instance: the wdth axis
+   is 26, which is what sets "7.5.26" at 120 units to the 143.305 the node is. */
+.camera-date {
+  position: absolute;
+  z-index: 3;
+  right: 85.0451%;                          /* 938.46 */
+  top: 4.7010%;                             /*  32.97 */
+  width: 12.9864%;                          /* 143.305 */
+  height: 7.2547%;                          /*  50.878 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  direction: ltr;
+  white-space: nowrap;
+  font-family: var(--font-mandatory);
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 26;
+  font-size: 10.8747cqw;                    /* 120 */
+  line-height: 4.5311cqw;                   /*  50 */
+  color: var(--ink);
+  opacity: .8;
+  rotate: -0.35deg;
+  pointer-events: none;
+}
+
+/* 892:157 — the shutter. The node is a plain filled ellipse: 70 units of ink
+   centred in an 82.008 box and turned 10.94deg. No ring, no rim, no shadow. */
 .camera-shutter {
   position: absolute;
   z-index: 3;
-  left: 50%;
-  bottom: 5.1%;
-  width: clamp(42px, 3.646vw, 70px);
-  height: clamp(42px, 3.646vw, 70px);
-  transform: translateX(-50%) rotate(10.94deg);
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  background: rgba(61, 54, 40, 0.82);
-  box-shadow: inset 0 0 0 clamp(3px, 0.31vw, 6px) rgba(255,255,255,0.72);
+  left: 46.9668%;                           /* 518.29 */
+  top: 84.8057%;                            /* 594.76 */
+  width: 7.4317%;                           /*  82.008 */
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
   padding: 0;
+  background: none;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
+.camera-shutter-dot {
+  display: block;
+  width: 85.3576%;                          /* 70 of the 82.008 box */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--ink);
+  rotate: 10.94deg;
+}
 .camera-shutter:hover:not(:disabled),
 .camera-shutter:focus-visible {
-  transform: translateX(-50%) rotate(10.94deg) scale(1.06);
+  transform: scale(1.06);
   outline: none;
 }
 .camera-shutter:disabled { opacity: 0.3; cursor: not-allowed; }
 
+/* 892:163 — the way back to a live camera once a photograph has been taken.
+   The text sits at the top right of its own box, as the node places it. */
+.camera-retake {
+  position: absolute;
+  z-index: 3;
+  left: 68.6342%;                           /* 757.37 */
+  top: 82.9010%;                            /* 581.39 */
+  width: 26.5521%;                          /* 293.004 */
+  height: 8.3090%;                          /*  58.273 */
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  direction: rtl;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-main);
+  font-weight: 500;
+  font-size: 4.5311cqw;                     /*  50 */
+  line-height: 1.2;
+  color: #c34237;
+  transition: opacity 0.2s ease;
+}
+.camera-retake[hidden] { display: none; }
+.camera-retake:hover, .camera-retake:focus-visible { opacity: .78; outline: none; }
+
+/* 892:165 — on to the envelope. The project already ships this exact arrow. */
 .camera-next-stamp {
   position: absolute;
-  left: 1.27%;
-  bottom: 1.95%;
   z-index: 3;
+  left: 1.1862%;                            /*  13.09 */
+  top: 75.1418%;                            /* 526.98 */
+  width: 14.5418%;                          /* 160.468 */
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   background: none;
   padding: 0;
-  transform: rotate(9.42deg);
+  rotate: -0.17deg;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 .camera-next-stamp img {
   display: block;
-  width: clamp(70px, 8.333vw, 160px);
+  width: 99.7085%;                          /* 160 of the 160.468 box */
   height: auto;
 }
-.camera-next-stamp:hover:not(:disabled) { background: none; transform: rotate(9.42deg) scale(1.03); }
+.camera-next-stamp:hover:not(:disabled) { background: none; transform: scale(1.03); }
+
+/* Which of the two states the print is showing. Before a photograph is taken
+   the frame carries the shutter and nothing else; after it, the shutter is gone
+   and the retake and the arrow are there instead — exactly the two nodes. */
+#screen-camera:not([data-camera-phase="captureComplete"]) .camera-next-stamp,
+#screen-camera[data-camera-phase="captureComplete"] .camera-shutter { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   #screen-camera.is-fading .camera-screen-shade { opacity: 1; animation: none; }

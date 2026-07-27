@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שנשאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=70" />
+  <link rel="stylesheet" href="style.css?v=71" />
 </head>
 <body dir="rtl">
 
@@ -202,17 +202,34 @@
     <div class="camera-stack-stage" aria-hidden="true">
       <div class="camera-stack-pile" id="camera-stack-pile"></div>
     </div>
+    <!-- The print is one frame in two states — Figma 480:8191 while the camera
+         is live, 892:158 once a photo has been taken. Everything printed on it
+         lives INSIDE .camera-area, which is the frame's picture (the 18-unit
+         white border is .camera-print's own padding), so each mark keeps the
+         node's own coordinate exactly as Figma places it. -->
     <div class="camera-print">
       <div class="camera-area">
         <video id="camera-video" autoplay playsinline muted></video>
         <canvas id="camera-canvas" hidden></canvas>
         <img id="camera-photo" hidden alt="">
         <div id="camera-msg" class="camera-msg" hidden></div>
+
+        <!-- 892:156 / 892:160 — printed on the frame in BOTH states. -->
+        <span id="camera-date" class="camera-date" aria-hidden="true"></span>
+
+        <!-- 892:157 — the shutter, live state only. -->
+        <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם">
+          <span class="camera-shutter-dot" aria-hidden="true"></span>
+        </button>
+
+        <!-- 892:163 — offered only once there is a photo to replace. -->
+        <button id="camera-retake" type="button" class="camera-retake" hidden>צילום מחדש</button>
+
+        <!-- 892:165 — carries on to the envelope, captured state only. -->
+        <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
+          <img src="images/next-default.png" width="160" height="160" alt="">
+        </button>
       </div>
-      <button id="camera-shutter" type="button" class="camera-shutter" aria-label="לצלם"></button>
-      <button id="btn-camera-next" type="button" class="img-btn camera-next-stamp" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
-        <img src="images/next-default.png" width="160" height="160" alt="">
-      </button>
     </div>
   </section>
 
@@ -442,7 +459,7 @@
   <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=1"
           title="גלויה להדפסה" aria-hidden="true" tabindex="-1"></iframe>
 
-  <script src="script.js?v=58"></script>
+  <script src="script.js?v=59"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
