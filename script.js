@@ -1717,30 +1717,30 @@
   let pendingUploadMetadata = null;
   let archiveTransitionRun = 0;
 
-  // Pointer proximity is deliberately separate from hover: before the pointer
-  // reaches a paper, the nearest sheet eases out of the stack and its two
-  // neighbours yield a few pixels in the opposite direction. Nothing is
-  // re-laid-out; these are additive translate properties on the existing paper.
+  // Only the two brown tool sheets react before direct hover. The archive pile
+  // keeps its original, independent paper motion untouched.
   let archiveProximityFrame = 0;
   let archiveProximityPoint = null;
   function clearArchiveProximity() {
-    if (!archivePile) return;
-    archivePile.querySelectorAll(".is-near-pointer,.is-near-adjacent").forEach(el => {
+    if (!archiveBox) return;
+    archiveBox.querySelectorAll(".interactive-brown-sheet").forEach(el => {
       el.classList.remove("is-near-pointer", "is-near-adjacent");
       el.style.removeProperty("--near-x");
       el.style.removeProperty("--near-y");
+      el.closest(".personal-tool-panel")?.classList.remove("is-near-brown");
     });
   }
   function updateArchiveProximity() {
     archiveProximityFrame = 0;
-    if (!archivePile || !archiveBox || !archiveProximityPoint ||
+    if (!archiveBox || !archiveProximityPoint ||
         !archiveBox.classList.contains("is-archive-open") ||
         archiveBox.classList.contains("is-tool-open")) {
       clearArchiveProximity();
       return;
     }
-    const papers = Array.from(archivePile.querySelectorAll(".pile-item--breathing"));
-    const pileRect = archivePile.getBoundingClientRect();
+    const papers = Array.from(archiveBox.querySelectorAll(
+      '.personal-tool-panel[aria-hidden="true"] .interactive-brown-sheet'
+    ));
     const px = archiveProximityPoint.x;
     const py = archiveProximityPoint.y;
     const measured = papers.map(el => {
@@ -1754,27 +1754,29 @@
     if (!measured.length || measured[0].edgeDistance > 110) return;
 
     const nearest = measured[0];
-    const outwardAngle = Math.atan2(nearest.cy - (pileRect.top + pileRect.height / 2),
-                                    nearest.cx - (pileRect.left + pileRect.width / 2));
-    const outward = 14;
+    const frameRect = archiveBox.getBoundingClientRect();
+    const outwardAngle = Math.atan2(nearest.cy - (frameRect.top + frameRect.height / 2),
+                                    nearest.cx - (frameRect.left + frameRect.width / 2));
+    const outward = 10.5;
     const nearX = Math.cos(outwardAngle) * outward;
     const nearY = Math.sin(outwardAngle) * outward;
     nearest.el.classList.add("is-near-pointer");
+    nearest.el.closest(".personal-tool-panel")?.classList.add("is-near-brown");
     nearest.el.style.setProperty("--near-x", nearX.toFixed(2) + "px");
     nearest.el.style.setProperty("--near-y", nearY.toFixed(2) + "px");
 
-    measured.slice(1, 3).forEach((entry, index) => {
-      const yieldDistance = 4 + index;
+    measured.slice(1, 2).forEach(entry => {
+      const yieldDistance = 3.5;
       entry.el.classList.add("is-near-adjacent");
       entry.el.style.setProperty("--near-x", (-Math.cos(outwardAngle) * yieldDistance).toFixed(2) + "px");
       entry.el.style.setProperty("--near-y", (-Math.sin(outwardAngle) * yieldDistance).toFixed(2) + "px");
     });
   }
-  archivePile?.addEventListener("pointermove", event => {
+  archiveBox?.addEventListener("pointermove", event => {
     archiveProximityPoint = { x:event.clientX, y:event.clientY };
     if (!archiveProximityFrame) archiveProximityFrame = requestAnimationFrame(updateArchiveProximity);
   }, { passive:true });
-  archivePile?.addEventListener("pointerleave", () => {
+  archiveBox?.addEventListener("pointerleave", () => {
     archiveProximityPoint = null;
     if (archiveProximityFrame) cancelAnimationFrame(archiveProximityFrame);
     archiveProximityFrame = 0;
@@ -2820,13 +2822,13 @@
         el.innerHTML = archiveStampInstructionsHTML();
         el.style.setProperty("--iw", (it.slot.w * sceneScale).toFixed(2) + "px");
       }
-      if (it.type !== "exit") el.classList.add("pile-item--breathing");
+      if (it.type !== "instructions" && it.type !== "exit") el.classList.add("pile-item--breathing");
       const seed = it.seed != null ? it.seed : k;
-      el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (6 + pileRand(seed + 37) * 5)).toFixed(2) + "px");
-      el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (4 + pileRand(seed + 43) * 4)).toFixed(2) + "px");
-      el.style.setProperty("--breathe-r", ((pileRand(seed + 47) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 49))).toFixed(3) + "deg");
-      el.style.setProperty("--breathe-duration", (4 + pileRand(seed + 53) * 3).toFixed(2) + "s");
-      el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 7).toFixed(2) + "s");
+      el.style.setProperty("--breathe-x", ((pileRand(seed + 31) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 37) * 2)).toFixed(2) + "px");
+      el.style.setProperty("--breathe-y", ((pileRand(seed + 41) > 0.5 ? 1 : -1) * (1 + pileRand(seed + 43) * 2)).toFixed(2) + "px");
+      el.style.setProperty("--breathe-r", ((pileRand(seed + 47) - 0.5) * 1).toFixed(3) + "deg");
+      el.style.setProperty("--breathe-duration", (6 + pileRand(seed + 53) * 4).toFixed(2) + "s");
+      el.style.setProperty("--breathe-delay", (-pileRand(seed + 59) * 5).toFixed(2) + "s");
       let x, y, rot, z;
       if (it.type === "doc" || it.type === "exit") {
         const slot = it.slot;
@@ -2853,7 +2855,6 @@
       } else {
         x = it.slot.cx; y = it.slot.cy; rot = it.slot.r; z = it.slot.z;
       }
-      el.style.setProperty("--hover-r", ((rot > 0 ? -1 : 1) * Math.min(1.4, Math.max(.65, Math.abs(rot) * .12))).toFixed(2) + "deg");
       // Where this paper starts: its measured place in the stack the user is
       // looking at, or the recorded pile position when there was no stack.
       const measured = stackSourceGeometry && stackSourceGeometry[it.slot.src];
