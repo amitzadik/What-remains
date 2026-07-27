@@ -402,7 +402,7 @@
         // Flip 180° to the connected card; it stays ~2s, then the modal closes.
         updateHeaderAuthState();
         if (loginBackCode) {
-          loginBackCode.textContent = data.name || ("מפקיד/ה מס׳ " + (data.code || ""));
+          loginBackCode.textContent = data.name || "";
         }
         if (loginFlip) loginFlip.classList.add("is-flipped");
         setTimeout(() => {
@@ -440,11 +440,9 @@
   const btnAccountLogout = document.getElementById("btn-account-logout");
   function openAccountModal() {
     const sess = getSession();
-    // 779:1216 names the depositor, not their number. The number is still what
-    // this window has when a session was stored before names were kept.
+    // This window displays only the signed-in person's name.
     if (accountCode) {
-      accountCode.textContent = (sess && sess.name) ? sess.name
-        : (sess && sess.code ? "מפקיד/ה מס׳ " + sess.code : "");
+      accountCode.textContent = (sess && sess.name) ? sess.name : "";
     }
     if (accountModal) accountModal.classList.add("active");
   }

@@ -1515,7 +1515,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   margin: 0;
   font-family: var(--font-main);
   font-weight: 700;
-  font-size: 9.7187cqw;                       /*  76 */
+  font-size: 6.8031cqw;                       /* 53.2 — 30% smaller */
   line-height: .95;
   text-align: right;
   color: var(--ink);

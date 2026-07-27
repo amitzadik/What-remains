@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שנשאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=76" />
+  <link rel="stylesheet" href="style.css?v=77" />
 </head>
 <body dir="rtl">
 
@@ -423,7 +423,7 @@
 
       <!-- BACK: connected / logout card, revealed by the flip after login -->
       <div class="modal-content popup-window login-face login-face-back" id="login-back-content">
-        <div class="account-line"><span id="login-back-code"></span> מחובר/ת</div>
+        <div class="account-line"><span id="login-back-code"></span></div>
         <button id="btn-back-logout" type="button" class="img-btn account-logout" data-default="images/logout-default.png" data-hover="images/logout-hover.png" aria-label="התנתקות">
           <img src="images/logout-default.png" alt="" width="180" height="69">
         </button>
@@ -437,7 +437,7 @@
       <button id="btn-close-account" type="button" class="img-btn popup-close" data-default="images/close-default.png" data-hover="images/close-hover.png" aria-label="סגירה">
         <img src="images/close-default.png" width="60" height="60" alt="">
       </button>
-      <div class="account-line"><span id="account-code"></span> מחובר/ת</div>
+      <div class="account-line"><span id="account-code"></span></div>
       <button id="btn-account-logout" type="button" class="img-btn account-logout" data-default="images/logout-default.png" data-hover="images/logout-hover.png" aria-label="התנתקות">
         <img src="images/logout-default.png" alt="" width="180" height="69">
       </button>
@@ -463,7 +463,7 @@
   <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=1"
           title="גלויה להדפסה" aria-hidden="true" tabindex="-1"></iframe>
 
-  <script src="script.js?v=62"></script>
+  <script src="script.js?v=63"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
