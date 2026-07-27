@@ -5592,65 +5592,96 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 
 .pile-item--instructions {
+  /* How wide this paper lies on the desk is the pile's own business (751:305),
+     but its SHAPE is the stamping node's, so the sheet below is that node at a
+     smaller scale and every coordinate on it lands where the node puts it. */
   width: var(--iw, 1243.756px);
-  aspect-ratio: 1243.756 / 879.707;
+  aspect-ratio: 1278.211 / 929.136;
   overflow: hidden;
   box-shadow: 0 4px 5px rgba(0,0,0,.25);
 }
+/* The stamping sheet as it lies on the archive desk. It is the same document as
+   #memory-envelope-transition, so it is set from the same node (480:8853): the
+   same fill, the same paper grain over it, the same text block, the same
+   stamped number and the same arrow, all at the node's own coordinates. Only
+   its size on the desk is the pile's own business (751:305 gives this paper its
+   place there), so the slot above keeps its width and proportion.
+   Type is in cqw against this sheet, so it scales with the paper on the desk
+   rather than with the window. */
 .archive-stamp-sheet {
   position: absolute;
   inset: 0;
+  container-type: inline-size;
   overflow: hidden;
   direction: rtl;
   color: var(--ink);
-  background:
-    linear-gradient(rgba(244,239,229,.05), rgba(244,239,229,.05)),
-    url("images/figma-question-background.jpg") center / cover no-repeat;
+  background-color: rgba(243, 232, 214, 0.95);
   opacity: .95;
 }
-.archive-stamp-copy {
+/* 840:714 — the same paper grain, laid over the composition. The sheet's own
+   opacity isolates the blend, so the papers under it on the desk are untouched. */
+.archive-stamp-sheet::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  left: 45.7524%;                            /* 584.806 */
+  top: 50.4356%;                             /* 468.614 */
+  width: 115.6407%;                          /* 1478.134 */
+  height: 106.1408%;                         /*  986.192 */
+  transform: translate(-50%, -50%) rotate(-1.68deg);
+  transform-origin: center;
+  background: url("images/Texturelabs_Paper_234M.jpg") center / cover no-repeat;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.archive-stamp-copy {                        /* 480:8880 */
   position: absolute;
   z-index: 2;
-  top: 17.3%;
-  right: 12.7%;
-  width: 75.56%;
+  left: 16.9445%;                            /* 216.586 */
+  top: 27.9920%;                             /* 260.088 */
+  width: 66.0182%;                           /* 843.852 */
+  height: 39.3001%;                          /* 365.15  */
   text-align: right;
   font-family: var(--font-main);
-  font-size: clamp(18px, 2.2917vw, 44px);
+  font-size: 3.4423cqw;                      /*  44 */
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -.01em;
 }
 .archive-stamp-copy p {
-  margin: 0 0 clamp(9px, 1.04vw, 20px);
+  margin: 0 0 1.5647cqw;                     /*  20 */
   text-indent: 0;
 }
 .archive-stamp-copy p:last-child { margin-bottom: 0; }
-.archive-stamp-code {
+.archive-stamp-code {                        /* 480:8888 */
   position: absolute;
   z-index: 1;
-  inset: 50% 0 auto;
-  transform: translateY(-50%) rotate(6.18deg) scaleX(.72);
+  left: 50.8083%;                            /* 649.439 */
+  top: 35.5924%;                             /* 330.699 */
+  width: 82.8055%;                           /* 1058.433 */
+  height: 97.9057%;                          /*  909.675 */
+  transform: translate(-50%, -50%) rotate(6.18deg);
   transform-origin: center;
   direction: ltr;
-  text-align: center;
+  text-align: right;
   white-space: nowrap;
   font-family: var(--font-mandatory);
-  font-size: clamp(190px, 46.875vw, 900px);
+  font-size: 70.4108cqw;                     /* 900 */
   font-weight: 400;
-  font-variation-settings: "wght" 400, "wdth" 70;
-  line-height: .8;
+  font-variation-settings: "wght" 400, "wdth" 26;
+  line-height: 1.3;
   color: #c34237;
   opacity: .2;
   filter: blur(3px);
   mix-blend-mode: multiply;
 }
-.archive-stamp-next {
+.archive-stamp-next {                        /* 480:8885 */
   position: absolute;
   z-index: 3;
-  left: 3.24%;
-  bottom: 4.23%;
-  width: 12.86%;
+  left: 2.9095%;                             /*  37.19 */
+  top: 78.4396%;                             /* 728.816 */
+  width: 12.5175%;                           /* 160 */
   height: auto;
 }
 .pile-item.is-uploading { opacity: 0.6; }
