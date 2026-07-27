@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>מה שנשאר — ארכיון הזיכרון</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css?v=71" />
+  <link rel="stylesheet" href="style.css?v=72" />
 </head>
 <body dir="rtl">
 
@@ -246,10 +246,11 @@
     </div>
     <article class="stamp-instructions-sheet" id="memory-envelope-transition">
       <div class="stamp-instructions-code" id="stamp-instructions-code" aria-label="קוד הגישה"></div>
+      <!-- 480:8880 — the three paragraphs, as the node writes them. -->
       <div class="stamp-instructions-copy">
-        <p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת שנמצאת על השולחן. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך לארכיון שיצרת.</p>
-        <p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לחומרים שהכנסת או תכניס לארכיון.</p>
-        <p>באפשרותך להתחבר לארכיון האישי שלך בעתיד באמצעות המייל שלך וקוד זה כדי להוסיף חומרים משלך לארכיון.</p>
+        <p>קח מעטפה חומה מהערימה והחתם אותה עם החותמת. המספר שהוחתם וכתוב על המסך זהו קוד הגישה שלך.</p>
+        <p>תוכל לשתף קוד זה בעתיד עם כל אדם שתרצה שיהיה חשוף לארכיון שלך.</p>
+        <p>באפשרותך להתחבר לארכיון זה בעתיד כדי להוסיף חומרים משלך.</p>
       </div>
       <button id="btn-envelope-next" type="button" class="img-btn stamp-instructions-next" data-default="images/next-default.png" data-hover="images/next-hover.png" aria-label="להמשיך">
         <img src="images/next-default.png" width="160" height="160" alt="">
@@ -459,7 +460,7 @@
   <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=1"
           title="גלויה להדפסה" aria-hidden="true" tabindex="-1"></iframe>
 
-  <script src="script.js?v=59"></script>
+  <script src="script.js?v=60"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;

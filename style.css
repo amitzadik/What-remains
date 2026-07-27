@@ -4046,17 +4046,24 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .stamp-instructions-photo img[hidden] { display: none; }
 
+/* Figma 480:8853 "הוראות החתמה". The node is authored portrait, 929.136 x
+   1278.211, and turned about -90deg to read landscape — the same convention the
+   rest of this file uses. Every child below is that node's own coordinate
+   carried through the turn (a portrait point (x,y) lands at (y, 929.136 - x))
+   and then written as a percentage of the landscape sheet, so the composition
+   holds at any size. Type is in cqw against the same sheet. */
 .stamp-instructions-sheet {
   position: absolute;
   z-index: 20;
   left: 48.78%;
   top: 54.75%;
-  width: min(64.779vw, calc(81.454vh * 1.4138), 1243.756px);
-  aspect-ratio: 1243.756 / 879.707;
+  width: min(66.5735vw, calc(86.031vh * 1.37569), 1278.211px);
+  aspect-ratio: 1278.211 / 929.136;
+  container-type: inline-size;
   overflow: hidden;
   direction: rtl;
   color: var(--ink);
-  background-color: rgba(244, 239, 229, 0.95);
+  background-color: rgba(243, 232, 214, 0.95);
   background-image: url("images/figma-question-background.jpg");
   background-size: cover;
   box-shadow: 0 5px 5px rgba(0,0,0,.25);
@@ -4088,53 +4095,64 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   }
   100% { rotate: 4.86deg; }
 }
+/* 480:8880 — style "טקסט רץ עמוד בית": SundayMono Medium 44/1.1, tracking -1.
+   The block is 843.852 x 365.15 at (216.586, 260.088) once the sheet is turned.
+   No indent: the node sets each paragraph flush to the right margin. */
 .stamp-instructions-copy {
   position: absolute;
   z-index: 2;
-  top: 17.3%;
-  right: 12.7%;
-  width: 75.56%;
+  left: 16.9445%;                            /* 216.586 */
+  top: 27.9920%;                             /* 260.088 */
+  width: 66.0182%;                           /* 843.852 */
+  height: 39.3001%;                          /* 365.15  */
   direction: rtl;
   text-align: right;
   font-family: var(--font-main);
-  font-size: clamp(18px, 2.2917vw, 44px);
+  font-size: 3.4423cqw;                      /*  44 */
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -.01em;
 }
 .stamp-instructions-copy p {
-  margin: 0 0 clamp(9px, 1.04vw, 20px);
-  text-indent: clamp(32px, 4.1667vw, 80px);
+  margin: 0 0 1.5647cqw;                     /*  20 */
+  text-indent: 0;
 }
 .stamp-instructions-copy p:last-child { margin-bottom: 0; }
+/* 480:8888 — the stamped number behind the copy. 1058.433 x 909.675 centred at
+   (649.439, 330.699) and turned 6.18deg, at Mandatory's "Regular Condensed"
+   instance: the same wdth 26 the camera print's date is set at. */
 .stamp-instructions-code {
   position: absolute;
   z-index: 1;
-  left: 0;
-  right: 0;
-  top: 50%;
+  left: 50.8083%;                            /* 649.439 */
+  top: 35.5924%;                             /* 330.699 */
+  width: 82.8055%;                           /* 1058.433 */
+  height: 97.9057%;                          /*  909.675 */
   direction: ltr;
-  text-align: center;
+  text-align: right;
   white-space: nowrap;
   font-family: var(--font-mandatory);
-  font-size: clamp(190px, 41.667vw, 800px);
+  font-size: 70.4108cqw;                     /*  900 */
   font-weight: 400;
-  font-variation-settings: "wght" 400, "wdth" 70;
-  line-height: .8;
+  font-variation-settings: "wght" 400, "wdth" 26;
+  line-height: 1.3;
   color: #c34237;
   opacity: .2;
   filter: blur(3px);
   mix-blend-mode: multiply;
-  transform: translateY(-50%) rotate(6.18deg) scaleX(.72);
+  transform: translate(-50%, -50%) rotate(6.18deg);
   transform-origin: center;
 }
+/* 480:8885 — 160 square at (37.19, 728.816) once the sheet is turned. The node
+   turns it 90deg inside a frame turned -90deg, so it is upright on the sheet. */
 .stamp-instructions-next {
   position: absolute;
   z-index: 3;
-  left: 3.24%;
-  bottom: 4.23%;
-  width: clamp(72px, 8.333vw, 160px);
-  height: clamp(72px, 8.333vw, 160px);
+  left: 2.9095%;                             /*  37.19 */
+  top: 78.4396%;                             /* 728.816 */
+  width: 12.5175%;                           /* 160 */
+  aspect-ratio: 1;
+  height: auto;
 }
 .stamp-instructions-next img { width: 100%; height: 100%; }
 
@@ -5585,7 +5603,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 }
 .archive-stamp-copy p {
   margin: 0 0 clamp(9px, 1.04vw, 20px);
-  text-indent: clamp(32px, 4.1667vw, 80px);
+  text-indent: 0;
 }
 .archive-stamp-copy p:last-child { margin-bottom: 0; }
 .archive-stamp-code {
