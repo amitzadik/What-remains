@@ -454,7 +454,16 @@ button{font:inherit;color:inherit}
   padding:3.5vh 1.55vw;
   text-align:right;
 }
-.landing-v2__result:hover{transform:rotate(var(--slot-r)) translateY(-3px);box-shadow:0 7px 7px rgba(0,0,0,.22)}
+.landing-v2__result:hover:not(:disabled){
+  transform:rotate(var(--slot-r)) translateY(-3px);
+  box-shadow:0 7px 7px rgba(0,0,0,.22);
+  color:var(--ink);
+  border-color:transparent;
+  background-color:#f3e8d6;
+  background-image:url("images/Texturelabs_Paper_234S.jpg");
+  background-size:cover;
+  background-blend-mode:multiply;
+}
 .landing-v2__result:focus-visible{outline:2px solid rgba(62,54,38,.8);outline-offset:5px}
 
 .landing-v2.is-revealed .landing-v2__copy{opacity:1}
