@@ -6273,6 +6273,11 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background:transparent; color:var(--ink);
   font:500 2.33cqw/1.5 var(--font-main); direction:rtl;
 }
+.personal-tool-panel--search .personal-tool-field textarea,
+.personal-tool-panel--search .personal-tool-field input {
+  text-align: right;
+  text-indent: 0;
+}
 
 /* Top-left add stamp and bottom-left back arrow. Figma's redesigned retrieval
    sheet has no separate magnifier stamp. */
