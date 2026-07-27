@@ -138,8 +138,10 @@
   --paper-tex: url('images/paper-texture.jpg');
   --paperboard-tex: url('paperboard-texture.jpg');
   --flow-paper-tex: url('images/figma-flow-light-paper.jpg');
-  --popup-card-w: min(668px, calc(90vw - 232px), calc(85vh * 1.5 - 232px));
-  --popup-card-h: calc(var(--popup-card-w) / 1.5);
+  /* Figma 925:896 / 463:5337 / 650:672 — all three windows are one frame,
+     782 x 555, authored portrait (555 x 782) and turned -90deg. */
+  --popup-card-w: min(782px, calc(90vw - 232px), calc(85vh * 1.40901 - 232px));
+  --popup-card-h: calc(var(--popup-card-w) / 1.40901);
 }
 
 /* Reusable "paper" surface — texture overlay on cream */
@@ -1286,87 +1288,176 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 
 #err-msg { color: var(--red); font-size: 0.9rem; margin-top: 1rem; min-height: 1.2rem; }
 
-/* ===== Code-entry modal — landscape password card (scoped, does not
-   touch the generic .modal-content used by the content modal) ===== */
-#code-modal-content {
+/* ============================================================
+   The popup windows — Figma 925:896 / 463:5337 / 650:672
+   ============================================================
+   One frame in three states: the drawer's code, the login, and who is
+   connected. The frame is authored portrait, 555 x 782, and turned about -90deg
+   to read landscape — the convention this file uses throughout — so every child
+   is that node's own coordinate carried through the turn (a portrait point
+   (x,y) lands at (y, 555 - x)) written as a percentage of the 782 x 555 window.
+   Type is in cqw against the window, so it scales with the card. */
+.popup-window {
+  container-type: inline-size;
   width: var(--popup-card-w);
   height: var(--popup-card-h);
-  aspect-ratio: auto;
-  padding: 44px 48px;
-  text-align: right;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  padding: 0;
   border: none;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
+  position: relative;
+  direction: rtl;
+  text-align: right;
+  color: var(--ink);
+  background: rgba(243, 232, 214, 0.8);       /* parchment at the node's opacity */
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 }
-/* Scale down on short viewports — derive width from height, keep ratio */
-@media (max-height: 600px) {
-  #code-modal-content { height: var(--popup-card-h); width: var(--popup-card-w); }
+/* Texturelabs_Paper_234S, multiplied in — 960 x 640 over the whole window. */
+.popup-window::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;                                  /* 391 of 782 */
+  top: 53.1532%;                              /* 295 of 555 */
+  width: 122.7621%;                           /* 960 */
+  height: 115.3153%;                          /* 640 */
+  transform: translate(-50%, -50%);
+  background: url("images/Texturelabs_Paper_234S.jpg") center / cover no-repeat;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
+#account-modal-content::before,
+#login-back-content::before { top: 50.0901%; }  /* 650:672 sets it at 278 */
+.popup-window > * { position: relative; z-index: 1; }
 
-/* Title sits in flow on the top-right; the X is pinned 20px from the
-   top-right corner (like .popup-close-btn). padding-right reserves room
-   so the title never slides under the X. */
-#code-modal-content .code-head {
+/* 925:907 / 463:5347 / 650:682 — the close, top right. */
+.popup-window .popup-close {
+  position: absolute;
+  z-index: 3;
+  left: 88.7468%;                             /* 694 */
+  top: 5.0450%;                               /*  28 */
+  width: 7.6726%;                             /*  60 */
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.popup-window .popup-close img { display: block; width: 100%; height: 100%; }
+
+/* 925:906 / 463:5346 — the lock, bottom left. It is this project's submit. */
+.popup-window .popup-lock {
+  position: absolute;
+  z-index: 3;
+  left: 3.5806%;                              /*  28 */
+  top: 75.6757%;                              /* 420 */
+  width: 13.6829%;                            /* 107 */
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.popup-window .popup-lock img { display: block; width: 100%; height: 100%; }
+
+/* 925:898 / 463:5338 — style "כרטיסיות בהתחלה": SundayMono Medium 30/45,
+   indented 60, hard against the window's right margin. */
+.popup-title {
+  position: absolute;
+  z-index: 2;
+  top: 6.3063%;                               /*  35 */
+  height: 8.1081%;                            /*  45 */
+  margin: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-right: 28px;
-}
-#code-modal-content .code-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 5;
-}
-#code-modal-content .code-title {
+  justify-content: flex-start;
   font-family: var(--font-main);
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-weight: 500;
+  font-size: 3.8363cqw;                       /*  30 */
+  line-height: 1.5;                           /*  45 */
+  text-indent: 7.6726cqw;                     /*  60 */
+  white-space: nowrap;
   color: var(--ink);
-  line-height: 1.15;
 }
-#code-modal-content .code-target {
-  font-family: var(--font-main);
-  font-size: 0.95rem;
-  color: var(--metal);
-  margin-top: 6px;
-}
+.popup-title--code  { left: 23.7852%; width: 69.0537%; }   /* 186, 540 */
+.popup-title--login { left: 54.4757%; width: 38.3632%; }   /* 426, 300 */
 
-/* The 4 digit boxes, centred in the card */
-#code-modal-content .code-center {
-  margin: auto 0;
-  text-align: center;
+/* 925:899 / 463:5339 — the framed fields. A row is [input | label], the label
+   cell as wide as the node's own divider puts it. */
+.popup-field {
+  position: absolute;
+  z-index: 2;
+  border: 1.5px solid var(--ink);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
-#code-modal-content .code-boxes {
-  display: inline-flex;
-  /* numbering runs left→right; box 0 is the leftmost cell */
-  direction: ltr;
-  border: 1px solid var(--ink);
+.popup-field--code  {                         /* 925:899 */
+  left: 17.2634%;                             /* 135 */
+  top: 43.7838%;                              /* 243 */
+  width: 67.7749%;                            /* 530 */
+  height: 12.4324%;                           /*  69 */
 }
-#code-modal-content .code-box {
-  width: 88px;
-  height: 88px;
-  border: none;
-  /* single 1px divider between cells; outer frame on .code-boxes */
-  border-inline-start: 1px solid var(--ink);
-  background: transparent;
-  text-align: center;
+.popup-field--login {                         /* 463:5339 */
+  left: 12.6598%;                             /*  99 */
+  top: 38.0180%;                              /* 211 */
+  width: 74.5524%;                            /* 583 */
+  height: 23.9640%;                           /* 133 */
+}
+.popup-field-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+/* 463:5340 — the two rows split the frame in half. */
+.popup-field-row--mail { height: 51.1278%; border-bottom: 1.5px solid var(--ink); }
+.popup-field-row--code { height: 48.8722%; }
+.popup-field--code { align-items: stretch; }
+.popup-field-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  /* The label sits against the window's right margin and the divider falls on
+     its inner edge, which in this right-to-left window is its left. */
+  border-inline-end: 1.5px solid var(--ink);
   font-family: var(--font-main);
-  font-size: 2.6rem;
+  font-weight: 500;
+  font-size: 2.3018cqw;                       /*  18 */
+  line-height: 1;
+  white-space: nowrap;
   color: var(--ink);
-  caret-color: var(--stamp);
+}
+/* Each label cell is exactly where its own divider stands in the node. */
+.popup-field--code  > .popup-field-label      { width: 17.9245%; }  /* 435 of 530 */
+.popup-field-row--mail > .popup-field-label   { width: 24.0137%; }  /* 443 of 583 */
+.popup-field-row--code > .popup-field-label   { width: 18.8679%; }  /* 473 of 583 */
+.popup-field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0 2.0461cqw;                       /*  16 */
+  font-family: var(--font-main);
+  font-size: 2.3018cqw;
+  color: var(--ink);
   outline: none;
-  padding: 0;
-  border-radius: 0;
+  caret-color: var(--stamp);
 }
-#code-modal-content .code-box:first-child { border-inline-start: none; }
-#code-modal-content .code-err {
-  margin-top: 16px;
+.popup-field--code { flex-direction: row; }
+.popup-err {
+  position: absolute;
+  z-index: 2;
+  left: 17.2634%;
+  top: 58%;
+  width: 67.7749%;
+  margin: 0;
+  font-family: var(--font-main);
+  font-size: 2.0461cqw;
+  min-height: 1.2em;
   color: var(--stamp);
-  font-size: 0.9rem;
-  min-height: 1.2rem;
+  text-align: right;
 }
+#login-err { left: 12.6598%; top: 64%; width: 74.5524%; }
 
 /* ===== Login modal — archival cream card, פרטי-המפקיד form style ===== */
 /* Two-face flip: login form (front) flips 180° to the connected card (back),
@@ -1402,104 +1493,36 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   justify-content: center;        /* input rows sit centered */
   align-items: center;
 }
-#login-modal-content .code-close { position: absolute; top: 32px; right: 32px; left: auto; z-index: 5; }
-#login-modal-content .code-close img { width: 60px; height: 60px; }
+/* Both faces of the login card are the same window; the front carries the form
+   and the back the connected card, so neither needs a layout of its own. */
+#login-modal-content,
+#login-back-content,
+#account-modal-content { display: block; }
 
-/* Back face — connected / logout card (same look as the account modal) */
-#login-back-content {
-  padding: 40px 44px;
+/* 779:1216 — style "טיפוגרפיה רצה בהתחלה": SundayMono Bold 76/0.95, in the
+   block the node gives it. The logout stamp the node carries is deliberately
+   NOT built: this window keeps the project's own logout button (below). */
+.account-line {
+  position: absolute;
+  z-index: 2;
+  left: 24.2967%;                             /* 190 */
+  top: 37.1171%;                              /* 206 */
+  width: 51.2788%;                            /* 401 */
+  height: 25.9459%;                           /* 144 */
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-/* Title — project mono font, ink, top-right corner */
-.login-title {
-  position: absolute;
-  top: 44px;
-  right: 130px;
+  justify-content: flex-end;
+  margin: 0;
   font-family: var(--font-main);
-  font-size: 2rem;
-  font-weight: var(--ts-card-weight);   /* כרטיסיות בהתחלה — Medium (not Bold) */
-  line-height: var(--ts-card-lh);
-  letter-spacing: var(--ts-card-ls);
-  color: var(--ink);
+  font-weight: 700;
+  font-size: 9.7187cqw;                       /*  76 */
+  line-height: .95;
   text-align: right;
-}
-
-/* Framed rows: label (right) | divider | input (left) — centered block */
-.login-grid { display: flex; flex-direction: column; width: 73%; }
-.login-row {
-  display: flex;
-  align-items: stretch;
-  border: 1px solid var(--ink);
-}
-.login-row + .login-row { margin-top: -1px; }
-.login-label {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  border-left: 1px solid var(--ink);
-  font-family: var(--font-main);
-  font-size: 0.95rem;
-  font-weight: var(--ts-fieldlabel-weight);   /* שדות למילוי — Medium */
-  line-height: var(--ts-fieldlabel-lh);
-  letter-spacing: var(--ts-fieldlabel-ls);
   color: var(--ink);
-  white-space: nowrap;
 }
-.login-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  padding: 14px 16px;
-  font-family: var(--font-main);
-  font-size: 1rem;
-  color: var(--ink);
-  outline: none;
-  caret-color: var(--stamp);
-}
-
-.login-err {
-  color: var(--stamp);
-  font-family: var(--font-main);
-  font-size: 0.9rem;
-  min-height: 1.2rem;
-  text-align: right;
-}
-
-/* Actions: round lock button (left) + logout (right).
-   direction:ltr keeps lock physically left / logout physically right. */
-.login-actions {
-  position: absolute;
-  left: 32px;
-  bottom: 28px;
-}
-.login-lock { flex: 0 0 auto; }
 
 /* ===== Account screen — shown when a logged-in user clicks the person icon ===== */
-#account-modal-content {
-  width: var(--popup-card-w);
-  height: var(--popup-card-h);
-  max-width: calc(100vw - 2rem);
-  max-height: calc(100vh - 2rem);
-  padding: 40px 44px;
-  box-shadow: 0 12px 34px rgba(0,0,0,0.16);
-  display: flex;
-  align-items: center;
-  justify-content: center;        /* the connected line sits centered */
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.account-line {
-  font-family: var(--font-main);
-  font-size: 1.9rem;
-  color: var(--ink);
-  direction: rtl;
-}
+/* The logout stamp is the project's own button, kept exactly as it was. */
 .account-logout {
   position: absolute;
   left: 32px;
@@ -2726,10 +2749,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-date {
   position: absolute;
   z-index: 3;
-  right: 85.0451%;                          /* 938.46 */
-  top: 4.7010%;                             /*  32.97 */
-  width: 12.9864%;                          /* 143.305 */
-  height: 7.2547%;                          /*  50.878 */
+  right: 84.9673%;                          /* 937.69 */
+  top: 4.4060%;                             /*  30.90 */
+  width: 13.0658%;                          /* 144.181 */
+  height: 7.6267%;                          /*  53.487 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2742,7 +2765,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   line-height: 4.5311cqw;                   /*  50 */
   color: var(--ink);
   opacity: .8;
-  rotate: -0.35deg;
+  rotate: -1.4deg;
   pointer-events: none;
 }
 
@@ -2805,6 +2828,33 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .camera-retake[hidden] { display: none; }
 .camera-retake:hover, .camera-retake:focus-visible { opacity: .78; outline: none; }
 
+/* 929:930 — "דילוג": carry on with no portrait at all. The same stamp the
+   retake is set in, at the other end of the frame, and offered only while the
+   camera is still live — once there is a photograph the retake stands there. */
+.camera-skip {
+  position: absolute;
+  z-index: 3;
+  left: 2.9389%;                            /*  32.43 */
+  top: 88.5809%;                            /* 621.23 */
+  width: 13.5312%;                          /* 149.316 */
+  height: 8.6970%;                          /*  60.994 */
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  direction: rtl;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-main);
+  font-weight: 500;
+  font-size: 4.5311cqw;                     /*  50 */
+  line-height: 1.2;
+  color: #c34237;
+  rotate: -1.06deg;
+  transition: opacity 0.2s ease;
+}
+.camera-skip:hover, .camera-skip:focus-visible { opacity: .78; outline: none; }
+
 /* 892:165 — on to the envelope. The project already ships this exact arrow. */
 .camera-next-stamp {
   position: absolute;
@@ -2833,7 +2883,8 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    the frame carries the shutter and nothing else; after it, the shutter is gone
    and the retake and the arrow are there instead — exactly the two nodes. */
 #screen-camera:not([data-camera-phase="captureComplete"]) .camera-next-stamp,
-#screen-camera[data-camera-phase="captureComplete"] .camera-shutter { display: none; }
+#screen-camera[data-camera-phase="captureComplete"] .camera-shutter,
+#screen-camera[data-camera-phase="captureComplete"] .camera-skip { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   #screen-camera.is-fading .camera-screen-shade { opacity: 1; animation: none; }
@@ -5413,13 +5464,25 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   line-height: 1;
   letter-spacing: 0;
   color: #ce453a;
-  background: #eee6d6;
+  /* Figma 751:422 — the plate is a paper, so it carries the grain rather than a
+     flat fill. The colour it already had stays the base and the texture is
+     multiplied onto it, which is what keeps the red reading against it. */
+  background-color: #eee6d6;
+  background-image: url("images/Texturelabs_Paper_234S.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
   border: none;
   border-radius: 0;
   padding: 0 0.4em;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   white-space: nowrap;
 }
+/* 751:423 sets the name in red, and the plate above asks for it too — but
+   `#screen-personal .drawer-name` carries an id and was quietly winning the
+   colour. Scoped past it, so the plate's own red is what shows. */
+#screen-personal .archive-box .drawer-name { color: #ce453a; }
 
 /* The pile itself */
 .archive-pile {

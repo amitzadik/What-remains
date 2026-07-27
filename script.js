@@ -387,7 +387,9 @@
         loginErr.textContent = "";
         // Flip 180° to the connected card; it stays ~2s, then the modal closes.
         updateHeaderAuthState();
-        if (loginBackCode) loginBackCode.textContent = data.code || "";
+        if (loginBackCode) {
+          loginBackCode.textContent = data.name || ("מפקיד/ה מס׳ " + (data.code || ""));
+        }
         if (loginFlip) loginFlip.classList.add("is-flipped");
         setTimeout(() => {
           closeLoginModal();
@@ -424,10 +426,18 @@
   const btnAccountLogout = document.getElementById("btn-account-logout");
   function openAccountModal() {
     const sess = getSession();
-    if (accountCode) accountCode.textContent = (sess && sess.code) ? sess.code : "";
+    // 779:1216 names the depositor, not their number. The number is still what
+    // this window has when a session was stored before names were kept.
+    if (accountCode) {
+      accountCode.textContent = (sess && sess.name) ? sess.name
+        : (sess && sess.code ? "מפקיד/ה מס׳ " + sess.code : "");
+    }
     if (accountModal) accountModal.classList.add("active");
   }
   function closeAccountModal() { if (accountModal) accountModal.classList.remove("active"); }
+  // 650:682 — the window's own close.
+  const btnCloseAccount = document.getElementById("btn-close-account");
+  if (btnCloseAccount) btnCloseAccount.addEventListener("click", closeAccountModal);
   if (accountModal) accountModal.addEventListener("click", (e) => {
     if (e.target === accountModal) closeAccountModal();   // click outside the card closes it
   });
@@ -1323,6 +1333,7 @@
   const cameraShutter = document.getElementById("camera-shutter");
   const cameraRetake  = document.getElementById("camera-retake");
   const cameraDate    = document.getElementById("camera-date");
+  const cameraSkip    = document.getElementById("camera-skip");
   const btnCameraNext = document.getElementById("btn-camera-next");
   const btnCameraBack = document.getElementById("btn-camera-back");
   const envelopeTransition = document.getElementById("memory-envelope-transition");
@@ -1598,6 +1609,24 @@
     setCameraPhase(CAMERA_PHASE.FINAL_BROWN_SCREEN);
     showScreen("envelope");
   });
+
+  // 929:930 "דילוג" — the portrait is not compulsory. The deposit carries on to
+  // the envelope with no photograph: nothing is captured, so there is nothing to
+  // upload and the archive simply holds one fewer item.
+  if (cameraSkip) {
+    cameraSkip.addEventListener("click", () => {
+      const phase = screens.camera.dataset.cameraPhase;
+      if (phase !== CAMERA_PHASE.FORMS_ENTERED && phase !== CAMERA_PHASE.FADE_COMPLETE) return;
+      state.photoDataUrl = "";
+      state.photoWidth = 0;
+      state.photoHeight = 0;
+      cameraSequenceRun++;                 // any camera still opening is unwanted
+      stopCameraStream();
+      initEnvelopeTransition();
+      setCameraPhase(CAMERA_PHASE.FINAL_BROWN_SCREEN);
+      showScreen("envelope");
+    });
+  }
 
   if (btnEnvelopeNext) {
     btnEnvelopeNext.addEventListener("click", () => {
@@ -3715,7 +3744,11 @@
   // moment the archive is allowed to come back together. Nothing here can run
   // between the arrow and the result: the papers are released from wherever
   // they ended up and travel home, and the retrieval sheet is put back down.
-  function endArchiveSweep() {
+  // `keepSheetUp` is the no-result record's own way back: the papers travel home
+  // to their opened-tool places and the retrieval sheet comes back up with them,
+  // so the depositor lands straight on the request sheet ready to ask something
+  // else. Without it the sheet is put back down and the pile closes up.
+  function endArchiveSweep(keepSheetUp) {
     if (archiveSweepPhase !== "sweeping" && archiveSweepPhase !== "resolving") return;
     archiveSweepPhase = "returning";
     const run = ++archiveSweepRun;
@@ -3736,8 +3769,11 @@
       });
     });
     // The sheet goes back down and the pile closes up behind it — the ordinary
-    // close motion this archive has always used.
-    closePersonalTool();
+    // close motion this archive has always used. Unless the depositor asked to
+    // go back to the request, in which case both stay where they are and the
+    // return above simply carries them to their opened places.
+    if (!keepSheetUp) closePersonalTool();
+    else if (personalSearchStatus) personalSearchStatus.textContent = "";
 
     window.setTimeout(() => {
       if (run !== archiveSweepRun) return;
@@ -3750,11 +3786,11 @@
     }, reduceMotion ? 0 : 1150);
   }
 
-  function resetArchiveBot(clearFields) {
+  function resetArchiveBot(clearFields, keepSheetUp) {
     botRequestRun++;              // any in-flight search is no longer wanted
     botRequestPending = false;
     setBotState("initial");
-    endArchiveSweep();
+    endArchiveSweep(keepSheetUp);
     if (archiveBotAnswer) archiveBotAnswer.textContent = "";
     if (clearFields) {
       const queryField = document.getElementById("personal-search-query");
@@ -3765,13 +3801,13 @@
     if (personalSearchStatus) personalSearchStatus.textContent = "";
   }
 
-  function closeArchiveBot() {
+  function closeArchiveBot(keepSheetUp) {
     const wasActive = botState !== "initial" ||
       (archiveBot && archiveBot.getAttribute("aria-hidden") !== "true") ||
       (archiveBox && archiveBox.dataset.botState &&
        archiveBox.dataset.botState !== "initial");
     if (!wasActive) return false;
-    resetArchiveBot(true);
+    resetArchiveBot(true, keepSheetUp);
     return true;
   }
 
@@ -3858,11 +3894,19 @@
   // The not-found record's arrow: back to the archive to ask about something
   // else. The found record has no control of its own in Figma — it is put down
   // with the archive's own close, or Escape.
+  // 769:140 — "חזור אחורה ליצירת בקשה בנושא אחר". It does exactly that: back to
+  // the retrieval sheet, up and ready, rather than back to a closed archive.
   const btnArchiveBotBack = document.getElementById("btn-archive-bot-back");
   if (btnArchiveBotBack) {
     btnArchiveBotBack.addEventListener("click", (e) => {
       e.preventDefault();
-      closeArchiveBot();
+      closeArchiveBot(true);
+      const queryField = document.getElementById("personal-search-query");
+      window.setTimeout(() => {
+        if (queryField && archiveBox && archiveBox.classList.contains("is-tool-search")) {
+          queryField.focus({ preventScroll: true });
+        }
+      }, reduceMotion ? 0 : 1200);
     });
   }
   document.addEventListener("keydown", (e) => {
@@ -3909,16 +3953,18 @@
   const codeModal        = document.getElementById("code-modal");
   const codeModalContent = document.getElementById("code-modal-content");
   const codeTarget       = document.getElementById("code-target");
-  const codeBoxes        = Array.from(document.querySelectorAll("#code-boxes .code-box"));
+  // 925:899 gives this window one field, so the four masked digit boxes are
+  // gone; a password input masks natively and needs no shadow value.
+  const codeInput        = document.getElementById("code-input");
   const errMsg           = document.getElementById("err-msg");
 
   // The displayed value is masked (*) while the real digit lives in
   // dataset.real, so checkCode reads the actual code, not the asterisks.
   function getCodeValue() {
-    return codeBoxes.map(b => b.dataset.real || "").join("");
+    return codeInput ? codeInput.value : "";
   }
   function clearCodeBoxes() {
-    codeBoxes.forEach(b => { b.dataset.real = ""; b.value = ""; });
+    if (codeInput) codeInput.value = "";
   }
   const btnSubmitCode    = document.getElementById("btn-submit-code");
   const btnCloseCode     = document.getElementById("btn-close-code");
@@ -4040,11 +4086,12 @@
   function openCodeModal(viewer, drawerEl) {
     activeViewer = viewer || null;
     activeDrawerEl = drawerEl || null;
-    codeTarget.textContent = viewer ? ("הארכיון של " + viewer.name) : "הזינ/י את קוד הארכיון";
+    // 925:898 writes the depositor into the title itself: "כניסה לארכיון של X".
+    codeTarget.textContent = viewer ? viewer.name : "";
     clearCodeBoxes();
     errMsg.textContent = "";
     codeModal.classList.add("active");
-    setTimeout(() => { if (codeBoxes[0]) codeBoxes[0].focus(); }, 50);
+    setTimeout(() => { if (codeInput) codeInput.focus(); }, 50);
   }
 
   function checkCode() {
@@ -4064,7 +4111,7 @@
         activeDrawerEl.classList.add("shake");
       }
       clearCodeBoxes();
-      if (codeBoxes[0]) codeBoxes[0].focus();
+      if (codeInput) codeInput.focus();
     }
   }
 
@@ -4077,34 +4124,17 @@
   btnCloseCode.addEventListener("click", () => codeModal.classList.remove("active"));
   btnSubmitCode.addEventListener("click", checkCode);
 
-  // 4-box code entry: type a digit → mask as * and advance; Backspace
-  // clears/steps back; Enter or a full code submits.
-  codeBoxes.forEach((box, i) => {
-    box.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { checkCode(); return; }
-      if (e.key === "Backspace") {
-        e.preventDefault();
-        if (box.dataset.real) {
-          box.dataset.real = "";
-          box.value = "";
-        } else {
-          const prev = codeBoxes[i - 1];
-          if (prev) { prev.dataset.real = ""; prev.value = ""; prev.focus(); }
-        }
-        return;
-      }
-      if (/^[0-9]$/.test(e.key)) {
-        e.preventDefault();
-        box.dataset.real = e.key;
-        box.value = "*";
-        const next = codeBoxes[i + 1];
-        if (next) next.focus();
-        else if (getCodeValue().length === 4) checkCode();
-      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault(); // block non-digits
-      }
+  // One field: digits only, and a full code or Enter submits.
+  if (codeInput) {
+    codeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); checkCode(); }
     });
-  });
+    codeInput.addEventListener("input", () => {
+      const digits = codeInput.value.replace(/\D/g, "").slice(0, 4);
+      if (digits !== codeInput.value) codeInput.value = digits;
+      if (digits.length === 4) checkCode();
+    });
+  }
 
   btnCloseContent.addEventListener("click", () => contentModal.classList.remove("active"));
 
