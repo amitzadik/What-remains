@@ -63,6 +63,7 @@
 }
 
 .pc-photo-box { position: absolute; display: flex; align-items: center; justify-content: center; }
+.pc-photo-box[hidden] { display: none; }
 
 .pc-photo-box--a {                                  /* 873:163 */
   left: calc(var(--u) * 21.45);
@@ -93,8 +94,8 @@
   object-fit: contain;
   pointer-events: none;
 }
-/* Both photos arrive from the bot. Until one does — or if it fails to load —
-   the box still holds its exact place, rotation and size. */
+/* Both photos arrive from the bot. A frame is rendered only when its result
+   actually supplies that image. */
 .pc-photo.is-empty { background: #EFEAE0; }
 .pc-photo.is-empty img { display: none; }
 
@@ -234,9 +235,36 @@ body {
     });
   });
 
-  function setPhoto(img, src) {
-    if (src) img.src = src;
-    else { img.removeAttribute("src"); img.parentNode.classList.add("is-empty"); }
+  function setPhoto(img, src, renderId) {
+    var box = img.closest(".pc-photo-box");
+    if (!src) {
+      img.removeAttribute("src");
+      img.parentNode.classList.add("is-empty");
+      box.hidden = true;
+      return Promise.resolve();
+    }
+
+    box.hidden = false;
+    img.parentNode.classList.add("is-empty");
+    img.src = src;
+    if (img.complete) {
+      if (img.naturalWidth) img.parentNode.classList.remove("is-empty");
+      else box.hidden = true;
+      return Promise.resolve();
+    }
+    return new Promise(function (resolve) {
+      function finish(loaded) {
+        if (renderId !== postcardRenderId || img.getAttribute("src") !== src) {
+          resolve();
+          return;
+        }
+        if (loaded) img.parentNode.classList.remove("is-empty");
+        else box.hidden = true;
+        resolve();
+      }
+      img.addEventListener("load", function () { finish(true); }, { once: true });
+      img.addEventListener("error", function () { finish(false); }, { once: true });
+    });
   }
 
   // The bot's answer is variable length. The design allows one paragraph;
@@ -293,8 +321,11 @@ body {
    *   photoB?: string
    * }} data
    */
-  function renderPostcard(data) {
+  var postcardRenderId = 0;
+
+  async function renderPostcard(data) {
     data = data || {};
+    var renderId = ++postcardRenderId;
 
     // question/answer are the preferred bot-integration fields.
     // title/body remain supported for backwards compatibility.
@@ -306,11 +337,19 @@ body {
 
     if (question != null) els.title.textContent = question;
     if (answer != null) els.body.textContent = answer;
-    setPhoto(els.photoA, photoA || "");
-    setPhoto(els.photoB, photoB || "");
-
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBody);
-    else fitBody();
+    var photosReady = Promise.all([
+      setPhoto(els.photoA, photoA || "", renderId),
+      setPhoto(els.photoB, photoB || "", renderId)
+    ]);
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    if (renderId !== postcardRenderId) return { ready: false, stale: true };
+    fitBody();
+    await photosReady;
+    if (renderId !== postcardRenderId) return { ready: false, stale: true };
+    await new Promise(function (resolve) {
+      requestAnimationFrame(function () { requestAnimationFrame(resolve); });
+    });
+    return { ready: true, imageCount: selectedImages.length };
   }
 
   // Also fillable straight from a link for quick testing, e.g.

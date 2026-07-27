@@ -3109,6 +3109,11 @@
   let botState = "initial";
   let botRequestRun = 0;
   let botRequestPending = false;
+  let resolvedSearchResult = null;
+  let resultImagesLoaded = false;
+  let printTemplateReady = false;
+  let isResultReadyToPrint = false;
+  let hasPrintedResult = false;
 
   function setBotState(next) {
     botState = next;
@@ -3570,17 +3575,15 @@
       .trim();
   }
 
-  function matchedPileItems(images, answer) {
+  function matchedPileItems(images) {
     if (!archivePile) return [];
     const mounted = Object.create(null);
     archivePile.querySelectorAll(".pile-item--photo[data-archive-item]")
       .forEach(el => { mounted[el.dataset.archiveItem] = el; });
     const byId = Object.create(null), byName = Object.create(null);
-    const onDesk = [];
     sortedArchiveItems().forEach(item => {
       const el = mounted[item.id];
       if (!el) return;
-      onDesk.push({ item: item, el: el });
       if (item.id) byId[String(item.id).toLowerCase()] = el;
       const drive = driveFileId(item.fileUrl);
       if (drive) byId[drive.toLowerCase()] = el;
@@ -3609,17 +3612,6 @@
       else console.warn("Archive search named a file that is not on the desk:", value);
     });
 
-    // Nothing named, or nothing that could be found: read the answer itself. A
-    // print whose own description the answer quotes is material that answer was
-    // drawn from — the depositor wrote that description on that print.
-    if (!out.length && answer) {
-      const hay = String(answer).toLowerCase();
-      onDesk.forEach(entry => {
-        if (out.length >= 2) return;
-        const description = String(entry.item.description || "").trim().toLowerCase();
-        if (description.length >= 4 && hay.indexOf(description) >= 0) take(entry.el);
-      });
-    }
     return out;
   }
 
@@ -3641,50 +3633,70 @@
     return (frame && typeof frame.renderPostcard === "function") ? frame : null;
   }
 
-  // The picture each matching print is actually showing. Not the file name the
-  // archivist returned — that is a Drive name, not something a page can draw —
-  // but the URL the paper on the desk is already displaying, taken in the order
-  // the archivist ranked them, so the postcard prints the same two pictures the
-  // answer was drawn from.
-  function postcardImages(keepEls) {
+  function waitForPostcardWindow() {
+    const ready = postcardWindow();
+    if (ready) return Promise.resolve(ready);
+    if (!postcardFrame) return Promise.reject(new Error("Print template is unavailable."));
+    return new Promise((resolve, reject) => {
+      const onLoad = () => {
+        const frame = postcardWindow();
+        if (frame) resolve(frame);
+        else reject(new Error("Print template did not initialize."));
+      };
+      postcardFrame.addEventListener("load", onLoad, { once: true });
+    });
+  }
+
+  // Resolve the exact pictures selected for this answer once, in the response's
+  // order. The screen and print template both receive these same URLs.
+  function resolvedResultImages(keepEls) {
     return (keepEls || [])
       .map(el => { const img = el.querySelector("img"); return img ? (img.currentSrc || img.src) : ""; })
       .filter(Boolean)
       .slice(0, 2);
   }
 
-  // Filled the moment the answer lands, so its pictures are decoded by the time
-  // the record is laid down and the print itself never waits on them.
-  function fillArchivePostcard(question, result, keepEls) {
-    const frame = postcardWindow();
-    if (!frame) return;
-    frame.renderPostcard({
+  function waitForImages(images) {
+    return Promise.all((images || []).map(img => {
+      if (!img || !img.getAttribute("src")) return Promise.resolve();
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    }));
+  }
+
+  // Populate the independent print design from the already-resolved result.
+  // renderPostcard resolves only after its own text, fonts and images are ready.
+  async function fillArchivePostcard(question, result) {
+    const frame = await waitForPostcardWindow();
+    await frame.renderPostcard({
       question: String(question || ""),
       answer: String(result.answer || ""),
-      images: postcardImages(keepEls)
+      images: result.images
     });
   }
 
-  function printArchivePostcard() {
+  async function clearArchivePostcard() {
+    try {
+      const frame = await waitForPostcardWindow();
+      await frame.renderPostcard({ question: "", answer: "", images: [] });
+    } catch (error) {
+      console.error("Clearing the archive postcard failed:", error);
+    }
+  }
+
+  function printArchivePostcard(run) {
+    if (run !== botRequestRun || !isResultReadyToPrint || hasPrintedResult) return;
     const frame = postcardWindow();
-    const doc = postcardFrame && postcardFrame.contentDocument;
-    if (!frame || !doc) return;
-    // A picture that has not decoded prints blank, so the page is handed over
-    // once its own images are settled — measured, not guessed at — and after a
-    // second and a half regardless, so a slow one can never hold up the print.
-    const pending = Array.from(doc.images)
-      .filter(img => img.getAttribute("src") && !img.complete)
-      .map(img => new Promise(done => {
-        img.addEventListener("load", done, { once: true });
-        img.addEventListener("error", done, { once: true });
-      }));
-    Promise.race([
-      Promise.all(pending),
-      new Promise(done => window.setTimeout(done, 1500))
-    ]).then(() => {
-      try { frame.focus(); frame.print(); }
-      catch (error) { console.error("Printing the archive postcard failed:", error); }
-    });
+    if (!frame) return;
+    hasPrintedResult = true;
+    try { frame.focus(); frame.print(); }
+    catch (error) {
+      hasPrintedResult = false;
+      console.error("Printing the archive postcard failed:", error);
+    }
   }
 
   // A Drive reference in any of the shapes this project handles them in:
@@ -3697,9 +3709,9 @@
 
   // The answer has arrived. Everything that is not part of it finishes leaving,
   // from wherever it is; the matching prints travel to the result composition.
-  // Returns how long until the frame holds nothing but the result.
+  // Resolves only when every paper has reached its final result destination.
   function resolveArchiveSweep(keepEls) {
-    if (!archiveBox || !archivePile) return 0;
+    if (!archiveBox || !archivePile) return Promise.resolve();
     // The going-through stops here. Every chained pass checks this before it
     // aims the next crossing, so no paper can wander back into the frame once
     // the answer is being laid out.
@@ -3714,7 +3726,7 @@
     // so the prints sit behind THAT card wherever the viewport puts it. Read
     // now, with the rest of the measurements, before anything is written.
     const record = foundCardBox();
-    let clearMs = 0;
+    const finishing = [];
     let kept = 0;
     const keepCount = keep.length;
 
@@ -3735,7 +3747,7 @@
         const fanY = record.h * (keepCount > 1 ? 0.26 : 0.46);
         const cx = sweepClamp(record.cx + fanX, b.hw + edge, b.w - b.hw - edge);
         const cy = sweepClamp(record.cy + fanY, b.hh + edge, b.h - b.hh - edge);
-        driveSweep(m.el, m.from,
+        const animation = driveSweep(m.el, m.from,
           { x: m.from.x + (cx - b.cx), y: m.from.y + (cy - b.cy), r: m.from.r },
           // Laid down, not slid: it arrives at 74% and settles out of a small
           // overshoot, the way every paper in this archive arrives. It may be
@@ -3744,9 +3756,9 @@
           { dur: 900 + kept * 110, delay: 90 + kept * 90,
             ease: SWEEP_EASES[kept % SWEEP_EASES.length],
             arc: kept % 2 ? -1 : 1, over: kept % 2 ? 0.6 : -0.6, land: true });
+        finishing.push(animation.finished.catch(() => undefined));
         // The record is laid over the prints once they are down, so what the
         // reader sees settle is the answer and the material behind it.
-        clearMs = Math.max(clearMs, 990 + kept * 200);
         kept++;
         return;
       }
@@ -3755,8 +3767,9 @@
       // next crossing would otherwise cross back into the finished result — and
       // holding it in place is what stops it without snapping it anywhere.
       if (sweepIsOutside(m.box)) {
-        driveSweep(m.el, m.from, m.from,
+        const animation = driveSweep(m.el, m.from, m.from,
           { dur: 1, delay: 0, ease: "linear", arc: 0, over: 0 });
+        finishing.push(animation.finished.catch(() => undefined));
         return;
       }
       // The retrieval sheet finishes its own journey on the same beat — it does
@@ -3766,16 +3779,40 @@
       const dist = sweepExitDistance(m.box, dir.dx, dir.dy);
       const delay = isSheet ? 0 : (i % 4) * 80;
       const dur = isSheet ? 900 : 900 + (i % 5) * 130;
-      driveSweep(m.el, m.from, {
+      const animation = driveSweep(m.el, m.from, {
         x: m.from.x + dir.dx * dist,
         y: m.from.y + dir.dy * dist,
         r: m.from.r + (isSheet ? -5 : (pileRand(i * 5 + 31) - 0.5) * 6)
       }, { dur: dur, delay: delay, ease: SWEEP_EASES[i % SWEEP_EASES.length],
            arc: i % 2 ? 1 : -1, over: 0 });
-      clearMs = Math.max(clearMs, delay + dur);
+      finishing.push(animation.finished.catch(() => undefined));
     });
 
-    return clearMs;
+    return Promise.all(finishing).then(() => undefined);
+  }
+
+  // CSS result transitions are awaited from the browser's live animation list,
+  // not guessed from their nominal duration.
+  async function waitForResultVisualState() {
+    await afterTwoFrames();
+    const card = archiveBot && archiveBot.querySelector(
+      botState === "found" ? ".archive-bot-card--found" : ".archive-bot-card--empty");
+    const elements = [card, archiveBot && archiveBot.querySelector(".archive-bot-scrim")]
+      .filter(Boolean);
+    const animations = elements.flatMap(el =>
+      typeof el.getAnimations === "function" ? el.getAnimations() : []);
+    await Promise.all(animations.map(animation => animation.finished.catch(() => undefined)));
+    await afterTwoFrames();
+  }
+
+  function resetSearchResultState() {
+    resolvedSearchResult = null;
+    resultImagesLoaded = false;
+    printTemplateReady = false;
+    isResultReadyToPrint = false;
+    hasPrintedResult = false;
+    if (archiveBotAnswer) archiveBotAnswer.textContent = "";
+    clearArchivePostcard();
   }
 
   // The record's own box on the desk. It is measured while still hidden, so it
@@ -3862,7 +3899,7 @@
     botRequestPending = false;
     setBotState("initial");
     endArchiveSweep(keepSheetUp);
-    if (archiveBotAnswer) archiveBotAnswer.textContent = "";
+    resetSearchResultState();
     if (clearFields) {
       const queryField = document.getElementById("personal-search-query");
       const formatField = document.getElementById("personal-search-format");
@@ -3885,6 +3922,7 @@
   function submitArchiveSearch(query, format) {
     if (!query || botRequestPending) return;
     botRequestPending = true;
+    resetSearchResultState();
     const request = { code: currentDrawerCode, query: query, format: format };
     // Kept so anything already listening to the archive's search keeps working.
     window.dispatchEvent(new CustomEvent("whatremains:archive-search", { detail: request }));
@@ -3900,14 +3938,22 @@
     searchArchive(request)
       .then(result => {
         if (run !== botRequestRun) return;        // superseded or dismissed
-        finishArchiveSearch(result, run, query);
-      })
-      .catch(error => {
+        finishArchiveSearch(result, run, query).catch(error => {
+          if (run === botRequestRun) {
+            console.error("Preparing the archive result failed:", error);
+          }
+        });
+      }, error => {
         if (run !== botRequestRun) return;
         console.error("Archive search failed:", error);
         // Nothing was retrieved, so this is the archive's own empty answer —
         // the same record, not a technical error screen.
-        finishArchiveSearch({ status: "notFound", images: [] }, run, query);
+        finishArchiveSearch({ status: "notFound", images: [] }, run, query)
+          .catch(resultError => {
+            if (run === botRequestRun) {
+              console.error("Preparing the empty archive result failed:", resultError);
+            }
+          });
       });
   }
 
@@ -3915,23 +3961,42 @@
   // of the answer carry on out of the frame, the ones that are travel to their
   // place in it, and the record is laid down only once the frame is clear of
   // everything else. There is no state in between that puts anything back.
-  function finishArchiveSearch(result, run, question) {
+  async function finishArchiveSearch(result, run, question) {
     botRequestPending = false;
     const found = result.status === "found";
     // ONE result object, read once. The record on screen, the prints kept on
     // the desk and the postcard that goes to the printer are all written from
     // this — there is no second search and no second answer anywhere below.
-    const keep = found ? matchedPileItems(result.images, result.answer) : [];
-    const clearMs = resolveArchiveSweep(keep);
-    renderArchiveBotResult(result);
-    if (found) fillArchivePostcard(question, result, keep);
-    window.setTimeout(() => {
-      if (run !== botRequestRun) return;          // dismissed while clearing
-      setBotState(found ? "found" : "notFound");
-      // The record says the findings are at the printer, so they are sent as it
-      // is laid down. Nothing is asked of the depositor to make it happen.
-      if (found) printArchivePostcard();
-    }, reduceMotion ? 30 : clearMs + 80);
+    const keep = found ? matchedPileItems(result.images) : [];
+    resolvedSearchResult = {
+      status: found ? "found" : "notFound",
+      answer: found ? String(result.answer || "") : "",
+      images: found ? resolvedResultImages(keep) : []
+    };
+    const sweepFinished = resolveArchiveSweep(keep);
+    renderArchiveBotResult(resolvedSearchResult);
+    const screenImages = keep.map(el => el.querySelector("img")).filter(Boolean);
+    const screenImagesReady = waitForImages(screenImages).then(() => {
+      if (run === botRequestRun) resultImagesLoaded = true;
+    });
+    await Promise.all([sweepFinished, screenImagesReady]);
+    if (run !== botRequestRun) return;
+    setBotState(found ? "found" : "notFound");
+    await waitForResultVisualState();
+    if (run !== botRequestRun) return;
+
+    // Printing begins only after the on-screen result has reached its final
+    // visible state. The template is populated next from the same result.
+    if (found) {
+      await fillArchivePostcard(question, resolvedSearchResult);
+      if (run !== botRequestRun) return;
+      printTemplateReady = true;
+    }
+
+    isResultReadyToPrint = found && resultImagesLoaded && printTemplateReady;
+    // The record says the findings are at the printer, so automatic printing is
+    // preserved, but only after both visual representations are fully ready.
+    printArchivePostcard(run);
   }
 
   function submitPersonalSearchForm() {

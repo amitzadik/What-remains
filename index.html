@@ -460,10 +460,10 @@
        printer is the postcard alone and the archive screen takes no part in it.
        It is loaded with the page so its font is ready and a retrieval never
        waits on it. Filled and printed by script.js from the search result. -->
-  <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=1"
+  <iframe id="postcard-print" class="postcard-print" src="postcard.html?v=2"
           title="גלויה להדפסה" aria-hidden="true" tabindex="-1"></iframe>
 
-  <script src="script.js?v=64"></script>
+  <script src="script.js?v=65"></script>
   <script>
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin || !event.data || event.data.source !== 'what-remains-landing') return;
