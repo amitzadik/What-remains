@@ -6071,6 +6071,88 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
     translate 300ms cubic-bezier(0.22, 0.72, 0.34, 1),
     opacity 450ms ease;
 }
+
+/* The retrieval and upload records are the only two interactive brown sheets.
+   Their stronger idle movement is intentionally isolated from .pile-item:
+   every white paper, form and photograph keeps personal-pile-breathe exactly
+   as it was. The amplitudes here are 25% below the first stronger pass. */
+@property --brown-idle-x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --brown-idle-y {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --brown-idle-r {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes interactive-brown-sheet-idle {
+  0%, 100% {
+    --brown-idle-x: 0px;
+    --brown-idle-y: 0px;
+    --brown-idle-r: 0deg;
+  }
+  42% {
+    --brown-idle-x: var(--brown-shift-x);
+    --brown-idle-y: var(--brown-shift-y);
+    --brown-idle-r: var(--brown-shift-r);
+  }
+  72% {
+    --brown-idle-x: calc(var(--brown-shift-x) * -0.32);
+    --brown-idle-y: calc(var(--brown-shift-y) * -0.38);
+    --brown-idle-r: calc(var(--brown-shift-r) * -0.28);
+  }
+}
+.interactive-brown-sheet {
+  --brown-idle-x: 0px;
+  --brown-idle-y: 0px;
+  --brown-idle-r: 0deg;
+  --near-x: 0px;
+  --near-y: 0px;
+  scale: 1;
+}
+.personal-tool-panel--search .interactive-brown-sheet {
+  --brown-shift-x: -7.5px;
+  --brown-shift-y: -4.5px;
+  --brown-shift-r: -1.1deg;
+  --brown-duration: 5.2s;
+  --brown-delay: -1.3s;
+  --brown-hover-r: .9deg;
+}
+.personal-tool-panel--upload .interactive-brown-sheet {
+  --brown-shift-x: 6px;
+  --brown-shift-y: -5.5px;
+  --brown-shift-r: 1.25deg;
+  --brown-duration: 6.4s;
+  --brown-delay: -4.1s;
+  --brown-hover-r: -1deg;
+}
+.archive-box.is-archive-open:not(.is-tool-open)
+  .personal-tool-panel[aria-hidden="true"] .interactive-brown-sheet {
+  translate:
+    calc(var(--brown-idle-x) + var(--near-x))
+    calc(var(--brown-idle-y) + var(--near-y));
+  rotate: var(--brown-idle-r);
+  animation:
+    interactive-brown-sheet-idle var(--brown-duration) ease-in-out
+    var(--brown-delay) infinite;
+  transition:
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 330ms cubic-bezier(.22,1,.36,1),
+    rotate 330ms cubic-bezier(.22,1,.36,1),
+    scale 330ms cubic-bezier(.22,1,.36,1),
+    filter 330ms ease,
+    opacity 450ms ease;
+}
+.personal-tool-panel.is-near-brown,
+.personal-tool-panel:has(.interactive-brown-sheet:hover) {
+  z-index: 264;
+}
 /* Resting: each sheet is already full size, sitting below the fold and peeking
    its top edge up. They differ only in how far down they sit and their fixed
    rotation, so both stay grabbable; horizontally both are centred.
@@ -6098,6 +6180,20 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .personal-tool-panel[aria-hidden="true"]
   .personal-tool-card:hover {
   translate: 0 -16px;
+}
+.archive-box:not(.is-tool-open)
+  .personal-tool-panel[aria-hidden="true"]
+  .interactive-brown-sheet:hover {
+  translate: 0 -12px;
+  rotate: var(--brown-hover-r);
+  scale: 1.012;
+  animation-play-state: paused;
+  filter: drop-shadow(0 7px 5px rgba(0,0,0,.16));
+}
+.archive-box:not(.is-tool-open)
+  .personal-tool-panel[aria-hidden="true"]
+  .interactive-brown-sheet.is-near-pointer {
+  filter: drop-shadow(0 5px 4px rgba(0,0,0,.12));
 }
 /* Opened: the SAME sheet is pulled up to the place its own frame puts it.
    Figma 507:382 lands the retrieval card on the middle of the desk at -2.16deg
@@ -6598,6 +6694,26 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .archive-box.is-archive-open .drawer-header,
   .archive-box.is-archive-open .pile-ctrl--close { transition: opacity 200ms ease; }
   .archive-box.is-archive-spreading .personal-tool-card { transition: none; }
+
+  .archive-box.is-archive-open:not(.is-tool-open)
+    .personal-tool-panel[aria-hidden="true"] .interactive-brown-sheet {
+    animation: none;
+    --brown-idle-x: 0px;
+    --brown-idle-y: 0px;
+    --brown-idle-r: 0deg;
+    --near-x: 0px !important;
+    --near-y: 0px !important;
+  }
+  .archive-box:not(.is-tool-open)
+    .personal-tool-panel[aria-hidden="true"]
+    .interactive-brown-sheet:hover {
+    translate: 0 -4px;
+    rotate: 0deg;
+    scale: 1.003;
+    transition:
+      translate 180ms ease,
+      scale 180ms ease;
+  }
 }
 
 /* Figma 465:5711 — one shared viewport paper layer for the complete

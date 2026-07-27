@@ -1717,6 +1717,72 @@
   let pendingUploadMetadata = null;
   let archiveTransitionRun = 0;
 
+  // Only the two brown tool sheets react before direct hover. The archive pile
+  // keeps its original, independent paper motion untouched.
+  let archiveProximityFrame = 0;
+  let archiveProximityPoint = null;
+  function clearArchiveProximity() {
+    if (!archiveBox) return;
+    archiveBox.querySelectorAll(".interactive-brown-sheet").forEach(el => {
+      el.classList.remove("is-near-pointer", "is-near-adjacent");
+      el.style.removeProperty("--near-x");
+      el.style.removeProperty("--near-y");
+      el.closest(".personal-tool-panel")?.classList.remove("is-near-brown");
+    });
+  }
+  function updateArchiveProximity() {
+    archiveProximityFrame = 0;
+    if (!archiveBox || !archiveProximityPoint ||
+        !archiveBox.classList.contains("is-archive-open") ||
+        archiveBox.classList.contains("is-tool-open")) {
+      clearArchiveProximity();
+      return;
+    }
+    const papers = Array.from(archiveBox.querySelectorAll(
+      '.personal-tool-panel[aria-hidden="true"] .interactive-brown-sheet'
+    ));
+    const px = archiveProximityPoint.x;
+    const py = archiveProximityPoint.y;
+    const measured = papers.map(el => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const edgeDistance = Math.max(0, Math.hypot(px - cx, py - cy) - Math.hypot(r.width, r.height) / 2);
+      return { el, cx, cy, edgeDistance };
+    }).sort((a, b) => a.edgeDistance - b.edgeDistance);
+    clearArchiveProximity();
+    if (!measured.length || measured[0].edgeDistance > 110) return;
+
+    const nearest = measured[0];
+    const frameRect = archiveBox.getBoundingClientRect();
+    const outwardAngle = Math.atan2(nearest.cy - (frameRect.top + frameRect.height / 2),
+                                    nearest.cx - (frameRect.left + frameRect.width / 2));
+    const outward = 10.5;
+    const nearX = Math.cos(outwardAngle) * outward;
+    const nearY = Math.sin(outwardAngle) * outward;
+    nearest.el.classList.add("is-near-pointer");
+    nearest.el.closest(".personal-tool-panel")?.classList.add("is-near-brown");
+    nearest.el.style.setProperty("--near-x", nearX.toFixed(2) + "px");
+    nearest.el.style.setProperty("--near-y", nearY.toFixed(2) + "px");
+
+    measured.slice(1, 2).forEach(entry => {
+      const yieldDistance = 3.5;
+      entry.el.classList.add("is-near-adjacent");
+      entry.el.style.setProperty("--near-x", (-Math.cos(outwardAngle) * yieldDistance).toFixed(2) + "px");
+      entry.el.style.setProperty("--near-y", (-Math.sin(outwardAngle) * yieldDistance).toFixed(2) + "px");
+    });
+  }
+  archiveBox?.addEventListener("pointermove", event => {
+    archiveProximityPoint = { x:event.clientX, y:event.clientY };
+    if (!archiveProximityFrame) archiveProximityFrame = requestAnimationFrame(updateArchiveProximity);
+  }, { passive:true });
+  archiveBox?.addEventListener("pointerleave", () => {
+    archiveProximityPoint = null;
+    if (archiveProximityFrame) cancelAnimationFrame(archiveProximityFrame);
+    archiveProximityFrame = 0;
+    clearArchiveProximity();
+  });
+
   // ============================================================
   // Centred stack → personal archive (Figma 751:305)
   // ============================================================
