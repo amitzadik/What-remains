@@ -3979,9 +3979,15 @@
     const screenImagesReady = waitForImages(screenImages).then(() => {
       if (run === botRequestRun) resultImagesLoaded = true;
     });
-    await Promise.all([sweepFinished, screenImagesReady]);
-    if (run !== botRequestRun) return;
-    setBotState(found ? "found" : "notFound");
+    await sweepFinished;
+
+if (run !== botRequestRun) return;
+
+setBotState(found ? "found" : "notFound");
+
+screenImagesReady.catch(error => {
+  console.warn("Result images did not finish loading:", error);
+});
     await waitForResultVisualState();
     if (run !== botRequestRun) return;
 
