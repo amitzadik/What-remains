@@ -1505,6 +1505,10 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 .account-line {
   position: absolute;
   z-index: 2;
+  /* Display-only name label stretched over the whole card. Without this it
+     covers the buttons underneath it (logout, close) and swallows their
+     clicks — inset:0 + z-index:2 puts it above them. */
+  pointer-events: none;
   inset: 0;
   width: 100%;
   height: 100%;
