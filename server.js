@@ -123,7 +123,70 @@ async function getFolderContents(archiveCode) {
   }
   return { textArchiveContent, imageFiles };
 }
+const GEMINI_MODELS = [
+  "gemini-3.5-flash",
+  "gemini-3.6-flash",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite"
+];
 
+function isQuotaError(error) {
+  const status =
+    error?.status ||
+    error?.statusCode ||
+    error?.response?.status;
+
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    status === 429 ||
+    message.includes("resource_exhausted") ||
+    message.includes("quota") ||
+    message.includes("rate limit") ||
+    message.includes("too many requests")
+  );
+}
+
+async function generateWithModelFallback({
+  promptPayload,
+  systemInstruction
+}) {
+  let lastError;
+
+  for (const modelName of GEMINI_MODELS) {
+    try {
+      console.log(`Trying Gemini model: ${modelName}`);
+
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema
+        },
+        systemInstruction
+      });
+
+      const result = await model.generateContent(promptPayload);
+
+      console.log(`Gemini request succeeded with: ${modelName}`);
+      return result;
+    } catch (error) {
+      lastError = error;
+
+      if (!isQuotaError(error)) {
+        throw error;
+      }
+
+      console.warn(
+        `Quota reached for ${modelName}. Trying the next model.`
+      );
+    }
+  }
+
+  throw lastError || new Error(
+    "All configured Gemini models have reached their quota."
+  );
+}
 // ----------------------------------------------------
 // 2. Main Retrieval API Endpoint
 // ----------------------------------------------------
@@ -147,13 +210,7 @@ export async function handleArchiveSearch(req, res) {
     const folderData = await getFolderContents(archiveCode);
 
     // Initialize Gemini Model with Structured JSON Output
-    const model = genAI.getGenerativeModel({
-      model: "gemini-3.5-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      },
-      systemInstruction: `
+   const systemInstruction = `
 You are the archivist of a personal memory archive.
 Your purpose is to retrieve existing materials only from the archive folder that is currently open and has been successfully authenticated.
 You are not a general assistant.
@@ -272,8 +329,7 @@ Do not engage in casual conversation.
 Be concise.
 Be accurate.
 Be archival.
-      `
-    });
+`;
 
     // Pass ONLY the active folder content into the execution prompt
     const promptPayload = `
@@ -292,7 +348,10 @@ ${query}
 ${format || "Not specified"}
     `;
 
-    const result = await model.generateContent(promptPayload);
+    const result = await generateWithModelFallback({
+  promptPayload,
+  systemInstruction,
+});
     const responseText = JSON.parse(result.response.text());
 
     // Send structured response to frontend
