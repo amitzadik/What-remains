@@ -59,9 +59,11 @@ function doPost(e) {
     data.phone || ""
   ]);
 
-  // Give every new drawer its own Drive folder right away (named by code),
-  // even before any file is uploaded.
-  getOrCreateCodeFolder_(data.code);
+  // Keep the questionnaire document inside this depositor's own drawer. The
+  // same parsed payload that was appended to Sheets is used here, so every
+  // question receives its own submitted value (and never portrait copy).
+  var questionnaireFolder = getOrCreateCodeFolder_(data.code);
+  writeQuestionnaireDocument_(questionnaireFolder, data);
 
   return ContentService.createTextOutput(JSON.stringify({ result: "ok" }))
     .setMimeType(ContentService.MimeType.JSON);
@@ -168,6 +170,68 @@ var ARCHIVE_SHEET_NAME = "ArchiveItems";
 var ARCHIVE_HEADERS = ["id", "code", "fileId", "fileName", "mimeType", "type",
                        "description", "createdAt", "width", "height"];
 var ARCHIVE_DESCRIPTION_DOC_MARKER = "what-remains-upload-description";
+var QUESTIONNAIRE_DOC_MARKER = "what-remains-questionnaire-answers";
+var QUESTIONNAIRE_QUESTIONS = [
+  "באיזה שפה סבא וסבתא דיברו בבית?",
+  "מה סבא הכי אהב לעשות?",
+  "מה גרם לסבתא לצחוק?",
+  "ממה סבא פחד?",
+  "מה סבתא חלמה לעשות ולא הצליחה?",
+  "על מה סבא לא דיבר?",
+  "מה תאריך הלידה של סבא?"
+];
+var HERITAGE_QUESTION = "מה היית רוצה שהנכדים שלך ידעו עליך?";
+
+// Build the answer record from the eight distinct request properties. String()
+// preserves Hebrew, line breaks and values such as 0; an absent answer remains
+// empty and is never replaced with portrait text or another answer.
+function buildQuestionnaireDocumentText_(data) {
+  data = data || {};
+  var sections = [];
+  for (var i = 0; i < QUESTIONNAIRE_QUESTIONS.length; i++) {
+    var answer = data["q" + (i + 1)];
+    sections.push(
+      "שאלה " + (i + 1) + ": " + QUESTIONNAIRE_QUESTIONS[i] + "\n" +
+      String(answer == null ? "" : answer)
+    );
+  }
+  sections.push(
+    "שאלת המורשת: " + HERITAGE_QUESTION + "\n" +
+    String(data.legacy_text == null ? "" : data.legacy_text)
+  );
+  return sections.join("\n\n");
+}
+
+// Create one answer document per drawer, or update the document previously
+// created by this flow. Only the marker-owned file is ever replaced, so upload
+// descriptions and all other archive materials remain untouched.
+function writeQuestionnaireDocument_(folder, data) {
+  var answerFile = null;
+  var files = folder.getFiles();
+  while (files.hasNext()) {
+    var candidate = files.next();
+    if (candidate.getDescription() === QUESTIONNAIRE_DOC_MARKER) {
+      answerFile = candidate;
+      break;
+    }
+  }
+
+  var document;
+  if (answerFile) {
+    document = DocumentApp.openById(answerFile.getId());
+  } else {
+    var ownerName = String((data && data.name) || "").replace(/\s+/g, " ").trim();
+    var title = ownerName ? "תשובות השאלון - " + ownerName : "תשובות השאלון";
+    document = DocumentApp.create(title);
+    answerFile = DriveApp.getFileById(document.getId());
+    answerFile.moveTo(folder);
+    answerFile.setDescription(QUESTIONNAIRE_DOC_MARKER);
+  }
+
+  document.getBody().setText(buildQuestionnaireDocumentText_(data));
+  document.saveAndClose();
+  return answerFile;
+}
 
 // Create one searchable Google Docs companion for every uploaded material.
 // Its title comes from the user's description and its body contains the full,
