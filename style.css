@@ -6394,7 +6394,12 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-size: 3.2628cqw; line-height: 1.5;
 }
 .archive-bot-card--empty .archive-bot-owner {                 /* 769:144 */
-  left: 79.097%; top: 88.981%; width: 17.742%;
+  /* Anchored to the sheet's right edge (the Figma box ended at 96.839%) and
+     sized to its own text instead of a fixed 17.742%, so a name of any length
+     stays on one line. Fixed width wrapped "שרוך מרתף צדיק" onto three lines,
+     which then ran past the bottom of the sheet. */
+  right: 3.161%; top: 88.981%; width: max-content;
+  white-space: nowrap;
   font-size: 3.2628cqw; line-height: 1.5;
 }
 .archive-bot-back {                                           /* 878:165 */
