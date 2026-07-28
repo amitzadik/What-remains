@@ -130,7 +130,7 @@ const GEMINI_MODELS = [
   "gemini-2.5-flash-lite"
 ];
 
-function isQuotaError(error) {
+function isRetryableModelError(error) {
   const status =
     error?.status ||
     error?.statusCode ||
@@ -140,10 +140,14 @@ function isQuotaError(error) {
 
   return (
     status === 429 ||
+    status === 503 ||
     message.includes("resource_exhausted") ||
     message.includes("quota") ||
     message.includes("rate limit") ||
-    message.includes("too many requests")
+    message.includes("too many requests") ||
+    message.includes("service unavailable") ||
+    message.includes("high demand") ||
+    message.includes("overloaded")
   );
 }
 
@@ -173,9 +177,9 @@ async function generateWithModelFallback({
     } catch (error) {
       lastError = error;
 
-      if (!isQuotaError(error)) {
-        throw error;
-      }
+      if (!isRetryableModelError(error)) {
+  throw error;
+}
 
       console.warn(
         `Quota reached for ${modelName}. Trying the next model.`
