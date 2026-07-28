@@ -30,8 +30,6 @@
    Control width with `font-variation-settings: "wdth" <0–150>`. */
 @font-face {
   font-family: "Mandatory Variable";
-  /* Root copy (clean name). The /fonts copy is named " MandatoryVariable.ttf"
-     with a leading space, so it is intentionally not referenced here. */
   src: url("MandatoryVariable.ttf") format("truetype-variations");
   font-weight: 200 900;
   font-style: normal;
@@ -5789,37 +5787,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   font-size: clamp(16.4px, 3.592cqw, 49.2px);
 }
 
-/* Kraft "envelope" cards — the add + archive controls, now part of the
-   scattered pile (Figma). Same kraft paperboard as the screen, a large faint
-   drawer-code number printed diagonally across, and the existing icon centred
-   on top. Placement/rotation come from renderArchivePile()'s pileRand scatter. */
-.pile-item--envelope {
-  width: clamp(300px, 42.49vw, 816px);
-  aspect-ratio: 815.779 / 577;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #a1835a;
-  border: none;
-  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-}
-.pile-item--envelope::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.95;
-  pointer-events: none;
-}
-.pile-item--envelope-add::before {
-  background-image: url("images/figma-archive-add-card.jpg");
-}
-.pile-item--envelope-search::before {
-  background-image: url("images/figma-archive-search-card.jpg");
-}
 .envelope-code {
   position: absolute;
   left: 58.08%;
