@@ -867,30 +867,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
 /* ============================================================
    Print / envelope instructions
 ============================================================ */
-.print-wrap {
-  margin: auto;
-  max-width: 900px;
-  width: 100%;
-  text-align: center;
-  padding-top: 2rem;
-}
-
-.print-instructions {
-  font-size: 1.5rem;
-  line-height: 2;
-  color: var(--ink);
-  margin-bottom: 2rem;
-}
-
-.postcard-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 800px;
-  margin: 0 auto 2rem auto;
-  align-items: center;
-}
-
 .postcard {
   width: 100%;
   max-width: 520px;
@@ -901,29 +877,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   display: flex;
   flex-direction: column;
 }
-.pc-header {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
-  padding: 0.5rem 0;
-  margin-bottom: 1.5rem;
-}
-.pc-header > div { flex: 1; }
-.pc-header .right-col { text-align: right; border-left: 1px solid var(--ink); padding-left: 0.5rem; }
-.pc-header .left-col  { text-align: left; padding-right: 0.5rem; }
 .pc-body { flex: 1; display: flex; flex-direction: column; }
-.pc-ruled {
-  flex: 1;
-  background-image: repeating-linear-gradient(transparent, transparent 23px, var(--line) 23px, var(--line) 24px);
-  margin-top: 1rem;
-  font-family: var(--font-main);
-  font-size: 1.1rem;
-  line-height: 24px;
-  padding-top: 4px;
-  white-space: pre-wrap;
-  text-align: right;
-}
 
 /* ============================================================
    Personal archive (drawer page)
@@ -1569,7 +1523,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   .q-header-row .q-cell { padding: 0 0.5rem; }
   .drawer-name { font-size: 1.44rem; }
   .archive-title { font-size: 1.8rem; }
-  .print-instructions { font-size: 1.15rem; }
 }
 
 /* ============================================================
@@ -2914,35 +2867,6 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
   background: rgba(0, 0, 0, 0.04);
 }
 .drawer-files .is-uploading { opacity: 0.55; }
-
-/* ============================================================
-   PHASE.PRINT_INSTRUCTIONS — simple centered text
-============================================================ */
-.print-instr-wrap {
-  width: min(620px, 92vw);
-  margin: auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4vh 2rem;
-  gap: 2rem;
-}
-
-.print-instr-title {
-  font-family: var(--font-main);
-  font-weight: 500;
-  font-size: 20px;
-  color: var(--ink);
-}
-
-.print-instr-body {
-  font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 15px;
-  color: var(--gray);
-  line-height: 1.8;
-}
 
 /* ============================================================
    Archive — letter wall (Phase A) + letter detail (Phase B)
