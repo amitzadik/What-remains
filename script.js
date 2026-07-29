@@ -104,6 +104,7 @@
   const figmaLanding = document.getElementById("figma-landing");
 
   function showScreen(name) {
+    recordArchiveActivity();
     Object.values(screens).forEach(s => { if (s) s.classList.remove("active"); });
     if (figmaLanding) figmaLanding.classList.toggle("is-dismissed", name !== "landing");
     if (name === "landing") return;
@@ -127,7 +128,7 @@
   // The landing search receives public names plus short-lived opaque handles.
   // Passwords and record identifiers never cross into the landing iframe.
   const landingArchiveHandles = new Map();
-  const landingHandleByArchive = new WeakMap();
+  let landingHandleByArchive = new WeakMap();
   function getLandingArchiveMatches(query) {
     return getArchiveMatches(query).map((viewer) => {
       let handle = landingHandleByArchive.get(viewer);
@@ -323,6 +324,39 @@
   function setSession(sess) { localStorage.setItem(WR_SESSION_KEY, JSON.stringify(sess)); }
   function clearSession() { localStorage.removeItem(WR_SESSION_KEY); }
 
+  // One exhibition-wide inactivity clock. It is deliberately dormant on the
+  // public landing/login screens and begins only when a drawer has actually
+  // been unlocked and entered.
+  const ARCHIVE_INACTIVITY_MS = 10 * 60 * 1000;
+  const ARCHIVE_TIMEOUT_MESSAGE = "החיבור לארכיון נותק לאחר 10 דקות ללא פעילות.";
+  let archiveInactivityTimer = 0;
+  let archiveInactivityActive = false;
+  let archiveSessionGeneration = 0;
+  let privacyResetInProgress = false;
+  let loginAttemptGeneration = 0;
+
+  function stopArchiveInactivityMonitor() {
+    archiveInactivityActive = false;
+    window.clearTimeout(archiveInactivityTimer);
+    archiveInactivityTimer = 0;
+  }
+
+  function recordArchiveActivity() {
+    if (!archiveInactivityActive || privacyResetInProgress) return;
+    window.clearTimeout(archiveInactivityTimer);
+    archiveInactivityTimer = window.setTimeout(
+      () => endPrivateArchiveSession({ timedOut: true }),
+      ARCHIVE_INACTIVITY_MS
+    );
+  }
+
+  function startArchiveInactivityMonitor() {
+    stopArchiveInactivityMonitor();
+    archiveSessionGeneration++;
+    archiveInactivityActive = true;
+    recordArchiveActivity();
+  }
+
   // True while viewing a drawer the logged-in user owns (gates the edit UI)
   let ownerView = false;
 
@@ -353,12 +387,12 @@
   const btnSubmitLogin   = document.getElementById("btn-submit-login");
   const btnCloseLogin    = document.getElementById("btn-close-login");
 
-  function openLoginModal() {
+  function openLoginModal(message) {
     const sess = getSession();
     const loggedIn = !!(sess && sess.code);
     loginEmail.value = "";
     loginCode.value = "";
-    loginErr.textContent = "";
+    loginErr.textContent = message || "";
     if (loginFlip) loginFlip.classList.remove("is-flipped");
     loginModal.classList.add("active");
     if (!loggedIn) setTimeout(() => loginEmail.focus(), 50);
@@ -366,6 +400,7 @@
   function closeLoginModal() { loginModal.classList.remove("active"); }
 
   function submitLogin() {
+    const loginAttempt = ++loginAttemptGeneration;
     const email = (loginEmail.value || "").trim();
     const rawCode = (loginCode.value || "").trim();
     loginErr.textContent = "";
@@ -388,11 +423,13 @@
     // a false communication failure while the valid login response is still
     // on its way.
     const timer = setTimeout(() => {
+      if (loginAttempt !== loginAttemptGeneration) return;
       cleanup();
       loginErr.textContent = "שגיאת תקשורת, נסו שוב";
     }, 30000);
     window[cbName] = function(data) {
       clearTimeout(timer);
+      if (loginAttempt !== loginAttemptGeneration) { cleanup(); return; }
       if (data && data.ok) {
         setSession({ email: email, code: data.code, name: data.name });
         // Don't keep the typed email/code lying around after logging in
@@ -419,7 +456,12 @@
             "&email=" + encodeURIComponent(email) +
             "&code=" + encodeURIComponent(code) +
             "&t=" + Date.now();
-    s.onerror = function() { clearTimeout(timer); cleanup(); loginErr.textContent = "שגיאת תקשורת, נסו שוב"; };
+    s.onerror = function() {
+      clearTimeout(timer);
+      if (loginAttempt !== loginAttemptGeneration) { cleanup(); return; }
+      cleanup();
+      loginErr.textContent = "שגיאת תקשורת, נסו שוב";
+    };
     document.body.appendChild(s);
   }
 
@@ -428,10 +470,7 @@
   if (loginEmail) loginEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
   if (loginCode)  loginCode.addEventListener("keydown", (e) => { if (e.key === "Enter") submitLogin(); });
   if (btnBackLogout) btnBackLogout.addEventListener("click", () => {
-    clearSession();
-    updateHeaderAuthState();
-    closeLoginModal();
-    if (loginFlip) loginFlip.classList.remove("is-flipped");
+    endPrivateArchiveSession();
   });
 
   // Account screen — shown when a logged-in user clicks the person icon.
@@ -454,9 +493,7 @@
     if (e.target === accountModal) closeAccountModal();   // click outside the card closes it
   });
   if (btnAccountLogout) btnAccountLogout.addEventListener("click", () => {
-    clearSession();
-    updateHeaderAuthState();
-    closeAccountModal();
+    endPrivateArchiveSession();
   });
 
   // Open the logged-in user's own drawer directly (auto-unlock, owner view)
@@ -2153,9 +2190,16 @@
   // never touches an item that already exists.
   function uploadFileToDrawer(file, code, meta, batch) {
     if (!SHEET_WEBHOOK_URL) { failUploadBatch(batch); return; }
+    const sessionGeneration = archiveSessionGeneration;
     const description = (meta && meta.description) || "";
     const format = (meta && meta.format) || "";
     prepareUpload(file).then(prepared => {
+      if (!archiveInactivityActive ||
+          sessionGeneration !== archiveSessionGeneration ||
+          code !== currentDrawerCode) {
+        failUploadBatch(batch);
+        return;
+      }
       const dataUrl = prepared.dataUrl;
       // Optimistic: show this file, with its own description, straight away.
       // Its id is what the batch waits on — the same id renderDrawerFiles
@@ -2187,8 +2231,17 @@
       // No readable response — give Drive a moment, then reload the listing.
       // The listing is what confirms the file, and it keeps being asked for
       // until this file is accounted for or the batch's guard gives up.
-      setTimeout(() => loadDrawerFiles(code), 4000);
-    }).catch(() => { failUploadBatch(batch); loadDrawerFiles(code); });
+      setTimeout(() => {
+        if (archiveInactivityActive &&
+            sessionGeneration === archiveSessionGeneration &&
+            code === currentDrawerCode) loadDrawerFiles(code);
+      }, 4000);
+    }).catch(() => {
+      failUploadBatch(batch);
+      if (archiveInactivityActive &&
+          sessionGeneration === archiveSessionGeneration &&
+          code === currentDrawerCode) loadDrawerFiles(code);
+    });
   }
 
   // Drop a just-uploaded file straight onto the pile (before the Drive
@@ -2216,10 +2269,15 @@
   // Fetch the drawer's archive items via JSONP and render them.
   function loadDrawerFiles(code) {
     if (!code || !SHEET_WEBHOOK_URL) return;
+    const sessionGeneration = archiveSessionGeneration;
     const cbName = "__wrFilesCb" + Date.now();
     let s;
     window[cbName] = function(res) {
-      renderDrawerFiles((res && (res.items || res.files)) ? (res.items || res.files) : []);
+      if (archiveInactivityActive &&
+          sessionGeneration === archiveSessionGeneration &&
+          code === currentDrawerCode) {
+        renderDrawerFiles((res && (res.items || res.files)) ? (res.items || res.files) : []);
+      }
       delete window[cbName];
       if (s && s.remove) s.remove();
     };
@@ -2293,6 +2351,7 @@
     const _sess = getSession();
     ownerView = !!(_sess && _sess.code && viewer.code && _sess.code === viewer.code);
     currentDrawerCode = viewer.code || "";
+    startArchiveInactivityMonitor();
     pName.textContent = viewer.name || "(ללא שם)";
 
     let answers = null, dontKnow = null;
@@ -3921,6 +3980,7 @@
 
   function submitArchiveSearch(query, format) {
     if (!query || botRequestPending) return;
+    recordArchiveActivity();
     botRequestPending = true;
     resetSearchResultState();
     const request = { code: currentDrawerCode, query: query, format: format };
@@ -4283,6 +4343,168 @@ screenImagesReady.catch(error => {
   // ============================================================
   // Restart
   // ============================================================
+  function clearPrivateTextFields() {
+    [
+      "user-name", "user-email", "user-phone",
+      "landing-search", "code-input",
+      "login-email", "login-code",
+      "personal-search-query", "personal-search-format",
+      "personal-upload-description", "personal-upload-format"
+    ].forEach(id => {
+      const field = document.getElementById(id);
+      if (field) field.value = "";
+    });
+    clearLines();
+    clearLegacyLines();
+  }
+
+  // The privacy boundary for an exhibition visitor. This invalidates every
+  // asynchronous operation before removing its data, so a late network or
+  // image callback cannot paint an abandoned archive back onto the login page.
+  function endPrivateArchiveSession(options) {
+    const opts = options || {};
+    if (privacyResetInProgress) return;
+    privacyResetInProgress = true;
+
+    stopArchiveInactivityMonitor();
+    archiveSessionGeneration++;
+    loginAttemptGeneration++;
+    clearSession();
+
+    // In-flight archive work belongs to the visitor who just left.
+    botRequestRun++;
+    botRequestPending = false;
+    cancelArchiveSweep();
+    resetSearchResultState();
+    setBotState("initial");
+    window.clearTimeout(awaitUploadsTimer);
+    awaitUploadsTimer = 0;
+    failUploadBatch(activeUploadBatch);
+    activeUploadBatch = null;
+    pendingUploadMetadata = null;
+    uploadInput.value = "";
+    closeUploadSuccess();
+    closePersonalTool();
+    stopCameraStream();
+
+    // Questionnaire, portrait and archive data must not survive in memory.
+    state.name = "";
+    state.email = "";
+    state.phone = "";
+    state.currentQuestion = 0;
+    state.answers = [];
+    state.dontKnow = [];
+    state.legacyText = "";
+    state.photoDataUrl = "";
+    state.photoWidth = 0;
+    state.photoHeight = 0;
+    state.userCode = "";
+    state.submitted = false;
+    state.frozenCount = 0;
+    questionTypewriterRun++;
+    cardsCopyRun++;
+    stackTransitionRun++;
+    cameraSequenceRun++;
+    isQuestionTransitioning = false;
+    isLegacyTransitioning = false;
+
+    ownerView = false;
+    currentDrawerCode = "";
+    pileCardData = null;
+    archiveItems = [];
+    pendingArchiveItems = [];
+    pendingStackSource = null;
+    stackSourceGeometry = null;
+    pendingPileRender = false;
+    arrivedItemIds = null;
+    archiveTransitionRun++;
+    setArchivePhase("idle");
+
+    activeViewer = null;
+    if (activeDrawerEl) activeDrawerEl.classList.remove("is-opened", "is-opening");
+    activeDrawerEl = null;
+    landingArchiveHandles.clear();
+    landingHandleByArchive = new WeakMap();
+
+    clearPrivateTextFields();
+    resetQuestionStage();
+    renderMemoryBackground();
+    setMemoryTraceItems(cardsMemoryTrace, []);
+    setMemoryTraceItems(stackMemoryTrace, []);
+    setMemoryTraceItems(cameraMemoryTrace, []);
+    setMemoryTraceItems(stampInstructionsTrace, []);
+    if (qName) qName.textContent = "";
+    if (qNameGhost) qNameGhost.textContent = "";
+    if (legacyName) legacyName.textContent = "";
+    if (cameraDocName) cameraDocName.textContent = "";
+    cameraDocLines.forEach(line => { line.textContent = ""; });
+    if (stackPile) stackPile.replaceChildren();
+    if (cameraStackPile) cameraStackPile.replaceChildren();
+    if (stampInstructionsPile) stampInstructionsPile.replaceChildren();
+    if (cameraPhoto) {
+      cameraPhoto.removeAttribute("src");
+      cameraPhoto.hidden = true;
+    }
+    if (stampInstructionsPhoto) {
+      stampInstructionsPhoto.removeAttribute("src");
+      stampInstructionsPhoto.hidden = true;
+    }
+    if (cameraCanvas) {
+      const context = cameraCanvas.getContext("2d");
+      if (context) context.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
+      cameraCanvas.width = 0;
+      cameraCanvas.height = 0;
+    }
+    if (searchInput) searchInput.hidden = true;
+    if (pName) pName.textContent = "";
+    if (archivePile) archivePile.replaceChildren();
+    if (archiveBotAnswer) archiveBotAnswer.textContent = "";
+    [
+      "archive-bot-found-owner", "archive-bot-found-code",
+      "archive-bot-empty-owner", "archive-bot-empty-code",
+      "upload-success-owner"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = "";
+    });
+
+    if (archiveBox) {
+      archiveBox.classList.remove(
+        "is-archive-open", "is-archive-spreading", "is-tool-open",
+        "is-tool-search", "is-tool-upload", "is-bot-sweep",
+        "is-upload-success", "is-owner"
+      );
+      archiveBox.dataset.botState = "initial";
+    }
+    if (personalSearchPanel) personalSearchPanel.setAttribute("aria-hidden", "true");
+    if (personalUploadPanel) personalUploadPanel.setAttribute("aria-hidden", "true");
+    if (uploadSuccess) uploadSuccess.setAttribute("aria-hidden", "true");
+
+    codeModal.classList.remove("active");
+    contentModal.classList.remove("active");
+    closeAccountModal();
+    closeLoginModal();
+    if (loginFlip) loginFlip.classList.remove("is-flipped");
+    if (loginBackCode) loginBackCode.textContent = "";
+    if (contentName) contentName.textContent = "";
+    if (contentText) contentText.textContent = "";
+    if (landingCardInner) landingCardInner.classList.remove("is-flipped");
+
+    checkDepositBtn();
+    updateHeaderAuthState();
+    renderLandingDrawers();
+
+    if (opts.navigate !== false) {
+      showScreen("landing");
+      try {
+        history.replaceState({ whatRemainsPrivacyReset: true }, "", location.href);
+      } catch (_) {}
+      if (opts.timedOut) openLoginModal(ARCHIVE_TIMEOUT_MESSAGE);
+    }
+
+    privacyResetInProgress = false;
+  }
+
   function restartFlow() {
     state.name = "";
     state.email = "";
@@ -4330,6 +4552,33 @@ screenImagesReady.catch(error => {
   // ============================================================
   // Boot
   // ============================================================
+
+  // Installed once for the whole application. The handler is intentionally a
+  // no-op until startArchiveInactivityMonitor() marks a protected drawer active.
+  ["mousemove", "click", "pointerdown", "touchstart", "touchmove",
+   "scroll", "wheel", "keydown", "input"].forEach(type => {
+    window.addEventListener(type, recordArchiveActivity, {
+      capture: true,
+      passive: type !== "keydown" && type !== "input"
+    });
+  });
+
+  // A protected page placed in the browser's back/forward cache is scrubbed
+  // before it can ever become a snapshot available to the next visitor.
+  window.addEventListener("pagehide", () => {
+    if (archiveInactivityActive) endPrivateArchiveSession({ navigate: false });
+  });
+  window.addEventListener("pageshow", event => {
+    if (event.persisted && !isLoggedIn()) {
+      endPrivateArchiveSession({ navigate: true });
+    }
+  });
+  window.addEventListener("popstate", () => {
+    if (!archiveInactivityActive && !isLoggedIn() &&
+        screens.personal && screens.personal.classList.contains("active")) {
+      endPrivateArchiveSession({ navigate: true });
+    }
+  });
 
   // Stamp buttons use a CSS "emboss" press effect instead of a hover image
   // swap. Give each button its own texture (for the ink-soak multiply layer)
