@@ -6439,6 +6439,7 @@ button.q-btn:disabled { opacity: 0.35; cursor: not-allowed; color: var(--gray); 
    It is the same mounted sheet throughout — never swapped, never re-created. */
 .archive-box.is-bot-sweep .pile-item,
 .archive-box.is-bot-sweep .personal-tool-card { pointer-events: none; }
+.archive-box.is-bot-sweep .archive-bot-card { pointer-events: auto; }
 
 /* The record and its scrim are two layers of ONE frame rather than a lid over
    the desk. `.archive-bot` raises no stacking context of its own now, so the
