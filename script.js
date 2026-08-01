@@ -27,6 +27,9 @@
       const field = document.createElement("input");
       const frameName = "wr-submit-frame-" + requestId;
       let settled = false;
+      let pollTimer = 0;
+      let pollScript = null;
+      let pollCallback = "";
 
       frame.name = frameName;
       frame.hidden = true;
@@ -39,9 +42,18 @@
       field.value = JSON.stringify(payload);
       form.appendChild(field);
 
+      function clearPollRequest() {
+        window.clearTimeout(pollTimer);
+        pollTimer = 0;
+        if (pollCallback) delete window[pollCallback];
+        pollCallback = "";
+        if (pollScript) pollScript.remove();
+        pollScript = null;
+      }
       function cleanup() {
         window.removeEventListener("message", onMessage);
         window.clearTimeout(timeout);
+        clearPollRequest();
         form.remove();
         frame.remove();
         questionnaireSubmissionPending = false;
@@ -76,12 +88,48 @@
         }
         finish(null, code.padStart(4, "0"));
       }
+      function scheduleStatusPoll() {
+        if (settled) return;
+        pollTimer = window.setTimeout(pollSubmissionStatus, 700);
+      }
+      function pollSubmissionStatus() {
+        if (settled) return;
+        clearPollRequest();
+        pollCallback = "__wrSubmissionStatus" + Date.now() + Math.random().toString(36).slice(2);
+        const callbackName = pollCallback;
+        pollScript = document.createElement("script");
+        window[callbackName] = function(status) {
+          clearPollRequest();
+          if (settled) return;
+          if (status && status.pending) {
+            scheduleStatusPoll();
+            return;
+          }
+          const code = String((status && status.code) || "");
+          if (!status || !status.ok || !/^\d+$/.test(code)) {
+            finish(new Error("archive code assignment failed"));
+            return;
+          }
+          finish(null, code.padStart(4, "0"));
+        };
+        pollScript.src = SHEET_WEBHOOK_URL +
+          "?action=submissionStatus&requestId=" + encodeURIComponent(requestId) +
+          "&callback=" + encodeURIComponent(callbackName) + "&t=" + Date.now();
+        pollScript.onerror = function() {
+          clearPollRequest();
+          scheduleStatusPoll();
+        };
+        document.body.appendChild(pollScript);
+      }
 
       const timeout = window.setTimeout(() => finish(new Error("archive code assignment timed out")), 45000);
       window.addEventListener("message", onMessage);
       document.body.appendChild(frame);
       document.body.appendChild(form);
-      try { form.submit(); }
+      try {
+        form.submit();
+        pollSubmissionStatus();
+      }
       catch (error) { finish(error); }
     });
   }

@@ -81,6 +81,7 @@ function doPost(e) {
       data.phone || ""
     ]);
   } catch (assignmentError) {
+    storeArchiveSubmissionResult_(data, { ok: false });
     return archiveSubmissionResponse_({ ok: false }, data);
   } finally {
     if (lockAcquired) lock.releaseLock();
@@ -89,10 +90,26 @@ function doPost(e) {
   // Keep the questionnaire document inside this depositor's own drawer. The
   // same parsed payload that was appended to Sheets is used here, so every
   // question receives its own submitted value (and never portrait copy).
-  var questionnaireFolder = getOrCreateCodeFolder_(assignedCode);
-  writeQuestionnaireDocument_(questionnaireFolder, data);
+  try {
+    var questionnaireFolder = getOrCreateCodeFolder_(assignedCode);
+    writeQuestionnaireDocument_(questionnaireFolder, data);
+  } catch (documentError) {
+    storeArchiveSubmissionResult_(data, { ok: false });
+    return archiveSubmissionResponse_({ ok: false }, data);
+  }
 
+  storeArchiveSubmissionResult_(data, { ok: true, code: assignedCode });
   return archiveSubmissionResponse_({ ok: true, code: assignedCode }, data);
+}
+
+function storeArchiveSubmissionResult_(data, result) {
+  var requestId = String((data && data.submissionRequestId) || "");
+  if (!requestId) return;
+  CacheService.getScriptCache().put(
+    "archive-submission-" + requestId,
+    JSON.stringify(result),
+    300
+  );
 }
 
 function archiveSubmissionResponse_(result, data) {
@@ -120,6 +137,30 @@ function doGet(e) {
   // JSONP (a plain cross-origin fetch to Apps Script is CORS-blocked) and
   // never writes a row to the sheet.
   var p = (e && e.parameter) || {};
+  if (p.action === "submissionStatus") {
+    var submissionRequestId = String(p.requestId || "");
+    var cachedSubmission = submissionRequestId
+      ? CacheService.getScriptCache().get("archive-submission-" + submissionRequestId)
+      : null;
+    var submissionStatus = { pending: true };
+    if (cachedSubmission) {
+      try {
+        var cachedResult = JSON.parse(cachedSubmission);
+        submissionStatus = cachedResult.ok
+          ? { pending: false, ok: true, code: String(cachedResult.code || "") }
+          : { pending: false, ok: false };
+      } catch (statusError) {
+        submissionStatus = { pending: false, ok: false };
+      }
+    }
+    var submissionStatusOut = JSON.stringify(submissionStatus);
+    if (p.callback) {
+      return ContentService.createTextOutput(p.callback + "(" + submissionStatusOut + ")")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(submissionStatusOut)
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   if (p.action === "login") {
     var loginEmail = String(p.email || "").trim().toLowerCase();
     var loginCode  = String(p.code || "").padStart(4, "0");
