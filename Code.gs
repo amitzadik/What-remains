@@ -1,6 +1,7 @@
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  var data = JSON.parse(e.postData.contents);
+  var submittedPayload = e && e.parameter && e.parameter.payload;
+  var data = JSON.parse(submittedPayload || e.postData.contents);
 
   // Login verification: match a stored row by email + 4-digit code.
   // Codes may be stored as numbers, so normalize both sides to a
@@ -48,25 +49,69 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
-  sheet.appendRow([
-    new Date(),
-    data.name || "",
-    data.email || "",
-    data.code || "",
-    data.q1 || "", data.q2 || "", data.q3 || "", data.q4 || "",
-    data.q5 || "", data.q6 || "", data.q7 || "",
-    data.legacy_text || "",
-    data.phone || ""
-  ]);
+  var lock = LockService.getScriptLock();
+  var lockAcquired = false;
+  var assignedCode = "";
+  try {
+    lock.waitLock(30000);
+    lockAcquired = true;
+
+    var maxCode = 0;
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      var codeValues = sheet.getRange(2, 4, lastRow - 1, 1).getValues();
+      for (var codeIndex = 0; codeIndex < codeValues.length; codeIndex++) {
+        var rawCode = String(codeValues[codeIndex][0] || "").trim();
+        if (!/^\d+$/.test(rawCode)) continue;
+        var numericCode = Number(rawCode);
+        if (isFinite(numericCode) && numericCode > maxCode) maxCode = numericCode;
+      }
+    }
+    assignedCode = String(maxCode + 1).padStart(4, "0");
+    data.code = assignedCode;
+
+    sheet.appendRow([
+      new Date(),
+      data.name || "",
+      data.email || "",
+      assignedCode,
+      data.q1 || "", data.q2 || "", data.q3 || "", data.q4 || "",
+      data.q5 || "", data.q6 || "", data.q7 || "",
+      data.legacy_text || "",
+      data.phone || ""
+    ]);
+  } catch (assignmentError) {
+    return archiveSubmissionResponse_({ ok: false }, data);
+  } finally {
+    if (lockAcquired) lock.releaseLock();
+  }
 
   // Keep the questionnaire document inside this depositor's own drawer. The
   // same parsed payload that was appended to Sheets is used here, so every
   // question receives its own submitted value (and never portrait copy).
-  var questionnaireFolder = getOrCreateCodeFolder_(data.code);
+  var questionnaireFolder = getOrCreateCodeFolder_(assignedCode);
   writeQuestionnaireDocument_(questionnaireFolder, data);
 
-  return ContentService.createTextOutput(JSON.stringify({ result: "ok" }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return archiveSubmissionResponse_({ ok: true, code: assignedCode }, data);
+}
+
+function archiveSubmissionResponse_(result, data) {
+  var requestId = String((data && data.submissionRequestId) || "");
+  if (!requestId) {
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  var message = {
+    type: "whatremains:archive-created",
+    requestId: requestId,
+    ok: !!result.ok,
+    code: result.code || ""
+  };
+  var serialized = JSON.stringify(message).replace(/</g, "\\u003c");
+  return HtmlService.createHtmlOutput(
+    "<!doctype html><meta charset=\"utf-8\"><script>window.parent.postMessage(" +
+    serialized + ", \"*\");<\/script>"
+  ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];

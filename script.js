@@ -4,30 +4,86 @@
   // ============================================================
   const SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwzfQC60mmo7ROG443VpIRcHPkD3RVp3dVrHDuYqVQKSMA84WKPZxw_xWWp_KFBIsWNxw/exec";
 
-  // Fire-and-forget submission of the full questionnaire to the sheet.
-  // Guarded by state.submitted so a row is written at most once per run.
+  // Submit the full questionnaire and wait for Apps Script to atomically assign
+  // its archive code. A form-targeted iframe is used because Apps Script's
+  // cross-origin POST response cannot be read through fetch/no-cors.
+  let questionnaireSubmissionPending = false;
   function submitToSheet() {
-    if (state.submitted || !SHEET_WEBHOOK_URL) return;
+    if (state.submitted && state.userCode) return Promise.resolve(state.userCode);
+    if (questionnaireSubmissionPending || !SHEET_WEBHOOK_URL) return Promise.reject(new Error("submission unavailable"));
+    questionnaireSubmissionPending = true;
     const q = i => state.dontKnow[i] ? "לא יודע/ת" : (state.answers[i] || "");
+    const requestId = "wr-submit-" + Date.now() + "-" + Math.random().toString(36).slice(2);
     const payload = {
-      name: state.name || "", email: state.email || "", code: state.userCode || "",
+      name: state.name || "", email: state.email || "",
       q1: q(0), q2: q(1), q3: q(2), q4: q(3), q5: q(4), q6: q(5), q7: q(6),
       legacy_text: state.legacyText || "",
-      phone: state.phone || ""
+      phone: state.phone || "",
+      submissionRequestId: requestId
     };
-    try {
-      fetch(SHEET_WEBHOOK_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      state.submitted = true;
-      // Log in the just-created depositor so the session persists across a
-      // page refresh (and the header reflects the logged-in state).
-      setSession({ email: state.email || "", code: state.userCode || "", name: state.name || "" });
-      updateHeaderAuthState();
-    } catch (err) { /* לא חוסם את חוויית המשתמש */ }
+    return new Promise((resolve, reject) => {
+      const frame = document.createElement("iframe");
+      const form = document.createElement("form");
+      const field = document.createElement("input");
+      const frameName = "wr-submit-frame-" + requestId;
+      let settled = false;
+
+      frame.name = frameName;
+      frame.hidden = true;
+      form.hidden = true;
+      form.method = "POST";
+      form.action = SHEET_WEBHOOK_URL;
+      form.target = frameName;
+      field.type = "hidden";
+      field.name = "payload";
+      field.value = JSON.stringify(payload);
+      form.appendChild(field);
+
+      function cleanup() {
+        window.removeEventListener("message", onMessage);
+        window.clearTimeout(timeout);
+        form.remove();
+        frame.remove();
+        questionnaireSubmissionPending = false;
+      }
+      function finish(error, code) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        if (error) { reject(error); return; }
+        state.userCode = code;
+        state.submitted = true;
+        setSession({ email: state.email || "", code: code, name: state.name || "" });
+        updateHeaderAuthState();
+        resolve(code);
+      }
+      function onMessage(event) {
+        let allowedOrigin = false;
+        try {
+          const responseOrigin = new URL(event.origin);
+          allowedOrigin = responseOrigin.protocol === "https:" &&
+            (responseOrigin.hostname === "script.google.com" ||
+             responseOrigin.hostname === "script.googleusercontent.com" ||
+             responseOrigin.hostname.endsWith(".googleusercontent.com"));
+        } catch (_) {}
+        const data = event.data || {};
+        if (!allowedOrigin || event.source !== frame.contentWindow ||
+            data.type !== "whatremains:archive-created" || data.requestId !== requestId) return;
+        const code = String(data.code || "");
+        if (!data.ok || !/^\d+$/.test(code)) {
+          finish(new Error("archive code assignment failed"));
+          return;
+        }
+        finish(null, code.padStart(4, "0"));
+      }
+
+      const timeout = window.setTimeout(() => finish(new Error("archive code assignment timed out")), 45000);
+      window.addEventListener("message", onMessage);
+      document.body.appendChild(frame);
+      document.body.appendChild(form);
+      try { form.submit(); }
+      catch (error) { finish(error); }
+    });
   }
 
   // ============================================================
@@ -582,11 +638,11 @@
     state.name  = nameInput.value.trim();
     state.email = emailInput.value.trim();
     state.phone = phoneInput ? phoneInput.value.trim() : "";
-    state.userCode = String(pastViewers.length + 1).padStart(4, "0");
     state.currentQuestion = 0;
     state.answers = [];
     state.dontKnow = [];
     state.legacyText = "";
+    state.submitted = false;
     // The filled register card joins the flow; question 1 appears stable.
     freezeRegisterCard();
     initQuestions();
@@ -1099,13 +1155,19 @@
     });
   });
 
-  btnLegacyNext.addEventListener("click", () => {
+  btnLegacyNext.addEventListener("click", async () => {
     if (btnLegacyNext.disabled) return;
     const txt = getLegacyText();
     if (txt === "") return;
     state.legacyText = txt;
-    submitToSheet(); // all 12 fields are now filled — fire-and-forget
-    initStackTransition();
+    btnLegacyNext.disabled = true;
+    try {
+      await submitToSheet();
+      initStackTransition();
+    } catch (error) {
+      updateLegacyNextAvailability();
+      window.alert("לא ניתן ליצור קוד לארכיון. נסו שוב.");
+    }
   });
 
   // ============================================================
