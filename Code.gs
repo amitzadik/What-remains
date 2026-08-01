@@ -94,7 +94,7 @@ function doPost(e) {
     var questionnaireFolder = getOrCreateCodeFolder_(assignedCode);
     writeQuestionnaireDocument_(questionnaireFolder, data);
   } catch (documentError) {
-    console.error(documentError);
+    console.error("Questionnaire document creation failed:", documentError);
     throw documentError;
   }
 
