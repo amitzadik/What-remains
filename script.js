@@ -59,6 +59,11 @@
         questionnaireSubmissionPending = false;
       }
       function finish(error, code) {
+        console.log("[archive submission] finish", {
+          requestId: requestId,
+          error: error ? error.message : "",
+          code: code || ""
+        });
         if (settled) return;
         settled = true;
         cleanup();
@@ -101,16 +106,31 @@
         window[callbackName] = function(status) {
           clearPollRequest();
           if (settled) return;
-          if (status && status.pending) {
+          console.log("[archive submission] submissionStatus", {
+            requestId: requestId,
+            response: status,
+            pending: status && status.pending,
+            ok: status && status.ok,
+            code: status && status.code
+          });
+          if (!status || typeof status.pending !== "boolean") {
+            scheduleStatusPoll();
+            return;
+          }
+          if (status.pending === true) {
             scheduleStatusPoll();
             return;
           }
           const code = String((status && status.code) || "");
-          if (!status || !status.ok || !/^\d+$/.test(code)) {
+          if (status.pending === false && status.ok === true && /^\d+$/.test(code)) {
+            finish(null, code.padStart(4, "0"));
+            return;
+          }
+          if (status.pending === false && status.ok === false) {
             finish(new Error("archive code assignment failed"));
             return;
           }
-          finish(null, code.padStart(4, "0"));
+          scheduleStatusPoll();
         };
         pollScript.src = SHEET_WEBHOOK_URL +
           "?action=submissionStatus&requestId=" + encodeURIComponent(requestId) +
