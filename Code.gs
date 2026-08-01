@@ -94,8 +94,8 @@ function doPost(e) {
     var questionnaireFolder = getOrCreateCodeFolder_(assignedCode);
     writeQuestionnaireDocument_(questionnaireFolder, data);
   } catch (documentError) {
-    storeArchiveSubmissionResult_(data, { ok: false });
-    return archiveSubmissionResponse_({ ok: false }, data);
+    console.error(documentError);
+    throw documentError;
   }
 
   storeArchiveSubmissionResult_(data, { ok: true, code: assignedCode });
