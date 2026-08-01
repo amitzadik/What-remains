@@ -58,7 +58,7 @@
         resolve(code);
       }
       function onMessage(event) {
-        let allowedOrigin = false;
+        let allowedOrigin = event.origin === "null";
         try {
           const responseOrigin = new URL(event.origin);
           allowedOrigin = responseOrigin.protocol === "https:" &&
@@ -67,8 +67,8 @@
              responseOrigin.hostname.endsWith(".googleusercontent.com"));
         } catch (_) {}
         const data = event.data || {};
-        if (!allowedOrigin || event.source !== frame.contentWindow ||
-            data.type !== "whatremains:archive-created" || data.requestId !== requestId) return;
+        if (!allowedOrigin || data.type !== "whatremains:archive-created" ||
+            data.requestId !== requestId) return;
         const code = String(data.code || "");
         if (!data.ok || !/^\d+$/.test(code)) {
           finish(new Error("archive code assignment failed"));
