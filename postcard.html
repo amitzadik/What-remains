@@ -280,6 +280,35 @@ body {
     }
   }
 
+  // Keep the last two words together so neither the title nor any answer
+  // paragraph ends with a single orphaned word.
+  function preventOrphanWords(value) {
+    return String(value).split("\n").map(function (line) {
+      return line.replace(/(\S+)[ \t]+(\S+)([ \t]*)$/, "$1\u00a0$2$3");
+    }).join("\n");
+  }
+
+  // Preserve the original title size whenever possible. If keeping its last
+  // two words together needs more room, widen the right-anchored box slightly
+  // before reducing the type size as a final safeguard against clipping.
+  function fitTitle() {
+    var el = els.title;
+    var widths = [157, 163, 169, 175];
+    var base = 18;
+    var min = 15;
+
+    el.style.fontSize = "calc(var(--u) * " + base + ")";
+    for (var i = 0; i < widths.length; i += 1) {
+      el.style.width = "calc(var(--u) * " + widths[i] + ")";
+      if (el.scrollHeight <= el.clientHeight) return;
+    }
+
+    for (var size = base - 0.25; size >= min; size -= 0.25) {
+      el.style.fontSize = "calc(var(--u) * " + size + ")";
+      if (el.scrollHeight <= el.clientHeight) return;
+    }
+  }
+
   /**
    * Return the two most relevant images supplied by the bot.
    * Expected item shape: { src: string, relevanceScore?: number }.
@@ -335,14 +364,15 @@ body {
     var photoA = selectedImages[0] ? selectedImages[0].src : data.photoA;
     var photoB = selectedImages[1] ? selectedImages[1].src : data.photoB;
 
-    if (question != null) els.title.textContent = question;
-    if (answer != null) els.body.textContent = answer;
+    if (question != null) els.title.textContent = preventOrphanWords(question);
+    if (answer != null) els.body.textContent = preventOrphanWords(answer);
     var photosReady = Promise.all([
       setPhoto(els.photoA, photoA || "", renderId),
       setPhoto(els.photoB, photoB || "", renderId)
     ]);
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     if (renderId !== postcardRenderId) return { ready: false, stale: true };
+    fitTitle();
     fitBody();
     await photosReady;
     if (renderId !== postcardRenderId) return { ready: false, stale: true };
